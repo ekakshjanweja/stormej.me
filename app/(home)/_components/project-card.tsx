@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Projects } from "./project-row";
 import GithubBlack from "../../../assets/logos/github_black.svg";
 import GithubWhite from "../../../assets/logos/github_white.svg";
 import YoutubeBlack from "../../../assets/logos/youtube_black.svg";
 import YoutubeWhite from "../../../assets/logos/youtube_white.svg";
+import { Projects } from "@/lib/interfaces";
 
 interface ProjectCardProps {
   project: Projects;
