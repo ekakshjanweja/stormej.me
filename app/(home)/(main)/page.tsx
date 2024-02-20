@@ -2,6 +2,7 @@ import { Strongify } from "@/components/strongify";
 import { ProjectRow } from "../_components/project-row";
 import { WorkExRow } from "../_components/workex-row";
 import { OpenSourceAndCommunityWorkRow } from "../_components/open-source-community-work-row";
+import Link from "next/link";
 
 const HomePage = () => {
   return (

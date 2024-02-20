@@ -8,8 +8,19 @@ export const Navbar = () => {
         <div className="text-muted-foreground">stormej</div>
         <div className="flex items-center gap-x-4">
           <Link href="/">
-            <div className="hover:underline hover:underline-offset-4 text-muted-foreground">blogs</div>
+            <div className="hover:underline hover:underline-offset-4 text-muted-foreground">
+              blogs
+            </div>
           </Link>
+          <Link
+            href="https://drive.google.com/file/d/1JBoUUrkOV0H3LnLFNcUy-uhhjMAnWRiV/view?usp=sharing"
+            target="_blank"
+          >
+            <div className="hover:underline hover:underline-offset-4 text-muted-foreground">
+              resume
+            </div>
+          </Link>
+
           <ModeToggle></ModeToggle>
         </div>
       </nav>
