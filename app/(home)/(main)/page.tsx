@@ -21,8 +21,8 @@ const HomePage = () => {
           too).
         </p>
       </div>
-      <ProjectRow />
       <WorkExRow />
+      <ProjectRow />
       <OpenSourceAndCommunityWorkRow />
     </>
   );
