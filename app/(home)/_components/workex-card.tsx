@@ -1,6 +1,5 @@
 "use client";
 
-import { Strongify } from "@/components/strongify";
 import { MousePointerClick } from "lucide-react";
 import {
   Accordion,
@@ -8,43 +7,16 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Projects, WorkEx } from "@/lib/interfaces";
+import { WorkEx } from "@/lib/interfaces";
 import Link from "next/link";
 import { ProjectCard } from "./project-card";
-import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useWindowSize } from "@/lib/window-size";
 
 interface WorkExCardProps {
   workex: WorkEx;
 }
 
 export const WorkExCard = ({ workex }: WorkExCardProps) => {
-  function useWindowSize() {
-    const [windowSize, setWindowSize] = useState<{
-      width: number | undefined;
-      height: number | undefined;
-    }>({
-      width: undefined,
-      height: undefined,
-    });
-
-    useEffect(() => {
-      function handleResize() {
-        setWindowSize({
-          width: window.innerWidth,
-          height: window.innerHeight,
-        });
-      }
-
-      window.addEventListener("resize", handleResize);
-
-      handleResize();
-
-      return () => window.removeEventListener("resize", handleResize);
-    }, []);
-    return windowSize;
-  }
-
   const currentScreenSize = useWindowSize();
 
   let isTooSmall;

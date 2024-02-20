@@ -12,6 +12,7 @@ import PlaystoreBlack from "../../../assets/logos/playstore_black.svg";
 import PlaystoreWhite from "../../../assets/logos/playstore_white.svg";
 import { Projects } from "@/lib/interfaces";
 import { cn } from "@/lib/utils";
+import { useWindowSize } from "@/lib/window-size";
 
 interface ProjectCardProps {
   project: Projects;
@@ -24,6 +25,15 @@ export const ProjectCard = ({ project, isBorder }: ProjectCardProps) => {
   useEffect(() => {
     setDescription(description.substring(0, 70));
   }, [description]);
+
+  const currentScreenSize = useWindowSize();
+
+  let isTooSmall;
+
+  if (typeof window !== "undefined") {
+    isTooSmall =
+      currentScreenSize.width !== undefined && currentScreenSize.width < 768;
+  }
 
   return (
     <>
@@ -42,9 +52,11 @@ export const ProjectCard = ({ project, isBorder }: ProjectCardProps) => {
             {project.title}
           </Button>
           <p className="text-sm mt-2">{project.description}</p>
-          <p className="text-sm text-foreground mt-2">
-            {project.techStack}
-          </p>{" "}
+          {isTooSmall ? (
+            <></>
+          ) : (
+            <p className="text-sm text-foreground mt-2">{project.techStack}</p>
+          )}
         </Link>
         <div className="flex items-center">
           {project.github && (
