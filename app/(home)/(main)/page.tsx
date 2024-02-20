@@ -1,7 +1,7 @@
 import { Strongify } from "@/components/strongify";
-import { ProjectCard } from "../_components/project-card";
 import { ProjectRow } from "../_components/project-row";
 import { WorkExRow } from "../_components/workex-row";
+import { OpenSourceAndCommunityWorkRow } from "../_components/open-source-community-work-row";
 
 const HomePage = () => {
   return (
@@ -21,8 +21,9 @@ const HomePage = () => {
           too).
         </p>
       </div>
-      <WorkExRow />
       <ProjectRow />
+      <WorkExRow />
+      <OpenSourceAndCommunityWorkRow />
     </>
   );
 };

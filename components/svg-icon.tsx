@@ -17,9 +17,9 @@ export const SVGIcon = ({
 }: SVGIconProps) => {
   return (
     <>
-      <div className="mt-4 flex items-center">
+      <div className="mt-4 flex items-center opacity-50 hover:opacity-80">
         <Link href={href} target="_blank">
-          <Button variant="ghost" size="icon" className="opacity-50">
+          <Button variant="ghost" size="icon">
             <Image
               src={iconLight}
               alt="IconDark"

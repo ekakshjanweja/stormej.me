@@ -6,6 +6,7 @@ export interface Projects {
   github?: string;
   youtube?: string;
   techStack?: string;
+  playstore?: string;
 }
 
 export interface WorkEx {

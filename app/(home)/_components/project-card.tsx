@@ -2,20 +2,23 @@
 
 import { SVGIcon } from "@/components/svg-icon";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import GithubBlack from "../../../assets/logos/github_black.svg";
 import GithubWhite from "../../../assets/logos/github_white.svg";
 import YoutubeBlack from "../../../assets/logos/youtube_black.svg";
 import YoutubeWhite from "../../../assets/logos/youtube_white.svg";
+import PlaystoreBlack from "../../../assets/logos/playstore_black.svg";
+import PlaystoreWhite from "../../../assets/logos/playstore_white.svg";
 import { Projects } from "@/lib/interfaces";
+import { cn } from "@/lib/utils";
 
 interface ProjectCardProps {
   project: Projects;
+  isBorder: boolean;
 }
 
-export const ProjectCard = ({ project }: ProjectCardProps) => {
+export const ProjectCard = ({ project, isBorder }: ProjectCardProps) => {
   const [description, setDescription] = useState(project.description);
 
   useEffect(() => {
@@ -24,8 +27,13 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
 
   return (
     <>
-      <div className="text-muted-foreground justify-start items-start p-2 flex flex-col leading-4 rounded-lg border-2 border-stone-100 dark:border-stone-800">
-        <Link href={project.link} target="_blank">
+      <div
+        className={cn(
+          "text-muted-foreground justify-start items-start p-2 flex flex-col leading-4 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-950",
+          isBorder ? "border-2 border-stone-100 dark:border-stone-800" : ""
+        )}
+      >
+        <Link href={project.link || ""} target="_blank">
           <Button
             variant="link"
             size="sm"
@@ -33,8 +41,10 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
           >
             {project.title}
           </Button>
-
           <p className="text-sm mt-2">{project.description}</p>
+          <p className="text-sm text-foreground mt-2">
+            {project.techStack}
+          </p>{" "}
         </Link>
         <div className="flex items-center">
           {project.github && (
@@ -43,6 +53,15 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
               iconDark={GithubWhite}
               iconLight={GithubBlack}
             />
+          )}
+          {project.playstore && (
+            <div className="opacity-100">
+              <SVGIcon
+                href={project.playstore}
+                iconDark={PlaystoreWhite}
+                iconLight={PlaystoreBlack}
+              />
+            </div>
           )}
           {project.youtube && (
             <SVGIcon

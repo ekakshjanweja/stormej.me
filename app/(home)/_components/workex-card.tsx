@@ -45,44 +45,19 @@ export const WorkExCard = ({ workex }: WorkExCardProps) => {
                   </Link>
                 </div>
               </div>
-              <div className="grid grid-cols-2">
+              <div className="grid gap-4 grid-cols-1 md:grid-cols-2 mt-4">
                 {workex.projects.map((project) => (
-                  <ProjetContent project={project} />
+                  <ProjectCard
+                    project={project}
+                    isBorder={false}
+                    key={project.id}
+                  />
                 ))}
               </div>
             </div>
           </AccordionContent>
         </AccordionItem>
       </Accordion>
-    </>
-  );
-};
-
-interface ProjectContentProps {
-  project: Projects;
-}
-
-const ProjetContent = ({ project }: ProjectContentProps) => {
-  const onClick = () => {
-    if (project.link) {
-      window.open(project.link, "_blank");
-    }
-  };
-
-  return (
-    <>
-      <div className="text-muted-foreground justify-start items-start flex flex-col mt-4">
-        <Button
-          variant="link"
-          size="sm"
-          className="text-md font-medium p-0 text-muted-foreground"
-          onClick={onClick}
-        >
-          {project.title}
-        </Button>
-        <p className="text-foreground">{project.techStack}</p>
-        <p className="text-sm">{project.description}</p>
-      </div>
     </>
   );
 };
