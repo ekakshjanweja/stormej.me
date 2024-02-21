@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/navbar";
+import { RadialGradient } from "@/components/radial-gradient";
 import { Spotlight } from "@/components/ui/spotlight";
 
 interface HomePageLayoutProps {
@@ -10,6 +11,7 @@ const HomePageLayout = ({ children }: HomePageLayoutProps) => {
     <>
       <div className="flex justify-center px-4 md:px-0">
         <div className=" md:max-w-screen-sm">
+          {/* <RadialGradient></RadialGradient> */}
           <Navbar />
           {children}
           <Navbar />
