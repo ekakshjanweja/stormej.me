@@ -11,9 +11,6 @@ const geistSans = GeistSans;
 export const metadata: Metadata = {
   title: "stormej",
   description: "Personal website & blog of Ekaksh Janweja aka stormej.",
-  icons: {
-    icon: "/app/icon.png",
-  },
 };
 
 export default function RootLayout({
