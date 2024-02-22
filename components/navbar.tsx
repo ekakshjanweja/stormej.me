@@ -7,7 +7,7 @@ export const Navbar = () => {
       <nav className="w-full h-32 flex items-center justify-between text-muted-foreground">
         <div className="text-muted-foreground">stormej</div>
         <div className="flex items-center gap-x-4">
-          <Link href="/">
+          <Link href="/blogs">
             <div className="hover:underline hover:underline-offset-4 text-muted-foreground">
               blogs
             </div>
@@ -21,7 +21,7 @@ export const Navbar = () => {
             </div>
           </Link>
 
-          <ModeToggle></ModeToggle>
+          <ModeToggle/>
         </div>
       </nav>
     </>
