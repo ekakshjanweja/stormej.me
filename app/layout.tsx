@@ -22,6 +22,7 @@ export const metadata: Metadata = {
     description: "Personal website & blog of Ekaksh Janweja aka stormej.",
     images: "../assets/preview.png",
     site: "@stormej",
+    card: "summary_large_image",
   },
 };
 
