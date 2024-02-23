@@ -13,20 +13,22 @@ export const BlogRow = async () => {
     <>
       <div>
         <div className="font-semibold text-lg mt-16">Blogs</div>
-        <div className="flex flex-col items-start justify-center gap-y-6 mt-8">
+        <div>
           {blogs.map(
             (blog, i) =>
               i < 5 && (
                 <div
-                  className=" w-full flex items-center justify-between"
+                  className="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mt-4 md:mt-8"
                   key={blog.slug}
                 >
                   <Link href={`/blogs/${blog.slug}`}>
-                    <p className="underline text-muted-foreground hover:text-foreground underline-offset-4">
+                    <p className="text-sm flex items-center justify-start underline text-muted-foreground hover:text-foreground underline-offset-4">
                       {blog.meta.title}
                     </p>
                   </Link>
-                  <p className=" text-muted-foreground">{blog.formattedDate}</p>
+                  <p className=" flex justify-end text-xs text-muted-foreground">
+                    {blog.formattedDate}
+                  </p>
                 </div>
               )
           )}

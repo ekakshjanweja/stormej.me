@@ -62,8 +62,10 @@ export default async function Page({ params }: { params: { slug: string } }) {
   };
 
   return (
-    <article className="prose prose-lg md:prose-lg lg:prose-lg mx-auto">
-      <h1>{props.frontMatter.title}</h1>
+    <article className="prose prose-lg md:prose-lg lg:prose-lg mx-auto text-muted-foreground">
+      <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-200">
+        {props.frontMatter.title}
+      </h1>
       <MDXRemote source={props.content} components={components} />
     </article>
   );

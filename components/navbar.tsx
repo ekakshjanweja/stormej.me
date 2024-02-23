@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ModeToggle } from "./theme-toggle";
 import { usePathname } from "next/navigation";
+import { ArrowLeft, ArrowLeftToLine, ChevronLeft } from "lucide-react";
 
 export const Navbar = () => {
   const pathName = usePathname();
@@ -14,7 +15,13 @@ export const Navbar = () => {
       <nav className="w-full h-32 flex items-center justify-between text-muted-foreground">
         <Link href="/">
           <div className="text-muted-foreground">
-            {isHome ? "stormej" : "back"}
+            {isHome ? (
+              <div className="hover:text-foreground"> {"stormej"}</div>
+            ) : (
+              <div className="flex items-center justify-center gap-x-2 hover:text-foreground underline underline-offset-4">
+                <ChevronLeft className="h-4 w-4" /> {"back"}
+              </div>
+            )}
           </div>
         </Link>
         <div className="flex items-center gap-x-4">
