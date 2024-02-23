@@ -23,7 +23,7 @@ const Code = (props: any) => {
   const isDark = theme === "dark";
 
   return (
-    <div className="">
+    <div className="my-6">
       <AdminBar code={codeContent} language={language} />
       <div className="">
         <SyntaxHighlighter
