@@ -8,43 +8,6 @@ description: "A simple comparison between Flutter & React Native"
 
 # Introduction
 
-```
-
-
-import React from "react";
-import AdminBar from "./admin";
-import SyntaxHighlighter from "react-syntax-highlighter/dist/esm/default-highlight";
-import { atelierPlateauDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
-
-const Code = (props: any) => {
-  const codeContent =
-    typeof props.children === "string"
-      ? props.children
-      : props.children.props.children;
-  const className = props.children.props.className || "";
-  const matches = className.match(/language-(?<lang>.*)/);
-  const language = matches?.groups?.lang || "";
-
-  return (
-    <div className="text-sm flex flex-col gap-0">
-      <AdminBar code={codeContent} language={language} />
-      <SyntaxHighlighter
-        className="rounded-md"
-        style={atelierPlateauDark}
-        language={language}
-      >
-        {codeContent}
-      </SyntaxHighlighter>
-    </div>
-  );
-};
-
-export default Code;
-
-```
-
-<Yt videoId={"90e8DbpLfAI"} />
-
 Flutter and React Native are two popular mobile development frameworks that allow
 developers to build natively rendered cross-platform mobile apps. Here is a comparison
 of some key features and differences between the two frameworks:

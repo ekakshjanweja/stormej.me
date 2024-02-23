@@ -23,15 +23,18 @@ const Code = (props: any) => {
   const isDark = theme === "dark";
 
   return (
-    <div className="text-sm flex flex-col gap-0 my-4">
+    <div className="">
       <AdminBar code={codeContent} language={language} />
-      <SyntaxHighlighter
-        className="rounded-md"
-        style={isDark ? nightOwl : atomOneLight}
-        language={language}
-      >
-        {codeContent}
-      </SyntaxHighlighter>
+      <div className="">
+        <SyntaxHighlighter
+          className="rounded-md "
+          style={isDark ? nightOwl : atomOneLight}
+          language={language}
+          wrapLongLines={true}
+        >
+          {codeContent}
+        </SyntaxHighlighter>
+      </div>
     </div>
   );
 };
