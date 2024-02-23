@@ -13,10 +13,15 @@ export const metadata: Metadata = {
   title: "stormej",
   description: "Personal website & blog of Ekaksh Janweja aka stormej.",
   openGraph: {
+    title: "stormej",
+    description: "Personal website & blog of Ekaksh Janweja aka stormej.",
     images: "../assets/preview.png",
   },
   twitter: {
+    title: "stormej",
+    description: "Personal website & blog of Ekaksh Janweja aka stormej.",
     images: "../assets/preview.png",
+    site: "@stormej",
   },
 };
 
