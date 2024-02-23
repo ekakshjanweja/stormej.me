@@ -16,7 +16,7 @@ export const BlogRow = async () => {
             (blog, i) =>
               i < 4 && (
                 <div
-                  className="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mt-4 md:mt-8"
+                  className="grid grid-cols-2 gap-2 items-center mt-4 md:mt-8"
                   key={blog.slug}
                 >
                   <Link href={`/blogs/${blog.slug}`}>
@@ -24,7 +24,7 @@ export const BlogRow = async () => {
                       {blog.meta.title}
                     </p>
                   </Link>
-                  <p className=" flex justify-end text-xs text-muted-foreground">
+                  <p className="flex justify-end text-xs text-muted-foreground">
                     {blog.formattedDate}
                   </p>
                 </div>
