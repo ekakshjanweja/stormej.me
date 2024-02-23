@@ -16,7 +16,7 @@ export const BlogRow = async () => {
         <div>
           {blogs.map(
             (blog, i) =>
-              i < 5 && (
+              i < 4 && (
                 <div
                   className="grid grid-cols-1 md:grid-cols-2 gap-2 items-center mt-4 md:mt-8"
                   key={blog.slug}

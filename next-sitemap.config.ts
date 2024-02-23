@@ -1,5 +1,5 @@
 module.exports = {
-  siteUrl: "https://simple-mdx-blog.vercel.app",
+  siteUrl: "https://www.stormej.me/",
   generateRobotsTxt: true, // (optional)
   // ...other options
 };

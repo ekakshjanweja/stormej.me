@@ -4,8 +4,8 @@ import matter from "gray-matter";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import YouTube from "@/components/mdx/youtube";
 import Code from "@/components/mdx/code-component/code";
-
 import type { Metadata, ResolvingMetadata } from "next";
+import { MdxComponents } from "@/mdx-components";
 
 type Props = {
   params: { slug: string };
@@ -32,6 +32,7 @@ async function getPost({ slug }: { slug: string }) {
       path.join("content", slug + ".mdx"),
       "utf-8"
     );
+
     const { data: frontMatter, content } = matter(markdownFile);
     return {
       frontMatter,
@@ -56,17 +57,12 @@ export async function generateStaticParams() {
 export default async function Page({ params }: { params: { slug: string } }) {
   const props = await getPost(params);
 
-  const components = {
-    pre: Code,
-    YouTube,
-  };
-
   return (
     <article className="prose prose-lg md:prose-lg lg:prose-lg mx-auto text-muted-foreground">
       <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-200">
         {props.frontMatter.title}
       </h1>
-      <MDXRemote source={props.content} components={components} />
+      <MDXRemote source={props.content} components={MdxComponents} />
     </article>
   );
 }

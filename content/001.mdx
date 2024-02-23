@@ -1,6 +1,6 @@
 ---
 title: "Flutter vs React Native"
-date: "2023-12-17"
+date: "2022-12-11"
 description: "A simple comparison between Flutter & React Native"
 ---
 
@@ -8,7 +8,46 @@ description: "A simple comparison between Flutter & React Native"
 
 # Introduction
 
-Flutter and React Native are two popular mobile development frameworks that allow developers to build natively rendered cross-platform mobile apps. Here is a comparison of some key features and differences between the two frameworks:
+```
+
+
+import React from "react";
+import AdminBar from "./admin";
+import SyntaxHighlighter from "react-syntax-highlighter/dist/esm/default-highlight";
+import { atelierPlateauDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
+
+const Code = (props: any) => {
+  const codeContent =
+    typeof props.children === "string"
+      ? props.children
+      : props.children.props.children;
+  const className = props.children.props.className || "";
+  const matches = className.match(/language-(?<lang>.*)/);
+  const language = matches?.groups?.lang || "";
+
+  return (
+    <div className="text-sm flex flex-col gap-0">
+      <AdminBar code={codeContent} language={language} />
+      <SyntaxHighlighter
+        className="rounded-md"
+        style={atelierPlateauDark}
+        language={language}
+      >
+        {codeContent}
+      </SyntaxHighlighter>
+    </div>
+  );
+};
+
+export default Code;
+
+```
+
+<Yt videoId={"90e8DbpLfAI"} />
+
+Flutter and React Native are two popular mobile development frameworks that allow
+developers to build natively rendered cross-platform mobile apps. Here is a comparison
+of some key features and differences between the two frameworks:
 
 ## Language
 
@@ -32,15 +71,25 @@ Overall, Flutter and React Native are both powerful and popular frameworks for m
 
 ### If you have decided to use Flutter for your mobile development project, here are a few things you can do to get started:
 
-**Install the Flutter SDK:** The first step is to install the Flutter SDK on your computer. This will give you access to the command-line tools you need to develop, test, and run Flutter apps. You can find detailed instructions for installing Flutter on the official Flutter website.
+### Install the Flutter SDK
 
-**Set up your development environment:** Once you have installed the Flutter SDK, you can set up your development environment by choosing an editor or IDE that supports Flutter development. Some popular options include Android Studio, Visual Studio Code, and IntelliJ IDEA.
+The first step is to install the Flutter SDK on your computer. This will give you access to the command-line tools you need to develop, test, and run Flutter apps. You can find detailed instructions for installing Flutter on the official Flutter website.
 
-**Create your first Flutter app:** To create your first Flutter app, open a terminal or command prompt and navigate to the directory where you want to store your app. Then, run the following command: \`\`\` flutter create my_app
+### Set up your development environment
 
-**Run your app:** To run your app, open a terminal or command prompt in the app's root directory and run the following command: \`\`\` flutter run \`\`\`. This will build and run your app on a connected device or emulator. You can also use the Flutter command-line tools to run your app on different platforms, such as iOS or the web.
+Once you have installed the Flutter SDK, you can set up your development environment by choosing an editor or IDE that supports Flutter development. Some popular options include Android Studio, Visual Studio Code, and IntelliJ IDEA.
 
-**Learn more:** To learn more about Flutter and how to use it to build powerful and beautiful mobile apps, check out the official Flutter documentation and the Flutter community forums. There are also many online tutorials, videos, and books that can help you get started with Flutter development.
+### Create your first Flutter app
+
+To create your first Flutter app, open a terminal or command prompt and navigate to the directory where you want to store your app. Then, run the following command: \`\`\` flutter create my_app
+
+### Run your app
+
+To run your app, open a terminal or command prompt in the app's root directory and run the following command: \`\`\` flutter run \`\`\`. This will build and run your app on a connected device or emulator. You can also use the Flutter command-line tools to run your app on different platforms, such as iOS or the web.
+
+### Learn more
+
+To learn more about Flutter and how to use it to build powerful and beautiful mobile apps, check out the official Flutter documentation and the Flutter community forums. There are also many online tutorials, videos, and books that can help you get started with Flutter development.
 
 # Surprise surprise this blog was written by ChatGPT.
 

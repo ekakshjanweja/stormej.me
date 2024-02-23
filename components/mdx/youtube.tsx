@@ -3,7 +3,7 @@ import React from "react";
 const YouTube = ({ videoId }: { videoId: string }) => {
   const videoSrc = `https://www.youtube.com/embed/${videoId}`;
   return (
-    <div className="">
+    <div className="my-6">
       <iframe
         className="w-full aspect-video"
         src={videoSrc}

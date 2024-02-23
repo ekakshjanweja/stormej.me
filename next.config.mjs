@@ -14,6 +14,7 @@ const withMDX = createMDX({
     remarkPlugins: [remarkGfm],
     rehypePlugins: [],
   },
+  extension: /\.mdx?$/,
 });
 
 // Merge MDX config with Next.js config
