@@ -9,8 +9,12 @@ import { ThemeProvider } from "@/components/theme-provider";
 const geistSans = GeistSans;
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.stormej.me/"),
   title: "stormej",
   description: "Personal website & blog of Ekaksh Janweja aka stormej.",
+  openGraph: {
+    images: "../assets/preview.png",
+  },
   twitter: {
     images: "../assets/preview.png",
   },
