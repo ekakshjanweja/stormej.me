@@ -30,12 +30,12 @@ export const Footer = () => {
         </Link>
         <div className="flex justify-center">
           <SVGIconAlt
-            href={"https://twitter.com/ekaksh_janweja"}
+            href={"mailto:jekaksh@gmail.com"}
             iconDark={EmailWhite}
             iconLight={EmailBlack}
           />
           <SVGIconAlt
-            href={"https://twitter.com/ekaksh_janweja"}
+            href={"https://www.linkedin.com/in/ekakshjanweja/"}
             iconDark={LinkedinWhite}
             iconLight={LinkedinBlack}
           />
@@ -45,7 +45,7 @@ export const Footer = () => {
             iconLight={XBlack}
           />
           <SVGIconAlt
-            href={"https://twitter.com/ekaksh_janweja"}
+            href={"https://github.com/ekakshjanweja"}
             iconDark={GithubWhite}
             iconLight={GithubBlack}
           />
