@@ -3,7 +3,6 @@ import { ProjectRow } from "../_components/project-row";
 import { WorkExRow } from "../_components/workex-row";
 import { OpenSourceAndCommunityWorkRow } from "../_components/open-source-community-work-row";
 import Link from "next/link";
-import { Spotlight } from "@/components/ui/spotlight";
 import { getBlogs } from "@/lib/fetcher";
 import { BlogRow } from "../_components/blog-row";
 
@@ -11,9 +10,17 @@ const HomePage = () => {
   const blogs = getBlogs();
   return (
     <>
-      {/* <Spotlight className="-top-40 md:-top-96" fill="#e7e5e4" /> */}
+      <div className="mb-2">
+        <Link
+          href={"https://twitter.com/ekaksh_janweja"}
+          target="_blank"
+          className="text-xs text-muted-foreground hover:text-foreground"
+        >
+          Say hi, @ekaskh_janweja
+        </Link>
+      </div>
       <div>
-        <p className="text-muted-foreground text-lg">
+        <p className="text-muted-foreground text-base">
           Hello, I&#39;m
           <Strongify text={" Ekaksh Janweja"} />
           aka
@@ -27,6 +34,7 @@ const HomePage = () => {
           too).
         </p>
       </div>
+
       <WorkExRow />
       <ProjectRow />
       <OpenSourceAndCommunityWorkRow />

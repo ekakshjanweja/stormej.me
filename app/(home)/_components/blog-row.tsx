@@ -1,8 +1,6 @@
 import { getBlogs } from "@/lib/fetcher";
-import { ProjectCard } from "./project-card";
-import { projects } from "@/lib/projects";
 import Link from "next/link";
-import { ArrowBigRight, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 export const BlogRow = async () => {
   const blogs = await getBlogs();
@@ -12,7 +10,7 @@ export const BlogRow = async () => {
   return (
     <>
       <div>
-        <div className="font-semibold text-lg mt-16">Blogs</div>
+        <div className="font-semibold text-lg mt-8">Blogs</div>
         <div>
           {blogs.map(
             (blog, i) =>

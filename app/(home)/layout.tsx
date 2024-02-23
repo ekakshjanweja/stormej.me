@@ -1,3 +1,4 @@
+import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import { RadialGradient } from "@/components/radial-gradient";
 import { Spotlight } from "@/components/ui/spotlight";
@@ -14,7 +15,7 @@ const HomePageLayout = ({ children }: HomePageLayoutProps) => {
           {/* <RadialGradient></RadialGradient> */}
           <Navbar />
           {children}
-          <Navbar />
+          <Footer />
         </div>
       </div>
     </>

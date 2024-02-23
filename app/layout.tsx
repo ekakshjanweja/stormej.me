@@ -20,6 +20,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <meta property="og:image" content="../assets/preview.png" />
+        <meta name="twitter:image" content="../assets/preview.png" />
+      </head>
       <body className={geistSans.className}>
         <ThemeProvider
           attribute="class"

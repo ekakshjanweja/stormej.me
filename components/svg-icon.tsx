@@ -1,5 +1,3 @@
-import GithubBlack from "../assets/logos/github_black.svg";
-import GithubWhite from "../assets/logos/github_white.svg";
 import Image from "next/image";
 import { Button } from "./ui/button";
 import Link from "next/link";

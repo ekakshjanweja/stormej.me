@@ -5,7 +5,7 @@ export const OpenSourceAndCommunityWorkRow = () => {
   return (
     <>
       <div>
-        <div className="font-semibold text-lg mt-16">
+        <div className="font-semibold text-lg mt-8">
           Open Source And Community Work
         </div>
         <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-4">
