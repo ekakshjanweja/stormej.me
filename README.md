@@ -1,4 +1,4 @@
-Personal website for stormej inspired by [nexxel.dev](https://github.com/nexxeln/nexxel.dev)
+personal website for stormej inspired by [nexxel.dev](https://github.com/nexxeln/nexxel.dev)
 
 **Tech Stack**
 
