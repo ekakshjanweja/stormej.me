@@ -2,6 +2,16 @@ import { Projects } from "./interfaces";
 
 export const projects: Projects[] = [
   {
+    id: 5,
+    title: "flux",
+    description:
+      "Real-time visual workspace",
+    link: "https://flux.stormej.me",
+    github: "https://github.com/ekakshjanweja/flux",
+    youtube: "https://youtu.be/6HJoyJrVJ-0?si=vTbvFu_5m-z86rXI",
+    techStack: "nextjs-tailwind-liveblocks-convex-clerk",
+  },
+  {
     id: 4,
     title: "stormejislive",
     description:
