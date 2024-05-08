@@ -2,10 +2,17 @@ import { Projects } from "./interfaces";
 
 export const projects: Projects[] = [
   {
+    id: 6,
+    title: "renovatio",
+    description: "Project Management for Interior Designers",
+    link: "https://renovatio-design.vercel.app/home",
+    github: "https://github.com/ekakshjanweja/renovatio",
+    techStack: "nextjs-tailwind-postgres-nextauth-drizzle-shadcnui-aceternity",
+  },
+  {
     id: 5,
     title: "flux",
-    description:
-      "Real-time visual workspace",
+    description: "Real-time visual workspace",
     link: "https://flux.stormej.me",
     github: "https://github.com/ekakshjanweja/flux",
     youtube: "https://youtu.be/6HJoyJrVJ-0?si=vTbvFu_5m-z86rXI",
