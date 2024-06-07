@@ -2,6 +2,22 @@ import { WorkEx } from "./interfaces";
 
 export const workexs: WorkEx[] = [
   {
+    id: 3,
+    company: "Merlin AI",
+    role: "Mobile Intern",
+    companyLink: "https://www.getmerlin.in/",
+    duration: "May'24 - Present",
+    projects: [
+      {
+        id: 1,
+        title: "Merlin AI -> Mobile App",
+        description: "An AI app with several AI tools in one place.",
+        link: "https://www.getmerlin.in/mobile-app",
+        techStack: "",
+      },
+    ],
+  },
+  {
     id: 2,
     company: "TeamBlackBox",
     role: "Mobile Intern",
