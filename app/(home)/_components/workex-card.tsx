@@ -35,7 +35,7 @@ export const WorkExCard = ({ workex }: WorkExCardProps) => {
             </div>
           </AccordionTrigger>
           <AccordionContent>
-            <div className="text-muted-foreground p-4 rounded-lg border-2 border-stone-100 dark:border-stone-800">
+            <div className="text-muted-foreground p-4 rounded-lg border-2 border-muted-foreground">
               <div className="flex items-center justify-between">
                 <div className="gap-x-4 text-lg text-foreground flex justify-between items-center w-full">
                   <div className="flex gap-x-4 text-sm md:text-lg">

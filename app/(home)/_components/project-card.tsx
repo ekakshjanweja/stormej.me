@@ -39,8 +39,8 @@ export const ProjectCard = ({ project, isBorder }: ProjectCardProps) => {
     <>
       <div
         className={cn(
-          "text-muted-foreground justify-start items-start p-2 flex flex-col leading-4 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-950",
-          isBorder ? "border-2 border-stone-100 dark:border-stone-800" : ""
+          "text-muted-foreground justify-start items-start p-2 flex flex-col leading-4 rounded-lg hover:bg-muted",
+          isBorder ? "border-2 border-muted-foreground" : ""
         )}
       >
         <Link href={project.link || ""} target="_blank">

@@ -11,7 +11,7 @@ async function BlogsPage() {
       {blogs.map((blog) => (
         <div
           key={blog.slug}
-          className="text-muted-foreground justify-start items-start p-4 flex flex-col leading-4 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-950"
+          className="text-muted-foreground justify-start items-start p-4 flex flex-col leading-4 rounded-lg hover:bg-muted"
         >
           <Link href={`/blogs/${blog.slug}`}>
             <p className="text-lg font-medium p-0 hover:text-foreground underline underline-offset-4 ">
