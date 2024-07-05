@@ -33,8 +33,7 @@ export const projects: Projects[] = [
     title: "dtusocial",
     description:
       "A proximity chat app made for college students to connect with each other.",
-    link: "https://dtu.social",
-    github: "https://github.com/ekakshjanweja/Google-Docs-Clone",
+    link: "https://play.google.com/store/apps/details?id=com.app.dtusocial",
     techStack: "flutter-firebase-riverpod-geolocator-mvc",
     playstore:
       "https://play.google.com/store/apps/details?id=com.app.dtusocial",
