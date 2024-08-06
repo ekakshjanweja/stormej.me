@@ -11,9 +11,16 @@ export const workexs: WorkEx[] = [
       {
         id: 1,
         title: "Merlin AI -> Mobile App",
-        description: "An AI app with several AI tools in one place.",
+        description: "",
         link: "https://www.getmerlin.in/mobile-app",
-        techStack: "",
+        techStack: "flutter-android-firebase",
+        points: [
+          "Engineered 5+ key features for Merlin - Chat with AI, a flutter app, including android widgets, app shortcuts, sharing intents, android context menus & numerous UX enhancements.",
+          "And built a client library in Dart for internal backend, streamlining development processes and improving code maintainability using packages like dio & retrofit.",
+          "Incorporated caching of config files to handle app crashes and improve user satisfaction, resulting in a more stable and reliable app.",
+        ],
+        playstore:
+          "https://play.google.com/store/apps/details?id=com.foyer.merlin",
       },
     ],
   },

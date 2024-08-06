@@ -7,6 +7,7 @@ export interface Projects {
   youtube?: string;
   techStack?: string;
   playstore?: string;
+  points?: string[];
 }
 
 export interface WorkEx {
