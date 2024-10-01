@@ -27,7 +27,7 @@ const Code = (props: any) => {
       <AdminBar code={codeContent} language={language} />
       <div className="">
         <SyntaxHighlighter
-          className="rounded-md "
+          className="rounded-sm "
           style={isDark ? nightOwl : atomOneLight}
           language={language}
           wrapLongLines={true}

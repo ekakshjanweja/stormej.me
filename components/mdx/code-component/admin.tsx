@@ -19,7 +19,7 @@ function AdminBar({ code, language }: { code: string; language: string }) {
       </span>
       <button
         onClick={copyToClipboard}
-        className="text-stone-900 dark:text-stone-100 text-sm  px-2 py-1 rounded-md active:bg-slate-600 h-6 flex items-center"
+        className="text-stone-900 dark:text-stone-100 text-sm  px-2 py-1 rounded-sm active:bg-slate-600 h-6 flex items-center"
       >
         {copied ? (
           <div className="flex gap-2 items-center">

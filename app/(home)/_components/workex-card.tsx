@@ -12,7 +12,6 @@ import Link from "next/link";
 import { ProjectCard } from "./project-card";
 import { useWindowSize } from "@/lib/window-size";
 import { Button } from "@/components/ui/button";
-import { SVGIcon } from "@/components/svg-icon";
 import PlaystoreBlack from "../../../assets/logos/playstore_black.svg";
 import PlaystoreWhite from "../../../assets/logos/playstore_white.svg";
 import Image from "next/image";
@@ -42,7 +41,7 @@ export const WorkExCard = ({ workex }: WorkExCardProps) => {
               </div>
             </AccordionTrigger>
             <AccordionContent>
-              <div className="text-muted-foreground p-4 rounded-lg border-2 border-muted-foreground">
+              <div className="text-muted-foreground p-4 rounded-sm border-2 border-muted-foreground">
                 <div className="flex items-center justify-between">
                   <div className="gap-x-4 text-lg text-foreground flex justify-between items-center w-full">
                     <div className="flex gap-x-4 text-sm md:text-lg">
@@ -52,7 +51,7 @@ export const WorkExCard = ({ workex }: WorkExCardProps) => {
                     <Link
                       href={workex.companyLink}
                       target="_blank"
-                      className="text-sm flex font-medium text-muted-foreground gap-x-2 items-center hover:text-foreground border-2 py-1 px-2 rounded-lg"
+                      className="text-sm flex font-medium text-muted-foreground gap-x-2 items-center hover:text-foreground border-2 py-1 px-2 rounded-sm"
                     >
                       <MousePointerClick className="h-4 w-4" />
                       {isTooSmall ? <p>Visit</p> : <p>Visit Website</p>}
@@ -133,7 +132,7 @@ export const WorkExCard = ({ workex }: WorkExCardProps) => {
             </div>
           </AccordionTrigger>
           <AccordionContent>
-            <div className="text-muted-foreground p-4 rounded-lg border-2 border-muted-foreground">
+            <div className="text-muted-foreground p-4 rounded-sm border-2 border-muted-foreground">
               <div className="flex items-center justify-between">
                 <div className="gap-x-4 text-lg text-foreground flex justify-between items-center w-full">
                   <div className="flex gap-x-4 text-sm md:text-lg">
@@ -143,7 +142,7 @@ export const WorkExCard = ({ workex }: WorkExCardProps) => {
                   <Link
                     href={workex.companyLink}
                     target="_blank"
-                    className="text-sm flex font-medium text-muted-foreground gap-x-2 items-center hover:text-foreground border-2 py-1 px-2 rounded-lg"
+                    className="text-sm flex font-medium text-muted-foreground gap-x-2 items-center hover:text-foreground border-2 py-1 px-2 rounded-sm"
                   >
                     <MousePointerClick className="h-4 w-4" />
                     {isTooSmall ? <p>Visit</p> : <p>Visit Website</p>}

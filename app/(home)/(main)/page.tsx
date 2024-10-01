@@ -24,7 +24,7 @@ const HomePage = () => {
           Hello, I&#39;m
           <Strongify text={" Ekaksh Janweja"} />
           aka
-          <Strongify text={"stormej."} />I am in my pre-final year in DTU
+          <Strongify text={"stormej."} />I am in my final year in DTU
           studying engineering. I like
           <Strongify text={" building things "} />
           and
