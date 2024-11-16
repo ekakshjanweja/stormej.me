@@ -10,9 +10,8 @@ interface HomePageLayoutProps {
 const HomePageLayout = ({ children }: HomePageLayoutProps) => {
   return (
     <>
-      <div className="flex justify-center px-4 md:px-0">
-        <div className=" md:max-w-screen-sm">
-          {/* <RadialGradient></RadialGradient> */}
+      <div className="flex justify-center px-4 md:px-4 lg:px-0">
+        <div className=" md:max-w-screen-md">
           <Navbar />
           {children}
           <Footer />

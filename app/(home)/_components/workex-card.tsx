@@ -12,7 +12,7 @@ import Link from "next/link";
 import { ProjectCard } from "./project-card";
 import { useWindowSize } from "@/lib/window-size";
 import { Button } from "@/components/ui/button";
-import PlaystoreBlack from "../../../assets/logos/playstore_black.svg";
+import PlaystoreBlack from "@/assets/logos/playstore_white.svg";
 import PlaystoreWhite from "../../../assets/logos/playstore_white.svg";
 import Image from "next/image";
 
@@ -70,13 +70,13 @@ export const WorkExCard = ({ workex }: WorkExCardProps) => {
                           {project.title}
                         </Button>
                         <p className="text-sm mt-2">{project.description}</p>
-                        {isTooSmall ? (
+                        {/* {isTooSmall ? (
                           <></>
                         ) : (
                           <p className="text-sm text-foreground mt-2">
                             {project.techStack}
                           </p>
-                        )}
+                        )} */}
                       </Link>
                       {project.points!.map((point) => (
                         <>
@@ -93,7 +93,6 @@ export const WorkExCard = ({ workex }: WorkExCardProps) => {
                       {project.playstore && (
                         <div className="opacity-100">
                           <div className="flex items-center opacity-50 hover:opacity-80">
-                            {" "}
                             <Link href={project.playstore} target="_blank">
                               <Button variant="ghost" size="icon">
                                 <Image

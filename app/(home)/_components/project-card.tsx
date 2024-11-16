@@ -39,7 +39,7 @@ export const ProjectCard = ({ project, isBorder }: ProjectCardProps) => {
     <>
       <div
         className={cn(
-          "text-muted-foreground justify-start items-start p-2 flex flex-col leading-4 rounded-sm hover:bg-muted hover:scale-110 transition-all duration-300",
+          "text-muted-foreground justify-start items-start p-2 flex flex-col leading-4 rounded-sm   transition-all duration-300",
           isBorder ? "border-2 border-muted-foreground" : ""
         )}
       >
