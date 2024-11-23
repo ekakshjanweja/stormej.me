@@ -30,8 +30,11 @@ export default function Hero() {
         {"*ekaksh janweja"}
       </TextScramble>
 
-      {items.map((item) => (
-        <div className="flex text-muted-foreground gap-x-2 items-center mt-2 text-xs">
+      {items.map((item, index) => (
+        <div
+          className="flex text-muted-foreground gap-x-2 items-center mt-2 text-xs"
+          key={index}
+        >
           {item.icon}
           <div className="flex gap-x-4 items-center md:text-base">
             <p> {item.text}</p>
