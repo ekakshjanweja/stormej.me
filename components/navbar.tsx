@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -18,7 +18,6 @@ const navItems = [
 ];
 
 export function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const { setTheme } = useTheme();
@@ -64,7 +63,7 @@ export function Navbar() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [router]);
+  }, [router, setTheme]);
 
   return (
     <nav className="flex items-center justify-between mb-12 text-sm">

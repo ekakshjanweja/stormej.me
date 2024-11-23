@@ -1,8 +1,7 @@
 import { Building2, Hammer, MapPin } from "lucide-react";
 import { TextScramble } from "../../../components/ui/text-scramble";
 import Link from "next/link";
-import { domi, renovatio, valorant } from "@/lib/constants/links";
-import { TextLoop } from "../../../components/ui/text-loop";
+import { domi, renovatio } from "@/lib/constants/links";
 import LoopedSubtitle from "./looped-subtitle";
 
 const items = [
