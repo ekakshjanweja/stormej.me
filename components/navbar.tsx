@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
+import { resume, valorant } from "@/lib/constants/links";
 
 const navItems = [
   { href: "/", label: "home" },
@@ -47,10 +48,12 @@ export function Navbar() {
             setTheme(currentTheme === "dark" ? "light" : "dark");
             break;
           case "r":
-            window.open(
-              "https://drive.google.com/file/d/1JBoUUrkOV0H3LnLFNcUy-uhhjMAnWRiV/view",
-              "_blank"
-            );
+            window.open(resume, "_blank");
+            break;
+          case "v":
+            window.open(valorant, "_blank");
+          case "g":
+            router.push("/gear");
             break;
         }
       }
@@ -64,14 +67,14 @@ export function Navbar() {
   }, [router]);
 
   return (
-    <nav className="flex items-center justify-between mt-4 mb-12 text-sm">
+    <nav className="flex items-center justify-between mb-12 text-sm">
       {/* Desktop Menu */}
       <div className="flex space-x-4">
         {navItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className={`hover:text-highlight ${
+            className={`hover:text-highlight transition-all duration-300 ease-in-out ${
               pathname === item.href ? "text-highlight" : ""
             }`}
           >
