@@ -37,7 +37,7 @@ export default function LoopedSubtitle() {
             animate: { y: 0, opacity: 1 },
             exit: { y: -10, opacity: 0 },
           }}
-          interval={5}
+          interval={3.5}
           transition={{ duration: 0.3 }}
         >
           {items.map((item) => (

@@ -1,4 +1,4 @@
-import Hero from "./_components/header";
+import Hero from "./_components/hero";
 import Section, { SectionType } from "@/components/section";
 
 export default function Home() {

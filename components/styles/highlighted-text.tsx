@@ -13,7 +13,7 @@ export const HighlightedText = (
       }
     >
       {link != null ? (
-        <Link href={link} target="_blank">
+        <Link href={link} target={link == "/gear" ? "_parent" : "_blank"}>
           <p>{label}</p>
         </Link>
       ) : (

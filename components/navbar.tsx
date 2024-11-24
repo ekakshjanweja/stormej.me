@@ -66,7 +66,7 @@ export function Navbar() {
   }, [router, setTheme]);
 
   return (
-    <nav className="flex items-center justify-between mb-12 text-sm">
+    <nav className="flex items-center justify-between mb-12 text-xs sm:text-sm">
       {/* Desktop Menu */}
       <div className="flex space-x-4">
         {navItems.map((item) => (

@@ -27,10 +27,9 @@ export default function Hero() {
   return (
     <div>
       <HeadlineLarge text="ekaksh janweja" />
-
       {items.map((item, index) => (
         <>
-          <div key={index}>
+          <div key={index} className="mt-2">
             <Label
               icon={item.icon}
               text={item.text}
@@ -40,7 +39,6 @@ export default function Hero() {
           </div>
         </>
       ))}
-
       <div className="mt-4 text-base text-foreground font-light leading-6 opacity-90">
         hey, i&apos;m ekaksh janweja, currently in my final year at dtu,
         wrapping up my undergrad. i build mobile apps and work on cool side
