@@ -27,11 +27,18 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.stormej.me/"),
-  title: "stormej",
+  title: {
+    default: "stormej",
+    template: "%s | stormej",
+  },
   description: "mobile dev + life enjoyer &#9996;",
   openGraph: {
     title: "Ekaksh Janweja",
     description: "mobile dev + life enjoyer &#9996;",
+    siteName: "stormej",
+    locale: "en_US",
+    type: "website",
+    images: ["https://www.stormej.me/og/home"],
   },
   creator: "stormej",
 };
