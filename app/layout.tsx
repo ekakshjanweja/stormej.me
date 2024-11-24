@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/lib/providers/theme-provider";
+import { Navbar } from "@/components/navbar";
+import Footer from "@/components/footer";
 
 {
   /*
@@ -26,21 +28,33 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.stormej.me/"),
+  metadataBase: new URL("https://www.stormej.me"),
   title: {
     default: "stormej",
     template: "%s | stormej",
   },
   description: "mobile dev + life enjoyer &#9996;",
   openGraph: {
-    title: "Ekaksh Janweja",
+    title: "ekaksh janweja",
     description: "mobile dev + life enjoyer &#9996;",
-    siteName: "stormej",
+    url: "https://www.stormej.me",
+    siteName: "ekaksh janweja",
     locale: "en_US",
     type: "website",
-    images: ["https://www.stormej.me/og/home"],
+    images: "https://www.stormej.me/og/home",
   },
-  creator: "stormej",
+  robots: {
+    index: true,
+    follow: true,
+    "max-video-preview": -1,
+    "max-image-preview": "large",
+    "max-snippet": -1,
+  },
+  twitter: {
+    title: "ekaksh janweja",
+    card: "summary_large_image",
+    creator: "@ekaksh_janweja",
+  },
 };
 
 export default function RootLayout({
@@ -58,7 +72,13 @@ export default function RootLayout({
           disableTransitionOnChange
           storageKey="stormej.theme"
         >
-          {children}
+          <div className="flex justify-center w-full">
+            <div className="md:max-w-4xl w-full px-4 py-8">
+              <Navbar />
+              {children}
+              <Footer />
+            </div>
+          </div>
         </ThemeProvider>
       </body>
     </html>

@@ -10,7 +10,7 @@ interface CardProps {
   date: string;
   description: string;
   href: string;
-  sectionType: SectionType;
+  sectionType?: SectionType;
   tech?: string;
 }
 
@@ -25,7 +25,11 @@ export default function Card({
 }: CardProps) {
   return (
     <>
-      <Link href={href} target={"_blank"} className="group">
+      <Link
+        href={href}
+        target={sectionType == null ? "_parent" : "_blank"}
+        className="group"
+      >
         <div className="mt-8 space-y-1">
           <HeadlineSmall text={title} />
           <Label text={sectionType == SectionType.work ? role! + date : date} />
