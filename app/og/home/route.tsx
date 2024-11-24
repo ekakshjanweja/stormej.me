@@ -64,7 +64,7 @@ export async function GET(request: Request) {
         >
           <span
             style={{
-              color: "##84cc16",
+              color: "#84cc16",
               fontSize: 48,
               flexShrink: 0,
             }}
