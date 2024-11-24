@@ -33,6 +33,7 @@ export const metadata: Metadata = {
     title: "Ekaksh Janweja",
     description: "mobile dev + life enjoyer &#9996;",
   },
+  creator: "stormej",
 };
 
 export default function RootLayout({
@@ -48,6 +49,7 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
+          storageKey="stormej.theme"
         >
           {children}
         </ThemeProvider>

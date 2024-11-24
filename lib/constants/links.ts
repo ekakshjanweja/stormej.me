@@ -37,3 +37,10 @@ export const oldPortfolio = "https://flutter.stormej.me";
 
 export const oldPortfolioGithub =
   "https://github.com/ekakshjanweja/Portfolio-Website";
+
+//Profile
+
+export const github = "https://github.com/ekakshjanweja";
+export const xDotCom = "https://x.com/ekaksh_janweja";
+export const linkedin = "https://www.linkedin.com/in/ekakshjanweja/";
+export const mailTo = "mailto:jekaksh@gmail.com";

@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils";
 export enum SectionType {
   work,
   project,
-  blog,
 }
 
 const sectionTitle = (type: SectionType) => {
@@ -18,8 +17,6 @@ const sectionTitle = (type: SectionType) => {
       return "work";
     case SectionType.project:
       return "projects";
-    case SectionType.blog:
-      return "blog";
   }
 };
 
@@ -28,8 +25,6 @@ const sectionArray = (sectionType: SectionType) => {
     case SectionType.work:
       return work;
     case SectionType.project:
-      return projects;
-    case SectionType.blog:
       return projects;
   }
 };
@@ -40,8 +35,6 @@ const sectionViewMore = (sectionType: SectionType) => {
       return "view more";
     case SectionType.project:
       return "all projects";
-    case SectionType.blog:
-      return "all posts";
   }
 };
 
@@ -51,16 +44,10 @@ const sectionViewMoreHref = (sectionType: SectionType) => {
       return "/work";
     case SectionType.project:
       return "/projects";
-    case SectionType.blog:
-      return "/blog";
   }
 };
 
 export default function Section({ sectionType }: { sectionType: SectionType }) {
-  if (sectionType == SectionType.blog) {
-    return <></>;
-  }
-
   return (
     <div className="mt-12">
       <HeadlineMedium text={sectionTitle(sectionType)} showAsterisk />

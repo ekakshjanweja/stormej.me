@@ -1,3 +1,4 @@
+import { BlogRow } from "./_components/blog-row";
 import Hero from "./_components/hero";
 import Section, { SectionType } from "@/components/section";
 
@@ -5,10 +6,9 @@ export default function Home() {
   return (
     <div>
       <Hero />
-
       <Section sectionType={SectionType.work} />
       <Section sectionType={SectionType.project} />
-      <Section sectionType={SectionType.blog} />
+      <BlogRow />
     </div>
   );
 }

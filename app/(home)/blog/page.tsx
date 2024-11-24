@@ -24,7 +24,7 @@ export default function Blog() {
               description={blog.meta.description}
               title={blog.meta.title}
               href={`/blog/${blog.slug}`}
-              sectionType={SectionType.blog}
+              sectionType={SectionType.work}
             />
           ))}
         </main>

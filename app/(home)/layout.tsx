@@ -1,5 +1,4 @@
-"use client";
-
+import Footer from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 
 interface HomeLayoutProps {
@@ -12,6 +11,7 @@ export default function HomeLayout({ children }: HomeLayoutProps) {
       <div className="md:max-w-4xl w-full px-4 py-8">
         <Navbar />
         {children}
+        <Footer />
       </div>
     </div>
   );
