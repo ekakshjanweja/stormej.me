@@ -33,7 +33,7 @@ export async function GET(request: Request) {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#FFFFFF",
+          backgroundColor: "#000000",
           fontFamily: "Geist Mono",
           padding: "40px",
           position: "relative",
