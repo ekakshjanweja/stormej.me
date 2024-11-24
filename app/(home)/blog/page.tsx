@@ -1,5 +1,4 @@
 import Card from "@/components/card";
-import { SectionType } from "@/components/section";
 import HeadlineLarge from "@/components/styles/headline-large";
 import { getBlogs } from "@/lib/fetcher";
 
