@@ -6,6 +6,8 @@ export const valorant =
 
 export const domi = "https://digitaldomi.com/";
 
+export const getMerlin = "https://www.getmerlin.in/";
+
 export const renovatio = "https://renovatio-design.vercel.app/";
 
 export const hyprDotFiles = "https://github.com/ekakshjanweja/hypr_dotfiles";

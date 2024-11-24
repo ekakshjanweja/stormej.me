@@ -1,12 +1,35 @@
+import { HighlightedText } from "@/components/styles/highlighted-text";
 import { TextLoop } from "@/components/ui/text-loop";
 import { valorant } from "@/lib/constants/links";
-import Link from "next/link";
+
+const items = [
+  {
+    label: "my gear",
+    link: "/gear",
+    altText: "(SHIFT + G)",
+  },
+  {
+    label: "i-use-arch-btw",
+  },
+  {
+    label: "valorant",
+    link: valorant,
+    altText: "(SHIFT + V)",
+  },
+  {
+    label: "lifting weights",
+    altText: "(need to be more consistent)",
+  },
+  {
+    label: "engineering",
+  },
+];
 
 export default function LoopedSubtitle() {
   return (
     <>
-      <div className="flex space-x-4">
-        <p className="opacity-80">{"i am also obsessed with"}</p>
+      <div className="flex flex-col justify-start items-start md:justify-start md:items-center md:space-x-4  md:flex-row">
+        <p className="opacity-80">{"i am obsessed with"}</p>
         <TextLoop
           className="text-base text-foreground leading-6 font-semibold"
           variants={{
@@ -14,37 +37,12 @@ export default function LoopedSubtitle() {
             animate: { y: 0, opacity: 1 },
             exit: { y: -10, opacity: 0 },
           }}
-          interval={3.5}
+          interval={5}
           transition={{ duration: 0.3 }}
         >
-          <div className="flex text-highlight items-center justify-center space-x-4">
-            <Link href={"/gear"}>
-              <p>{"my gear"}</p>
-            </Link>
-            <p className="text-xs font-light text-muted-foreground">
-              {" (SHIFT + G)"}
-            </p>
-          </div>
-
-          <span className="text-blue-700">{"i-use-arch-btw"}</span>
-
-          <div className="flex text-red-500 items-center justify-center space-x-4">
-            <Link href={valorant} target="_blank">
-              {"valorant"}
-            </Link>
-            <p className="text-xs font-light text-muted-foreground">
-              {" (SHIFT + V)"}
-            </p>
-          </div>
-
-          <div className="flex text-yellow-500 items-center justify-center space-x-4">
-            <p>{"lifting weights"}</p>
-            <p className="text-xs font-light text-muted-foreground">
-              {" (need to be more consistent)"}
-            </p>
-          </div>
-
-          <span>engineering</span>
+          {items.map((item) => (
+            <>{HighlightedText(item.label, item.link, item.altText)}</>
+          ))}
         </TextLoop>
       </div>
     </>

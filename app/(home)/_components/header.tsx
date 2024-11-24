@@ -1,8 +1,8 @@
 import { Building2, Hammer, MapPin } from "lucide-react";
-import { TextScramble } from "../../../components/ui/text-scramble";
-import Link from "next/link";
 import { domi, renovatio } from "@/lib/constants/links";
 import LoopedSubtitle from "./looped-subtitle";
+import HeadlineLarge from "@/components/styles/headline-large";
+import Label from "@/components/styles/label";
 
 const items = [
   {
@@ -26,25 +26,19 @@ const items = [
 export default function Hero() {
   return (
     <div>
-      <TextScramble className="text-4xl font-bold mb-4">
-        {"*ekaksh janweja"}
-      </TextScramble>
+      <HeadlineLarge text="ekaksh janweja" />
 
       {items.map((item, index) => (
-        <div
-          className="flex text-muted-foreground gap-x-2 items-center mt-2 text-xs"
-          key={index}
-        >
-          {item.icon}
-          <div className="flex gap-x-4 items-center md:text-base">
-            <p> {item.text}</p>
-            <Link href={item.href ?? ""} target="_blank">
-              <p className="hover:underline hover:text-highlight transition-all duration-300 ease-in-out">
-                {item.hrefText}
-              </p>
-            </Link>
+        <>
+          <div key={index}>
+            <Label
+              icon={item.icon}
+              text={item.text}
+              href={item.href}
+              hrefText={item.hrefText}
+            />
           </div>
-        </div>
+        </>
       ))}
 
       <div className="mt-4 text-base text-foreground font-light leading-6 opacity-90">
