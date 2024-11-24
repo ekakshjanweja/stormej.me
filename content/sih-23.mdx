@@ -1,0 +1,94 @@
+---
+title: "sih'23"
+date: "2023-09-30"
+description: "GovBuzz: The Hackathon Journey - Celebrating Innovation Amidst Setbacks"
+---
+
+## Introduction
+
+In the sea of hackathons, one of the most well-known hackathons in India is the [Smart India Hackathon (SIH)](https://www.sih.gov.in/sih2023PS?technology_bucket=QWxs&category=U29mdHdhcmU=&organization=QWxs&organization_type=QWxs). I with my team DelTechNeek took part in our college's (Delhi Technological University) internal hackathon. There were 180+ teams & 1200+ participants in the internal hackathon itself. I and my team worked on a problem statement for the Ministry Of Urban Affairs (SIH1516): Suggest an Al-based solution to enable ease of grievance lodging and tracking for citizens across multiple departments.
+
+### TL;DR
+
+We didn't make it to the shortlisted teams but we learned a ton & ended up solving a real-world problem.
+
+![govbuzz banner](https://cdn.hashnode.com/res/hashnode/image/upload/v1696097687156/3b122ccf-e9a4-4524-9bcb-1d5221dba1e5.png?w=1600&h=840&fit=crop&crop=entropy&auto=compress,format&format=webp)
+
+### The Team
+
+1. [ Sara Sanwal ](https://www.linkedin.com/in/sarasanwal/) - _B.Des (UX Design) Year III_
+2. [ Ekaksh Janweja ](https://www.linkedin.com/in/ekakshjanweja/) - _B.Tech (Civil Engineering) Year III_
+3. [ Aryan Sidhwani ](https://www.linkedin.com/in/aryan-sidhwani/) - _B.Tech (Engineering Physics) Year III_
+4. [ Ayan Sajwan ](https://www.linkedin.com/in/ayan-sajwan-06625a170/) - _B.Tech (Engineering Physics) Year III_
+5. [ Aakhyat Bagga ](https://www.linkedin.com/in/aakhyat-bagga-4a5380226/) - _B.Tech (Engineering Physics) Year III_
+6. [ Abhinav Jha ](https://www.linkedin.com/in/abhinav-jha-709bbb256/) - _B.Tech (Electrical Engineering) Year II_
+
+### A Video Demo of the App
+
+<Yt videoId={"FoRv0ZoHLfc"} />
+
+### The Vision Behind GovBuzz
+
+Introducing GovBuzz, an AI-powered chatbot for lodging grievances. It offers a simple voice command feature for language-inclusive access. GovBuzz processes complaints, filters spam, and directs them to the correct department. You get real-time updates and can participate in a user forum for transparent issue resolution. It simplifies grievance redressal for efficiency.
+
+## Tech Stack
+
+### Mobile App
+
+I was responsible for developing the mobile app, a critical component for user interaction, demanding nothing short of perfection. Our app required multilingual support and cross-platform functionality, leading me to choose [Flutter](https://flutter.dev/) for its unmatched versatility. In the realm of database solutions, I opted for [Firebase](https://firebase.google.com/), a choice driven by the need for speed during the hackathon.
+
+Other Technologies used in the app:
+
+- [Riverpod](https://pub.dev/packages/flutter_riverpod) for state-management
+- Firebase Authentication & Cloud Firestore
+- [Routemaster](https://pub.dev/packages/routemaster) for navigation around the app
+- [Dio](https://pub.dev/packages/dio) for making the API requests to the Django backend
+
+### Django Backend
+
+Aryan took up the task of making the backend to connect the ML and the flutter app using APIs of course. [Django](https://www.djangoproject.com/) was our first choice to make the backend with because the ML models were written in Python and so was Django so integration became very easy. We also tried deploying the backend to [AWS](https://aws.amazon.com/) but we could not achieve this in such a short duration.
+
+### Deep Learning Models
+
+Ayan and Aakhyat were responsible for creating the ML Models, they collected the data from Google Forms and social media platforms such as Twitter and Facebook.
+
+This data was preprocessed and then two models were created out of it:
+
+1. Spam Detection Model: This model detects whether a user input is valid for grievance lodging purposes or not.
+2. Department Detection Model: This model classifies the user input into a department that it most likely matches.
+
+These models used [Tensorflow](https://www.tensorflow.org/), [NLTK](https://www.nltk.org/) & NLP techniques to process the user input.
+
+### User Research and Design
+
+Sara being a background in UX did all the primary and secondary research and helped us identify the user cases. She made the designs for the app and the admin dashboard. She also took charge of making the presentation.
+
+[Presentation Link](https://www.canva.com/design/DAFuBeJzFkM/DyYmwixYUvCNpt8h_IzKpg/edit?utm_content=DAFuBeJzFkM&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+
+### User Cases
+
+GovBuzz catered to diverse user profiles, each with unique needs:
+
+1.  Urban Resident: They used GovBuzz to report issues like potholes, malfunctioning streetlights, and garbage accumulation for timely resolution.
+2.  Rural Farmer: GovBuzz supported them in seeking government assistance for irrigation, pest control, and crop advisory services.
+3.  Small Business Owner: They engaged with GovBuzz to advocate for improved infrastructure like road connectivity and uninterrupted power supply.
+4.  Senior Citizen: GovBuzz was their voice to request better healthcare facilities, community centers, and safety measures in their locality.
+
+### Admin Dashboard
+
+Abhinav created a dummy website with a front end. He used [React](https://react.dev/) and [Tailwind CSS](https://tailwindcss.com/) to make the admin dashboard fetch the grievances from the backend and take them up to the concerned official/authority.
+
+### Business Model
+
+The team imagined a subscription-based model where each ministry or department could subscribe to their service. GovBuzz would then tailor AI models to their specific grievance data, facilitating quicker problem resolution.
+
+### Why didn't we succeed?
+
+Despite creating a full-fledged prototype and complete problem statement analysis these could have been some reasons we didn't make it through.
+
+1.  Bad Idea Approach: While GovBuzz was a visionary solution, the approach might not have aligned perfectly with the specific requirements of the hackathon challenge. In hackathons, fine-tuning the idea and focusing on the core challenge statement can be critical.
+2.  Poor Presentation Skills: Effective communication is vital in hackathons. A less-than-optimal presentation could have impacted how the judges perceived the project's value and feasibility.
+3.  Less Information about Future Prospects: Hackathon judges often look for projects with clear potential for future development and impact. Providing a robust vision for the post-hackathon future of GovBuzz may have been a missed opportunity.
+4.  Bad Luck Maybe 🥲
+
+### We will be back next year !! 🚀🚀🚀

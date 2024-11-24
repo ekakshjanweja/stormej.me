@@ -36,7 +36,7 @@ export function Navbar() {
             router.push("/projects");
             break;
           case "b":
-            router.push("/blogs");
+            router.push("/blog");
             break;
           case "t":
             const currentTheme = document.documentElement.classList.contains(
