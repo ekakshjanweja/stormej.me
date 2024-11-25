@@ -27,7 +27,11 @@ export default function Card({
     <>
       <Link
         href={href}
-        target={sectionType == null ? "_parent" : "_blank"}
+        target={
+          sectionType == null || sectionType == SectionType.work
+            ? "_parent"
+            : "_blank"
+        }
         className="group"
       >
         <div className="mt-8 space-y-1">

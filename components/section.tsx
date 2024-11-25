@@ -1,10 +1,9 @@
-import { work } from "@/lib/constants/work";
+import { work, WorkEntryType } from "@/lib/constants/work";
 import Card from "./card";
 import HeadlineMedium from "./styles/headline-medium";
 import { projects } from "@/lib/constants/projects";
-import { ArrowUpRight } from "lucide-react";
-import Link from "next/link";
 import { cn } from "@/lib/utils";
+import ViewMore from "./view-more";
 
 export enum SectionType {
   work,
@@ -59,7 +58,7 @@ export default function Section({ sectionType }: { sectionType: SectionType }) {
         )}
       >
         {sectionArray(sectionType)
-          .slice(0, 2)
+          .slice(0, 3)
           .map((item, index) => (
             <>
               <Card
@@ -68,7 +67,11 @@ export default function Section({ sectionType }: { sectionType: SectionType }) {
                 role={item.role}
                 date={item.date}
                 description={item.description}
-                href={item.href}
+                href={
+                  sectionType == SectionType.work
+                    ? `/work/${(item as WorkEntryType).id}`
+                    : item.href
+                }
                 sectionType={sectionType}
                 tech={item.tech}
               />
@@ -76,20 +79,13 @@ export default function Section({ sectionType }: { sectionType: SectionType }) {
           ))}
       </div>
 
-      {sectionArray(sectionType).length > 2 && (
+      {sectionArray(sectionType).length > 3 && (
         <>
-          <Link href={sectionViewMoreHref(sectionType)}>
-            <div className="group flex text-highlight items-center justify-start mt-8">
-              <p className="group-hover:underline transition-all duration-300 ease-in-out">
-                {sectionViewMore(sectionType)}
-              </p>
-              <ArrowUpRight className="h-5 w-5 group-hover:translate-x-1.5 group-hover:-translate-y-1.5 group-hover:scale-90 transition-all duration-200 ease-in-out" />{" "}
-            </div>
-
-            <p className="opacity-50 text-xs">
-              {`(${sectionArray(sectionType).length})`}
-            </p>
-          </Link>
+          <ViewMore
+            title={sectionViewMore(sectionType)}
+            href={sectionViewMoreHref(sectionType)}
+            subTitle={`(${sectionArray(sectionType).length})`}
+          />
         </>
       )}
     </div>

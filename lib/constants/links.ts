@@ -17,6 +17,31 @@ export const getMerlin = "https://www.getmerlin.in/";
 export const tbb = "https://teamblackbox.in/";
 export const zuai = "https://www.zuai.co/";
 
+//Work Project Links
+
+//Merlin
+
+export const merlinPlayStore =
+  "https://play.google.com/store/apps/details?id=com.foyer.merlin&hl=en_IN";
+export const merlinAppStore =
+  "https://apps.apple.com/us/app/merlin-ai-ask-chat-write/id6453692447";
+export const wallflowerPlayStore =
+  "https://play.google.com/store/apps/details?id=com.foyer.wallflower";
+export const wallflowerAppStore =
+  "https://apps.apple.com/in/app/wallflower-ai-image-generator/id6670315498";
+
+//Tbb
+
+export const takeASipPlayStore =
+  "https://play.google.com/store/apps/details?id=app.takeasip";
+export const iWontForgetPlayStore =
+  "https://play.google.com/store/apps/details?id=app.iwontforget";
+
+//ZuAi
+
+export const zuAppPlayStore =
+  "https://play.google.com/store/apps/details?id=in.zupay.app&hl=en";
+
 //Project links
 
 export const renovatio = "https://renovatio-design.vercel.app/";
