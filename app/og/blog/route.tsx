@@ -21,7 +21,7 @@ async function loadGoogleFont(font: string, text: string) {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const title = searchParams.get("title") ?? "stormej • blog";
+  const title = searchParams.get("title") ?? "stormej &#x2726; 💻";
 
   return new ImageResponse(
     (

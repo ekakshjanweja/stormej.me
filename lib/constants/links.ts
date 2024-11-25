@@ -15,6 +15,7 @@ export const nvimDotFiles = "https://github.com/ekakshjanweja/neovim_dotfiles";
 export const domi = "https://digitaldomi.com/";
 export const getMerlin = "https://www.getmerlin.in/";
 export const tbb = "https://teamblackbox.in/";
+export const zuai = "https://www.zuai.co/";
 
 //Project links
 

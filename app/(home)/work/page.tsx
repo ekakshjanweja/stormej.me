@@ -8,20 +8,23 @@ export default function Work() {
     <>
       <div>
         <HeadlineLarge text="work" showAsterisk />
-        {work.map((item, index) => (
-          <>
-            <div key={index} className="mt-8">
-              <Card
-                title={item.title}
-                role={item.role}
-                date={item.date}
-                description={item.description}
-                href={item.href}
-                sectionType={SectionType.work}
-              />
-            </div>
-          </>
-        ))}
+
+        <div className="grid grid-cols-1 gap-x-2">
+          {work.map((item, index) => (
+            <>
+              <div key={index}>
+                <Card
+                  title={item.title}
+                  role={item.role}
+                  date={item.date}
+                  description={item.description}
+                  href={item.href}
+                  sectionType={SectionType.work}
+                />
+              </div>
+            </>
+          ))}
+        </div>
       </div>
     </>
   );

@@ -1,4 +1,4 @@
-import { domi, getMerlin, tbb } from "@/lib/constants/links";
+import { domi, getMerlin, tbb, zuai } from "@/lib/constants/links";
 
 export const work = [
   {
@@ -32,7 +32,7 @@ export const work = [
     title: "zupay",
     role: "flutter intern",
     date: " (oct 2021 - jan 2022)",
-    href: tbb,
+    href: zuai,
     description:
       "built onboarding and dashboard pages for zuapp in flutter, leveraging riverpod and dio to scale seamlessly for 500k+ users.",
     tech: "flutter-firebase",
