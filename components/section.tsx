@@ -51,12 +51,7 @@ export default function Section({ sectionType }: { sectionType: SectionType }) {
     <div className="mt-12">
       <HeadlineMedium text={sectionTitle(sectionType)} showAsterisk />
 
-      <div
-        className={cn(
-          sectionType == SectionType.project &&
-            "grid grid-cols-1 md:grid-cols-2 gap-x-4"
-        )}
-      >
+      <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-x-4")}>
         {sectionArray(sectionType)
           .slice(0, 3)
           .map((item, index) => (
@@ -66,7 +61,11 @@ export default function Section({ sectionType }: { sectionType: SectionType }) {
                 title={item.title}
                 role={item.role}
                 date={item.date}
-                description={item.description}
+                description={
+                  sectionType == SectionType.work
+                    ? (item as WorkEntryType).subtitle
+                    : item.description
+                }
                 href={
                   sectionType == SectionType.work
                     ? `/work/${(item as WorkEntryType).id}`

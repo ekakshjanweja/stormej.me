@@ -10,7 +10,7 @@ export default function Work() {
       <div>
         <HeadlineLarge text="work" showAsterisk />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 my-4">
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-12 my-4">
           {work.map((item, index) => (
             <>
               <Link href={`/work/${item.id}`}>
@@ -25,6 +25,7 @@ export default function Work() {
                       {item.role} {item.date}
                     </p>
                     <p className="text-muted-foreground">{item.tech}</p>
+                    <p className="text-base opacity-80">{item.description}</p>
                   </div>
 
                   {item.projects && (

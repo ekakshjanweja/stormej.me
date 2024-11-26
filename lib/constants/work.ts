@@ -23,6 +23,7 @@ export interface ProjectType {
 export interface WorkEntryType {
   id: string;
   title: string;
+  subtitle: string;
   role: string;
   date: string;
   href: string;
@@ -38,6 +39,7 @@ export const work: WorkEntryType[] = [
     role: "mobile engineer",
     date: " (oct 2024 - present)",
     href: domi,
+    subtitle: "mobile dev with flutter vibes",
     description:
       "leading the mobile efforts at digital domi rn, building a flutter app from scratch. it's been a fun ride so far—figuring out features, fixing bugs, and everything in between.",
     tech: "flutter-dart-firebase",
@@ -48,6 +50,7 @@ export const work: WorkEntryType[] = [
     role: "mobile intern",
     date: " (may 2024 - oct 2024)",
     href: getMerlin,
+    subtitle: "flutter, ai, and pushing the limits",
     description:
       "added android widgets, app shortcuts, sharing intents, push notifications and more to boost the UX on merlin's flutter app. also built a dart client library to streamline dev & led wallflower, an ai image-gen app with models like flux 1.1 pro.",
     tech: "flutter-dart-firebase-jetpackglance-kotlin",
@@ -88,6 +91,7 @@ export const work: WorkEntryType[] = [
     role: "mobile intern",
     date: " (jan 2023 - jun 2023)",
     href: tbb,
+    subtitle: "ui, nlp, and polygons ftw",
     description:
       "creating small modules and first time hdesigned custom ui features, used nlp for smarter reminders, and plotted polygons for geo-mapping with react-native-skia.",
     tech: "react-reactnative-firebase-zustand-skia",
@@ -124,6 +128,7 @@ export const work: WorkEntryType[] = [
     role: "flutter intern",
     date: " (oct 2021 - jan 2022)",
     href: zuai,
+    subtitle: "my first step into the dev world",
     description: "baby steps this was my first internship",
     tech: "flutter-firebase",
     projects: [

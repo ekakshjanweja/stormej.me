@@ -56,7 +56,7 @@ export const projects = [
     role: "full stack dev",
     date: " (sept 2023 - dec 2023)",
     href: oldPortfolio,
-    description: "proximity chat app made for college students",
+    description: "portfolio website made with flutter web",
     tech: "flutter-web",
     github: oldPortfolioGithub,
   },
