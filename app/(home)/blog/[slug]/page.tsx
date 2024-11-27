@@ -2,9 +2,9 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
-import { MDXRemote } from "next-mdx-remote/rsc";
 import type { Metadata } from "next";
-import { MdxComponents } from "@/mdx-components";
+import HeadlineLarge from "@/components/styles/headline-large";
+import { MDX } from "./mdx";
 
 export async function generateMetadata({
   params,
@@ -58,10 +58,23 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <article className="prose prose-lg md:prose-lg lg:prose-lg mx-auto text-muted-foreground">
-      <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-200">
-        {props.frontMatter.title}
-      </h1>
-      <MDXRemote source={props.content} components={MdxComponents} />
+      <HeadlineLarge
+        text={props.frontMatter.title}
+        showAsterisk
+        className="text-foreground"
+      />
+      <div className="text-foreground opacity-80 text-base">
+        <p>{props.frontMatter.description}</p>
+        <p>
+          {new Date(props.frontMatter.date).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </p>
+      </div>
+
+      <MDX source={props.content} />
     </article>
   );
 }

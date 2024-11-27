@@ -13,13 +13,13 @@ function AdminBar({ code, language }: { code: string; language: string }) {
   };
 
   return (
-    <div className="bg-gray-200 dark:bg-gray-800 h-[40px] relative top-3 rounded-t-lg flex justify-between items-center px-4">
-      <span className="dark:text-gray-200 text-gray-800e text-sm">
+    <div className="bg-muted flex justify-between items-center px-4 py-2 rounded-t-lg">
+      <span className="text-foreground text-base">
         {language}
       </span>
       <button
         onClick={copyToClipboard}
-        className="text-stone-900 dark:text-stone-100 text-sm  px-2 py-1 rounded-sm active:bg-slate-600 h-6 flex items-center"
+        className="text-foreground text-sm  px-2 py-1 rounded-sm h-6 flex items-center"
       >
         {copied ? (
           <div className="flex gap-2 items-center">

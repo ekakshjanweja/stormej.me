@@ -4,6 +4,8 @@ date: "2023-08-10"
 description: "Deconstructing dtu.social: Unveiling the Building Process"
 ---
 
+# Introduction
+
 I am Ekaksh Janweja, a pre-final year student at Delhi Technological University, and together with my friend [Aryan Sidhwani](https://www.linkedin.com/in/aryan-sidhwani/) \[trust me he makes things work\], I embarked on a journey to create [dtu.social](http://dtu.social), a proximity chat app aimed at connecting students with similar interests and goals. You can check out the app [here](https://play.google.com/store/apps/details?id=com.app.dtusocial).
 
 In this blog, I will walk you through the technical aspects of building this app and the challenges we faced along the way. Our motivation was to bridge the gap between students and foster a supportive community where individuals can seek mentorship, form lasting bonds, and grow together.
@@ -24,17 +26,11 @@ Choosing the right state management solution was crucial for a smooth user exper
 
 ```dart
 
-
-ref.watch(provider).when(
-      data: (data) => Center(
-              child: Text(data.toString()),
-            ),
-      error: (error, stackTrace) => Text(error.toString()),
-      loading: () => const Center(
-              child: CircularProgressIndicator(),
-                ),
-    )
-
+  ref.watch(provider).when(
+    data: (data) => Center(child: Text(data.toString())),
+    error: (error, stackTrace) => Text(error.toString()),
+    loading: () => const Center(child: CircularProgressIndicator()),
+  ),
 
 ```
 
@@ -42,19 +38,11 @@ ref.watch(provider).when(
 
 ```dart
 
-
- ref.watch(streamProvider).when(
-            data: (data) => Center(
-              child: Text(data.toString()),
-            ),
-            error: (error, stackTrace) => Center(
-              child: Text(error.toString()),
-            ),
-            loading: () => const Center(
-              child: CircularProgressIndicator(),
-            ),
-          ),
-
+  ref.watch(streamProvider).when(
+    data: (data) => Center(child: Text(data.toString())),
+    error: (error, stackTrace) => Center(child: Text(error.toString())),
+    loading: () => const Center(child: CircularProgressIndicator()),
+  ),
 
 ```
 
@@ -90,4 +78,4 @@ Getting our app on the Play Store was complex. We tackled forms, explaining loca
 
 ## Lastly,
 
-I would be grateful if you guys try to use this app and drop me feedback on twitter [@ekaksh_janweja](https://twitter.com/ekaksh_janweja). And also [Aryan](https://www.linkedin.com/in/aryan-sidhwani/) lets build even more projects together 🚀🚀🚀
+I would be grateful if you guys try to use this app and drop me feedback on twitter [@ekaksh_janweja](https://twitter.com/ekaksh_janweja). And also [Aryan](https://www.linkedin.com/in/aryan-sidhwani/) lets build even more projects together.
