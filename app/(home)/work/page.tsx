@@ -33,7 +33,6 @@ export default function Work() {
                       <ViewMore
                         title="view more"
                         subTitle={`(${item.projects.length})`}
-                        href={`/work/${item.id}`}
                       />
                     </>
                   )}
