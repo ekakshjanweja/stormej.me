@@ -12,7 +12,18 @@ import {
   stormejIsLiveYoutube,
 } from "./links";
 
-export const projects = [
+interface Project {
+  title: string;
+  role: string;
+  date: string;
+  href: string;
+  description: string;
+  tech: string;
+  github?: string;
+  youtube?: string;
+}
+
+export const projects: Project[] = [
   {
     title: "renovatio",
     role: "full stack dev",
@@ -30,7 +41,7 @@ export const projects = [
     description: "real-time visual workspace",
     tech: "nextjs-tailwind-shadcnui-prisma-liveblocks-convex-clerk",
     github: fluxGithub,
-    yotube: fluxYoutube,
+    youtube: fluxYoutube,
   },
   {
     title: "stormejislive",
@@ -40,7 +51,7 @@ export const projects = [
     description: "live streaming with real-time chat",
     tech: "nextjs-tailwind-livekit-postgres-clerk-prisma",
     github: stormejIsLiveGithub,
-    yotube: stormejIsLiveYoutube,
+    youtube: stormejIsLiveYoutube,
   },
   {
     title: "dtusocial",
@@ -49,7 +60,7 @@ export const projects = [
     href: dtuSocial,
     description: "proximity chat app made for college students",
     tech: "flutter-firebase-riverpod-geolocator-mvc",
-    yotube: dtuSocial,
+    youtube: dtuSocial,
   },
   {
     title: "old-portfolio",

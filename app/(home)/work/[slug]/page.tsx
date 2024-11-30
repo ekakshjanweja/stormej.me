@@ -47,10 +47,6 @@ export default async function Page({
                   subTitle={`(${work.length})`}
                 />
               </div>
-
-              {/* <div className="mt-36">
-                <ViewMore title="home" href={`/`} />
-              </div> */}
             </>
           )}
 

@@ -69,7 +69,7 @@ export default function Section({ sectionType }: { sectionType: SectionType }) {
                 href={
                   sectionType == SectionType.work
                     ? `/work/${(item as WorkEntryType).id}`
-                    : item.href
+                    : `/projects/${item.title}`
                 }
                 sectionType={sectionType}
                 tech={item.tech}

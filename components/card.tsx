@@ -28,7 +28,9 @@ export default function Card({
       <Link
         href={href}
         target={
-          sectionType == null || sectionType == SectionType.work
+          sectionType == null ||
+          sectionType == SectionType.work ||
+          sectionType == SectionType.project
             ? "_parent"
             : "_blank"
         }
