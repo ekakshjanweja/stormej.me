@@ -4,11 +4,6 @@ import { valorant } from "@/lib/constants/links";
 
 const items = [
   {
-    label: "my gear",
-    link: "/gear",
-    altText: "(SHIFT + G)",
-  },
-  {
     label: "i-use-arch-btw",
   },
   {

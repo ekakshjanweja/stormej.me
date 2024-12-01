@@ -51,8 +51,6 @@ export function Navbar() {
             break;
           case "v":
             window.open(valorant, "_blank");
-          case "g":
-            router.push("/gear");
             break;
         }
       }
