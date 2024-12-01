@@ -1,4 +1,3 @@
-import SpotifyCurrentPlayingBadge from "@/components/spotify-currently-playing-badge";
 import { BlogRow } from "./_components/blog-row";
 import Hero from "./_components/hero";
 import Section, { SectionType } from "@/components/section";
