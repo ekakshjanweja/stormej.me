@@ -55,6 +55,12 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     creator: "@ekaksh_janweja",
   },
+  authors: [
+    {
+      name: "ekaksh janweja",
+      url: "https://stormej.me",
+    },
+  ],
 };
 
 export default function RootLayout({
