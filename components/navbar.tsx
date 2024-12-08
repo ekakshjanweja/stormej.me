@@ -74,7 +74,7 @@ export function Navbar() {
             className={`hover:text-highlight transition-all duration-300 ease-in-out ${
               pathname === item.href ? "text-highlight" : ""
             }`}
-            target={item.label == resume ? "_blank" : "_parent"}
+            target={item.label === "resume" ? "_blank" : "_parent"}
           >
             [{item.label.charAt(0)}] {item.label}
           </Link>

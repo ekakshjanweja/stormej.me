@@ -3,6 +3,9 @@ import { domi, renovatio } from "@/lib/constants/links";
 import LoopedSubtitle from "./looped-subtitle";
 import HeadlineLarge from "@/components/styles/headline-large";
 import Label from "@/components/styles/label";
+import X from "@/components/x";
+import Github from "@/components/github";
+import LinkedIn from "@/components/linkedin";
 
 const items = [
   {
@@ -26,6 +29,12 @@ const items = [
 export default function Hero() {
   return (
     <div>
+      <div className="mb-2 flex gap-x-4 items-center">
+        <p className="text-xs text-muted-foreground">say hi!</p>
+        <X />
+        <Github />
+        <LinkedIn />
+      </div>
       <HeadlineLarge text="ekaksh janweja" />
       {items.map((item, index) => (
         <>
