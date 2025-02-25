@@ -1,5 +1,5 @@
-import { Building2, Hammer, MapPin } from "lucide-react";
-import { domi, renovatio } from "@/lib/constants/links";
+import { Building2, MapPin } from "lucide-react";
+import { domi } from "@/lib/constants/links";
 import LoopedSubtitle from "./looped-subtitle";
 import HeadlineLarge from "@/components/styles/headline-large";
 import Label from "@/components/styles/label";
