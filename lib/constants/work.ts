@@ -39,10 +39,32 @@ export const work: WorkEntryType[] = [
     role: "mobile engineer",
     date: " (oct 2024 - present)",
     href: domi,
-    subtitle: "mobile dev with flutter vibes",
+    subtitle: "buildig from scratch",
     description:
       "leading the mobile efforts at digital domi rn, building a flutter app from scratch. it's been a fun ride so far—figuring out features, fixing bugs, and everything in between.",
     tech: "flutter-dart-firebase",
+    projects: [
+      {
+        title: "domi",
+        points: [
+          "pushing mobile efforts at digital domi, building the app from scratch",
+          "added share, print pdf, sentry, auth, push notifications, google ml kit, socket chat, deep links, google maps",
+          "built payouts, mailer campaigns, auth, and real-time chat with websockets",
+          "this is still a work in progress, so stay tuned for more updates!",
+        ],
+        featuresBuilt: [
+          "share",
+          "print-pdf",
+          "sentry",
+          "auth",
+          "push-notifs",
+          "google-ml-kit",
+          "socket-chat",
+          "deep-links",
+          "google-maps",
+        ],
+      },
+    ],
   },
   {
     id: "merlin",

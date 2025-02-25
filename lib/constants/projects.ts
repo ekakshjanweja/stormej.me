@@ -27,7 +27,7 @@ export const projects: Project[] = [
   {
     title: "renovatio",
     role: "full stack dev",
-    date: " (july 2024 - present)",
+    date: " (july 2024 - oct 2024)",
     href: renovatio,
     description: "project management for interior designers",
     tech: "nextjs-tailwind-postgres-nextauth-drizzle-shadcnui-aceternity",

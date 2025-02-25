@@ -49,9 +49,9 @@ export default function Hero() {
         </>
       ))}
       <div className="mt-4 text-base text-foreground font-light leading-6 opacity-90">
-        hey, i&apos;m ekaksh janweja, currently in my final year at dtu,
-        wrapping up my undergrad. i build mobile apps and work on cool side
-        projects.
+        hey, i&apos;m ekaksh janweja. i build mobile apps and cool shit on the
+        side. been working with startups for about 2 years now—if you're
+        building something fire and need a mobile app, hit me up.
       </div>
       <LoopedSubtitle />
     </div>

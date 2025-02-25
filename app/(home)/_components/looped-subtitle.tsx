@@ -9,15 +9,16 @@ const items = [
   {
     label: "valorant",
     link: valorant,
-    altText: "(SHIFT + V)",
+    altText: "(shift + v)",
   },
   {
-    label: "lifting weights",
-    altText: "(need to be more consistent)",
+    label: "music",
+    altText: "(seedhe-maut)",
   },
   {
     label: "engineering",
   },
+  { label: "keebs" },
 ];
 
 export default function LoopedSubtitle() {
