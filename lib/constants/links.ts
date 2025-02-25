@@ -12,7 +12,7 @@ export const nvimDotFiles = "https://github.com/ekakshjanweja/neovim_dotfiles";
 
 //Work Ex Links
 
-export const domi = "https://digitaldomi.com/";
+export const domi = "https://landing.digitaldomi.com/";
 export const getMerlin = "https://www.getmerlin.in/";
 export const tbb = "https://teamblackbox.in/";
 export const zuai = "https://www.zuai.co/";

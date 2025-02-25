@@ -18,12 +18,6 @@ const items = [
     hrefText: "@digitaldomi",
     href: domi,
   },
-  {
-    text: "building",
-    icon: <Hammer className="h-4 w-4 text-muted-foreground" />,
-    hrefText: "renovatio",
-    href: renovatio,
-  },
 ];
 
 export default function Hero() {

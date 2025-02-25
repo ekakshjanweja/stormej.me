@@ -38,6 +38,9 @@ export function Navbar() {
           case "b":
             router.push("/blog");
             break;
+          case "g":
+            router.push("/gear");
+            break;
           case "t":
             const currentTheme = document.documentElement.classList.contains(
               "dark"
