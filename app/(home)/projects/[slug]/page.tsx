@@ -1,10 +1,8 @@
-"use client";
-
 import MiniCard from "@/components/mini-card";
 import HeadlineLarge from "@/components/styles/headline-large";
+import { YouTubeVideo } from "@/components/video-component";
 import { projects } from "@/lib/constants/projects";
 import { notFound } from "next/navigation";
-import YouTube from "react-youtube";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -32,15 +30,18 @@ export default async function Page({ params }: PageProps) {
 
         <div className="flex flex-wrap gap-2">
           {item.tech.split("-").map((tech, index) => (
-            <>
-              <MiniCard text={tech} key={index} />
-            </>
+            <MiniCard text={tech} key={index} />
           ))}
         </div>
 
         <div className="flex my-8">
           {item.youtube && (
-            <YouTube videoId={extractYouTubeVideoId(item.youtube)} />
+            <>
+              <YouTubeVideo
+                videoId={extractYouTubeVideoId(item.youtube)!}
+                title={item.title}
+              />
+            </>
           )}
         </div>
       </div>
@@ -54,5 +55,5 @@ function extractYouTubeVideoId(url: string): string | null {
 
   const match = url.match(youtubeUrlRegex);
 
-  return match ? match[1] : null;
+  return match ? match[1] : "dQw4w9WgXcQ";
 }

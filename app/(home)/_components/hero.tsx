@@ -31,16 +31,14 @@ export default function Hero() {
       </div>
       <HeadlineLarge text="ekaksh janweja" />
       {items.map((item, index) => (
-        <>
-          <div key={index} className="mt-2">
-            <Label
-              icon={item.icon}
-              text={item.text}
-              href={item.href}
-              hrefText={item.hrefText}
-            />
-          </div>
-        </>
+        <div key={index} className="mt-2">
+          <Label
+            icon={item.icon}
+            text={item.text}
+            href={item.href}
+            hrefText={item.hrefText}
+          />
+        </div>
       ))}
       <div className="mt-4 text-base text-foreground font-light leading-6 opacity-90">
         hey, i&apos;m ekaksh janweja. i build mobile apps and cool shit on the

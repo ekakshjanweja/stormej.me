@@ -55,26 +55,24 @@ export default function Section({ sectionType }: { sectionType: SectionType }) {
         {sectionArray(sectionType)
           .slice(0, 3)
           .map((item, index) => (
-            <>
-              <Card
-                key={index}
-                title={item.title}
-                role={item.role}
-                date={item.date}
-                description={
-                  sectionType == SectionType.work
-                    ? (item as WorkEntryType).subtitle
-                    : item.description
-                }
-                href={
-                  sectionType == SectionType.work
-                    ? `/work/${(item as WorkEntryType).id}`
-                    : `/projects/${item.title}`
-                }
-                sectionType={sectionType}
-                tech={item.tech}
-              />
-            </>
+            <Card
+              key={index}
+              title={item.title}
+              role={item.role}
+              date={item.date}
+              description={
+                sectionType == SectionType.work
+                  ? (item as WorkEntryType).subtitle
+                  : item.description
+              }
+              href={
+                sectionType == SectionType.work
+                  ? `/work/${(item as WorkEntryType).id}`
+                  : `/projects/${item.title}`
+              }
+              sectionType={sectionType}
+              tech={item.tech}
+            />
           ))}
       </div>
 

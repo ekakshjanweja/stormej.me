@@ -4,7 +4,7 @@ date: "2023-08-10"
 description: "Deconstructing dtu.social: Unveiling the Building Process"
 ---
 
-# Introduction
+### Introduction
 
 I am Ekaksh Janweja, a pre-final year student at Delhi Technological University, and together with my friend [Aryan Sidhwani](https://www.linkedin.com/in/aryan-sidhwani/) \[trust me he makes things work\], I embarked on a journey to create [dtu.social](http://dtu.social), a proximity chat app aimed at connecting students with similar interests and goals. You can check out the app [here](https://play.google.com/store/apps/details?id=com.app.dtusocial).
 
@@ -12,17 +12,17 @@ In this blog, I will walk you through the technical aspects of building this app
 
 ![dtu social banner](https://cdn.hashnode.com/res/hashnode/image/upload/v1691689444550/610b794c-dd86-4a2c-a0a6-c2732b01bb7d.png?w=1600&h=840&fit=crop&crop=entropy&auto=compress,format&format=webp)
 
-## Choosing the Right Technologies
+### Choosing the Right Technologies
 
 To ensure [dtu.social](http://dtu.social) could work seamlessly on Android, iOS, and the web, we opted for Flutter, a cross-platform development framework known for its efficiency and ease of use. Flutter's single codebase approach significantly sped up development, allowing us to target multiple platforms without rewriting the entire codebase.
 
 For backend integration, Firebase emerged as the ideal choice. Its Backend as a Service (BaaS) offerings and robust database \[cloud firestore\] provided the foundation for the app's real-time chat functionality. While alternatives like Appwrite and Supabase existed, we decided on Firebase due to its seamless integration with Flutter and our familiarity with it.
 
-## Riverpod - A Natural Choice for State Management
+### Riverpod - A Natural Choice for State Management
 
 Choosing the right state management solution was crucial for a smooth user experience. We narrowed our options to Riverpod and Provider, both popular choices in the Flutter community. Eventually, Riverpod became the clear winner. Its built-in support for Futures and Streams via `FutureProvider` and `StreamProvider` eased handling of asynchronous data, ensuring smooth real-time updates within the app.
 
-### Future builder implementation using a Future Provider
+##### Future builder implementation using a Future Provider
 
 ```dart
 
@@ -34,7 +34,7 @@ Choosing the right state management solution was crucial for a smooth user exper
 
 ```
 
-### Stream Builder implementation using Stream Provider
+##### Stream Builder implementation using Stream Provider
 
 ```dart
 
@@ -46,36 +46,36 @@ Choosing the right state management solution was crucial for a smooth user exper
 
 ```
 
-## Location Tracking with [ Geolocator ](https://pub.dev/packages/geolocator)
+### Location Tracking with [ Geolocator ](https://pub.dev/packages/geolocator)
 
 To implement the app's proximity chat functionality, we needed to track users' current locations accurately. Geolocator helped by enabling us to retrieve location data and update it in Cloud Firestore efficiently. This allowed us to connect users based on their physical proximity.
 
-## Adopting the [ MVC Pattern ](https://rohaaan.hashnode.dev/mastering-the-mvc-pattern-in-flutter-a-guide-to-better-code-organization)
+### Adopting the [ MVC Pattern ](https://rohaaan.hashnode.dev/mastering-the-mvc-pattern-in-flutter-a-guide-to-better-code-organization)
 
 Simplicity was key in our app's design, and the Model-View-Controller (MVC) pattern perfectly aligned with our development philosophy. Its clear separation of concerns made the codebase easier to manage, allowing us to focus on specific components independently. The MVC pattern significantly improved our development efficiency and code maintainability.
 
-## Routing with [ Routemaster ](https://pub.dev/packages/routemaster)
+### Routing with [ Routemaster ](https://pub.dev/packages/routemaster)
 
 To handle navigation effectively, we adopted Routemaster. This library simplified route management by allowing us to define all routes in a single file. With Routemaster, navigation logic stayed organized and maintainable, even as the app's complexity grew.
 
-## The Challenges we faced
+### The Challenges we faced
 
-### 1. Coordination as a Two-Man Team:
+#### 1. Coordination as a Two-Man Team:
 
 Working as a two-man team initially posed coordination challenges, but close collaboration and efficient communication helped us maintain consistent progress.
 
-### 2. UI Design Struggles:
+#### 2. UI Design Struggles:
 
 As developers, UI design was unfamiliar territory. Struggling with creating an intuitive and visually appealing interface, we sought feedback from design-savvy individuals to improve the app's look and feel.
 
-### 3. Firestore Data Structure Optimization:
+#### 3. Firestore Data Structure Optimization:
 
 Initially, we encountered inefficiencies in our Firestore data structure, leading to crossing the limits of the basic free Firebase plan. We learned from this experience and migrated to a more optimized approach by consolidating messages into a single document, vastly improving the app's performance.
 
-### 4. Deploying the app to play store:
+#### 4. Deploying the app to play store:
 
 Getting our app on the Play Store was complex. We tackled forms, explaining location use, and adhering to policies. Despite hurdles, [dtu.social](http://dtu.social) went live.
 
-## Lastly,
+### Lastly,
 
 I would be grateful if you guys try to use this app and drop me feedback on twitter [@ekaksh_janweja](https://twitter.com/ekaksh_janweja). And also [Aryan](https://www.linkedin.com/in/aryan-sidhwani/) lets build even more projects together.

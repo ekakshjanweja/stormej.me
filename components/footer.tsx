@@ -30,16 +30,14 @@ export default function Footer() {
           </p>
           <div className="flex gap-x-4">
             {footerItems.map((item, index) => (
-              <>
-                <Link
-                  href={item.href}
-                  target="_blank"
-                  key={index}
-                  className="hover:text-highlight transition-all duration-300 ease-in-out"
-                >
-                  {item.title}
-                </Link>
-              </>
+              <Link
+                href={item.href}
+                target="_blank"
+                key={index}
+                className="hover:text-highlight transition-all duration-300 ease-in-out"
+              >
+                {item.title}
+              </Link>
             ))}
           </div>
         </div>

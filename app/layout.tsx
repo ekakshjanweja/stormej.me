@@ -70,7 +70,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={geistMono.className}>
+      <body className={geistMono.className} suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

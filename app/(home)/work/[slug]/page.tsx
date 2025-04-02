@@ -59,58 +59,52 @@ export default async function Page({
           {item.projects && (
             <>
               {item.projects!.map((project, index) => (
-                <>
-                  <div key={index} className="mt-8">
-                    <div className="flex items-center gap-x-2">
-                      <p className="text-foreground">{"=>"}</p>
-                      <HeadlineSmall text={project.title} />
-                    </div>
+                <div key={index} className="mt-8">
+                  <div className="flex items-center gap-x-2">
+                    <p className="text-foreground">{"=>"}</p>
+                    <HeadlineSmall text={project.title} />
+                  </div>
 
-                    <div className=" mt-2 flex flex-wrap gap-x-4">
-                      {project.playstore && (
-                        <>
-                          <MiniCard text="playstore" href={project.playstore} />
-                        </>
-                      )}
-                      {project.appstore && (
-                        <>
-                          <MiniCard text="appstore" href={project.appstore} />
-                        </>
-                      )}
-                    </div>
-
-                    {project.featuresBuilt && (
+                  <div className=" mt-2 flex flex-wrap gap-x-4">
+                    {project.playstore && (
                       <>
-                        {project.featuresBuilt!.length > 0 && (
-                          <p className="mt-6 mb-2 text-sm">
-                            {"features built"}
-                          </p>
-                        )}
-                        <div className="flex flex-wrap gap-x-0 sm:gap-x-2">
-                          {project.featuresBuilt!.map((feature, index) => (
-                            <>
-                              <MiniCard text={feature} key={index} />
-                            </>
-                          ))}
-                        </div>
+                        <MiniCard text="playstore" href={project.playstore} />
                       </>
                     )}
-                    {project.points && (
+                    {project.appstore && (
                       <>
-                        <ul className="list-disc list-inside mt-4">
-                          {project.points!.map((point, index) => (
-                            <li
-                              key={index}
-                              className="text-sm text-muted-foreground leading-7"
-                            >
-                              {point}
-                            </li>
-                          ))}
-                        </ul>
+                        <MiniCard text="appstore" href={project.appstore} />
                       </>
                     )}
                   </div>
-                </>
+
+                  {project.featuresBuilt && (
+                    <>
+                      {project.featuresBuilt!.length > 0 && (
+                        <p className="mt-6 mb-2 text-sm">{"features built"}</p>
+                      )}
+                      <div className="flex flex-wrap gap-x-0 sm:gap-x-2">
+                        {project.featuresBuilt!.map((feature, index) => (
+                          <MiniCard text={feature} key={index} />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                  {project.points && (
+                    <>
+                      <ul className="list-disc list-inside mt-4">
+                        {project.points!.map((point, index) => (
+                          <li
+                            key={index}
+                            className="text-sm text-muted-foreground leading-7"
+                          >
+                            {point}
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                </div>
               ))}
             </>
           )}

@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
+import Image from "next/image";
 
 interface SpotifyTrack {
   name: string;
@@ -14,19 +15,19 @@ const SpotifyNowPlaying = () => {
   useEffect(() => {
     const fetchNowPlaying = async () => {
       try {
-        const response = await fetch('/api/spotify');
+        const response = await fetch("/api/spotify");
         const data = await response.json();
-        
+
         if (data && data.isPlaying) {
           setTrack({
             name: data.title,
             artist: data.artist,
             albumArt: data.albumImageUrl,
-            songUrl: data.songUrl
+            songUrl: data.songUrl,
           });
         }
       } catch (error) {
-        console.error('Error fetching Spotify data:', error);
+        console.error("Error fetching Spotify data:", error);
       } finally {
         setLoading(false);
       }
@@ -35,7 +36,7 @@ const SpotifyNowPlaying = () => {
     fetchNowPlaying();
     // Refresh every 30 seconds
     const interval = setInterval(fetchNowPlaying, 30000);
-    
+
     return () => clearInterval(interval);
   }, []);
 
@@ -49,13 +50,15 @@ const SpotifyNowPlaying = () => {
 
   return (
     <div className="flex items-center space-x-4 p-4 bg-gray-100 rounded-lg">
-      <img 
-        src={track.albumArt} 
+      <Image
+        src={track.albumArt}
         alt={`${track.name} album art`}
-        className="w-16 h-16 rounded-md"
+        width={64}
+        height={64}
+        className="rounded-md"
       />
       <div>
-        <a 
+        <a
           href={track.songUrl}
           target="_blank"
           rel="noopener noreferrer"

@@ -42,45 +42,62 @@ function YouTube({ videoId }: { videoId: string }) {
     </div>
   );
 }
-
 const components = {
   a: (props: React.HTMLProps<HTMLAnchorElement>) => (
     <a
-      className="text-muted-foreground font-normal underline hover:text-highlight"
+      className="text-highlight font-normal underline hover:opacity-75 transition-all duration-100"
       {...props}
     />
   ),
   strong: (props: React.HTMLProps<HTMLSpanElement>) => (
-    <strong className="font-semibold pr-2 mt-4" {...props} />
+    <strong className="font-semibold text-foreground pr-2" {...props} />
   ),
   img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
-    <img alt={props.alt} className="rounded-lg my-[2rem]" {...props} />
-  ),
-
-  h1: (props: React.HTMLProps<HTMLHeadingElement>) => (
-    <h1
-      className="text-2xl font-semibold text-foreground mt-[3rem] mb-[0.2rem]"
+    <img
+      alt={props.alt}
+      className="rounded-lg my-8 shadow-md mx-auto max-w-full"
       {...props}
     />
   ),
+  h1: (props: React.HTMLProps<HTMLHeadingElement>) => (
+    <h1 className="text-3xl font-bold text-foreground mt-12 mb-4" {...props} />
+  ),
   h2: (props: React.HTMLProps<HTMLHeadingElement>) => (
     <h2
-      className="text-xl font-semibold text-foreground"
-      style={{
-        marginTop: "1.5rem",
-        marginBottom: "0.3rem",
-      }}
+      className="text-2xl font-semibold text-foreground mt-8 mb-3"
       {...props}
     />
   ),
   h3: (props: React.HTMLProps<HTMLHeadingElement>) => (
-    <h3
-      className="text-sm font-semibold text-foreground mt-[1rem] mb-[0.3rem]"
+    <h3 className="text-xl font-medium text-foreground mt-6 mb-2" {...props} />
+  ),
+  h4: (props: React.HTMLProps<HTMLHeadingElement>) => (
+    <h4 className="text-lg font-medium text-foreground mt-4 mb-2" {...props} />
+  ),
+  h5: (props: React.HTMLProps<HTMLHeadingElement>) => (
+    <h5 className="text-sm font-medium text-foreground mt-2 mb-1" {...props} />
+  ),
+  p: (props: React.HTMLProps<HTMLParagraphElement>) => (
+    <p
+      className="text-base leading-relaxed text-muted-foreground my-4"
       {...props}
     />
   ),
-  p: (props: React.HTMLProps<HTMLParagraphElement>) => (
-    <p className="text-sm leading-6" {...props} />
+  ul: (props: React.HTMLProps<HTMLUListElement>) => (
+    <ul className="list-disc ml-6 my-4 space-y-2" {...props} />
+  ),
+  ol: (props: React.HTMLProps<HTMLOListElement>) => {
+    const { type, ...rest } = props;
+    return <ol className="list-decimal ml-6 my-4 space-y-2" {...rest} />;
+  },
+  li: (props: React.HTMLProps<HTMLLIElement>) => (
+    <li className="text-base text-muted-foreground" {...props} />
+  ),
+  blockquote: (props: React.HTMLProps<HTMLQuoteElement>) => (
+    <blockquote
+      className="border-l-4 border-gray-300 pl-4 italic my-6 text-muted-foreground"
+      {...props}
+    />
   ),
   pre: Code,
   Yt: YouTube,

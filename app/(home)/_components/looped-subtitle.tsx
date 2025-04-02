@@ -36,8 +36,10 @@ export default function LoopedSubtitle() {
           interval={3.5}
           transition={{ duration: 0.3 }}
         >
-          {items.map((item) => (
-            <>{HighlightedText(item.label, item.link, item.altText)}</>
+          {items.map((item, index) => (
+            <div key={index}>
+              {HighlightedText(item.label, item.link, item.altText)}
+            </div>
           ))}
         </TextLoop>
       </div>
