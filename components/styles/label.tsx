@@ -1,9 +1,9 @@
 import Link from "next/link";
-import React from "react";
+import { ReactNode } from "react";
 
 export interface LabelProps {
   text: string;
-  icon?: JSX.Element;
+  icon?: ReactNode;
   href?: string;
   hrefText?: string;
   className?: string;
