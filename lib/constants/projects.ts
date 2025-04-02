@@ -1,4 +1,5 @@
 import {
+  browserAutomationAgent,
   dtuSocial,
   flux,
   fluxGithub,
@@ -24,6 +25,15 @@ interface Project {
 }
 
 export const projects: Project[] = [
+  {
+    title: "browser-automation-agent",
+    role: "full stack dev",
+    date: " (feb 2025 - march 2025)",
+    href: browserAutomationAgent,
+    description: "browser automation agent made with playwright",
+    tech: "aisdk-playwright-bun-hono",
+    youtube: browserAutomationAgent,
+  },
   {
     title: "renovatio",
     role: "full stack dev",
