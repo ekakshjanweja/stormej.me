@@ -50,6 +50,8 @@ export const work: WorkEntryType[] = [
           "pushing mobile efforts at digital domi, building the app from scratch",
           "added share, print pdf, sentry, auth, push notifications, google ml kit, socket chat, deep links, google maps",
           "built payouts, mailer campaigns, auth, and real-time chat with websockets",
+          "role-based access control for different user types",
+          "video playback optimization for smooth streaming experience with a ui simillar to instagram reels",
           "this is still a work in progress, so stay tuned for more updates!",
         ],
         featuresBuilt: [
@@ -62,6 +64,8 @@ export const work: WorkEntryType[] = [
           "socket-chat",
           "deep-links",
           "google-maps",
+          "role-based-access",
+          "video-playback-optimization",
         ],
       },
     ],
