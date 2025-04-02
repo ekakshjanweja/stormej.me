@@ -42,6 +42,7 @@ function YouTube({ videoId }: { videoId: string }) {
     </div>
   );
 }
+
 const components = {
   a: (props: React.HTMLProps<HTMLAnchorElement>) => (
     <a
@@ -52,7 +53,9 @@ const components = {
   strong: (props: React.HTMLProps<HTMLSpanElement>) => (
     <strong className="font-semibold text-foreground pr-2" {...props} />
   ),
+
   img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
+    // eslint-disable-next-line @next/next/no-img-element
     <img
       alt={props.alt}
       className="rounded-lg my-8 shadow-md mx-auto max-w-full"
@@ -87,8 +90,16 @@ const components = {
     <ul className="list-disc ml-6 my-4 space-y-2" {...props} />
   ),
   ol: (props: React.HTMLProps<HTMLOListElement>) => {
+    // Destructure 'type' from props to avoid passing it if it's not a valid value
     const { type, ...rest } = props;
-    return <ol className="list-decimal ml-6 my-4 space-y-2" {...rest} />;
+    return (
+      <ol
+        className="list-decimal ml-6 my-4 space-y-2"
+        {...rest}
+        // Only pass type if it's a valid value for ol elements
+        type={type as "a" | "i" | "1" | "A" | "I" | undefined}
+      />
+    );
   },
   li: (props: React.HTMLProps<HTMLLIElement>) => (
     <li className="text-base text-muted-foreground" {...props} />

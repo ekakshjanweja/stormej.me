@@ -39,8 +39,11 @@ export async function GET(request: Request) {
           position: "relative",
         }}
       >
+        {/* Using img tag intentionally for OG image generation */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="https://www.stormej.me/stormej.png"
+          alt="stormej profile picture"
           style={{
             position: "absolute",
             bottom: "40px",
