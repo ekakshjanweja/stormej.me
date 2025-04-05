@@ -71,11 +71,15 @@ export function TextScramble({
     }, speed * 1000);
   }, [isAnimating, duration, speed, text, characterSet, onScrambleComplete]);
 
-  useEffect(() => {
-    if (!trigger) return;
+  useEffect(
+    () => {
+      if (!trigger) return;
 
-    scramble();
-  }, [trigger, scramble]);
+      scramble();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [trigger]
+  );
 
   return (
     <MotionComponent className={className} {...props}>
