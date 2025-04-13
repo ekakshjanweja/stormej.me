@@ -2,6 +2,7 @@ import MiniCard from "@/components/mini-card";
 import HeadlineLarge from "@/components/styles/headline-large";
 import { YouTubeVideo } from "@/components/video-component";
 import { projects } from "@/lib/constants/projects";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 interface PageProps {
@@ -32,6 +33,18 @@ export default async function Page({ params }: PageProps) {
           {item.tech.split("-").map((tech, index) => (
             <MiniCard text={tech} key={index} />
           ))}
+        </div>
+
+        <div className="flex flex-wrap gap-2 mt-4">
+          {item.github && (
+            <Link
+              href={item.github}
+              target="_blank"
+              className="hover:text-highlight transition-all duration-300"
+            >
+              github
+            </Link>
+          )}
         </div>
 
         <div className="flex my-8">

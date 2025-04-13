@@ -36,13 +36,13 @@ export const work: WorkEntryType[] = [
   {
     id: "digital-domi",
     title: "digital domi",
-    role: "mobile engineer",
+    role: "founding engineer",
     date: " (oct 2024 - present)",
     href: domi,
-    subtitle: "buildig from scratch",
+    subtitle: "digital mailboxes",
     description:
       "leading the mobile efforts at digital domi rn, building a flutter app from scratch. it's been a fun ride so far—figuring out features, fixing bugs, and everything in between.",
-    tech: "flutter-dart-firebase",
+    tech: "flutter-dart-supabase-websockets-sentry-googlemlkit-googlemaps-provider-onesignal-videoplayer",
     projects: [
       {
         title: "domi",
@@ -155,7 +155,8 @@ export const work: WorkEntryType[] = [
     date: " (oct 2021 - jan 2022)",
     href: zuai,
     subtitle: "my first step into the dev world",
-    description: "baby steps this was my first internship",
+    description:
+      "baby steps this was my first internship tbh did not even know what github is",
     tech: "flutter-firebase",
     projects: [
       {

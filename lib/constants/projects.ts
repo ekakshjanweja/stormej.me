@@ -1,5 +1,6 @@
 import {
   browserAutomationAgent,
+  browserUseTsGithub,
   dtuSocial,
   flux,
   fluxGithub,
@@ -33,6 +34,7 @@ export const projects: Project[] = [
     description: "browser automation agent made with playwright",
     tech: "aisdk-playwright-bun-hono",
     youtube: browserAutomationAgent,
+    github: browserUseTsGithub,
   },
   {
     title: "renovatio",
