@@ -24,7 +24,7 @@ export function Navbar() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.shiftKey) {
+      if (event.key) {
         switch (event.key.toLowerCase()) {
           case "h":
             router.push("/");
