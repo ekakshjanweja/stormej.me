@@ -9,14 +9,14 @@ import LinkedIn from "@/components/linkedin";
 
 const items = [
   {
-    text: "new delhi, india",
-    icon: <MapPin className="h-4 w-4 text-muted-foreground" />,
-  },
-  {
     text: "mobile engineer",
     icon: <Building2 className="h-4 w-4 text-muted-foreground" />,
     hrefText: "@digitaldomi",
     href: domi,
+  },
+  {
+    text: "new delhi, india",
+    icon: <MapPin className="h-4 w-4 text-muted-foreground" />,
   },
 ];
 

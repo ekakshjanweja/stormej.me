@@ -39,8 +39,9 @@ export default function Card({
         <div className="mt-8 space-y-1">
           <HeadlineSmall text={title} />
           <Label text={sectionType == SectionType.work ? role! + date : date} />
-          <BodyLarge text={description} />
-          {sectionType == SectionType.project && <Label text={tech!} />}
+          {/* TODO: Add description and tech */}
+          {/* <BodyLarge text={description} />
+          {sectionType == SectionType.project && <Label text={tech!} />} */}
         </div>
       </Link>
     </>
