@@ -1,4 +1,3 @@
-import BodyLarge from "@/components/styles/body-large";
 import HeadlineSmall from "@/components/styles/headline-small";
 import Label from "@/components/styles/label";
 import Link from "next/link";
@@ -18,10 +17,8 @@ export default function Card({
   title,
   role,
   date,
-  description,
   href,
   sectionType,
-  tech,
 }: CardProps) {
   return (
     <>
