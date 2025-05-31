@@ -79,7 +79,7 @@ export default function RootLayout({
           storageKey="stormej.theme"
         >
           <div className="flex justify-center w-full">
-            <div className="md:max-w-4xl w-full px-4 py-8">
+            <div className="md:max-w-3xl w-full px-4 py-8">
               <Navbar />
               {children}
               <Footer />
