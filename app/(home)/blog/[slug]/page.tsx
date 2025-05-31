@@ -57,7 +57,7 @@ export default async function Page({ params }: PageProps) {
   const props = await getPost(await params);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-6 sm:py-8 lg:py-12">
+    <div className="max-w-4xl mx-auto">
       {/* Blog Header */}
       <header className="mb-8 sm:mb-12 lg:mb-16">
         <div className="space-y-4 sm:space-y-6">

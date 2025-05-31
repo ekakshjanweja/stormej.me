@@ -10,7 +10,7 @@ export default function Blog() {
   });
 
   return (
-    <main className="container mx-auto px-4 py-6 sm:py-8 lg:py-12">
+    <main>
       {/* Page Header */}
       <div className="mb-12 sm:mb-16 lg:mb-20">
         <TextScramble
@@ -36,11 +36,11 @@ export default function Blog() {
             }}
           >
             <Card
-              date={blog.formattedDate}
-              role=""
-              description={blog.meta.description}
               title={blog.meta.title}
+              date={blog.formattedDate}
+              description={blog.meta.description}
               href={`/blog/${blog.slug}`}
+              type="blog"
             />
           </div>
         ))}

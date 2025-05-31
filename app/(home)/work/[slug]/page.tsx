@@ -22,13 +22,12 @@ export default async function Page({
 
   return (
     <main className="min-h-screen">
-      <div className="container mx-auto px-4 py-8 lg:py-12">
-        <div className="max-w-4xl mx-auto">
-          {/* Enhanced Back Navigation */}
-          <Link
-            href="/work"
-            className="group inline-flex items-center gap-2 mb-12 text-sm text-muted-foreground hover:text-foreground transition-all duration-300 hover:gap-3"
-          >
+      <div className="max-w-4xl mx-auto">
+        {/* Enhanced Back Navigation */}
+        <Link
+          href="/work"
+          className="group inline-flex items-center gap-2 mb-12 text-sm text-muted-foreground hover:text-foreground transition-all duration-300 hover:gap-3"
+        >
             <span className="transform group-hover:-translate-x-1 transition-transform duration-300">←</span>
             <span className="relative">
               back to work
@@ -47,8 +46,18 @@ export default async function Page({
                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-highlight via-highlight/60 to-transparent rounded-full" />
                   <div className="text-sm pl-6 space-y-3">
                     <div className="text-muted-foreground font-medium">{item.role} • {item.date}</div>
-                    <div className="text-highlight font-semibold px-3 py-1 rounded-full bg-highlight/10 border border-highlight/20 inline-block">
-                      {item.tech}
+                    
+                    {/* Tech Stack */}
+                    <div className="flex flex-wrap gap-2 sm:gap-3">
+                      {item.tech.split("-").map((tech, index) => (
+                        <div 
+                          key={index}
+                          className="transform hover:scale-105 transition-all duration-200"
+                          style={{ animationDelay: `${index * 100}ms` }}
+                        >
+                          <MiniCard text={tech} />
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -170,7 +179,6 @@ export default async function Page({
             </div>
           )}
         </div>
-      </div>
-    </main>
-  );
+      </main>
+    );
 }

@@ -85,10 +85,9 @@ export default function Section({ sectionType }: { sectionType: SectionType }) {
                     ? `/work/${(item as WorkEntryType).id}`
                     : `/projects/${item.title}`
                 }
-                sectionType={sectionType}
-                tech={item.tech}
+                type={sectionType == SectionType.work ? "work" : "project"}
                 shouldViewMore={sectionType == SectionType.project ? (item as any).shouldViewMore : undefined}
-                projectHref={sectionType == SectionType.project ? (item as any).href : undefined}
+                externalHref={sectionType == SectionType.project ? (item as any).href : undefined}
               />
             </div>
           ))}

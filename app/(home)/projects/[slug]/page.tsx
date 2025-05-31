@@ -20,13 +20,12 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <main className="min-h-screen">
-      <div className="container mx-auto px-4 py-8 lg:py-12">
-        <div className="max-w-4xl mx-auto">
-          {/* Enhanced Back Navigation */}
-          <Link
-            href="/projects"
-            className="group inline-flex items-center gap-2 mb-12 text-sm text-muted-foreground hover:text-foreground transition-all duration-300 hover:gap-3"
-          >
+      <div className="max-w-4xl mx-auto">
+        {/* Enhanced Back Navigation */}
+        <Link
+          href="/projects"
+          className="group inline-flex items-center gap-2 mb-12 text-sm text-muted-foreground hover:text-foreground transition-all duration-300 hover:gap-3"
+        >
             <span className="transform group-hover:-translate-x-1 transition-transform duration-300">←</span>
             <span className="relative">
               back to projects
@@ -53,11 +52,11 @@ export default async function Page({ params }: PageProps) {
                 </div>
 
                 {/* Tech Stack */}
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2 sm:gap-3">
                   {item.tech.split("-").map((tech, index) => (
                     <div 
                       key={index}
-                      className="transform hover:scale-105 transition-all duration-200 hover:shadow-md"
+                      className="transform hover:scale-105 transition-all duration-200"
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
                       <MiniCard text={tech} />
@@ -67,28 +66,30 @@ export default async function Page({ params }: PageProps) {
 
                 {/* Links */}
                 {item.github && (
-                  <div className="flex flex-wrap gap-4">                      <Link
-                        href={item.github}
-                        target="_blank"
-                        className="group relative inline-flex items-center gap-3 px-6 py-3 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground border border-border/40 hover:border-highlight/50 transition-all duration-300 bg-background hover:-translate-y-0.5"
-                      >                        <span>View on GitHub</span>
-                        <span className="transform group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-transform duration-300">↗</span>
-                      </Link>
+                  <div className="flex flex-wrap gap-4">
+                    <Link
+                      href={item.github}
+                      target="_blank"
+                      className="group relative inline-flex items-center gap-3 px-6 py-3 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground border border-border/40 hover:border-highlight/50 transition-all duration-300 bg-background hover:-translate-y-0.5"
+                    >
+                      <span>View on GitHub</span>
+                      <span className="transform group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-transform duration-300">↗</span>
+                    </Link>
                   </div>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Project Demo */}
-          {item.youtube && (                <div className="group relative rounded-2xl overflow-hidden border border-border/40 hover:border-highlight/30 transition-all duration-500">
-                  <YouTubeVideo
-                    videoId={extractYouTubeVideoId(item.youtube)!}
-                    title={item.title}
-                  />
-                </div>
-          )}
-        </div>
+        {/* Project Demo */}
+        {item.youtube && (
+          <div className="group relative rounded-2xl overflow-hidden border border-border/40 hover:border-highlight/30 transition-all duration-500">
+            <YouTubeVideo
+              videoId={extractYouTubeVideoId(item.youtube)!}
+              title={item.title}
+            />
+          </div>
+        )}
       </div>
     </main>
   );

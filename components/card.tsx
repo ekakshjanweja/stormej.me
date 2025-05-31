@@ -1,8 +1,9 @@
-import HeadlineSmall from "@/components/styles/headline-small";
+import HeadlineMedium from "@/components/styles/headline-medium";
 import Label from "@/components/styles/label";
 import Link from "next/link";
-import { SectionType } from "./section";
 import { cn } from "@/lib/utils";
+
+export type CardType = "work" | "project" | "blog";
 
 interface CardProps {
   title: string;
@@ -10,40 +11,41 @@ interface CardProps {
   date: string;
   description: string;
   href: string;
-  sectionType?: SectionType;
-  tech?: string;
+  type: CardType;
   shouldViewMore?: boolean;
-  projectHref?: string;
+  externalHref?: string;
 }
 
 export default function Card({
   title,
   role,
   date,
+  description,
   href,
-  sectionType,
-  shouldViewMore,
-  projectHref,
+  type,
+  shouldViewMore = false,
+  externalHref,
 }: CardProps) {
-  // For projects, determine the actual href and target based on shouldViewMore
-  const actualHref = sectionType === SectionType.project && shouldViewMore === false 
-    ? projectHref || href 
+  // Determine the actual href and target based on type and shouldViewMore
+  const actualHref = type === "project" && !shouldViewMore && externalHref 
+    ? externalHref 
     : href;
   
-  const target = sectionType === SectionType.project && shouldViewMore === false
+  const target = type === "project" && !shouldViewMore
     ? "_blank"
-    : (sectionType == null ||
-      sectionType == SectionType.work ||
-      sectionType == SectionType.project
-        ? "_parent"
-        : "_blank");
+    : "_parent";
+
+  // Format label text based on type
+  const labelText = type === "work" 
+    ? `${role || ""} ${date}` 
+    : `${role ? `${role} ` : ''}${date}`;
 
   return (
     <Link
       href={actualHref}
       target={target}
       className={cn(
-        "group block w-full relative",
+        "group block w-full",
         "transition-all duration-300 ease-in-out",
         "hover:translate-x-1 focus:translate-x-1",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2",
@@ -51,20 +53,31 @@ export default function Card({
       )}
     >
       <article className={cn(
-        "relative w-full py-8 px-2",
+        "relative w-full py-8",
         "border-b border-border/30",
         "transition-all duration-300 ease-in-out",
         "group-hover:border-border/50 group-focus:border-border/50",
-        "space-y-3"
+        "space-y-3",
+        "hover:px-2"
       )}>
         <div className="space-y-2 relative z-10">
-          <HeadlineSmall text={title} />
+          <HeadlineMedium text={title} />
           <div className={cn(
             "transition-all duration-300 ease-in-out",
             "group-hover:text-muted-foreground/80 group-focus:text-muted-foreground/80"
           )}>
-            <Label text={sectionType == SectionType.work ? (role || "") + date : date} />
+            <Label text={labelText} />
           </div>
+        </div>
+        
+        {/* Description */}
+        <div className={cn(
+          "text-sm text-muted-foreground/90 relative z-10",
+          "transition-all duration-300 ease-in-out",
+          "group-hover:text-muted-foreground group-focus:text-muted-foreground",
+          "leading-relaxed"
+        )}>
+          {description}
         </div>
         
         {/* Gradient background effect */}

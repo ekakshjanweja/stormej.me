@@ -38,7 +38,7 @@ export const projects: Project[] = [
     shouldViewMore: false,
   },
   {
-    title: "browser-automation-agent",
+    title: "browser-automation",
     date: " (feb 2025 - march 2025)",
     href: browserAutomationAgent,
     description: "browser automation agent made with playwright",

@@ -1,13 +1,10 @@
-import HeadlineMedium from "@/components/styles/headline-medium";
-import Label from "@/components/styles/label";
+import Card from "@/components/card";
 import { TextScramble } from "@/components/ui/text-scramble";
 import { work } from "@/lib/constants/work";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
 
 export default function Work() {
   return (
-    <main className="container mx-auto px-4 py-8 lg:py-12">
+    <main>
       {/* Page Header */}
       <div className="mb-16 lg:mb-20">
         <TextScramble
@@ -24,48 +21,23 @@ export default function Work() {
       {/* Work Experience List */}
       <div className="space-y-2">
         {work.map((item, index) => (
-          <Link 
-            href={`/work/${item.id}`} 
-            key={index}
-            className={cn(
-              "group block w-full",
-              "transition-all duration-300 ease-in-out",
-              "hover:translate-x-1 focus:translate-x-1",
-              "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2",
-              "rounded-lg p-1 -m-1" // Padding for focus ring
-            )}
+          <div
+            key={item.id}
+            className="animate-in slide-in-from-bottom-4 duration-700"
+            style={{
+              animationDelay: `${index * 100}ms`,
+              animationFillMode: 'both'
+            }}
           >
-            <article className={cn(
-              "relative w-full py-8 px-2",
-              "border-b border-border/30",
-              "transition-all duration-300 ease-in-out",
-              "group-hover:border-border/50 group-focus:border-border/50",
-              "space-y-3"
-            )}>
-              <div className="space-y-2 relative z-10">
-                <HeadlineMedium text={item.title} />
-                <div className={cn(
-                  "transition-all duration-300 ease-in-out",
-                  "group-hover:text-muted-foreground/80 group-focus:text-muted-foreground/80"
-                )}>
-                  <Label text={`${item.role} ${item.date}`} />
-                </div>
-              </div>
-              
-              {/* Work Description */}
-              <div className={cn(
-                "text-sm text-muted-foreground/90 relative z-10",
-                "transition-all duration-300 ease-in-out",
-                "group-hover:text-muted-foreground group-focus:text-muted-foreground",
-                "leading-relaxed"
-              )}>
-                {item.description}
-              </div>
-              
-              {/* Gradient background effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-highlight/5 to-accent/5 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 -z-10" />
-            </article>
-          </Link>
+            <Card
+              title={item.title}
+              role={item.role}
+              date={item.date}
+              description={item.description}
+              href={`/work/${item.id}`}
+              type="work"
+            />
+          </div>
         ))}
       </div>
     </main>

@@ -16,7 +16,7 @@ const gear = [
 
 export default function Gear() {
   return (
-    <main className="container mx-auto px-4 py-8 lg:py-12">
+    <main>
       {/* Page Header */}
       <section className="mb-16 lg:mb-20">
         <HeadlineMedium text={"gear"}/>

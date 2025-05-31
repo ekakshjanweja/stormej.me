@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function Hero() {
   return (
-    <main className="container mx-auto px-4 py-8 lg:py-12">
+    <main>
       <section className="relative">
         {/* Header Section */}
         <header className="mb-6 sm:mb-8 lg:mb-10">
