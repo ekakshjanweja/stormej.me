@@ -1,4 +1,4 @@
-import HeadlineLarge from "@/components/styles/headline-large";
+import HeadlineMedium from "@/components/styles/headline-medium";
 import HeadlineSmall from "@/components/styles/headline-small";
 
 const gear = [
@@ -16,23 +16,52 @@ const gear = [
 
 export default function Gear() {
   return (
-    <>
-      <div>
-        <HeadlineLarge text="gear" showAsterisk />
+    <main className="container mx-auto px-4 py-8 lg:py-12">
+      {/* Page Header */}
+      <section className="mb-16 lg:mb-20">
+        <HeadlineMedium text={"gear"}/>
+        <p className="text-muted-foreground text-base max-w-2xl">
+          The tools and equipment that power my daily work and creative projects
+        </p>
+      </section>
 
-        <div className="grid grid-cols-2 gap-4 text-muted-foreground mt-16">
-          {gear.map(({ label, value }) => (
-            <>
-              <div key={label} className="text-left">
-                {label}
+      {/* Gear Grid */}
+      <section className="mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+          {gear.map(({ label, value }, index) => (
+            <div
+              key={label}
+              className="group relative p-6 rounded-lg border border-border/50 bg-card/30 hover:bg-card/50 transition-all duration-300 ease-in-out hover:border-border hover:shadow-lg"
+              style={{
+                animationDelay: `${index * 50}ms`,
+              }}
+            >
+              <div className="flex flex-col space-y-2">
+                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                  {label}
+                </h3>
+                <p className="text-lg font-semibold text-foreground group-hover:text-highlight transition-colors duration-300">
+                  {value}
+                </p>
               </div>
-              <div className="text-left">{value}</div>
-            </>
+
+              {/* Subtle hover effect border */}
+              <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-highlight/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
+            </div>
           ))}
         </div>
+      </section>
 
-        <HeadlineSmall text="idk whats left" className="mt-4" />
-      </div>
-    </>
+      {/* Footer Section */}
+      <section className="text-center pt-8 border-t border-border/30">
+        <HeadlineSmall
+          text="always evolving, always improving"
+          className="text-muted-foreground/80"
+        />
+        <p className="text-sm text-muted-foreground mt-2">
+          this setup changes as i discover new tools and workflows
+        </p>
+      </section>
+    </main>
   );
 }

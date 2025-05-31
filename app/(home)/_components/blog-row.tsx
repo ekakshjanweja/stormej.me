@@ -13,7 +13,7 @@ export const BlogRow = async () => {
   return (
     <>
       <div className="mt-12">
-        <HeadlineMedium text="blogs" showAsterisk />
+        <HeadlineMedium text="blogs" />
         <div>
           {blogs.map(
             (blog, i) =>

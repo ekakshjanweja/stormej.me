@@ -25,7 +25,7 @@ export default async function Page({ params }: PageProps) {
 
         <div className="flex flex-wrap gap-y-2 gap-x-6 text-xs text-muted-foreground my-2">
           <p>
-            {item.role} {item.date}
+            {item.role && `${item.role} `}{item.date}
           </p>
         </div>
 

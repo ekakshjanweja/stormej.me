@@ -61,7 +61,7 @@ export const stormejIsLiveGithub =
 export const stormejIsLiveYoutube =
   "https://www.youtube.com/watch?v=RAcWnMxSdTo";
 
-export const dtuSocial = "https://www.youtube.com/shorts/z34a2tZtKc0";
+export const dtuSocial = "https://www.youtube.com/watch?v=uPrSzoiw8Ms";
 
 export const oldPortfolio = "https://flutter.stormej.me";
 

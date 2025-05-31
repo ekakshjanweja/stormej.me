@@ -9,7 +9,7 @@ export default function HeadlineMedium({
 }) {
   return (
     <>
-      <div className={className + " flex text-2xl font-semibold"}>
+      <div className={className + " flex text-xl sm:text-2xl font-semibold"}>
         {showAsterisk && <p className="text-highlight mr-2">*</p>} <p>{text}</p>
       </div>
     </>

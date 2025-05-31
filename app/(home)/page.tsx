@@ -4,7 +4,7 @@ import Section, { SectionType } from "@/components/section";
 
 export default async function Home() {
   return (
-    <div>
+    <div className="">
       <Hero />
 
       <Section sectionType={SectionType.work} />

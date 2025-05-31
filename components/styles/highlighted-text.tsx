@@ -13,9 +13,19 @@ export const HighlightedText = (
       }
     >
       {link != null ? (
-        <Link href={link} target={link == "/gear" ? "_parent" : "_blank"}>
-          <p>{label}</p>
-        </Link>
+        <div className="relative group">
+          <Link 
+            href={link} 
+            target={link == "/gear" ? "_parent" : "_blank"}
+            className="relative z-10 transition-all duration-300 hover:text-highlight"
+          >
+            <p>{label}</p>
+          </Link>
+          
+          {/* Gradient background effects for links */}
+          <div className="absolute -inset-2 bg-gradient-to-r from-highlight/10 to-accent/10 rounded-md opacity-0 group-hover:opacity-100 transition-all duration-300 -z-10" />
+          <div className="absolute -inset-1 bg-highlight/5 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
+        </div>
       ) : (
         <p>{label}</p>
       )}

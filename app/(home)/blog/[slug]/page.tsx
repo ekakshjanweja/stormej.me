@@ -57,24 +57,60 @@ export default async function Page({ params }: PageProps) {
   const props = await getPost(await params);
 
   return (
-    <article className="prose prose-lg md:prose-lg lg:prose-lg mx-auto text-muted-foreground">
-      <HeadlineLarge
-        text={props.frontMatter.title}
-        showAsterisk
-        className="text-foreground"
-      />
-      <div className="text-foreground opacity-80 text-base">
-        <p>{props.frontMatter.description}</p>
-        <p>
-          {new Date(props.frontMatter.date).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}
-        </p>
-      </div>
+    <div className="mx-auto max-w-4xl px-4 py-6 sm:py-8 lg:py-12">
+      {/* Blog Header */}
+      <header className="mb-8 sm:mb-12 lg:mb-16">
+        <div className="space-y-4 sm:space-y-6">
+          <HeadlineLarge
+            text={props.frontMatter.title}
+            showAsterisk
+            className="text-foreground !mb-0"
+          />
+          
+          {/* Description */}
+          <div className="max-w-2xl">
+            <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
+              {props.frontMatter.description}
+            </p>
+          </div>
+          
+          {/* Meta information */}
+          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground/80">
+            <time className="flex items-center gap-2">
+              <span className="w-1 h-1 bg-highlight rounded-full"></span>
+              {new Date(props.frontMatter.date).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </time>
+            <span className="flex items-center gap-2">
+              <span className="w-1 h-1 bg-muted-foreground/40 rounded-full"></span>
+              {Math.ceil(props.content.split(' ').length / 200)} min read
+            </span>
+          </div>
+        </div>
+      </header>
 
-      <MDX source={props.content} />
-    </article>
+      {/* Blog Content */}
+      <article className="prose prose-lg max-w-none text-muted-foreground">
+        <MDX source={props.content} />
+      </article>
+      
+      {/* Footer */}
+      <footer className="mt-16 pt-8 border-t border-border/30">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="text-sm text-muted-foreground/60">
+            Thanks for reading! 
+          </div>
+          <a 
+            href="/blog"
+            className="text-sm text-highlight hover:text-highlight/80 transition-colors duration-200 flex items-center gap-1"
+          >
+            ← Back to all posts
+          </a>
+        </div>
+      </footer>
+    </div>
   );
 }

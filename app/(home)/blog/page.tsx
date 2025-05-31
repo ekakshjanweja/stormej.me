@@ -1,5 +1,5 @@
 import Card from "@/components/card";
-import HeadlineLarge from "@/components/styles/headline-large";
+import { TextScramble } from "@/components/ui/text-scramble";
 import { getBlogs } from "@/lib/fetcher";
 
 export default function Blog() {
@@ -10,23 +10,48 @@ export default function Blog() {
   });
 
   return (
-    <>
-      <div>
-        <HeadlineLarge text="blogs" showAsterisk />
+    <main className="container mx-auto px-4 py-6 sm:py-8 lg:py-12">
+      {/* Page Header */}
+      <div className="mb-12 sm:mb-16 lg:mb-20">
+        <TextScramble
+          as="h1"
+          className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground"
+        >
+          blogs
+        </TextScramble>
+        <p className="text-muted-foreground mt-2 text-sm sm:text-base">
+          thoughts and experiences
+        </p>
+      </div>
 
-        <main className="gap-4 text-muted-foreground">
-          {blogs.map((blog) => (
+      {/* Blog Posts */}
+      <div className="space-y-2">
+        {blogs.map((blog, index) => (
+          <div
+            key={blog.slug}
+            className="animate-in slide-in-from-bottom-4 duration-700"
+            style={{
+              animationDelay: `${index * 100}ms`,
+              animationFillMode: 'both'
+            }}
+          >
             <Card
-              key={blog.slug}
               date={blog.formattedDate}
               role=""
               description={blog.meta.description}
               title={blog.meta.title}
               href={`/blog/${blog.slug}`}
             />
-          ))}
-        </main>
+          </div>
+        ))}
       </div>
-    </>
+
+      {/* Footer section for better spacing */}
+      <div className="mt-16 pt-8 border-t border-border/30 text-center">
+        <p className="text-sm text-muted-foreground/60">
+          {blogs.length} {blogs.length === 1 ? 'post' : 'posts'} published
+        </p>
+      </div>
+    </main>
   );
 }

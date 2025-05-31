@@ -48,43 +48,62 @@ const sectionViewMoreHref = (sectionType: SectionType) => {
 
 export default function Section({ sectionType }: { sectionType: SectionType }) {
   return (
-    <div className="mt-12">
-      <HeadlineMedium text={sectionTitle(sectionType)} showAsterisk />
+    <section className="mt-16 lg:mt-20">
+      {/* Section Header */}
+      <div className="mb-8 lg:mb-12">
+        <HeadlineMedium text={sectionTitle(sectionType)} />
+      </div>
 
-      <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-x-4")}>
+      {/* Cards Grid */}
+      <div className={cn(
+        "grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-2",
+        "transition-all duration-300 ease-in-out"
+      )}>
         {sectionArray(sectionType)
-          .slice(0, 3)
+          .slice(0, 4)
           .map((item, index) => (
-            <Card
+            <div
               key={index}
-              title={item.title}
-              role={item.role}
-              date={item.date}
-              description={
-                sectionType == SectionType.work
-                  ? (item as WorkEntryType).subtitle
-                  : item.description
-              }
-              href={
-                sectionType == SectionType.work
-                  ? `/work/${(item as WorkEntryType).id}`
-                  : `/projects/${item.title}`
-              }
-              sectionType={sectionType}
-              tech={item.tech}
-            />
+              className={cn(
+                "group relative",
+                "transition-all duration-300 ease-in-out",
+                "hover:scale-[1.02] hover:z-10",
+                "focus-within:scale-[1.02] focus-within:z-10"
+              )}
+            >
+              <Card
+                title={item.title}
+                role={item.role}
+                date={item.date}
+                description={
+                  sectionType == SectionType.work
+                    ? (item as WorkEntryType).subtitle
+                    : item.description
+                }
+                href={
+                  sectionType == SectionType.work
+                    ? `/work/${(item as WorkEntryType).id}`
+                    : `/projects/${item.title}`
+                }
+                sectionType={sectionType}
+                tech={item.tech}
+                shouldViewMore={sectionType == SectionType.project ? (item as any).shouldViewMore : undefined}
+                projectHref={sectionType == SectionType.project ? (item as any).href : undefined}
+              />
+            </div>
           ))}
       </div>
 
-      {sectionArray(sectionType).length > 3 && (
-        <>
+      {/* View More Section */}
+      {sectionArray(sectionType).length > 4 && (
+        <div className="mt-12 lg:mt-16">
           <ViewMore
             title={sectionViewMore(sectionType)}
             href={sectionViewMoreHref(sectionType)}
             subTitle={`(${sectionArray(sectionType).length})`}
           />
-        </>
+        </div>
       )}
-    </div>
+    </section>
   );
 }

@@ -5,6 +5,7 @@ import { valorant } from "@/lib/constants/links";
 const items = [
   {
     label: "i-use-arch-btw",
+    link: "https://github.com/ekakshjanweja/dotfiles",
   },
   {
     label: "valorant",

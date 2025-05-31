@@ -19,15 +19,12 @@ export default function HeadlineLarge({
           <Link href={href!} target="_blank">
             <div className="flex group">
               {showAsterisk && (
-                <p className="text-4xl text-highlight mr-2 group-hover:text-foreground transition-all duration-300 ease-in-out">
+                <p className="text-2xl sm:text-3xl lg:text-4xl text-highlight mr-2 group-hover:text-foreground transition-all duration-300 ease-in-out">
                   *
                 </p>
               )}
               <TextScramble
-                className={
-                  className +
-                  " text-4xl font-bold mb-4 group-hover:text-highlight transition-all duration-300 ease-in-out"
-                }
+                className={`text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 group-hover:text-highlight transition-all duration-300 ease-in-out ${className || ""}`}
               >
                 {text}
               </TextScramble>
@@ -36,8 +33,8 @@ export default function HeadlineLarge({
         </>
       ) : (
         <div className="flex">
-          {showAsterisk && <p className="text-4xl text-highlight mr-2">*</p>}
-          <TextScramble className={className + " text-4xl font-bold mb-4"}>
+          {showAsterisk && <p className="text-2xl sm:text-3xl lg:text-4xl text-highlight mr-2">*</p>}
+          <TextScramble className={`text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 ${className || ""}`}>
             {text}
           </TextScramble>
         </div>
