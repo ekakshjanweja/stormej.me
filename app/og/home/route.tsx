@@ -24,7 +24,7 @@ async function loadGoogleFont(font: string, text: string) {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const title = searchParams.get("title");
-  const text = title ? `stormej • ${title}` : "stormej • 💻";
+  const text = title ? `stormej • ${title}` : "stormej";
 
   return new ImageResponse(
     (
@@ -36,58 +36,132 @@ export async function GET(request: Request) {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#000000",
+          backgroundColor: "#262626",
           fontFamily: "Geist Mono",
-          padding: "40px",
+          padding: "0",
           position: "relative",
+          overflow: "hidden",
         }}
       >
-        {/* Using img tag intentionally for OG image generation */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {/* Background Grid Pattern */}
+        <div
+          style={{
+            position: "absolute",
+            inset: "0",
+            backgroundImage: `
+              linear-gradient(rgba(115, 115, 115, 0.08) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(115, 115, 115, 0.08) 1px, transparent 1px)
+            `,
+            backgroundSize: "32px 32px",
+          }}
+        />
+
+        {/* Gradient Overlay */}
+        <div
+          style={{
+            position: "absolute",
+            inset: "0",
+            background: `
+              radial-gradient(circle at 30% 20%, rgba(115, 115, 115, 0.06) 0%, transparent 50%),
+              radial-gradient(circle at 80% 80%, rgba(115, 115, 115, 0.04) 0%, transparent 50%)
+            `,
+          }}
+        />
+
+        {/* Main Content Container */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+            zIndex: 10,
+            padding: "40px",
+            width: "100%",
+            height: "100%",
+          }}
+        >
+          {/* Main Title */}
+          <h1
+            style={{
+              fontSize: 48,
+              color: "#f5f5f5",
+              margin: 0,
+              lineHeight: 1,
+              fontWeight: "600",
+              letterSpacing: "-0.025em",
+              textShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
+              marginBottom: "20px",
+            }}
+          >
+            {text}
+          </h1>
+
+          {/* Tagline */}
+          <div
+            style={{
+              fontSize: 16,
+              color: "#a3a3a3",
+              fontWeight: "400",
+              letterSpacing: "0.05em",
+              marginBottom: "24px",
+            }}
+          >
+            engineer • builder • creator
+          </div>
+
+          {/* Bottom decorative line */}
+          <div
+            style={{
+              width: "80px",
+              height: "2px",
+              background: "linear-gradient(90deg, transparent, #737373, transparent)",
+              borderRadius: "1px",
+            }}
+          />
+        </div>
+
+        {/* Profile Image */}
         <img
           src="https://www.stormej.me/stormej.png"
           alt="Profile"
           style={{
             position: "absolute",
-            bottom: "40px",
-            right: "40px",
+            bottom: "24px",
+            right: "24px",
             width: "80px",
             height: "80px",
             borderRadius: "50%",
+            border: "3px solid #404040",
+            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(115, 115, 115, 0.2)",
+            zIndex: 20,
           }}
         />
 
+        {/* Corner Accent */}
         <div
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            maxWidth: "90%",
+            position: "absolute",
+            top: "0",
+            left: "0",
+            width: "120px",
+            height: "120px",
+            background: "linear-gradient(135deg, rgba(115, 115, 115, 0.06) 0%, transparent 70%)",
           }}
-        >
-          <span
-            style={{
-              color: "#84cc16",
-              fontSize: 48,
-              flexShrink: 0,
-            }}
-          >
-            *
-          </span>
-          <h1
-            style={{
-              fontSize: 48,
-              color: "#fff",
-              margin: 0,
-              lineHeight: 1.2,
-              wordBreak: "break-word",
-              overflowWrap: "break-word",
-              maxWidth: "100%",
-            }}
-          >
-            {text}
-          </h1>
-        </div>
+        />
+
+        {/* Bottom right accent */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: "0",
+            right: "0",
+            width: "180px",
+            height: "120px",
+            background: "linear-gradient(315deg, rgba(115, 115, 115, 0.04) 0%, transparent 60%)",
+          }}
+        />
       </div>
     ),
     {
