@@ -36,7 +36,7 @@ export async function GET(request: Request) {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#262626",
+          backgroundColor: "#0a0a0a",
           fontFamily: "Geist Mono",
           padding: "0",
           position: "relative",
@@ -49,21 +49,22 @@ export async function GET(request: Request) {
             position: "absolute",
             inset: "0",
             backgroundImage: `
-              linear-gradient(rgba(115, 115, 115, 0.08) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(115, 115, 115, 0.08) 1px, transparent 1px)
+              linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)
             `,
-            backgroundSize: "32px 32px",
+            backgroundSize: "40px 40px",
           }}
         />
 
-        {/* Gradient Overlay */}
+        {/* Animated Gradient Background */}
         <div
           style={{
             position: "absolute",
             inset: "0",
             background: `
-              radial-gradient(circle at 30% 20%, rgba(115, 115, 115, 0.06) 0%, transparent 50%),
-              radial-gradient(circle at 80% 80%, rgba(115, 115, 115, 0.04) 0%, transparent 50%)
+              radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+              radial-gradient(circle at 80% 70%, rgba(147, 51, 234, 0.06) 0%, transparent 50%),
+              radial-gradient(circle at 40% 80%, rgba(16, 185, 129, 0.04) 0%, transparent 50%)
             `,
           }}
         />
@@ -77,7 +78,7 @@ export async function GET(request: Request) {
             justifyContent: "center",
             textAlign: "center",
             zIndex: 10,
-            padding: "40px",
+            padding: "60px",
             width: "100%",
             height: "100%",
           }}
@@ -85,69 +86,63 @@ export async function GET(request: Request) {
           {/* Main Title */}
           <h1
             style={{
-              fontSize: 48,
-              color: "#f5f5f5",
+              fontSize: 56,
+              color: "#ffffff",
               margin: 0,
-              lineHeight: 1,
-              fontWeight: "600",
-              letterSpacing: "-0.025em",
-              textShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
-              marginBottom: "20px",
+              lineHeight: 1.1,
+              fontWeight: "700",
+              letterSpacing: "-0.02em",
+              textShadow: "0 8px 32px rgba(0, 0, 0, 0.4)",
+              marginBottom: "32px",
+              background: "linear-gradient(135deg, #ffffff 0%, #e5e7eb 100%)",
+              backgroundClip: "text",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
             }}
           >
             {text}
           </h1>
 
-          {/* Tagline */}
+          {/* Decorative accent line */}
           <div
             style={{
-              fontSize: 16,
-              color: "#a3a3a3",
-              fontWeight: "400",
-              letterSpacing: "0.05em",
+              width: "120px",
+              height: "3px",
+              background: "linear-gradient(90deg, #3b82f6, #8b5cf6, #10b981)",
+              borderRadius: "2px",
               marginBottom: "24px",
-            }}
-          >
-            engineer • builder • creator
-          </div>
-
-          {/* Bottom decorative line */}
-          <div
-            style={{
-              width: "80px",
-              height: "2px",
-              background: "linear-gradient(90deg, transparent, #737373, transparent)",
-              borderRadius: "1px",
             }}
           />
         </div>
 
-        {/* Profile Image */}
+        {/* Profile Image with enhanced styling */}
         <img
           src="https://www.stormej.me/stormej.png"
           alt="Profile"
           style={{
             position: "absolute",
-            bottom: "24px",
-            right: "24px",
-            width: "80px",
-            height: "80px",
+            bottom: "32px",
+            right: "32px",
+            width: "100px",
+            height: "100px",
             borderRadius: "50%",
-            border: "3px solid #404040",
-            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(115, 115, 115, 0.2)",
+            border: "4px solid rgba(255, 255, 255, 0.1)",
+            boxShadow:
+              "0 12px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05)",
             zIndex: 20,
           }}
         />
 
-        {/* Corner Accent */}
+        {/* Top left accent */}
         <div
           style={{
             position: "absolute",
             top: "0",
             left: "0",
-            width: "120px",
-            height: "120px",
-            background: "linear-gradient(135deg, rgba(115, 115, 115, 0.06) 0%, transparent 70%)",
+            width: "200px",
+            height: "200px",
+            background:
+              "radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)",
           }}
         />
 
@@ -157,9 +152,48 @@ export async function GET(request: Request) {
             position: "absolute",
             bottom: "0",
             right: "0",
-            width: "180px",
-            height: "120px",
-            background: "linear-gradient(315deg, rgba(115, 115, 115, 0.04) 0%, transparent 60%)",
+            width: "250px",
+            height: "200px",
+            background:
+              "radial-gradient(circle, rgba(147, 51, 234, 0.08) 0%, transparent 70%)",
+          }}
+        />
+
+        {/* Floating particles effect */}
+        <div
+          style={{
+            position: "absolute",
+            top: "20%",
+            left: "15%",
+            width: "4px",
+            height: "4px",
+            borderRadius: "50%",
+            background: "rgba(59, 130, 246, 0.6)",
+            boxShadow: "0 0 20px rgba(59, 130, 246, 0.4)",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            top: "60%",
+            left: "10%",
+            width: "6px",
+            height: "6px",
+            borderRadius: "50%",
+            background: "rgba(147, 51, 234, 0.6)",
+            boxShadow: "0 0 24px rgba(147, 51, 234, 0.4)",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            top: "30%",
+            right: "20%",
+            width: "3px",
+            height: "3px",
+            borderRadius: "50%",
+            background: "rgba(16, 185, 129, 0.6)",
+            boxShadow: "0 0 16px rgba(16, 185, 129, 0.4)",
           }}
         />
       </div>

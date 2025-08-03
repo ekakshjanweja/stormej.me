@@ -1,6 +1,3 @@
-import HeadlineMedium from "@/components/styles/headline-medium";
-import HeadlineSmall from "@/components/styles/headline-small";
-
 const gear = [
   { label: "laptop", value: "m4 macbook pro base/g14'21" },
   { label: "keyboard", value: "aula f75 pro" },
@@ -18,50 +15,49 @@ export default function Gear() {
   return (
     <main>
       {/* Page Header */}
-      <section className="mb-16 lg:mb-20">
-        <HeadlineMedium text={"gear"}/>
-        <p className="text-muted-foreground text-base max-w-2xl">
-          The tools and equipment that power my daily work and creative projects
-        </p>
-      </section>
+      <div className="mb-6">
+        <h1 className="text-xl md:text-2xl font-semibold tracking-tight">
+          gear
+        </h1>
+      </div>
 
       {/* Gear Grid */}
-      <section className="mb-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-          {gear.map(({ label, value }, index) => (
-            <div
-              key={label}
-              className="group relative p-6 rounded-lg border border-border/50 bg-card/30 hover:bg-card/50 transition-all duration-300 ease-in-out hover:border-border hover:shadow-lg"
-              style={{
-                animationDelay: `${index * 50}ms`,
-              }}
-            >
-              <div className="flex flex-col space-y-2">
-                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+      <div className="flex flex-col gap-6">
+        {gear.map(({ label, value }) => (
+          <div
+            key={label}
+            className="group relative overflow-hidden rounded-lg border border-border/10 bg-muted/30 hover:border-border/30 hover:bg-card/50 backdrop-blur-sm transition-all duration-300 ease-out cursor-pointer p-4 hover:shadow-sm hover:shadow-primary/5"
+          >
+            {/* Subtle gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+            {/* Content */}
+            <div className="relative flex flex-col md:flex-row md:items-center md:justify-between">
+              <div className="flex flex-col gap-1">
+                <h3 className="text-base font-semibold tracking-tight text-foreground group-hover:text-primary/95 transition-colors duration-200">
                   {label}
                 </h3>
-                <p className="text-lg font-semibold text-foreground group-hover:text-highlight transition-colors duration-300">
+                <p className="text-sm text-muted-foreground font-medium transition-colors duration-200">
                   {value}
                 </p>
               </div>
-
-              {/* Subtle hover effect border */}
-              <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-highlight/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
             </div>
-          ))}
-        </div>
-      </section>
+
+            {/* Subtle border animation */}
+            <div className="absolute inset-0 rounded-lg border border-transparent group-hover:border-primary/20 transition-all duration-500" />
+          </div>
+        ))}
+      </div>
 
       {/* Footer Section */}
-      <section className="text-center pt-8 border-t border-border/30">
-        <HeadlineSmall
-          text="always evolving, always improving"
-          className="text-muted-foreground/80"
-        />
-        <p className="text-sm text-muted-foreground mt-2">
+      <div className="mt-16 pt-8 border-t border-border/30 text-center">
+        <p className="text-sm text-muted-foreground/60">
+          always evolving, always improving
+        </p>
+        <p className="text-sm text-muted-foreground/40 mt-1">
           this setup changes as i discover new tools and workflows
         </p>
-      </section>
+      </div>
     </main>
   );
 }
