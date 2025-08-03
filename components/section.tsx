@@ -1,7 +1,7 @@
-import { work, WorkEntryType } from "@/lib/constants/work";
+import { work, WorkEntryType } from "@/lib/constants/work-old";
 import Card from "./card";
 import HeadlineMedium from "./styles/headline-medium";
-import { projects } from "@/lib/constants/projects";
+import { projects } from "@/lib/constants/projects-old";
 import { cn } from "@/lib/utils";
 import ViewMore from "./view-more";
 
@@ -55,10 +55,12 @@ export default function Section({ sectionType }: { sectionType: SectionType }) {
       </div>
 
       {/* Cards Grid */}
-      <div className={cn(
-        "grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-2",
-        "transition-all duration-300 ease-in-out"
-      )}>
+      <div
+        className={cn(
+          "grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-2",
+          "transition-all duration-300 ease-in-out"
+        )}
+      >
         {sectionArray(sectionType)
           .slice(0, 4)
           .map((item, index) => (
@@ -86,8 +88,16 @@ export default function Section({ sectionType }: { sectionType: SectionType }) {
                     : `/projects/${item.title}`
                 }
                 type={sectionType == SectionType.work ? "work" : "project"}
-                shouldViewMore={sectionType == SectionType.project ? (item as any).shouldViewMore : undefined}
-                externalHref={sectionType == SectionType.project ? (item as any).href : undefined}
+                shouldViewMore={
+                  sectionType == SectionType.project
+                    ? (item as any).shouldViewMore
+                    : undefined
+                }
+                externalHref={
+                  sectionType == SectionType.project
+                    ? (item as any).href
+                    : undefined
+                }
               />
             </div>
           ))}

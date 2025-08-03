@@ -1,108 +1,109 @@
-import {
-  browserAutomationAgent,
-  browserUseTsGithub,
-  dtuSocial,
-  flux,
-  fluxGithub,
-  fluxYoutube,
-  oldPortfolio,
-  oldPortfolioGithub,
-  renovatio,
-  renovatioGithub,
-  stormejIsLive,
-  stormejIsLiveGithub,
-  stormejIsLiveYoutube,
-} from "./links";
-
-interface Project {
-  title: string;
-  role?: string;
-  date: string;
-  href: string;
-  description: string;
-  tech: string;
-  github?: string;
-  youtube?: string;
-  shouldViewMore: boolean;
-}
+import { Project } from "../types/types";
 
 export const projects: Project[] = [
   {
-    title: "better-auth-flutter",
-    date: " (april 2025 - present)",
-    href: "https://pub.dev/packages/better_auth_flutter",
+    id: "turi",
+    title: "turi",
+    subtitle: "ai powered email client",
     description:
-      "flutter client for better-auth, a self-hosted authentication service",
-    tech: "flutter",
+      "built a email client which is voice first and uses ai to send and read emails.",
+    tech: ["bun", "hono", "cloudflare-workers", "flutter", "ai-sdk"],
+    website: "https://www.turi.email/",
+  },
+  {
+    id: "better-auth-flutter",
+    title: "better-auth-flutter",
+    subtitle: "flutter client for better-auth",
+    tech: ["flutter", "dart"],
+    website: "https://pub.dev/packages/better_auth_flutter",
     github: "https://github.com/ekakshjanweja/better_auth_flutter",
-    shouldViewMore: false,
   },
   {
+    id: "browser-automation",
     title: "browser-automation",
-    date: " (feb 2025 - march 2025)",
-    href: browserAutomationAgent,
-    description: "browser automation agent made with playwright",
-    tech: "aisdk-playwright-bun-hono",
-    youtube: browserAutomationAgent,
-    github: browserUseTsGithub,
-    shouldViewMore: true,
+    subtitle: "browser automation agent",
+    tech: ["ai sdk", "playwright", "bun", "hono", "nextjs"],
+    highlights: [],
+    youtube: "https://www.youtube.com/watch?v=2xEgXGYzQgw",
+    github: "https://github.com/kunal00000/browser-use-ts",
   },
   {
+    id: "renovatio",
     title: "renovatio",
-    date: " (july 2024 - oct 2024)",
-    href: renovatio,
-    description: "project management for interior designers",
-    tech: "nextjs-tailwind-postgres-nextauth-drizzle-shadcnui-aceternity",
-    github: renovatioGithub,
-    shouldViewMore: false,
+    subtitle: "project management for interior designers",
+    description:
+      "project management platform for interior designers. task scheduling, ai-powered visuals, multi-project view — all built with nextjs",
+    tech: [
+      "nextjs",
+      "tailwind",
+      "postgres",
+      "nextauth",
+      "drizzle",
+      "shadcn/ui",
+      "aceternity",
+    ],
+    website: "https://renovatio-design.vercel.app/",
+    github: "https://github.com/ekakshjanweja/renovatio",
+    hidden: true,
   },
   {
+    id: "flux",
     title: "flux",
-    date: " (march 2024)",
-    href: flux,
-    description: "real-time visual workspace",
-    tech: "nextjs-tailwind-shadcnui-prisma-liveblocks-convex-clerk",
-    github: fluxGithub,
-    youtube: fluxYoutube,
-    shouldViewMore: true,
+    subtitle: "real-time visual workspace",
+    description:
+      "built with liveblocks and convex. drag, drop, sync in real time.",
+    tech: [
+      "nextjs",
+      "tailwind",
+      "shadcn/ui",
+      "prisma",
+      "liveblocks",
+      "convex",
+      "clerk",
+    ],
+    website: "https://flux.stormej.me",
+    github: "https://github.com/ekakshjanweja/flux",
+    youtube: "https://youtu.be/6HJoyJrVJ-0?si=vTbvFu_5m-z86rXI",
   },
   {
+    id: "stormejislive",
     title: "stormejislive",
-    date: " (feb 2024)",
-    href: stormejIsLive,
-    description: "live streaming with real-time chat",
-    tech: "nextjs-tailwind-livekit-postgres-clerk-prisma",
-    github: stormejIsLiveGithub,
-    youtube: stormejIsLiveYoutube,
-    shouldViewMore: true,
+    subtitle: "live streaming with real-time chat.",
+    description: "built a lightweight twitch-style clone using livekit.",
+    tech: ["nextjs", "tailwind", "livekit", "postgres", "clerk", "prisma"],
+    website: "https://live.stormej.me",
+    github: "https://github.com/ekakshjanweja/stormej-live",
+    youtube: "https://www.youtube.com/watch?v=RAcWnMxSdTo",
   },
   {
+    id: "dtusocial",
     title: "dtusocial",
-    date: " (may 2023 - sept 2023)",
-    href: dtuSocial,
-    description: "proximity chat app made for college students",
-    tech: "flutter-firebase-riverpod-geolocator-mvc",
-    youtube: dtuSocial,
-    shouldViewMore: true,
+    subtitle:
+      "proximity chat app for college students. used geolocation, riverpod, and firebase to make it all work on the go.",
+    description:
+      "proximity chat app for college students. used geolocation, riverpod, and firebase to make it all work on the go.",
+    tech: ["flutter", "firebase", "riverpod", "geolocator", "mvc"],
+    youtube: "https://www.youtube.com/watch?v=uPrSzoiw8Ms",
+    website: "https://www.youtube.com/watch?v=uPrSzoiw8Ms",
   },
   {
+    id: "old-portfolio",
     title: "old-portfolio",
-    date: " (sept 2023 - dec 2023)",
-    href: oldPortfolio,
-    description: "portfolio website made with flutter web",
-    tech: "flutter-web",
-    github: oldPortfolioGithub,
-    shouldViewMore: false,
+    subtitle:
+      "personal portfolio made with flutter web. custom animations and responsive design.",
+    tech: ["flutter web"],
+    website: "https://flutter.stormej.me",
+    github: "https://github.com/ekakshjanweja/Portfolio-Website",
   },
   {
+    id: "gdocs",
     title: "gdocs",
-    date: " (dec 2022)",
-    description: "google docs clone with real-time collab",
-    tech: "flutter-riverpod-socketio-nodejs-express-mongodb",
-    href: "https://github.com/ekakshjanweja/Google-Docs-Clone",
-    github: "https://github.com/ekakshjanweja/Google-Docs-Clone",
-    youtube:
-      "https://www.youtube.com/watch?v=EKjbYMvR8xs&ab_channel=EkakshJanweja",
-    shouldViewMore: false,
+    subtitle:
+      "google docs clone with real-time collab. sockets for sync, mongodb for persistence.",
+    description:
+      "google docs clone with real-time collab. sockets for sync, mongodb for persistence.",
+    tech: ["flutter", "riverpod", "socket.io", "node.js", "express", "mongodb"],
+    github: "https://github.com/ekakshjanweja/gdocs",
+    youtube: "https://www.youtube.com/watch?v=QwC2U2VQK6A",
   },
 ];

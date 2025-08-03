@@ -44,14 +44,14 @@ export function Navbar() {
   // Handle body scroll locking when mobile menu is open
   useEffect(() => {
     if (isMobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
 
     // Cleanup function to reset body overflow when component unmounts
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isMobileMenuOpen]);
 
@@ -60,19 +60,23 @@ export function Navbar() {
     const handleClickOutside = (event: MouseEvent) => {
       if (isMobileMenuOpen) {
         const target = event.target as HTMLElement;
-        const mobileMenu = document.getElementById('mobile-menu');
-        const menuButton = document.getElementById('mobile-menu-button');
-        
-        if (mobileMenu && !mobileMenu.contains(target) && 
-            menuButton && !menuButton.contains(target)) {
+        const mobileMenu = document.getElementById("mobile-menu");
+        const menuButton = document.getElementById("mobile-menu-button");
+
+        if (
+          mobileMenu &&
+          !mobileMenu.contains(target) &&
+          menuButton &&
+          !menuButton.contains(target)
+        ) {
           closeMobileMenu();
         }
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isMobileMenuOpen]);
 
@@ -135,18 +139,17 @@ export function Navbar() {
 
   return (
     <>
-      <nav className={cn(
-        "flex items-center justify-between",
-        "mb-16 lg:mb-20",
-        "text-sm",
-        "transition-all duration-300 ease-in-out"
-      )}>
+      <nav
+        className={cn(
+          "sticky top-0 z-50 p-4 bg-background mb-6 flex items-center justify-between text-sm transition-all duration-300 ease-in-out border-b border-muted-foreground/20"
+        )}
+      >
         {/* Desktop Navigation Links */}
         <div className="hidden md:flex items-center gap-1">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             const isExternal = item.label === "resume";
-            
+
             return (
               <Link
                 key={item.href}
@@ -158,35 +161,45 @@ export function Navbar() {
                   "hover:translate-x-0.5 focus:translate-x-0.5",
                   "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2",
                   "border border-transparent",
-                  isActive 
-                    ? "text-highlight border-border/30 bg-accent/20" 
+                  isActive
+                    ? "text-highlight border-border/30 bg-accent/20"
                     : "text-muted-foreground hover:text-foreground hover:border-border/20 hover:bg-accent/10"
                 )}
                 target={isExternal ? "_blank" : "_parent"}
               >
-                <span className={cn(
-                  "flex items-center gap-1.5",
-                  "transition-all duration-300 ease-in-out"
-                )}>
-                  <span className={cn(
-                    "text-xs font-mono",
-                    "transition-all duration-300 ease-in-out",
-                    isActive ? "text-highlight/80" : "text-muted-foreground/60 group-hover:text-muted-foreground/80"
-                  )}>
+                <span
+                  className={cn(
+                    "flex items-center gap-1.5",
+                    "transition-all duration-300 ease-in-out"
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "text-xs font-mono",
+                      "transition-all duration-300 ease-in-out",
+                      isActive
+                        ? "text-highlight/80"
+                        : "text-muted-foreground/60 group-hover:text-muted-foreground/80"
+                    )}
+                  >
                     [{item.label.charAt(0)}]
                   </span>
-                  <span className={cn(
-                    "font-medium",
-                    "transition-all duration-300 ease-in-out"
-                  )}>
+                  <span
+                    className={cn(
+                      "font-medium",
+                      "transition-all duration-300 ease-in-out"
+                    )}
+                  >
                     {item.label}
                   </span>
                   {isExternal && (
-                    <span className={cn(
-                      "text-xs",
-                      "transition-all duration-300 ease-in-out",
-                      "group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                    )}>
+                    <span
+                      className={cn(
+                        "text-xs",
+                        "transition-all duration-300 ease-in-out",
+                        "group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                      )}
+                    >
                       ↗
                     </span>
                   )}
@@ -218,16 +231,20 @@ export function Navbar() {
         </button>
 
         {/* Desktop Social Media Icons */}
-        <div className={cn(
-          "hidden md:flex items-center gap-2 lg:gap-3",
-          "transition-all duration-300 ease-in-out"
-        )}>
-          <div className={cn(
-            "group flex items-center gap-2 lg:gap-3",
-            "p-1.5 -m-1.5 rounded-lg",
-            "transition-all duration-300 ease-in-out",
-            "hover:bg-muted/30"
-          )}>
+        <div
+          className={cn(
+            "hidden md:flex items-center gap-2 lg:gap-3",
+            "transition-all duration-300 ease-in-out"
+          )}
+        >
+          <div
+            className={cn(
+              "group flex items-center gap-2 lg:gap-3",
+              "p-1.5 -m-1.5 rounded-lg",
+              "transition-all duration-300 ease-in-out",
+              "hover:bg-muted/30"
+            )}
+          >
             <X className="transition-all duration-300 group-hover:scale-110" />
             <Github className="transition-all duration-300 group-hover:scale-110" />
             <LinkedIn className="transition-all duration-300 group-hover:scale-110" />
@@ -235,16 +252,20 @@ export function Navbar() {
         </div>
 
         {/* Mobile Social Media Icons */}
-        <div className={cn(
-          "md:hidden flex items-center gap-2",
-          "transition-all duration-300 ease-in-out"
-        )}>
-          <div className={cn(
-            "group flex items-center gap-2",
-            "p-1 -m-1 rounded-lg",
-            "transition-all duration-300 ease-in-out",
-            "hover:bg-muted/30"
-          )}>
+        <div
+          className={cn(
+            "md:hidden flex items-center gap-2",
+            "transition-all duration-300 ease-in-out"
+          )}
+        >
+          <div
+            className={cn(
+              "group flex items-center gap-2",
+              "p-1 -m-1 rounded-lg",
+              "transition-all duration-300 ease-in-out",
+              "hover:bg-muted/30"
+            )}
+          >
             <X className="w-4 h-4 transition-all duration-300 group-hover:scale-110" />
             <Github className="w-4 h-4 transition-all duration-300 group-hover:scale-110" />
             <LinkedIn className="w-4 h-4 transition-all duration-300 group-hover:scale-110" />
@@ -262,16 +283,18 @@ export function Navbar() {
             "transition-all duration-300 ease-in-out"
           )}
         >
-          <div className={cn(
-            "flex flex-col",
-            "p-6 pt-20",
-            "max-w-sm mx-auto",
-            "space-y-2"
-          )}>
+          <div
+            className={cn(
+              "flex flex-col",
+              "p-6 pt-20",
+              "max-w-sm mx-auto",
+              "space-y-2"
+            )}
+          >
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               const isExternal = item.label === "resume";
-              
+
               return (
                 <Link
                   key={item.href}
@@ -283,35 +306,45 @@ export function Navbar() {
                     "transition-all duration-300 ease-in-out",
                     "border border-transparent",
                     "text-base",
-                    isActive 
-                      ? "text-highlight border-border/30 bg-accent/20" 
+                    isActive
+                      ? "text-highlight border-border/30 bg-accent/20"
                       : "text-muted-foreground hover:text-foreground hover:border-border/20 hover:bg-accent/10"
                   )}
                   target={isExternal ? "_blank" : "_parent"}
                 >
-                  <span className={cn(
-                    "flex items-center gap-3",
-                    "transition-all duration-300 ease-in-out"
-                  )}>
-                    <span className={cn(
-                      "text-sm font-mono",
-                      "transition-all duration-300 ease-in-out",
-                      isActive ? "text-highlight/80" : "text-muted-foreground/60 group-hover:text-muted-foreground/80"
-                    )}>
+                  <span
+                    className={cn(
+                      "flex items-center gap-3",
+                      "transition-all duration-300 ease-in-out"
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "text-sm font-mono",
+                        "transition-all duration-300 ease-in-out",
+                        isActive
+                          ? "text-highlight/80"
+                          : "text-muted-foreground/60 group-hover:text-muted-foreground/80"
+                      )}
+                    >
                       [{item.label.charAt(0)}]
                     </span>
-                    <span className={cn(
-                      "font-medium",
-                      "transition-all duration-300 ease-in-out"
-                    )}>
+                    <span
+                      className={cn(
+                        "font-medium",
+                        "transition-all duration-300 ease-in-out"
+                      )}
+                    >
                       {item.label}
                     </span>
                     {isExternal && (
-                      <span className={cn(
-                        "text-sm ml-auto",
-                        "transition-all duration-300 ease-in-out",
-                        "group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                      )}>
+                      <span
+                        className={cn(
+                          "text-sm ml-auto",
+                          "transition-all duration-300 ease-in-out",
+                          "group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                        )}
+                      >
                         ↗
                       </span>
                     )}

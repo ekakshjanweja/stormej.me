@@ -1,21 +1,14 @@
 import { projects } from "@/lib/constants/projects";
-import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { YouTubeVideo } from "@/components/video-component";
 
-interface PageProps {
-  params: Promise<{ slug: string }>;
-}
+export default function TuriPage() {
+  const project = projects.find((project) => project.id === "turi");
 
-export default async function Page({ params }: PageProps) {
-  const slug = (await params).slug;
-
-  const project = projects.find((project) => project.id === slug);
-
-  if (project === undefined) {
-    notFound();
+  if (!project) {
+    return null;
   }
 
   return (

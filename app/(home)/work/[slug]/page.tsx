@@ -1,10 +1,8 @@
-import MiniCard from "@/components/mini-card";
-import HeadlineLarge from "@/components/styles/headline-large";
-import HeadlineSmall from "@/components/styles/headline-small";
-import ViewMore from "@/components/view-more";
 import { work } from "@/lib/constants/work";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default async function Page({
   params,
@@ -21,164 +19,180 @@ export default async function Page({
   }
 
   return (
-    <main className="min-h-screen">
+    <main>
       <div className="max-w-4xl mx-auto">
         {/* Enhanced Back Navigation */}
         <Link
           href="/work"
           className="group inline-flex items-center gap-2 mb-12 text-sm text-muted-foreground hover:text-foreground transition-all duration-300 hover:gap-3"
         >
-            <span className="transform group-hover:-translate-x-1 transition-transform duration-300">←</span>
-            <span className="relative">
-              back to work
-              <span className="absolute inset-x-0 bottom-0 h-px bg-foreground/20 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
-            </span>
-          </Link>
+          <span className="transform group-hover:-translate-x-1 transition-transform duration-300">
+            ←
+          </span>
+          <span className="relative">
+            back to work
+            <span className="absolute inset-x-0 bottom-0 h-px bg-foreground/20 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+          </span>
+        </Link>
 
-          {/* Enhanced Work Header */}
-          <div className="mb-16 p-8 rounded-2xl bg-muted/10 border border-border/30">
-            <div className="space-y-8">
-              <div className="space-y-6">
-                <HeadlineLarge text={item.title} showAsterisk href={item.href} />
-                
-                {/* Enhanced Meta Information */}
-                <div className="relative">
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-highlight via-highlight/60 to-transparent rounded-full" />
-                  <div className="text-sm pl-6 space-y-3">
-                    <div className="text-muted-foreground font-medium">{item.role} • {item.date}</div>
-                    
-                    {/* Tech Stack */}
-                    <div className="flex flex-wrap gap-2 sm:gap-3">
-                      {item.tech.split("-").map((tech, index) => (
-                        <div 
-                          key={index}
-                          className="transform hover:scale-105 transition-all duration-200"
-                          style={{ animationDelay: `${index * 100}ms` }}
-                        >
-                          <MiniCard text={tech} />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Enhanced Description */}
-              {(item.description || !item.projects) && (
-                <div className="space-y-4">
-                  <div className="relative p-6 rounded-xl bg-muted/5 border border-border/20">
-                    <div className="absolute top-4 left-4 w-2 h-2 bg-highlight/60 rounded-full animate-pulse" />
-                    <div className="pl-6">
-                      {item.description && (
-                        <p className="text-muted-foreground leading-relaxed">
-                          {item.description}
-                        </p>
-                      )}
-                      {!item.projects && (
-                        <div className="mt-6 space-y-4">
-                          <p className="text-muted-foreground/80 italic">
-                            This work experience is still being documented. Check back soon for more details!
-                          </p>
-                          <ViewMore
-                            title="explore other work"
-                            href="/work"
-                            subTitle={`(${work.length} experiences)`}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+        {/* Work Header */}
+        <div className="mb-16">
+          <div className="space-y-6">
+            {/* 1. Title + Website */}
+            <div className="flex items-center gap-2">
+              {item.website ? (
+                <a
+                  href={item.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-2"
+                >
+                  <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
+                  <p className="text-xl md:text-2xl font-semibold tracking-tight group-hover:text-primary transition-colors duration-200">
+                    {item.title}
+                  </p>
+                </a>
+              ) : (
+                <p className="text-xl md:text-2xl font-semibold tracking-tight">
+                  {item.title}
+                </p>
               )}
             </div>
-          </div>
 
-          {/* Projects Section */}
-          {item.projects && (
-            <div className="space-y-8">
-              {item.projects.map((project, index) => (
-                <div 
-                  key={index} 
-                  className="group relative p-6 rounded-xl bg-muted/5 border border-border/20 hover:border-highlight/30 transition-all duration-500"
-                  style={{ animationDelay: `${index * 150}ms` }}
+            {/* 2. Role + Timeline */}
+            <div className="text-sm text-muted-foreground font-medium">
+              {item.role} •{" "}
+              {item.startDate
+                .toLocaleString("default", {
+                  month: "short",
+                  year: "numeric",
+                })
+                .toLowerCase()}{" "}
+              -{" "}
+              {item.endDate
+                ? item.endDate
+                    .toLocaleString("default", {
+                      month: "short",
+                      year: "numeric",
+                    })
+                    .toLowerCase()
+                : "present"}
+            </div>
+
+            {/* 3. Description */}
+            {item.description && (
+              <p className="text-muted-foreground leading-relaxed">
+                {item.description}
+              </p>
+            )}
+
+            {/* 4. Tech Stack */}
+            <div className="flex flex-wrap gap-1 mb-4">
+              {item.tech.map((tech, index) => (
+                <span
+                  key={index}
+                  className="text-xs px-2 py-1 rounded-md bg-muted/50 text-muted-foreground/70 font-medium"
                 >
-                  {/* Project Header */}
-                  <div className="flex items-start gap-4 mb-6">
-                    <div className="relative flex items-center justify-center w-8 h-8 mt-1">
-                      <div className="absolute inset-0 bg-highlight/10 rounded-full" />
-                      <div className="relative flex items-center justify-center w-6 h-6 border border-highlight/40 rounded-full bg-background">
-                        <span className="text-xs text-highlight font-bold">
-                          {String(index + 1).padStart(2, '0')}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex-1">
-                      <HeadlineSmall text={project.title} />
-                    </div>
-                  </div>
+                  {tech}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
 
-                  {/* App Store Links */}
-                  {(project.playstore || project.appstore) && (
-                    <div className="ml-12 mb-6 flex flex-wrap gap-3">
-                      {project.playstore && (
-                        <div className="transform hover:scale-105 transition-all duration-200">
-                          <MiniCard text="Google Play" href={project.playstore} />
-                        </div>
-                      )}
-                      {project.appstore && (
-                        <div className="transform hover:scale-105 transition-all duration-200">
-                          <MiniCard text="App Store" href={project.appstore} />
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Features Built */}
-                  {project.featuresBuilt && project.featuresBuilt.length > 0 && (
-                    <div className="ml-12 mb-6">
-                      <div className="flex flex-wrap gap-2">
-                        {project.featuresBuilt.map((feature, featureIndex) => (
-                          <div 
-                            key={featureIndex}
-                            className="transform hover:scale-105 transition-all duration-200"
-                            style={{ animationDelay: `${featureIndex * 50}ms` }}
-                          >
-                            <MiniCard text={feature} />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Project Points */}
-                  {project.points && (
-                    <div className="ml-12 space-y-4">
-                      <div className="space-y-4">
-                        {project.points.map((point, pointIndex) => (
-                          <div 
-                            key={pointIndex} 
-                            className="flex items-start gap-4 group/point"
-                            style={{ animationDelay: `${pointIndex * 100}ms` }}
-                          >
-                            <span className="w-2 h-2 mt-2.5 bg-highlight rounded-full group-hover/point:scale-125 transition-transform duration-200" />
-                            <p className="text-sm text-muted-foreground leading-relaxed flex-1 group-hover/point:text-foreground/80 transition-colors duration-200">
-                              {point}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Separator */}
-                  {index < item.projects!.length - 1 && (
-                    <div className="mt-8 h-px bg-border/30" />
-                  )}
+        {/* 5. Highlights */}
+        {item.highlights && item.highlights.length > 0 && (
+          <div className="mb-8">
+            <div className="space-y-3">
+              {item.highlights.map((highlight, index) => (
+                <div key={index} className="flex items-start gap-3">
+                  <span className="w-1.5 h-1.5 mt-2 bg-muted-foreground/60 rounded-full flex-shrink-0" />
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {highlight}
+                  </p>
                 </div>
               ))}
             </div>
-          )}
-        </div>
-      </main>
-    );
+          </div>
+        )}
+
+        {/* 6. Projects with Highlights */}
+        {item.projects && (
+          <div className="space-y-6">
+            {item.projects.map((project, index) => (
+              <div key={index} className="space-y-4">
+                <h3 className="text-base font-semibold tracking-tight text-foreground">
+                  {project.title}
+                </h3>
+
+                {/* App Store Links */}
+                {(project.playstore || project.appstore || project.website) && (
+                  <div className="flex flex-wrap gap-2">
+                    {project.website && (
+                      <Button variant="outline" size="sm" asChild>
+                        <a
+                          href={project.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          web
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </Button>
+                    )}
+                    {project.playstore && (
+                      <Button variant="outline" size="sm" asChild>
+                        <a
+                          href={project.playstore}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          play store
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </Button>
+                    )}
+                    {project.appstore && (
+                      <Button variant="outline" size="sm" asChild>
+                        <a
+                          href={project.appstore}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          app store
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                )}
+
+                {/* Project Highlights */}
+                {project.highlights && project.highlights.length > 0 && (
+                  <div className="space-y-3">
+                    {project.highlights.map((highlight, highlightIndex) => (
+                      <div
+                        key={highlightIndex}
+                        className="flex items-start gap-3"
+                      >
+                        <span className="w-1.5 h-1.5 mt-2 bg-muted-foreground/60 rounded-full flex-shrink-0" />
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {highlight}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Separator */}
+                {index < item.projects!.length - 1 && (
+                  <div className="h-px bg-border/30" />
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </main>
+  );
 }

@@ -3,8 +3,8 @@ import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 import type { Metadata } from "next";
-import HeadlineLarge from "@/components/styles/headline-large";
 import { MDX } from "./mdx";
+import Link from "next/link";
 
 export async function generateMetadata({
   params,
@@ -57,60 +57,52 @@ export default async function Page({ params }: PageProps) {
   const props = await getPost(await params);
 
   return (
-    <div className="max-w-4xl mx-auto">
-      {/* Blog Header */}
-      <header className="mb-8 sm:mb-12 lg:mb-16">
-        <div className="space-y-4 sm:space-y-6">
-          <HeadlineLarge
-            text={props.frontMatter.title}
-            showAsterisk
-            className="text-foreground !mb-0"
-          />
-          
-          {/* Description */}
-          <div className="max-w-2xl">
-            <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-              {props.frontMatter.description}
+    <main>
+      <div className="max-w-4xl mx-auto">
+        {/* Back Navigation */}
+        <Link
+          href="/blog"
+          className="group inline-flex items-center gap-2 mb-12 text-sm text-muted-foreground hover:text-foreground transition-all duration-300 hover:gap-3"
+        >
+          <span className="transform group-hover:-translate-x-1 transition-transform duration-300">
+            ←
+          </span>
+          <span className="relative">
+            back to blogs
+            <span className="absolute inset-x-0 bottom-0 h-px bg-foreground/20 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+          </span>
+        </Link>
+
+        {/* Blog Header */}
+        <div className="mb-16">
+          <div className="space-y-6">
+            {/* 1. Title */}
+            <p className="text-xl md:text-2xl font-semibold tracking-tight">
+              {props.frontMatter.title}
             </p>
-          </div>
-          
-          {/* Meta information */}
-          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground/80">
-            <time className="flex items-center gap-2">
-              <span className="w-1 h-1 bg-highlight rounded-full"></span>
+
+            {/* 2. Meta information */}
+            <div className="text-sm text-muted-foreground font-medium">
               {new Date(props.frontMatter.date).toLocaleDateString("en-US", {
                 year: "numeric",
                 month: "long",
                 day: "numeric",
-              })}
-            </time>
-            <span className="flex items-center gap-2">
-              <span className="w-1 h-1 bg-muted-foreground/40 rounded-full"></span>
-              {Math.ceil(props.content.split(' ').length / 200)} min read
-            </span>
-          </div>
-        </div>
-      </header>
+              })}{" "}
+              • {Math.ceil(props.content.split(" ").length / 200)} min read
+            </div>
 
-      {/* Blog Content */}
-      <article className="prose prose-lg max-w-none text-muted-foreground">
-        <MDX source={props.content} />
-      </article>
-      
-      {/* Footer */}
-      <footer className="mt-16 pt-8 border-t border-border/30">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="text-sm text-muted-foreground/60">
-            Thanks for reading! 
+            {/* 3. Description */}
+            <p className="text-muted-foreground leading-relaxed">
+              {props.frontMatter.description}
+            </p>
           </div>
-          <a 
-            href="/blog"
-            className="text-sm text-highlight hover:text-highlight/80 transition-colors duration-200 flex items-center gap-1"
-          >
-            ← Back to all posts
-          </a>
         </div>
-      </footer>
-    </div>
+
+        {/* Blog Content */}
+        <article className="prose prose-lg max-w-none text-muted-foreground">
+          <MDX source={props.content} />
+        </article>
+      </div>
+    </main>
   );
 }
