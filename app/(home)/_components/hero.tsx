@@ -5,7 +5,7 @@ import Link from "next/link";
 export default function Hero() {
   return (
     <>
-      <section className="mt-24">
+      <section className="mt-16">
         <div className="space-y-4">
           <p className="text-xl md:text-2xl font-semibold mb-8 tracking-tight">
             ekaksh janweja
