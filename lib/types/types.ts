@@ -11,6 +11,7 @@ export type Work = {
   highlights?: string[];
   projects?: WorkProject[];
   features?: string[];
+  images?: string[];
 };
 
 export type WorkProject = {
@@ -19,6 +20,7 @@ export type WorkProject = {
   playstore?: string;
   appstore?: string;
   website?: string;
+  images?: string[];
 };
 
 export type Project = {
@@ -35,4 +37,5 @@ export type Project = {
   youtube?: string;
   github?: string;
   hidden?: boolean;
+  images?: string[];
 };

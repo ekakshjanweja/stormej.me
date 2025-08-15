@@ -4,13 +4,14 @@ import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { YouTubeVideo } from "@/components/video-component";
+import { ProjectImages } from "./project-images";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
 export default async function Page({ params }: PageProps) {
-  const slug = (await params).slug;
+  const { slug } = await params;
 
   const project = projects.find((project) => project.id === slug);
 
@@ -152,6 +153,9 @@ export default async function Page({ params }: PageProps) {
             />
           </div>
         )}
+
+        {/* 7. Project Images */}
+        <ProjectImages project={project} />
       </div>
     </main>
   );

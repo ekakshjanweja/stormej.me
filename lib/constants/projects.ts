@@ -9,6 +9,8 @@ export const projects: Project[] = [
       "built a email client which is voice first and uses ai to send and read emails.",
     tech: ["bun", "hono", "cloudflare-workers", "flutter", "ai-sdk"],
     website: "https://www.turi.email/",
+    images: ["agent-workflow-turi.png", "vad-turi.png"],
+    github: "https://github.com/ekakshjanweja/turi",
   },
   {
     id: "better-auth-flutter",
