@@ -22,8 +22,8 @@ export const work: Work[] = [
           "created a unified design system for both mobile and web",
         ],
         playstore:
-          "https://play.google.com/store/apps/details?id=com.digitaldomi.app",
-        appstore: "https://apps.apple.com/us/app/digital-domi/id6453692447",
+          "https://play.google.com/store/apps/details?id=com.domilabs.domi",
+        appstore: "https://apps.apple.com/us/app/digital-domi/id6738277048",
         website: "https://web.digitaldomi.com/",
       },
     ],
