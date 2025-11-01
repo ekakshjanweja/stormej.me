@@ -1,4 +1,10 @@
 import { ImageResponse } from "next/og";
+import {
+  FlutterLogo,
+  BunLogo,
+  NextJsLogo,
+  TypeScriptLogo,
+} from "../../components/logos";
 
 export const runtime = "edge";
 
@@ -26,15 +32,12 @@ export async function GET(request: Request) {
   const title = searchParams.get("title");
   const text = title ? `stormej • ${title}` : "stormej";
 
-  // Theme colors matching the dark theme
-  // Background: oklch(0.18 0 85) ≈ #1e1e1e
-  // Foreground: oklch(0.9 0.002 85) ≈ #e5e5e5
-  // Highlight: oklch(0.75 0.01 75) ≈ #c0c0c0
-  // Border: oklch(0.35 0.006 85) ≈ #555555
-  const bgColor = "#1e1e1e";
-  const fgColor = "#e5e5e5";
-  const highlightColor = "#c0c0c0";
-  const borderColor = "#555555";
+  // Theme colors
+  const bgColor = "#252422"; // Very dark brown/black - background
+  const fgColor = "#FFFCF2"; // Light cream - text
+  const highlightColor = "#CCC5B9"; // Light gray/beige - accents
+  const borderColor = "#403D39"; // Dark gray - borders
+  const brandColor = "#EB5E28"; // Brand orange
 
   // Helper function to convert hex to rgba
   const hexToRgba = (hex: string, alpha: number) => {
@@ -80,9 +83,9 @@ export async function GET(request: Request) {
             position: "absolute",
             inset: "0",
             background: `
-              radial-gradient(circle at 20% 30%, ${hexToRgba(highlightColor, 0.15)} 0%, transparent 50%),
+              radial-gradient(circle at 20% 30%, ${hexToRgba(brandColor, 0.12)} 0%, transparent 50%),
               radial-gradient(circle at 80% 70%, ${hexToRgba(highlightColor, 0.1)} 0%, transparent 50%),
-              radial-gradient(circle at 40% 80%, ${hexToRgba(highlightColor, 0.08)} 0%, transparent 50%)
+              radial-gradient(circle at 40% 80%, ${hexToRgba(brandColor, 0.08)} 0%, transparent 50%)
             `,
           }}
         />
@@ -120,13 +123,28 @@ export async function GET(request: Request) {
           {/* Decorative accent line matching theme */}
           <div
             style={{
-              width: "120px",
+              width: "224px",
               height: "3px",
-              background: `linear-gradient(90deg, ${highlightColor}, ${hexToRgba(fgColor, 0.8)}, ${highlightColor})`,
+              background: `linear-gradient(90deg, transparent, ${highlightColor}, ${fgColor}, ${highlightColor}, transparent)`,
               borderRadius: "2px",
               marginBottom: "24px",
             }}
           />
+
+          {/* Logo watermarks */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: "16px",
+            }}
+          >
+            <FlutterLogo opacity={0.5} size={24} />
+            <BunLogo opacity={0.5} size={24} />
+            <NextJsLogo opacity={0.5} size={24} />
+            <TypeScriptLogo opacity={0.5} size={24} />
+          </div>
         </div>
 
         {/* Profile Image with theme-appropriate styling */}
@@ -137,74 +155,12 @@ export async function GET(request: Request) {
             position: "absolute",
             bottom: "32px",
             right: "32px",
-            width: "100px",
-            height: "100px",
+            width: "48px",
+            height: "48px",
             borderRadius: "50%",
             border: `4px solid ${hexToRgba(borderColor, 0.8)}`,
             boxShadow: `0 12px 40px rgba(0, 0, 0, 0.7), 0 0 0 1px ${hexToRgba(borderColor, 0.4)}`,
             zIndex: 20,
-          }}
-        />
-
-        {/* Top left accent */}
-        <div
-          style={{
-            position: "absolute",
-            top: "0",
-            left: "0",
-            width: "200px",
-            height: "200px",
-            background: `radial-gradient(circle, ${hexToRgba(highlightColor, 0.12)} 0%, transparent 70%)`,
-          }}
-        />
-
-        {/* Bottom right accent */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: "0",
-            right: "0",
-            width: "250px",
-            height: "200px",
-            background: `radial-gradient(circle, ${hexToRgba(highlightColor, 0.1)} 0%, transparent 70%)`,
-          }}
-        />
-
-        {/* Subtle floating particles matching theme */}
-        <div
-          style={{
-            position: "absolute",
-            top: "20%",
-            left: "15%",
-            width: "4px",
-            height: "4px",
-            borderRadius: "50%",
-            background: hexToRgba(highlightColor, 0.8),
-            boxShadow: `0 0 20px ${hexToRgba(highlightColor, 0.4)}`,
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            top: "60%",
-            left: "10%",
-            width: "6px",
-            height: "6px",
-            borderRadius: "50%",
-            background: hexToRgba(fgColor, 0.6),
-            boxShadow: `0 0 24px ${hexToRgba(fgColor, 0.3)}`,
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            top: "30%",
-            right: "20%",
-            width: "3px",
-            height: "3px",
-            borderRadius: "50%",
-            background: hexToRgba(highlightColor, 0.7),
-            boxShadow: `0 0 16px ${hexToRgba(highlightColor, 0.35)}`,
           }}
         />
       </div>
