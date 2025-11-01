@@ -78,11 +78,13 @@ export default function RootLayout({
           disableTransitionOnChange
           storageKey="stormej.theme"
         >
-          <div className="flex justify-center w-full">
-            <div className="md:max-w-3xl w-full px-4 md:px-0 flex flex-col">
-              <Navbar />
-              <main className="flex-1">{children}</main>
-              <Footer />
+          <div className="bg-background">
+            <div className="flex justify-center w-full">
+              <div className="md:max-w-3xl w-full px-4 md:px-0 flex flex-col">
+                <Navbar />
+                <main className="flex-1">{children}</main>
+                <Footer />
+              </div>
             </div>
           </div>
         </ThemeProvider>

@@ -141,7 +141,8 @@ export function Navbar() {
     <>
       <nav
         className={cn(
-          "sticky top-0 z-50 px-4 py-4 md:px-0 bg-background mb-6 flex items-center justify-between text-sm transition-all duration-300 ease-in-out border-b border-muted-foreground/20"
+          "sticky top-0 z-50 px-4 py-4 md:px-0 mb-6 flex items-center justify-between text-sm transition-all duration-300 ease-in-out border-b border-muted-foreground/20",
+          "bg-background/90 backdrop-blur-md supports-[backdrop-filter]:bg-background/90"
         )}
       >
         {/* Desktop Navigation Links */}
