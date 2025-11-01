@@ -25,6 +25,8 @@ const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
   weight: "100 900",
+  display: "swap",
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -34,6 +36,13 @@ export const metadata: Metadata = {
     template: "%s | stormej",
   },
   description: "mobile dev + life enjoyer &#9996;",
+  keywords: [
+    "software engineer",
+    "mobile developer",
+    "flutter",
+    "ekaksh janweja",
+    "stormej",
+  ],
   openGraph: {
     title: "ekaksh janweja",
     description: "mobile dev + life enjoyer &#9996;",
@@ -41,7 +50,14 @@ export const metadata: Metadata = {
     siteName: "ekaksh janweja",
     locale: "en_US",
     type: "website",
-    images: "https://www.stormej.me/og/home",
+    images: [
+      {
+        url: "https://www.stormej.me/og/home",
+        width: 1200,
+        height: 630,
+        alt: "ekaksh janweja - mobile developer",
+      },
+    ],
   },
   robots: {
     index: true,
@@ -78,11 +94,20 @@ export default function RootLayout({
           disableTransitionOnChange
           storageKey="stormej.theme"
         >
-          <div className="bg-background">
+          {/* Skip to content link for accessibility */}
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          >
+            Skip to main content
+          </a>
+          <div className="bg-background min-h-screen">
             <div className="flex justify-center w-full">
-              <div className="md:max-w-3xl w-full px-4 md:px-0 flex flex-col">
+              <div className="md:max-w-3xl w-full px-4 md:px-0 flex flex-col min-h-screen">
                 <Navbar />
-                <main className="flex-1">{children}</main>
+                <main id="main-content" className="flex-1 pb-8" tabIndex={-1}>
+                  {children}
+                </main>
                 <Footer />
               </div>
             </div>

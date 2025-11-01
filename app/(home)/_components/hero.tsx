@@ -5,11 +5,14 @@ import Link from "next/link";
 export default function Hero() {
   return (
     <>
-      <section className="mt-16">
+      <section className="mt-16" aria-labelledby="hero-heading">
         <div className="space-y-4">
-          <p className="text-xl md:text-2xl font-semibold mb-8 tracking-tight">
+          <h1
+            id="hero-heading"
+            className="text-xl md:text-2xl font-semibold mb-8 tracking-tight"
+          >
             ekaksh janweja
-          </p>
+          </h1>
           <p className="text-sm text-foreground font-light leading-relaxed mb-2">
             hi, i&apos;m a software engineer based out of new delhi. been
             building mobile apps at startups for 2+ years. right now i am
@@ -17,7 +20,8 @@ export default function Hero() {
             <Link
               href={domi}
               target="_blank"
-              className="underline decoration-muted-foreground underline-offset-4 hover:decoration-highlight hover:text-highlight transition-colors duration-200"
+              rel="noopener noreferrer"
+              className="underline decoration-muted-foreground underline-offset-4 hover:decoration-highlight hover:text-highlight transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
             >
               digitaldomi
             </Link>
@@ -32,7 +36,8 @@ export default function Hero() {
             <Link
               target="_blank"
               href="mailto:jekaksh@gmail.com"
-              className="underline decoration-muted-foreground underline-offset-4 hover:decoration-highlight hover:text-highlight transition-colors duration-200"
+              rel="noopener noreferrer"
+              className="underline decoration-muted-foreground underline-offset-4 hover:decoration-highlight hover:text-highlight transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
             >
               here
             </Link>{" "}

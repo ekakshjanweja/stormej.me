@@ -141,8 +141,9 @@ export function Navbar() {
     <>
       <nav
         className={cn(
-          "sticky top-0 z-50 px-4 py-4 md:px-0 mb-6 flex items-center justify-between text-sm transition-all duration-300 ease-in-out border-b border-muted-foreground/20",
-          "bg-background/90 backdrop-blur-md supports-[backdrop-filter]:bg-background/90"
+          "sticky top-0 z-50 px-4 py-4 md:px-0 mb-8 flex items-center justify-between text-sm transition-all duration-300 ease-in-out",
+          "border-b border-border/30",
+          "bg-background/80 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80"
         )}
       >
         {/* Desktop Navigation Links */}
@@ -158,15 +159,17 @@ export function Navbar() {
                 className={cn(
                   "group relative",
                   "px-3 py-2 rounded-lg",
-                  "transition-all duration-300 ease-in-out",
+                  "transition-all duration-200 ease-out",
                   "hover:translate-x-0.5 focus:translate-x-0.5",
                   "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2",
                   "border border-transparent",
                   isActive
-                    ? "text-highlight border-border/30 bg-accent/20"
-                    : "text-muted-foreground hover:text-foreground hover:border-border/20 hover:bg-accent/10"
+                    ? "text-highlight border-border/40 bg-accent/30 shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:border-border/30 hover:bg-accent/15"
                 )}
                 target={isExternal ? "_blank" : "_parent"}
+                rel={isExternal ? "noopener noreferrer" : undefined}
+                aria-current={isActive ? "page" : undefined}
               >
                 <span
                   className={cn(
@@ -218,8 +221,8 @@ export function Navbar() {
             "md:hidden",
             "p-2 -ml-2 rounded-lg",
             "text-muted-foreground hover:text-foreground",
-            "transition-all duration-300 ease-in-out",
-            "hover:bg-muted/30",
+            "transition-all duration-200 ease-out",
+            "hover:bg-accent/20 active:bg-accent/30",
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
           )}
           aria-label="Toggle mobile menu"
@@ -242,8 +245,8 @@ export function Navbar() {
             className={cn(
               "group flex items-center gap-2 lg:gap-3",
               "p-1.5 -m-1.5 rounded-lg",
-              "transition-all duration-300 ease-in-out",
-              "hover:bg-muted/30"
+              "transition-all duration-200 ease-out",
+              "hover:bg-accent/15"
             )}
           >
             <X className="transition-all duration-300 group-hover:scale-110" />
@@ -263,8 +266,8 @@ export function Navbar() {
             className={cn(
               "group flex items-center gap-2",
               "p-1 -m-1 rounded-lg",
-              "transition-all duration-300 ease-in-out",
-              "hover:bg-muted/30"
+              "transition-all duration-200 ease-out",
+              "hover:bg-accent/15"
             )}
           >
             <X className="w-4 h-4 transition-all duration-300 group-hover:scale-110" />
@@ -280,7 +283,7 @@ export function Navbar() {
           id="mobile-menu"
           className={cn(
             "md:hidden fixed inset-0 z-50",
-            "bg-background/95 backdrop-blur-sm",
+            "bg-background/95 backdrop-blur-md",
             "transition-all duration-300 ease-in-out"
           )}
         >
@@ -304,14 +307,16 @@ export function Navbar() {
                   className={cn(
                     "group relative",
                     "px-4 py-3 rounded-xl",
-                    "transition-all duration-300 ease-in-out",
+                    "transition-all duration-200 ease-out",
                     "border border-transparent",
                     "text-base",
                     isActive
-                      ? "text-highlight border-border/30 bg-accent/20"
-                      : "text-muted-foreground hover:text-foreground hover:border-border/20 hover:bg-accent/10"
+                      ? "text-highlight border-border/40 bg-accent/30 shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:border-border/30 hover:bg-accent/15"
                   )}
                   target={isExternal ? "_blank" : "_parent"}
+                  rel={isExternal ? "noopener noreferrer" : undefined}
+                  aria-current={isActive ? "page" : undefined}
                 >
                   <span
                     className={cn(

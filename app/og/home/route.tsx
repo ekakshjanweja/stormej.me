@@ -26,6 +26,24 @@ export async function GET(request: Request) {
   const title = searchParams.get("title");
   const text = title ? `stormej • ${title}` : "stormej";
 
+  // Theme colors matching the dark theme
+  // Background: oklch(0.18 0 85) ≈ #1e1e1e
+  // Foreground: oklch(0.9 0.002 85) ≈ #e5e5e5
+  // Highlight: oklch(0.75 0.01 75) ≈ #c0c0c0
+  // Border: oklch(0.35 0.006 85) ≈ #555555
+  const bgColor = "#1e1e1e";
+  const fgColor = "#e5e5e5";
+  const highlightColor = "#c0c0c0";
+  const borderColor = "#555555";
+
+  // Helper function to convert hex to rgba
+  const hexToRgba = (hex: string, alpha: number) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
   return new ImageResponse(
     (
       <div
@@ -36,7 +54,7 @@ export async function GET(request: Request) {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#0a0a0a",
+          backgroundColor: bgColor,
           fontFamily: "Geist Mono",
           padding: "0",
           position: "relative",
@@ -49,22 +67,22 @@ export async function GET(request: Request) {
             position: "absolute",
             inset: "0",
             backgroundImage: `
-              linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)
+              linear-gradient(${hexToRgba(fgColor, 0.15)} 1px, transparent 1px),
+              linear-gradient(90deg, ${hexToRgba(fgColor, 0.15)} 1px, transparent 1px)
             `,
             backgroundSize: "40px 40px",
           }}
         />
 
-        {/* Animated Gradient Background */}
+        {/* Subtle gradient overlay matching theme */}
         <div
           style={{
             position: "absolute",
             inset: "0",
             background: `
-              radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
-              radial-gradient(circle at 80% 70%, rgba(147, 51, 234, 0.06) 0%, transparent 50%),
-              radial-gradient(circle at 40% 80%, rgba(16, 185, 129, 0.04) 0%, transparent 50%)
+              radial-gradient(circle at 20% 30%, ${hexToRgba(highlightColor, 0.15)} 0%, transparent 50%),
+              radial-gradient(circle at 80% 70%, ${hexToRgba(highlightColor, 0.1)} 0%, transparent 50%),
+              radial-gradient(circle at 40% 80%, ${hexToRgba(highlightColor, 0.08)} 0%, transparent 50%)
             `,
           }}
         />
@@ -87,35 +105,31 @@ export async function GET(request: Request) {
           <h1
             style={{
               fontSize: 56,
-              color: "#ffffff",
+              color: fgColor,
               margin: 0,
               lineHeight: 1.1,
               fontWeight: "700",
               letterSpacing: "-0.02em",
-              textShadow: "0 8px 32px rgba(0, 0, 0, 0.4)",
+              textShadow: `0 8px 32px rgba(0, 0, 0, 0.6)`,
               marginBottom: "32px",
-              background: "linear-gradient(135deg, #ffffff 0%, #e5e7eb 100%)",
-              backgroundClip: "text",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
             }}
           >
             {text}
           </h1>
 
-          {/* Decorative accent line */}
+          {/* Decorative accent line matching theme */}
           <div
             style={{
               width: "120px",
               height: "3px",
-              background: "linear-gradient(90deg, #3b82f6, #8b5cf6, #10b981)",
+              background: `linear-gradient(90deg, ${highlightColor}, ${hexToRgba(fgColor, 0.8)}, ${highlightColor})`,
               borderRadius: "2px",
               marginBottom: "24px",
             }}
           />
         </div>
 
-        {/* Profile Image with enhanced styling */}
+        {/* Profile Image with theme-appropriate styling */}
         <img
           src="https://www.stormej.me/stormej.png"
           alt="Profile"
@@ -126,9 +140,8 @@ export async function GET(request: Request) {
             width: "100px",
             height: "100px",
             borderRadius: "50%",
-            border: "4px solid rgba(255, 255, 255, 0.1)",
-            boxShadow:
-              "0 12px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05)",
+            border: `4px solid ${hexToRgba(borderColor, 0.8)}`,
+            boxShadow: `0 12px 40px rgba(0, 0, 0, 0.7), 0 0 0 1px ${hexToRgba(borderColor, 0.4)}`,
             zIndex: 20,
           }}
         />
@@ -141,8 +154,7 @@ export async function GET(request: Request) {
             left: "0",
             width: "200px",
             height: "200px",
-            background:
-              "radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)",
+            background: `radial-gradient(circle, ${hexToRgba(highlightColor, 0.12)} 0%, transparent 70%)`,
           }}
         />
 
@@ -154,12 +166,11 @@ export async function GET(request: Request) {
             right: "0",
             width: "250px",
             height: "200px",
-            background:
-              "radial-gradient(circle, rgba(147, 51, 234, 0.08) 0%, transparent 70%)",
+            background: `radial-gradient(circle, ${hexToRgba(highlightColor, 0.1)} 0%, transparent 70%)`,
           }}
         />
 
-        {/* Floating particles effect */}
+        {/* Subtle floating particles matching theme */}
         <div
           style={{
             position: "absolute",
@@ -168,8 +179,8 @@ export async function GET(request: Request) {
             width: "4px",
             height: "4px",
             borderRadius: "50%",
-            background: "rgba(59, 130, 246, 0.6)",
-            boxShadow: "0 0 20px rgba(59, 130, 246, 0.4)",
+            background: hexToRgba(highlightColor, 0.8),
+            boxShadow: `0 0 20px ${hexToRgba(highlightColor, 0.4)}`,
           }}
         />
         <div
@@ -180,8 +191,8 @@ export async function GET(request: Request) {
             width: "6px",
             height: "6px",
             borderRadius: "50%",
-            background: "rgba(147, 51, 234, 0.6)",
-            boxShadow: "0 0 24px rgba(147, 51, 234, 0.4)",
+            background: hexToRgba(fgColor, 0.6),
+            boxShadow: `0 0 24px ${hexToRgba(fgColor, 0.3)}`,
           }}
         />
         <div
@@ -192,8 +203,8 @@ export async function GET(request: Request) {
             width: "3px",
             height: "3px",
             borderRadius: "50%",
-            background: "rgba(16, 185, 129, 0.6)",
-            boxShadow: "0 0 16px rgba(16, 185, 129, 0.4)",
+            background: hexToRgba(highlightColor, 0.7),
+            boxShadow: `0 0 16px ${hexToRgba(highlightColor, 0.35)}`,
           }}
         />
       </div>
