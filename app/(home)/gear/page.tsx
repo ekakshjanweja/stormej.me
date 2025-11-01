@@ -1,5 +1,5 @@
 const gear = [
-  { label: "laptop", value: "m4 macbook pro base/g14'21" },
+  { label: "laptop", value: "m4 pro macbook pro base/g14'21" },
   { label: "keyboard", value: "aula f75 pro" },
   { label: "mouse", value: "logitech g304" },
   { label: "pc", value: "7600-4060-32gb_ddr5" },
