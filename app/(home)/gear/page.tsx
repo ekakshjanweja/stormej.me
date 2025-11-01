@@ -7,7 +7,7 @@ const gear = [
   { label: "headphones", value: "soundcore q20i" },
   { label: "mic", value: "fifine at6" },
   { label: "webcam", value: "lenovo 300" },
-  { label: "mobile", value: "pixel 6a" },
+  { label: "mobile", value: "pixel 10" },
   { label: "typing 30s", value: "86wpm" },
 ];
 
