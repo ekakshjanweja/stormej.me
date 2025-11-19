@@ -5,8 +5,8 @@
 import React from "react";
 import { useTheme } from "next-themes";
 
-import type { BundledLanguage } from "shiki";
 import {
+  BundledLanguage,
   CodeBlock,
   CodeBlockBody,
   CodeBlockContent,
