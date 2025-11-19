@@ -11,6 +11,7 @@ export const work: Work[] = [
     startDate: new Date("2024-10-22"),
     website: "https://digitaldomi.com/",
     tech: ["flutter", "dart"],
+    logo: "/images/logos/digital-domi.svg",
     projects: [
       {
         title: "domi app",
@@ -39,6 +40,7 @@ export const work: Work[] = [
     endDate: new Date("2024-10-01"),
     website: "https://www.getmerlin.in/",
     tech: ["flutter", "dart", "firebase", "kotlin", "jetpack glance"],
+    logo: "/images/logos/merlin.svg",
     projects: [
       {
         title: "merlin – chat with ai",
@@ -76,6 +78,7 @@ export const work: Work[] = [
     endDate: new Date("2023-06-01"),
     website: "https://teamblackbox.in/",
     tech: ["react", "react native", "firebase", "zustand", "skia"],
+    logo: "/images/logos/team-black-box.png",
     projects: [
       {
         title: "take a sip",
@@ -113,6 +116,7 @@ export const work: Work[] = [
     endDate: new Date("2022-01-01"),
     website: "https://www.zuai.co/",
     tech: ["flutter", "firebase"],
+    logo: "/images/logos/zuai.png",
     projects: [
       {
         title: "zuapp",

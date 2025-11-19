@@ -1,6 +1,7 @@
 import { work } from "@/lib/constants/work";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -39,25 +40,48 @@ export default async function Page({
         <div className="mb-16">
           <div className="space-y-6">
             {/* 1. Title + Website */}
-            <div className="flex items-center gap-2">
-              {item.website ? (
-                <a
-                  href={item.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-center gap-2"
-                >
-                  <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
+            {item.website ? (
+              <a
+                href={item.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center gap-4"
+              >
+                {item.logo && (
+                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-muted/20 p-2 border border-border/10 opacity-100 transition-all duration-500 group-hover:opacity-60">
+                    <Image
+                      src={item.logo}
+                      alt={item.title}
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+
                   <p className="text-xl md:text-2xl font-semibold tracking-tight group-hover:text-primary transition-colors duration-200">
                     {item.title}
                   </p>
-                </a>
-              ) : (
+                  <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
+                </div>
+              </a>
+            ) : (
+              <div className="group flex items-center gap-4">
+                {item.logo && (
+                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-muted/20 p-2 border border-border/10 opacity-60 grayscale transition-all duration-500 group-hover:opacity-100 group-hover:grayscale-0">
+                    <Image
+                      src={item.logo}
+                      alt={item.title}
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                )}
                 <p className="text-xl md:text-2xl font-semibold tracking-tight">
                   {item.title}
                 </p>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* 2. Role + Timeline */}
             <div className="text-sm text-muted-foreground font-medium">
@@ -71,11 +95,11 @@ export default async function Page({
               -{" "}
               {item.endDate
                 ? item.endDate
-                    .toLocaleString("default", {
-                      month: "short",
-                      year: "numeric",
-                    })
-                    .toLowerCase()
+                  .toLocaleString("default", {
+                    month: "short",
+                    year: "numeric",
+                  })
+                  .toLowerCase()
                 : "present"}
             </div>
 

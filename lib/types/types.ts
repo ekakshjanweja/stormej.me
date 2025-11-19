@@ -12,6 +12,7 @@ export type Work = {
   projects?: WorkProject[];
   features?: string[];
   images?: string[];
+  logo?: string;
 };
 
 export type WorkProject = {

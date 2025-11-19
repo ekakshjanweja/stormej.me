@@ -1,5 +1,6 @@
 import { work } from "@/lib/constants/work";
 import Link from "next/link";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 export default function Work() {
@@ -47,14 +48,26 @@ export default function Work() {
                 <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1500 ease-in-out bg-gradient-to-r from-transparent via-primary/5 to-transparent dark:via-white/5 opacity-0 group-hover:opacity-100" />
 
                 {/* Content */}
-                <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                  <div className="flex flex-col gap-1">
-                    <h3 className="text-base font-semibold tracking-tight text-foreground group-hover:text-primary/95 transition-colors duration-700 ease-in-out">
-                      {workItem.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground font-medium transition-colors duration-700 ease-in-out group-hover:text-muted-foreground/90">
-                      {workItem.role}
-                    </p>
+                <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    {workItem.logo && (
+                      <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted/20 p-2 border border-border/10 opacity-60 transition-all duration-500 group-hover:opacity-100 group-hover:grayscale-0">
+                        <Image
+                          src={workItem.logo}
+                          alt={workItem.title}
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                    )}
+                    <div className="flex flex-col gap-1">
+                      <h3 className="text-base font-semibold tracking-tight text-foreground group-hover:text-primary/95 transition-colors duration-700 ease-in-out">
+                        {workItem.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground font-medium transition-colors duration-700 ease-in-out group-hover:text-muted-foreground/90">
+                        {workItem.role}
+                      </p>
+                    </div>
                   </div>
                   <div className="text-left md:text-right mt-2 md:mt-0">
                     <p className="text-sm text-muted-foreground/70 transition-colors duration-700 ease-in-out group-hover:text-muted-foreground/90">
@@ -67,11 +80,11 @@ export default function Work() {
                       -{" "}
                       {workItem.endDate
                         ? workItem.endDate
-                            .toLocaleString("default", {
-                              month: "short",
-                              year: "numeric",
-                            })
-                            .toLowerCase()
+                          .toLocaleString("default", {
+                            month: "short",
+                            year: "numeric",
+                          })
+                          .toLowerCase()
                         : "present"}
                     </p>
                   </div>

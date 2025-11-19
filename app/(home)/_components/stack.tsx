@@ -28,6 +28,10 @@ export default function Stack() {
             icon: Nextjs,
         },
         {
+            name: "tailwindcss",
+            icon: Tailwindcss,
+        },
+        {
             name: "bun",
             icon: Bun,
         },
@@ -35,10 +39,7 @@ export default function Stack() {
             name: "hono",
             icon: Hono,
         },
-        {
-            name: "tailwindcss",
-            icon: Tailwindcss,
-        },
+
     ];
 
     return (
@@ -62,7 +63,7 @@ export default function Stack() {
                                         "backdrop-blur-sm transition-all duration-500 ease-in-out",
                                         "cursor-pointer p-3",
                                         "hover:shadow-sm hover:shadow-primary/10 dark:hover:shadow-primary/5",
-                                        "transform-gpu"
+                                        "transform-gpu hover:scale-[1.05]",
                                     )}
                                 >
                                     {/* Animated gradient overlay */}
@@ -71,7 +72,7 @@ export default function Stack() {
                                     {/* Shimmer effect on hover */}
                                     <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-primary/5 to-transparent dark:via-white/5 opacity-0 group-hover:opacity-100" />
 
-                                    <tech.icon className="relative z-10 h-5 w-5 text-muted-foreground opacity-70 group-hover:text-foreground group-hover:opacity-100 transition-all duration-300" />
+                                    <tech.icon className="relative z-10 h-5 w-5 text-muted-foreground opacity-70 dark:opacity-50 group-hover:text-foreground group-hover:opacity-100 transition-all duration-300" />
                                 </div>
                             </TooltipTrigger>
                             <TooltipContent>
