@@ -17,7 +17,7 @@ import {
   CodeBlockSelectItem,
   CodeBlockSelectTrigger,
   CodeBlockSelectValue,
-} from "@/components/kibo-ui/code-block";
+} from "@/components/kibo-ui/code-block/index";
 
 const extractMetaValue = (meta: string | undefined, key: string) => {
   if (!meta) return undefined;
