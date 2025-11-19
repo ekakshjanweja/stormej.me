@@ -5,7 +5,7 @@
 import React from "react";
 import { useTheme } from "next-themes";
 
-import type { BundledLanguage } from "@/components/kibo-ui/code-block/index";
+import type { BundledLanguage } from "shiki";
 import {
   CodeBlock,
   CodeBlockBody,
