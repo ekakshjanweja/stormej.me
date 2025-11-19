@@ -51,9 +51,7 @@ export default function Hero() {
             .
           </p>
         </div>
-
         {/* Action Buttons */}
-
         <div className="flex flex-wrap items-center gap-3 pt-6">
           <Button
             asChild
@@ -79,8 +77,7 @@ export default function Hero() {
             </Link>
           </Button>
         </div>
-
-        {/* Social Links */}
+        {/* Social Links */}clear
         <SocialLinks />
       </section>
     </>

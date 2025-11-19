@@ -3,6 +3,7 @@ import Hero from "./_components/hero";
 import { Projects } from "./_components/projects";
 import Work from "./_components/work";
 import Stack from "./_components/stack";
+import { Contributions } from "./_components/contributions";
 
 export default async function Home() {
   const structuredData = {
@@ -42,6 +43,7 @@ export default async function Home() {
       <div className="space-y-12">
         <Hero />
         <Work />
+        <Contributions />
         <Stack />
         <Projects />
         <BlogRow />
