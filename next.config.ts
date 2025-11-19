@@ -14,9 +14,6 @@ const nextConfig: NextConfig = {
   // Compress output
   compress: true,
 
-  // Optimize fonts
-  optimizeFonts: true,
-
   // Enable powered by header removal (optional, but cleaner)
   poweredByHeader: false,
 };
