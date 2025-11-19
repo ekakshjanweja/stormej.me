@@ -66,7 +66,7 @@ const Code = (props: any) => {
               <CodeBlockSelectValue />
             </CodeBlockSelectTrigger>
             <CodeBlockSelectContent>
-              {(item) => (
+              {(item: { language: string }) => (
                 <CodeBlockSelectItem key={item.language} value={item.language}>
                   {item.language}
                 </CodeBlockSelectItem>
@@ -76,7 +76,7 @@ const Code = (props: any) => {
           <CodeBlockCopyButton />
         </CodeBlockHeader>
         <CodeBlockBody>
-          {(item) => (
+          {(item: { language: string; code: string }) => (
             <CodeBlockItem key={item.language} value={item.language}>
               <CodeBlockContent
                 language={item.language as BundledLanguage}
