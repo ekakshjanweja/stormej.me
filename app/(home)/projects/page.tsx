@@ -8,13 +8,13 @@ export default function Projects() {
     <main>
       {/* Page Header */}
       <div className="mb-6">
-        <h1 className="text-xl md:text-2xl font-semibold tracking-tight">
+        <h1 className="text-lg md:text-xl font-semibold tracking-tight">
           projects
         </h1>
       </div>
 
       {/* Projects List */}
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4">
         {projects
           .filter((project) => !project.hidden)
           .map((project, index) => {
@@ -40,7 +40,7 @@ export default function Projects() {
                     "hover:border-border/50 dark:hover:border-border/40",
                     "hover:bg-muted/50 dark:hover:bg-card/70",
                     "backdrop-blur-sm transition-all duration-700 ease-in-out",
-                    "cursor-pointer p-4",
+                    "cursor-pointer p-3",
                     "hover:shadow-md hover:shadow-primary/10 dark:hover:shadow-primary/5",
                     "transform-gpu"
                   )}
@@ -52,13 +52,13 @@ export default function Projects() {
                   <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1500 ease-in-out bg-gradient-to-r from-transparent via-primary/5 to-transparent dark:via-white/5 opacity-0 group-hover:opacity-100" />
 
                   {/* Content */}
-                  <div className="relative flex flex-col gap-3">
+                  <div className="relative flex flex-col gap-2.5">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                      <div className="flex flex-col gap-1">
-                        <h3 className="text-base font-semibold tracking-tight text-foreground group-hover:text-primary transition-colors duration-700 ease-in-out">
+                      <div className="flex flex-col gap-0.5">
+                        <h3 className="text-sm md:text-base font-semibold tracking-tight text-foreground group-hover:text-primary transition-colors duration-700 ease-in-out">
                           {project.title}
                         </h3>
-                        <p className="text-sm text-muted-foreground font-medium transition-colors duration-700 ease-in-out group-hover:text-muted-foreground/90">
+                        <p className="text-xs md:text-sm text-muted-foreground font-medium transition-colors duration-700 ease-in-out group-hover:text-muted-foreground/90">
                           {project.subtitle}
                         </p>
                       </div>
@@ -67,10 +67,10 @@ export default function Projects() {
 
                   {/* External Link Icon - Top Right */}
                   {isExternal && (
-                    <div className="absolute top-3 right-3">
+                    <div className="absolute top-2.5 right-2.5">
                       <ExternalLink
                         className={cn(
-                          "w-4 h-4 text-muted-foreground/60",
+                          "w-3.5 h-3.5 text-muted-foreground/60",
                           "group-hover:text-primary transition-all duration-700 ease-in-out",
                           "group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                         )}

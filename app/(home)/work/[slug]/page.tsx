@@ -37,18 +37,18 @@ export default async function Page({
         </Link>
 
         {/* Work Header */}
-        <div className="mb-16">
-          <div className="space-y-6">
+        <div className="mb-12">
+          <div className="space-y-4">
             {/* 1. Title + Website */}
             {item.website ? (
               <a
                 href={item.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center gap-4"
+                className="group flex items-center gap-3"
               >
                 {item.logo && (
-                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-muted/20 p-2 border border-border/10 opacity-100 transition-all duration-500 group-hover:opacity-60">
+                  <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted/20 p-1.5 border border-border/10 opacity-100 transition-all duration-500 group-hover:opacity-60">
                     <Image
                       src={item.logo}
                       alt={item.title}
@@ -59,16 +59,16 @@ export default async function Page({
                 )}
                 <div className="flex items-center gap-2">
 
-                  <p className="text-xl md:text-2xl font-semibold tracking-tight group-hover:text-primary transition-colors duration-200">
+                  <p className="text-lg md:text-xl font-semibold tracking-tight group-hover:text-primary transition-colors duration-200">
                     {item.title}
                   </p>
-                  <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
+                  <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
                 </div>
               </a>
             ) : (
-              <div className="group flex items-center gap-4">
+              <div className="group flex items-center gap-3">
                 {item.logo && (
-                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-muted/20 p-2 border border-border/10 opacity-60 grayscale transition-all duration-500 group-hover:opacity-100 group-hover:grayscale-0">
+                  <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted/20 p-1.5 border border-border/10 opacity-60 grayscale transition-all duration-500 group-hover:opacity-100 group-hover:grayscale-0">
                     <Image
                       src={item.logo}
                       alt={item.title}
@@ -77,14 +77,14 @@ export default async function Page({
                     />
                   </div>
                 )}
-                <p className="text-xl md:text-2xl font-semibold tracking-tight">
+                <p className="text-lg md:text-xl font-semibold tracking-tight">
                   {item.title}
                 </p>
               </div>
             )}
 
             {/* 2. Role + Timeline */}
-            <div className="text-sm text-muted-foreground font-medium">
+            <div className="text-xs md:text-sm text-muted-foreground font-medium">
               {item.role} •{" "}
               {item.startDate
                 .toLocaleString("default", {
@@ -105,13 +105,13 @@ export default async function Page({
 
             {/* 3. Description */}
             {item.description && (
-              <p className="text-muted-foreground leading-relaxed">
+              <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
                 {item.description}
               </p>
             )}
 
             {/* 4. Tech Stack */}
-            <div className="flex flex-wrap gap-1 mb-4">
+            <div className="flex flex-wrap gap-1 mb-3">
               {item.tech.map((tech, index) => (
                 <span
                   key={index}
@@ -126,12 +126,12 @@ export default async function Page({
 
         {/* 5. Highlights */}
         {item.highlights && item.highlights.length > 0 && (
-          <div className="mb-8">
-            <div className="space-y-3">
+          <div className="mb-6">
+            <div className="space-y-2.5">
               {item.highlights.map((highlight, index) => (
-                <div key={index} className="flex items-start gap-3">
-                  <span className="w-1.5 h-1.5 mt-2 bg-muted-foreground/60 rounded-full flex-shrink-0" />
-                  <p className="text-sm text-muted-foreground leading-relaxed">
+                <div key={index} className="flex items-start gap-2.5">
+                  <span className="w-1.5 h-1.5 mt-1.5 bg-muted-foreground/60 rounded-full flex-shrink-0" />
+                  <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
                     {highlight}
                   </p>
                 </div>
@@ -142,10 +142,10 @@ export default async function Page({
 
         {/* 6. Projects with Highlights */}
         {item.projects && (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {item.projects.map((project, index) => (
-              <div key={index} className="space-y-4">
-                <h3 className="text-base font-semibold tracking-tight text-foreground">
+              <div key={index} className="space-y-3">
+                <h3 className="text-sm md:text-base font-semibold tracking-tight text-foreground">
                   {project.title}
                 </h3>
 
@@ -193,14 +193,14 @@ export default async function Page({
 
                 {/* Project Highlights */}
                 {project.highlights && project.highlights.length > 0 && (
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     {project.highlights.map((highlight, highlightIndex) => (
                       <div
                         key={highlightIndex}
-                        className="flex items-start gap-3"
+                        className="flex items-start gap-2.5"
                       >
-                        <span className="w-1.5 h-1.5 mt-2 bg-muted-foreground/60 rounded-full flex-shrink-0" />
-                        <p className="text-sm text-muted-foreground leading-relaxed">
+                        <span className="w-1.5 h-1.5 mt-1.5 bg-muted-foreground/60 rounded-full flex-shrink-0" />
+                        <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
                           {highlight}
                         </p>
                       </div>

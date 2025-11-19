@@ -39,7 +39,7 @@ export default async function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <div>
+      <div className="space-y-12">
         <Hero />
         <Work />
         <Stack />

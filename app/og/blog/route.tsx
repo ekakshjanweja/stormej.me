@@ -1,10 +1,8 @@
 import { ImageResponse } from "next/og";
-import {
-  FlutterLogo,
-  BunLogo,
-  NextJsLogo,
-  TypeScriptLogo,
-} from "@/components/logos";
+import { Flutter } from "@/components/ui/svgs/flutter";
+import { Bun } from "@/components/ui/svgs/bun";
+import { NextjsIconDark as Nextjs } from "@/components/ui/svgs/nextjsIconDark";
+import { Typescript } from "@/components/ui/svgs/typescript";
 
 export const runtime = "edge";
 
@@ -140,10 +138,18 @@ export async function GET(request: Request) {
               gap: "16px",
             }}
           >
-            <FlutterLogo opacity={0.5} size={24} />
-            <BunLogo opacity={0.5} size={24} />
-            <NextJsLogo opacity={0.5} size={24} />
-            <TypeScriptLogo opacity={0.5} size={24} />
+            <div style={{ width: "24px", height: "30px", opacity: 0.5 }}>
+              <Flutter width={24} height={30} />
+            </div>
+            <div style={{ width: "24px", height: "21px", opacity: 0.5 }}>
+              <Bun width={24} height={21} />
+            </div>
+            <div style={{ width: "24px", height: "24px", opacity: 0.5 }}>
+              <Nextjs width={24} height={24} />
+            </div>
+            <div style={{ width: "24px", height: "24px", opacity: 0.5 }}>
+              <Typescript width={24} height={24} />
+            </div>
           </div>
         </div>
 

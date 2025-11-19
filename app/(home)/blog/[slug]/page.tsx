@@ -74,15 +74,15 @@ export default async function Page({ params }: PageProps) {
         </Link>
 
         {/* Blog Header */}
-        <div className="mb-16">
-          <div className="space-y-6">
+        <div className="mb-12">
+          <div className="space-y-4">
             {/* 1. Title */}
-            <p className="text-xl md:text-2xl font-semibold tracking-tight">
+            <p className="text-lg md:text-xl font-semibold tracking-tight">
               {props.frontMatter.title}
             </p>
 
             {/* 2. Meta information */}
-            <div className="text-sm text-muted-foreground font-medium">
+            <div className="text-xs md:text-sm text-muted-foreground font-medium">
               {new Date(props.frontMatter.date).toLocaleDateString("en-US", {
                 year: "numeric",
                 month: "long",
@@ -92,14 +92,14 @@ export default async function Page({ params }: PageProps) {
             </div>
 
             {/* 3. Description */}
-            <p className="text-muted-foreground leading-relaxed">
+            <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
               {props.frontMatter.description}
             </p>
           </div>
         </div>
 
         {/* Blog Content */}
-        <article className="prose prose-lg max-w-none text-muted-foreground">
+        <article className="max-w-none">
           <MDX source={props.content} />
         </article>
       </div>

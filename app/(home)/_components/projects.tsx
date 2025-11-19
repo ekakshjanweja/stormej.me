@@ -7,15 +7,15 @@ import { cn } from "@/lib/utils";
 
 export function Projects() {
   return (
-    <section className="mt-8">
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-xl md:text-2xl font-semibold tracking-tight">
+    <section>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-lg md:text-xl font-semibold tracking-tight">
           projects
         </h2>
         {projects.length > 4 && (
           <Link
             href="/projects"
-            className="group relative px-3 py-2 rounded-lg transition-all duration-300 ease-in-out hover:translate-x-0.5 focus:translate-x-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 border border-transparent text-muted-foreground hover:text-foreground hover:border-border/20 hover:bg-accent/10"
+            className="group relative px-2.5 py-1.5 rounded-lg transition-all duration-300 ease-in-out hover:translate-x-0.5 focus:translate-x-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 border border-transparent text-muted-foreground hover:text-foreground hover:border-border/20 hover:bg-accent/10 text-sm"
           >
             <span className="font-medium transition-all duration-300 ease-in-out">
               view all
@@ -45,7 +45,7 @@ export function Projects() {
                   "hover:border-border/50 dark:hover:border-border/40",
                   "hover:bg-muted/50 dark:hover:bg-card/70",
                   "backdrop-blur-sm transition-all duration-700 ease-in-out",
-                  "cursor-pointer p-4",
+                  "cursor-pointer p-3",
                   "hover:shadow-md hover:shadow-primary/10 dark:hover:shadow-primary/5",
                   "transform-gpu"
                 )}
@@ -62,21 +62,21 @@ export function Projects() {
                 <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1500 ease-in-out bg-gradient-to-r from-transparent via-primary/5 to-transparent dark:via-white/5 opacity-0 group-hover:opacity-100" />
 
                 {/* Content */}
-                <div className="relative flex items-start justify-between gap-3">
+                <div className="relative flex items-start justify-between gap-2.5">
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-base font-semibold tracking-tight text-foreground group-hover:text-primary transition-colors duration-700 ease-in-out truncate">
+                    <h3 className="text-sm md:text-base font-semibold tracking-tight text-foreground group-hover:text-primary transition-colors duration-700 ease-in-out truncate">
                       {project.title}
                     </h3>
-                    <p className="text-sm text-muted-foreground font-medium transition-colors duration-700 ease-in-out mt-1 line-clamp-2 group-hover:text-muted-foreground/90">
+                    <p className="text-xs md:text-sm text-muted-foreground font-medium transition-colors duration-700 ease-in-out mt-0.5 line-clamp-2 group-hover:text-muted-foreground/90">
                       {project.subtitle}
                     </p>
                   </div>
                   <ExternalLink
                     className={cn(
-                      "w-4 h-4 text-muted-foreground/60",
+                      "w-3.5 h-3.5 text-muted-foreground/60",
                       "group-hover:text-primary transition-all duration-700 ease-in-out",
                       "group-hover:translate-x-0.5 group-hover:-translate-y-0.5",
-                      "flex-shrink-0"
+                      "flex-shrink-0 mt-0.5"
                     )}
                   />
                 </div>

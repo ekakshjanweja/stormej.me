@@ -15,17 +15,17 @@ const Code = (props: any) => {
   const language = matches ? matches[1] : "";
 
   return (
-    <div className="my-8 sm:my-12">
+    <div className="my-6">
       <AdminBar code={codeContent} language={language} />
       <div className="rounded-lg border border-border/10 bg-muted/30 overflow-hidden shadow-sm dark:bg-black dark:border-gray-800">
         <SyntaxHighlighter
-          className="rounded-lg !bg-transparent !p-4"
+          className="rounded-lg !bg-transparent !p-3"
           style={anOldHope}
           language={language}
           wrapLongLines={true}
           customStyle={{
             background: "transparent",
-            fontSize: "14px",
+            fontSize: "13px",
             lineHeight: "1.5",
             margin: 0,
             padding: 0,

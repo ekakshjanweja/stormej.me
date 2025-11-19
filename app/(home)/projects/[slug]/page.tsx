@@ -37,8 +37,8 @@ export default async function Page({ params }: PageProps) {
         </Link>
 
         {/* Project Header */}
-        <div className="mb-16">
-          <div className="space-y-6">
+        <div className="mb-12">
+          <div className="space-y-4">
             {/* 1. Title + Website */}
             <div className="flex items-center gap-2">
               {project.website ? (
@@ -48,32 +48,32 @@ export default async function Page({ params }: PageProps) {
                   rel="noopener noreferrer"
                   className="group flex items-center gap-2"
                 >
-                  <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
-                  <p className="text-xl md:text-2xl font-semibold tracking-tight group-hover:text-primary transition-colors duration-200">
+                  <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
+                  <p className="text-lg md:text-xl font-semibold tracking-tight group-hover:text-primary transition-colors duration-200">
                     {project.title}
                   </p>
                 </a>
               ) : (
-                <p className="text-xl md:text-2xl font-semibold tracking-tight">
+                <p className="text-lg md:text-xl font-semibold tracking-tight">
                   {project.title}
                 </p>
               )}
             </div>
 
             {/* 2. Subtitle */}
-            <div className="text-sm text-muted-foreground font-medium">
+            <div className="text-xs md:text-sm text-muted-foreground font-medium">
               {project.subtitle}
             </div>
 
             {/* 3. Description */}
             {project.description && (
-              <p className="text-muted-foreground leading-relaxed">
+              <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
                 {project.description}
               </p>
             )}
 
             {/* 4. Tech Stack */}
-            <div className="flex flex-wrap gap-1 mb-4">
+            <div className="flex flex-wrap gap-1 mb-3">
               {project.tech.map((tech, index) => (
                 <span
                   key={index}
@@ -130,12 +130,12 @@ export default async function Page({ params }: PageProps) {
 
         {/* 5. Highlights */}
         {project.highlights && project.highlights.length > 0 && (
-          <div className="mb-8">
-            <div className="space-y-3">
+          <div className="mb-6">
+            <div className="space-y-2.5">
               {project.highlights.map((highlight, index) => (
-                <div key={index} className="flex items-start gap-3">
-                  <span className="w-1.5 h-1.5 mt-2 bg-muted-foreground/60 rounded-full flex-shrink-0" />
-                  <p className="text-sm text-muted-foreground leading-relaxed">
+                <div key={index} className="flex items-start gap-2.5">
+                  <span className="w-1.5 h-1.5 mt-1.5 bg-muted-foreground/60 rounded-full flex-shrink-0" />
+                  <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
                     {highlight}
                   </p>
                 </div>

@@ -8,13 +8,13 @@ export default function Work() {
     <main>
       {/* Page Header */}
       <div className="mb-6">
-        <h1 className="text-xl md:text-2xl font-semibold tracking-tight">
+        <h1 className="text-lg md:text-xl font-semibold tracking-tight">
           work
         </h1>
       </div>
 
       {/* Work Experience List */}
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4">
         {work.map((item, index) => (
           <Link key={item.id} href={`/work/${item.id}`} className="group">
             <div
@@ -24,7 +24,7 @@ export default function Work() {
                 "hover:border-border/50 dark:hover:border-border/40",
                 "hover:bg-muted/50 dark:hover:bg-card/70",
                 "backdrop-blur-sm transition-all duration-700 ease-in-out",
-                "cursor-pointer p-4",
+                "cursor-pointer p-3",
                 "hover:shadow-md hover:shadow-primary/10 dark:hover:shadow-primary/5",
                 "transform-gpu"
               )}
@@ -37,10 +37,10 @@ export default function Work() {
 
               {/* Content */}
               <div className="relative flex flex-col gap-3">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <div className="flex items-center gap-4">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                  <div className="flex items-center gap-3">
                     {item.logo && (
-                      <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted/20 p-2 border border-border/10 opacity-60 transition-all duration-500 group-hover:opacity-100 group-hover:grayscale-0">
+                      <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-md bg-muted/20 p-1.5 border border-border/10 opacity-95 transition-all duration-500 group-hover:opacity-100 group-hover:grayscale-0">
                         <Image
                           src={item.logo}
                           alt={item.title}
@@ -49,17 +49,17 @@ export default function Work() {
                         />
                       </div>
                     )}
-                    <div className="flex flex-col gap-1">
-                      <h3 className="text-base font-semibold tracking-tight text-foreground group-hover:text-primary transition-colors duration-700 ease-in-out">
+                    <div className="flex flex-col gap-0.5">
+                      <h3 className="text-sm md:text-base font-semibold tracking-tight text-foreground group-hover:text-primary transition-colors duration-700 ease-in-out">
                         {item.title}
                       </h3>
-                      <p className="text-sm text-muted-foreground font-medium transition-colors duration-700 ease-in-out group-hover:text-muted-foreground/90">
+                      <p className="text-xs md:text-sm text-muted-foreground font-medium transition-colors duration-700 ease-in-out group-hover:text-muted-foreground/90">
                         {item.role}
                       </p>
                     </div>
                   </div>
-                  <div className="text-left md:text-right mt-2 md:mt-0">
-                    <p className="text-sm text-muted-foreground/70 transition-colors duration-700 ease-in-out group-hover:text-muted-foreground/90">
+                  <div className="text-left md:text-right mt-1 md:mt-0">
+                    <p className="text-xs md:text-sm text-muted-foreground/70 transition-colors duration-700 ease-in-out group-hover:text-muted-foreground/90">
                       {item.startDate
                         .toLocaleString("default", {
                           month: "short",
@@ -69,11 +69,11 @@ export default function Work() {
                       -{" "}
                       {item.endDate
                         ? item.endDate
-                          .toLocaleString("default", {
-                            month: "short",
-                            year: "numeric",
-                          })
-                          .toLowerCase()
+                            .toLocaleString("default", {
+                              month: "short",
+                              year: "numeric",
+                            })
+                            .toLowerCase()
                         : "present"}
                     </p>
                   </div>
@@ -81,7 +81,7 @@ export default function Work() {
 
                 {/* Description */}
                 {item.description && (
-                  <p className="text-sm text-muted-foreground/80 leading-relaxed group-hover:text-muted-foreground/90 transition-colors duration-700 ease-in-out">
+                  <p className="text-xs md:text-sm text-muted-foreground/80 leading-relaxed group-hover:text-muted-foreground/90 transition-colors duration-700 ease-in-out">
                     {item.description}
                   </p>
                 )}

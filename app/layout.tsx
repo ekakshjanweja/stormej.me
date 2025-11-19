@@ -103,9 +103,13 @@ export default function RootLayout({
           </a>
           <div className="bg-background min-h-screen">
             <div className="flex justify-center w-full">
-              <div className="md:max-w-3xl w-full px-4 md:px-0 flex flex-col min-h-screen">
+              <div className="md:max-w-3xl w-full flex flex-col min-h-screen">
                 <Navbar />
-                <main id="main-content" className="flex-1 pb-8" tabIndex={-1}>
+                <main
+                  id="main-content"
+                  className="flex-1 pb-8 px-4"
+                  tabIndex={-1}
+                >
                   {children}
                 </main>
                 <Footer />
