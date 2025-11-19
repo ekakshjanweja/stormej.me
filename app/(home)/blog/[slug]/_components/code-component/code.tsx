@@ -3,22 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React from "react";
-import { useTheme } from "next-themes";
-
-import {
-  BundledLanguage,
-  CodeBlock,
-  CodeBlockBody,
-  CodeBlockContent,
-  CodeBlockCopyButton,
-  CodeBlockHeader,
-  CodeBlockItem,
-  CodeBlockSelect,
-  CodeBlockSelectContent,
-  CodeBlockSelectItem,
-  CodeBlockSelectTrigger,
-  CodeBlockSelectValue,
-} from "@/components/ui/shadcn-io/code-block";
+import { CodeBlock } from "@/components/ui/code-block";
 
 const extractMetaValue = (meta: string | undefined, key: string) => {
   if (!meta) return undefined;
@@ -26,8 +11,24 @@ const extractMetaValue = (meta: string | undefined, key: string) => {
   return regex.exec(meta)?.[1];
 };
 
+const extractHighlightLines = (meta: string | undefined): number[] => {
+  if (!meta) return [];
+  const highlightMatch = meta.match(/highlightLines?="?\[(.*?)\]"?/);
+  if (highlightMatch) {
+    try {
+      const lines = highlightMatch[1]
+        .split(",")
+        .map((n) => parseInt(n.trim(), 10))
+        .filter((n) => !isNaN(n));
+      return lines;
+    } catch {
+      return [];
+    }
+  }
+  return [];
+};
+
 const Code = (props: any) => {
-  const { resolvedTheme } = useTheme();
   const child = props.children;
   const childProps =
     typeof child === "string" ? ({} as Record<string, unknown>) : child?.props;
@@ -49,51 +50,15 @@ const Code = (props: any) => {
     extractMetaValue(metastring, "filename") ??
     (language === "plaintext" ? "code.txt" : `snippet.${language}`);
 
-  const data = [
-    {
-      language,
-      filename,
-      code: typeof codeContent === "string" ? codeContent : "",
-    },
-  ];
+  const highlightLines = extractHighlightLines(metastring);
 
   return (
-    <div className="my-6">
-      <CodeBlock data={data} defaultValue={language}>
-        <CodeBlockHeader className="flex items-center justify-end gap-4">
-          <CodeBlockSelect>
-            <CodeBlockSelectTrigger>
-              <CodeBlockSelectValue />
-            </CodeBlockSelectTrigger>
-            <CodeBlockSelectContent>
-              {(item: { language: string }) => (
-                <CodeBlockSelectItem key={item.language} value={item.language}>
-                  {item.language}
-                </CodeBlockSelectItem>
-              )}
-            </CodeBlockSelectContent>
-          </CodeBlockSelect>
-          <CodeBlockCopyButton />
-        </CodeBlockHeader>
-        <CodeBlockBody>
-          {(item: { language: string; code: string }) => (
-            <CodeBlockItem key={item.language} value={item.language}>
-              <CodeBlockContent
-                language={item.language as BundledLanguage}
-                themes={{
-                  light:
-                    resolvedTheme === "dark" ? "vitesse-dark" : "vitesse-light",
-                  dark:
-                    resolvedTheme === "dark" ? "vitesse-dark" : "vitesse-light",
-                }}
-              >
-                {item.code}
-              </CodeBlockContent>
-            </CodeBlockItem>
-          )}
-        </CodeBlockBody>
-      </CodeBlock>
-    </div>
+    <CodeBlock
+      language={language}
+      filename={filename}
+      highlightLines={highlightLines}
+      code={typeof codeContent === "string" ? codeContent : ""}
+    />
   );
 };
 
