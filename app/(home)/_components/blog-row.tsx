@@ -28,7 +28,7 @@ export const BlogRow = async () => {
           )}
         </div>
         <div className="flex flex-col gap-4">
-          {blogs.slice(0, 2).map((blog, index) => (
+          {blogs.slice(0, 2).map((blog) => (
             <Link key={blog.slug} href={`/blog/${blog.slug}`} className="group">
               <div
                 className={cn(

@@ -17,7 +17,7 @@ export default function Projects() {
       <div className="flex flex-col gap-4">
         {projects
           .filter((project) => !project.hidden)
-          .map((project, index) => {
+          .map((project) => {
             const hasDescription =
               project.description && project.description.length > 0;
             const href = hasDescription

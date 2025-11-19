@@ -15,7 +15,7 @@ export default function Work() {
 
       {/* Work Experience List */}
       <div className="flex flex-col gap-4">
-        {work.map((item, index) => (
+        {work.map((item) => (
           <Link key={item.id} href={`/work/${item.id}`} className="group">
             <div
               className={cn(

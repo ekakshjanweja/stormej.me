@@ -23,7 +23,7 @@ export default function Work() {
           )}
         </div>
         <div className="flex flex-col gap-4">
-          {work.slice(0, 2).map((workItem, index) => (
+          {work.slice(0, 2).map((workItem) => (
             <Link
               key={workItem.id}
               href={`/work/${workItem.id}`}

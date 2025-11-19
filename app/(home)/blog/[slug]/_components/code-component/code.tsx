@@ -1,40 +1,98 @@
+"use client";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React from "react";
-import AdminBar from "./admin";
-import SyntaxHighlighter from "react-syntax-highlighter/dist/esm/default-highlight";
-import { anOldHope } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { useTheme } from "next-themes";
+
+import type { BundledLanguage } from "@/components/kibo-ui/code-block";
+import {
+  CodeBlock,
+  CodeBlockBody,
+  CodeBlockContent,
+  CodeBlockCopyButton,
+  CodeBlockHeader,
+  CodeBlockItem,
+  CodeBlockSelect,
+  CodeBlockSelectContent,
+  CodeBlockSelectItem,
+  CodeBlockSelectTrigger,
+  CodeBlockSelectValue,
+} from "@/components/kibo-ui/code-block";
+
+const extractMetaValue = (meta: string | undefined, key: string) => {
+  if (!meta) return undefined;
+  const regex = new RegExp(`${key}="?(.*?)"?(\\s|$)`);
+  return regex.exec(meta)?.[1];
+};
 
 const Code = (props: any) => {
+  const { resolvedTheme } = useTheme();
+  const child = props.children;
+  const childProps =
+    typeof child === "string" ? ({} as Record<string, unknown>) : child?.props;
+
   const codeContent =
-    typeof props.children === "string"
-      ? props.children
-      : props.children.props.children;
-  const className = props.children.props?.className || "";
-  const matches = className.match(/language-(\w+)/);
-  const language = matches ? matches[1] : "";
+    typeof child === "string"
+      ? child
+      : ((childProps?.children as string) ?? "");
+
+  const className = (childProps?.className as string) ?? "";
+  const matches = className.match(/language-([\w-]+)/);
+  const language = (matches?.[1]?.toLowerCase() ?? "plaintext") as string;
+
+  const metastring =
+    (childProps?.node?.data?.meta as string | undefined) ??
+    (childProps?.metastring as string | undefined);
+
+  const filename =
+    extractMetaValue(metastring, "filename") ??
+    (language === "plaintext" ? "code.txt" : `snippet.${language}`);
+
+  const data = [
+    {
+      language,
+      filename,
+      code: typeof codeContent === "string" ? codeContent : "",
+    },
+  ];
 
   return (
     <div className="my-6">
-      <AdminBar code={codeContent} language={language} />
-      <div className="rounded-lg border border-border/10 bg-muted/30 overflow-hidden shadow-sm dark:bg-black dark:border-gray-800">
-        <SyntaxHighlighter
-          className="rounded-lg !bg-transparent !p-3"
-          style={anOldHope}
-          language={language}
-          wrapLongLines={true}
-          customStyle={{
-            background: "transparent",
-            fontSize: "13px",
-            lineHeight: "1.5",
-            margin: 0,
-            padding: 0,
-            color: "#ffffff", // Pure white text for true dark mode
-          }}
-        >
-          {codeContent}
-        </SyntaxHighlighter>
-      </div>
+      <CodeBlock data={data} defaultValue={language}>
+        <CodeBlockHeader className="flex items-center justify-end gap-4">
+          <CodeBlockSelect>
+            <CodeBlockSelectTrigger>
+              <CodeBlockSelectValue />
+            </CodeBlockSelectTrigger>
+            <CodeBlockSelectContent>
+              {(item) => (
+                <CodeBlockSelectItem key={item.language} value={item.language}>
+                  {item.language}
+                </CodeBlockSelectItem>
+              )}
+            </CodeBlockSelectContent>
+          </CodeBlockSelect>
+          <CodeBlockCopyButton />
+        </CodeBlockHeader>
+        <CodeBlockBody>
+          {(item) => (
+            <CodeBlockItem key={item.language} value={item.language}>
+              <CodeBlockContent
+                language={item.language as BundledLanguage}
+                themes={{
+                  light:
+                    resolvedTheme === "dark" ? "vitesse-dark" : "vitesse-light",
+                  dark:
+                    resolvedTheme === "dark" ? "vitesse-dark" : "vitesse-light",
+                }}
+              >
+                {item.code}
+              </CodeBlockContent>
+            </CodeBlockItem>
+          )}
+        </CodeBlockBody>
+      </CodeBlock>
     </div>
   );
 };

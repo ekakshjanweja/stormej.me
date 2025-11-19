@@ -1,8 +1,6 @@
-import { domi, resume, xDotCom } from "@/lib/constants/links";
+import { domi, resume } from "@/lib/constants/links";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 import SocialLinks from "./social-links";
-import { X } from "@/components/ui/svgs/x";
 import { Button } from "@/components/ui/button";
 import { FileText, Mail } from "lucide-react";
 
@@ -12,9 +10,12 @@ export default function Hero() {
       <section aria-labelledby="hero-heading">
         <div className="space-y-3 mt-2 md:mt-12">
           <p className="text-xs md:text-sm text-foreground font-light leading-relaxed">
-            hi, i&apos;m a software engineer based out of new delhi. been
-            building mobile apps at startups for 2+ years. right now i am
-            building the consumer side of{" "}
+            hi, i&apos;m ekaksh.
+          </p>
+          <p className="text-xs md:text-sm text-foreground font-light leading-relaxed">
+            i build mobile apps that feel fast, clean and reliable. i&apos;ve
+            spent the last couple of years shipping products at early stage
+            startups and right now i&apos;m building the consumer experience at{" "}
             <Link
               href={domi}
               target="_blank"
@@ -26,31 +27,15 @@ export default function Hero() {
             .
           </p>
           <p className="text-xs md:text-sm text-foreground font-light leading-relaxed">
-            i love ricing my arch setup, tinkering with my homelab, and building
-            meaningful products.
+            i enjoy taking product problems apart and building clean solutions.
           </p>
-          <p className="text-xs md:text-sm text-foreground font-light leading-relaxed pt-2">
-            if you&apos;re working on something cool, hit me up{" "}
-            <Link
-              target="_blank"
-              href="mailto:jekaksh@gmail.com"
-              rel="noopener noreferrer"
-              className="underline decoration-muted-foreground underline-offset-4 hover:decoration-highlight hover:text-highlight transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
-            >
-              here
-            </Link>{" "}
-            or dm me on{" "}
-            <Link
-              href={xDotCom}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 align-middle underline decoration-muted-foreground underline-offset-4 hover:decoration-highlight hover:text-highlight transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
-            >
-              <X className="w-3.5 h-3.5 ml-1 hover:scale-110 transition-transform duration-200 inline text-foreground" />
-            </Link>
-            .
-          </p>
+          <div className="text-xs md:text-sm text-foreground font-light leading-relaxed space-y-1 pt-2">
+            <p>other things about me:</p>
+            <p>i use arch btw.</p>
+            <p>i play valorant.</p>
+          </div>
         </div>
+
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-3 pt-6">
           <Button
