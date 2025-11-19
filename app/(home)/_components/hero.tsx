@@ -77,7 +77,7 @@ export default function Hero() {
             </Link>
           </Button>
         </div>
-        {/* Social Links */}clear
+        {/* Social Links */}
         <SocialLinks />
       </section>
     </>
