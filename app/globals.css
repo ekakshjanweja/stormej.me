@@ -35,6 +35,7 @@
   --sidebar-border: oklch(0.88 0.006 85);
   --sidebar-ring: oklch(0.6 0.008 85);
   --highlight: oklch(0.65 0.012 70);
+  --text-highlight: oklch(53.046% 0.29324 293.942);
 
   --contribution-0: #ebedf0;
   --contribution-1: #9be9a8;
@@ -76,6 +77,7 @@
   --sidebar-border: oklch(0.35 0.006 85);
   --sidebar-ring: oklch(0.5 0.008 85);
   --highlight: oklch(0.75 0.01 75);
+  --text-highlight: oklch(93.053% 0.15006 122.149);
 
   --contribution-0: #161b22;
   --contribution-1: #0e4429;
