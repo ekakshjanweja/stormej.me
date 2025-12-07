@@ -185,6 +185,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
       // Fire-and-forget: don't await, just send
       fetch("/api/realtime/send", {
         method: "POST",
+        keepalive: true,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           type: "cursor",
@@ -214,6 +215,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
       try {
         await fetch("/api/realtime/send", {
           method: "POST",
+          keepalive: true,
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             type: "send_message",

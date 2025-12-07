@@ -131,7 +131,7 @@ export function LiveCursors() {
           Math.abs(percentX - last.percentX) > 0.001 ||
           Math.abs(percentY - last.percentY) > 0.001;
 
-        if (posChanged && now - last.time >= 16) {
+        if (posChanged && now - last.time >= 80) {
           lastSentRef.current = { percentX, percentY, time: now };
           sendCursorPosition(
             percentX,

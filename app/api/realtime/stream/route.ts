@@ -1,4 +1,8 @@
-import { addClient, type RealtimeEvent } from "@/lib/realtime-store";
+import {
+  addClient,
+  cleanupStaleCursors,
+  type RealtimeEvent,
+} from "@/lib/realtime-store";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -24,6 +28,7 @@ export async function GET(): Promise<Response> {
       const heartbeat = setInterval(() => {
         try {
           controller.enqueue(encoder.encode(": heartbeat\n\n"));
+          cleanupStaleCursors();
         } catch {
           clearInterval(heartbeat);
         }
