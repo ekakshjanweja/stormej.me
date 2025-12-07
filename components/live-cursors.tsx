@@ -133,16 +133,17 @@ export function LiveCursors() {
 
         if (posChanged && now - last.time >= 16) {
           lastSentRef.current = { percentX, percentY, time: now };
+          // Desktop users can show typing state, mobile users don't
           sendCursorPosition(
             percentX,
             percentY,
             anchor ?? undefined,
-            isChatMode ? currentMessage : undefined
+            !isTouchDevice && isChatMode ? currentMessage : undefined
           );
         }
       });
     },
-    [sendCursorPosition, isChatMode, currentMessage]
+    [sendCursorPosition, isChatMode, currentMessage, isTouchDevice]
   );
 
   // Handle mouse move
@@ -172,19 +173,19 @@ export function LiveCursors() {
     return () => window.removeEventListener("touchmove", handleTouchMove);
   }, [updatePosition, isTouchDevice]);
 
-  // Sync typing state on mobile
+  // Sync position on mobile (without typing state - messages only shown when sent)
   useEffect(() => {
     if (isTouchDevice && isChatMode) {
       const now = Date.now();
       const last = lastSentRef.current;
 
-      // Throttle updates
+      // Throttle updates - don't send currentMessage for mobile (only show sent messages)
       if (now - last.time >= 100) {
         lastSentRef.current = { percentX: 0.5, percentY: 0.35, time: now };
-        sendCursorPosition(0.5, 0.35, undefined, currentMessage);
+        sendCursorPosition(0.5, 0.35, undefined, undefined);
       }
     }
-  }, [currentMessage, isTouchDevice, isChatMode, sendCursorPosition]);
+  }, [isTouchDevice, isChatMode, sendCursorPosition]);
 
   // Send virtual position when entering chat mode on mobile
   useEffect(() => {
@@ -196,21 +197,22 @@ export function LiveCursors() {
 
       viewportPosRef.current = { x: virtualX, y: virtualY };
 
+      // Don't send currentMessage for mobile - messages only shown when sent
       sendCursorPosition(
         0.5, // 50% width
         0.35, // 35% height
         undefined,
-        currentMessage
+        undefined
       );
     }
-  }, [isChatMode, isTouchDevice, sendCursorPosition, currentMessage]);
+  }, [isChatMode, isTouchDevice, sendCursorPosition]);
 
   // Heartbeat every 5 seconds
   useEffect(() => {
     const heartbeat = setInterval(() => {
-      // If on mobile and in chat mode, force the virtual position
+      // If on mobile and in chat mode, force the virtual position (no typing state)
       if (isTouchDevice && isChatMode) {
-        sendCursorPosition(0.5, 0.35, undefined, currentMessage);
+        sendCursorPosition(0.5, 0.35, undefined, undefined);
         return;
       }
 
@@ -219,11 +221,12 @@ export function LiveCursors() {
         const percentX = x / window.innerWidth;
         const percentY = y / window.innerHeight;
         const anchor = findNearestAnchor(x, y);
+        // Desktop users can show typing state, mobile users don't
         sendCursorPosition(
           percentX,
           percentY,
           anchor ?? undefined,
-          isChatMode ? currentMessage : undefined
+          !isTouchDevice && isChatMode ? currentMessage : undefined
         );
       }
     }, 5000);
