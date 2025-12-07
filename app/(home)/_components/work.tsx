@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 export default function Work() {
   return (
     <>
-      <section>
+      <section data-cursor-anchor="work">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-lg md:text-xl font-semibold tracking-tight">
             work

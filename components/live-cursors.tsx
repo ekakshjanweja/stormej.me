@@ -9,8 +9,62 @@ import {
   CursorMessage,
 } from "@/components/kibo-ui/cursor";
 import { useRealtime } from "@/lib/providers/realtime-provider";
+import { type CursorAnchor, type CursorPosition } from "@/lib/realtime-store";
+import { MessageCircle, X } from "lucide-react";
 
 const MESSAGE_EXPIRY = 30000; // 30 seconds
+
+// Find the nearest element with data-cursor-anchor attribute
+function findNearestAnchor(
+  clientX: number,
+  clientY: number
+): CursorAnchor | null {
+  const element = document.elementFromPoint(clientX, clientY);
+  if (!element) return null;
+
+  // Walk up the DOM tree to find an anchor
+  let current: Element | null = element;
+  while (current) {
+    const anchorId = current.getAttribute("data-cursor-anchor");
+    if (anchorId) {
+      const rect = current.getBoundingClientRect();
+      return {
+        selector: `[data-cursor-anchor="${anchorId}"]`,
+        relativeX: (clientX - rect.left) / rect.width,
+        relativeY: (clientY - rect.top) / rect.height,
+      };
+    }
+    current = current.parentElement;
+  }
+
+  return null;
+}
+
+// Resolve an anchor to screen coordinates
+function resolveAnchorPosition(
+  anchor: CursorAnchor
+): { x: number; y: number } | null {
+  const element = document.querySelector(anchor.selector);
+  if (!element) return null;
+
+  const rect = element.getBoundingClientRect();
+  return {
+    x: rect.left + rect.width * anchor.relativeX,
+    y: rect.top + rect.height * anchor.relativeY,
+  };
+}
+
+// Check if position is within viewport
+function isInViewport(x: number, y: number, margin = 50): boolean {
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  return (
+    x >= -margin &&
+    x <= viewportWidth + margin &&
+    y >= -margin &&
+    y <= viewportHeight + margin
+  );
+}
 
 export function LiveCursors() {
   const { cursors, user, pathname, sendCursorPosition, sendMessage } =
@@ -22,15 +76,26 @@ export function LiveCursors() {
   const [sentMessages, setSentMessages] = useState<
     Array<{ text: string; timestamp: number }>
   >([]);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
 
-  // Use refs for positions to avoid re-renders on every mouse move
-  const viewportPosRef = useRef({ x: 0, y: 0 }); // clientX, clientY
-  const [displayPos, setDisplayPos] = useState({ x: 0, y: 0 }); // For rendering
-  const lastSentRef = useRef({ x: 0, y: 0, scrollX: 0, scrollY: 0, time: 0 });
+  // Position refs
+  const viewportPosRef = useRef({ x: 0, y: 0 });
+  const [displayPos, setDisplayPos] = useState({ x: 0, y: 0 });
+  const lastSentRef = useRef({ percentX: 0, percentY: 0, time: 0 });
   const rafRef = useRef<number | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  // Scroll position as state (for viewport bounds filtering)
-  const [scroll, setScroll] = useState({ x: 0, y: 0 });
+  // Detect touch device
+  useEffect(() => {
+    setIsTouchDevice("ontouchstart" in window || navigator.maxTouchPoints > 0);
+  }, []);
+
+  // Focus input when chat mode opens on mobile
+  useEffect(() => {
+    if (isChatMode && isTouchDevice && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isChatMode, isTouchDevice]);
 
   // Clean up expired sent messages
   useEffect(() => {
@@ -43,46 +108,35 @@ export function LiveCursors() {
     return () => clearInterval(interval);
   }, []);
 
-  // Unified position update function using RAF for smooth batching
+  // Unified position update function
   const updatePosition = useCallback(
-    (
-      viewportX: number,
-      viewportY: number,
-      scrollX: number,
-      scrollY: number
-    ) => {
-      // Cancel any pending RAF
+    (clientX: number, clientY: number) => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
 
       rafRef.current = requestAnimationFrame(() => {
-        // Update display position (viewport-relative for rendering)
-        setDisplayPos({ x: viewportX, y: viewportY });
-        viewportPosRef.current = { x: viewportX, y: viewportY };
+        setDisplayPos({ x: clientX, y: clientY });
+        viewportPosRef.current = { x: clientX, y: clientY };
 
-        // Calculate document-relative position for server
-        const docX = viewportX + scrollX;
-        const docY = viewportY + scrollY;
+        // Calculate percentage-based position
+        const percentX = clientX / window.innerWidth;
+        const percentY = clientY / window.innerHeight;
 
-        // Throttle server updates (every 16ms = ~60fps)
+        // Find nearest anchor element
+        const anchor = findNearestAnchor(clientX, clientY);
+
+        // Throttle server updates
         const now = Date.now();
         const last = lastSentRef.current;
         const posChanged =
-          Math.abs(docX - last.x) > 1 ||
-          Math.abs(docY - last.y) > 1 ||
-          scrollX !== last.scrollX ||
-          scrollY !== last.scrollY;
+          Math.abs(percentX - last.percentX) > 0.001 ||
+          Math.abs(percentY - last.percentY) > 0.001;
 
         if (posChanged && now - last.time >= 16) {
-          lastSentRef.current = {
-            x: docX,
-            y: docY,
-            scrollX,
-            scrollY,
-            time: now,
-          };
+          lastSentRef.current = { percentX, percentY, time: now };
           sendCursorPosition(
-            docX,
-            docY,
+            percentX,
+            percentY,
+            anchor ?? undefined,
             isChatMode ? currentMessage : undefined
           );
         }
@@ -93,52 +147,93 @@ export function LiveCursors() {
 
   // Handle mouse move
   useEffect(() => {
+    if (isTouchDevice) return;
+
     const handleMouseMove = (e: MouseEvent) => {
-      updatePosition(e.clientX, e.clientY, window.scrollX, window.scrollY);
+      updatePosition(e.clientX, e.clientY);
     };
 
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [updatePosition]);
+  }, [updatePosition, isTouchDevice]);
 
-  // Handle scroll
+  // Handle touch move for mobile
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollX = window.scrollX;
-      const scrollY = window.scrollY;
-      setScroll({ x: scrollX, y: scrollY });
+    if (!isTouchDevice) return;
 
-      // Update position with current viewport pos + new scroll
-      updatePosition(
-        viewportPosRef.current.x,
-        viewportPosRef.current.y,
-        scrollX,
-        scrollY
-      );
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        const touch = e.touches[0];
+        updatePosition(touch.clientX, touch.clientY);
+      }
     };
 
-    // Set initial scroll
-    setScroll({ x: window.scrollX, y: window.scrollY });
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
+    return () => window.removeEventListener("touchmove", handleTouchMove);
+  }, [updatePosition, isTouchDevice]);
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [updatePosition]);
+  // Sync typing state on mobile
+  useEffect(() => {
+    if (isTouchDevice && isChatMode) {
+      const now = Date.now();
+      const last = lastSentRef.current;
+
+      // Throttle updates
+      if (now - last.time >= 100) {
+        lastSentRef.current = { percentX: 0.5, percentY: 0.35, time: now };
+        sendCursorPosition(0.5, 0.35, undefined, currentMessage);
+      }
+    }
+  }, [currentMessage, isTouchDevice, isChatMode, sendCursorPosition]);
+
+  // Send virtual position when entering chat mode on mobile
+  useEffect(() => {
+    if (isChatMode && isTouchDevice) {
+      // Set a virtual position in the center-top area
+      // This ensures visibility on both desktop and mobile
+      const virtualX = window.innerWidth * 0.5;
+      const virtualY = window.innerHeight * 0.35;
+
+      viewportPosRef.current = { x: virtualX, y: virtualY };
+
+      sendCursorPosition(
+        0.5, // 50% width
+        0.35, // 35% height
+        undefined,
+        currentMessage
+      );
+    }
+  }, [isChatMode, isTouchDevice, sendCursorPosition, currentMessage]);
 
   // Heartbeat every 5 seconds
   useEffect(() => {
     const heartbeat = setInterval(() => {
+      // If on mobile and in chat mode, force the virtual position
+      if (isTouchDevice && isChatMode) {
+        sendCursorPosition(0.5, 0.35, undefined, currentMessage);
+        return;
+      }
+
       const { x, y } = viewportPosRef.current;
       if (x > 0 || y > 0) {
-        const docX = x + window.scrollX;
-        const docY = y + window.scrollY;
-        sendCursorPosition(docX, docY, isChatMode ? currentMessage : undefined);
+        const percentX = x / window.innerWidth;
+        const percentY = y / window.innerHeight;
+        const anchor = findNearestAnchor(x, y);
+        sendCursorPosition(
+          percentX,
+          percentY,
+          anchor ?? undefined,
+          isChatMode ? currentMessage : undefined
+        );
       }
     }, 5000);
     return () => clearInterval(heartbeat);
-  }, [sendCursorPosition, isChatMode, currentMessage]);
+  }, [sendCursorPosition, isChatMode, currentMessage, isTouchDevice]);
 
-  // Handle keyboard events
+  // Handle keyboard events (desktop only)
   useEffect(() => {
+    if (isTouchDevice) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
       const isTyping =
@@ -146,7 +241,6 @@ export function LiveCursors() {
         target.tagName === "TEXTAREA" ||
         target.isContentEditable;
 
-      // Enter chat mode with /
       if (e.key === "/" && !isTyping && !isChatMode) {
         e.preventDefault();
         e.stopPropagation();
@@ -154,7 +248,6 @@ export function LiveCursors() {
         return;
       }
 
-      // In chat mode, capture all keypresses
       if (isChatMode) {
         e.preventDefault();
         e.stopPropagation();
@@ -191,7 +284,7 @@ export function LiveCursors() {
 
     window.addEventListener("keydown", handleKeyDown, true);
     return () => window.removeEventListener("keydown", handleKeyDown, true);
-  }, [isChatMode, currentMessage, sendMessage]);
+  }, [isChatMode, currentMessage, sendMessage, isTouchDevice]);
 
   // Cleanup RAF on unmount
   useEffect(() => {
@@ -200,150 +293,177 @@ export function LiveCursors() {
     };
   }, []);
 
+  // Handle mobile message send
+  const handleMobileSend = () => {
+    if (currentMessage.trim()) {
+      const messageText = currentMessage.trim();
+      sendMessage(messageText);
+      setSentMessages((prev) => [
+        ...prev.slice(-2),
+        { text: messageText, timestamp: Date.now() },
+      ]);
+      setCurrentMessage("");
+    }
+  };
+
   if (!user) return null;
 
-  // Viewport bounds
-  const viewportWidth = typeof window !== "undefined" ? window.innerWidth : 0;
-  const viewportHeight = typeof window !== "undefined" ? window.innerHeight : 0;
-
-  // Check if anyone else is on the same path (for showing your own cursor)
+  // Check if anyone else is on the same path
   const hasOthersOnSamePath = cursors.some(
     (cursor) => cursor.userId !== user.userId && cursor.path === pathname
   );
 
-  // Filter cursors to only those visible in viewport (for rendering others)
-  const visibleCursors = cursors.filter((cursor) => {
-    if (cursor.userId === user.userId) return false;
-    if (cursor.path !== pathname) return false;
+  // Resolve cursor positions and filter visible ones
+  const resolvePosition = (
+    cursor: CursorPosition
+  ): { x: number; y: number } | null => {
+    // Try anchor-based position first
+    if (cursor.anchor) {
+      const anchorPos = resolveAnchorPosition(cursor.anchor);
+      if (anchorPos && isInViewport(anchorPos.x, anchorPos.y)) {
+        return anchorPos;
+      }
+    }
 
-    // Convert doc position to viewport position
-    const viewportX = cursor.x - scroll.x;
-    const viewportY = cursor.y - scroll.y;
+    // Fallback to percentage-based position
+    const x = cursor.percentX * window.innerWidth;
+    const y = cursor.percentY * window.innerHeight;
 
-    // Check if in viewport (with some margin for cursor size)
-    return (
-      viewportX >= -50 &&
-      viewportX <= viewportWidth + 50 &&
-      viewportY >= -50 &&
-      viewportY <= viewportHeight + 50
-    );
-  });
+    if (isInViewport(x, y)) {
+      return { x, y };
+    }
+
+    return null;
+  };
+
+  // Filter and map cursors with resolved positions
+  const visibleCursors = cursors
+    .filter(
+      (cursor) => cursor.userId !== user.userId && cursor.path === pathname
+    )
+    .map((cursor) => ({
+      ...cursor,
+      resolvedPos: resolvePosition(cursor),
+    }))
+    .filter((cursor) => cursor.resolvedPos !== null);
 
   return (
-    <div
-      className="pointer-events-none fixed inset-0 z-40 overflow-hidden"
-      aria-hidden="true"
-    >
-      {/* Other users' cursors */}
-      {visibleCursors.map((cursor) => {
-        // Convert to viewport position for display
-        const x = cursor.x - scroll.x;
-        const y = cursor.y - scroll.y;
-        const hasContent = cursor.messages.length > 0 || cursor.currentTyping;
+    <>
+      <div
+        className="pointer-events-none fixed inset-0 z-40 overflow-hidden"
+        aria-hidden="true"
+      >
+        {/* Other users' cursors */}
+        {visibleCursors.map((cursor) => {
+          const { x, y } = cursor.resolvedPos!;
+          const hasContent = cursor.messages.length > 0 || cursor.currentTyping;
 
-        return (
+          return (
+            <div
+              key={cursor.userId}
+              className="absolute will-change-transform"
+              style={{
+                transform: `translate3d(${x}px, ${y}px, 0)`,
+                transition: "transform 80ms cubic-bezier(0.22, 1, 0.36, 1)",
+              }}
+            >
+              <Cursor>
+                <CursorPointer style={{ color: cursor.color }} />
+                {hasContent && (
+                  <CursorBody
+                    style={{
+                      backgroundColor: cursor.color,
+                      color: getContrastColor(cursor.color),
+                    }}
+                  >
+                    <CursorName>{cursor.name}</CursorName>
+                    {cursor.messages.map((msg, idx) => (
+                      <CursorMessage
+                        key={msg.timestamp}
+                        className={
+                          idx < cursor.messages.length - 1 ? "opacity-60" : ""
+                        }
+                      >
+                        {msg.text}
+                      </CursorMessage>
+                    ))}
+                    {cursor.currentTyping && (
+                      <CursorMessage className="opacity-80 italic">
+                        {cursor.currentTyping}
+                        <span className="animate-pulse">|</span>
+                      </CursorMessage>
+                    )}
+                  </CursorBody>
+                )}
+                {!hasContent && (
+                  <CursorBody
+                    style={{
+                      backgroundColor: cursor.color,
+                      color: getContrastColor(cursor.color),
+                    }}
+                    className="opacity-80"
+                  >
+                    <CursorName>{cursor.name}</CursorName>
+                  </CursorBody>
+                )}
+              </Cursor>
+            </div>
+          );
+        })}
+
+        {/* Current user's cursor - only show on desktop if others on same page */}
+        {!isTouchDevice && hasOthersOnSamePath && (
           <div
-            key={cursor.userId}
             className="absolute will-change-transform"
             style={{
-              transform: `translate3d(${x}px, ${y}px, 0)`,
-              transition: "transform 80ms cubic-bezier(0.22, 1, 0.36, 1)",
+              transform: `translate3d(${displayPos.x}px, ${displayPos.y}px, 0)`,
             }}
           >
             <Cursor>
-              <CursorPointer style={{ color: cursor.color }} />
-              {hasContent && (
-                <CursorBody
-                  style={{
-                    backgroundColor: cursor.color,
-                    color: getContrastColor(cursor.color),
-                  }}
-                >
-                  <CursorName>{cursor.name}</CursorName>
-                  {cursor.messages.map((msg, idx) => (
-                    <CursorMessage
-                      key={msg.timestamp}
-                      className={
-                        idx < cursor.messages.length - 1 ? "opacity-60" : ""
-                      }
-                    >
-                      {msg.text}
-                    </CursorMessage>
-                  ))}
-                  {cursor.currentTyping && (
-                    <CursorMessage className="opacity-80 italic">
-                      {cursor.currentTyping}
-                      <span className="animate-pulse">|</span>
-                    </CursorMessage>
-                  )}
-                </CursorBody>
-              )}
-              {!hasContent && (
-                <CursorBody
-                  style={{
-                    backgroundColor: cursor.color,
-                    color: getContrastColor(cursor.color),
-                  }}
-                  className="opacity-80"
-                >
-                  <CursorName>{cursor.name}</CursorName>
-                </CursorBody>
-              )}
+              <CursorPointer style={{ color: user.color }} />
+              <CursorBody
+                style={{
+                  backgroundColor: user.color,
+                  color: getContrastColor(user.color),
+                }}
+              >
+                <CursorName>{user.name}</CursorName>
+                {sentMessages.map((msg, idx) => (
+                  <CursorMessage
+                    key={msg.timestamp}
+                    className={
+                      idx < sentMessages.length - 1 ? "opacity-60" : ""
+                    }
+                  >
+                    {msg.text}
+                  </CursorMessage>
+                ))}
+                {isChatMode && (
+                  <CursorMessage className="opacity-80 italic">
+                    {currentMessage || (
+                      <span className="opacity-60">type a message...</span>
+                    )}
+                    <span className="animate-pulse">|</span>
+                  </CursorMessage>
+                )}
+                {!isChatMode && sentMessages.length === 0 && (
+                  <CursorMessage className="opacity-60 text-[10px]">
+                    press{" "}
+                    <kbd className="px-1 py-0.5 rounded bg-black/20 mx-0.5">
+                      /
+                    </kbd>{" "}
+                    to chat
+                  </CursorMessage>
+                )}
+              </CursorBody>
             </Cursor>
           </div>
-        );
-      })}
+        )}
+      </div>
 
-      {/* Current user's cursor - only show if others on same page */}
-      {hasOthersOnSamePath && (
-        <div
-          className="absolute will-change-transform"
-          style={{
-            transform: `translate3d(${displayPos.x}px, ${displayPos.y}px, 0)`,
-          }}
-        >
-          <Cursor>
-            <CursorPointer style={{ color: user.color }} />
-            <CursorBody
-              style={{
-                backgroundColor: user.color,
-                color: getContrastColor(user.color),
-              }}
-            >
-              <CursorName>{user.name}</CursorName>
-              {sentMessages.map((msg, idx) => (
-                <CursorMessage
-                  key={msg.timestamp}
-                  className={idx < sentMessages.length - 1 ? "opacity-60" : ""}
-                >
-                  {msg.text}
-                </CursorMessage>
-              ))}
-              {isChatMode && (
-                <CursorMessage className="opacity-80 italic">
-                  {currentMessage || (
-                    <span className="opacity-60">type a message...</span>
-                  )}
-                  <span className="animate-pulse">|</span>
-                </CursorMessage>
-              )}
-              {!isChatMode && sentMessages.length === 0 && (
-                <CursorMessage className="opacity-60 text-[10px]">
-                  press{" "}
-                  <kbd className="px-1 py-0.5 rounded bg-black/20 mx-0.5">
-                    /
-                  </kbd>{" "}
-                  to chat
-                </CursorMessage>
-              )}
-            </CursorBody>
-          </Cursor>
-        </div>
-      )}
-
-      {/* Chat mode indicator */}
-      {isChatMode && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-lg bg-secondary/95 backdrop-blur-md border border-border/50 shadow-lg text-sm text-muted-foreground animate-in fade-in slide-in-from-bottom-3 duration-300">
+      {/* Desktop chat mode indicator */}
+      {!isTouchDevice && isChatMode && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-lg bg-secondary/95 backdrop-blur-md border border-border/50 shadow-lg text-sm text-muted-foreground animate-in fade-in slide-in-from-bottom-3 duration-300 z-50">
           {hasOthersOnSamePath ? (
             <>
               <span className="font-medium">Chat mode</span> · Type to chat ·{" "}
@@ -368,7 +488,78 @@ export function LiveCursors() {
           )}
         </div>
       )}
-    </div>
+
+      {/* Mobile floating chat button */}
+      {isTouchDevice && !isChatMode && hasOthersOnSamePath && (
+        <button
+          onClick={() => setIsChatMode(true)}
+          className="fixed bottom-4 right-4 z-50 w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
+          aria-label="Open chat"
+        >
+          <MessageCircle className="w-5 h-5" />
+        </button>
+      )}
+
+      {/* Mobile chat modal */}
+      {isTouchDevice && isChatMode && (
+        <div className="fixed inset-x-0 bottom-0 z-50 p-4 bg-background/95 backdrop-blur-md border-t border-border shadow-lg animate-in slide-in-from-bottom duration-300">
+          <div className="flex items-center gap-3 max-w-lg mx-auto">
+            <button
+              onClick={() => {
+                setIsChatMode(false);
+                setCurrentMessage("");
+              }}
+              className="p-2 rounded-full hover:bg-accent transition-colors"
+              aria-label="Close chat"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <input
+              ref={inputRef}
+              type="text"
+              value={currentMessage}
+              onChange={(e) => setCurrentMessage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && currentMessage.trim()) {
+                  handleMobileSend();
+                }
+              }}
+              placeholder={
+                hasOthersOnSamePath
+                  ? "Type a message..."
+                  : "No one else here yet..."
+              }
+              maxLength={100}
+              className="flex-1 px-4 py-2 rounded-lg bg-accent/50 border border-border/50 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
+            <button
+              onClick={handleMobileSend}
+              disabled={!currentMessage.trim()}
+              className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors"
+            >
+              Send
+            </button>
+          </div>
+          {/* Show recent messages */}
+          {sentMessages.length > 0 && (
+            <div className="mt-3 max-w-lg mx-auto space-y-1">
+              {sentMessages.map((msg) => (
+                <div
+                  key={msg.timestamp}
+                  className="text-xs text-muted-foreground px-2"
+                >
+                  <span
+                    className="inline-block w-2 h-2 rounded-full mr-2"
+                    style={{ backgroundColor: user.color }}
+                  />
+                  {msg.text}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </>
   );
 }
 

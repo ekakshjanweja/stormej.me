@@ -11,7 +11,7 @@ export const BlogRow = async () => {
 
   return (
     <>
-      <section>
+      <section data-cursor-anchor="blog">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-lg md:text-xl font-semibold tracking-tight">
             blogs

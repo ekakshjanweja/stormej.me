@@ -7,7 +7,7 @@ import { FileText, Mail } from "lucide-react";
 export default function Hero() {
   return (
     <>
-      <section aria-labelledby="hero-heading">
+      <section aria-labelledby="hero-heading" data-cursor-anchor="hero">
         <div className="space-y-3 mt-2 md:mt-12">
           <p className="text-xs md:text-sm text-foreground font-light leading-relaxed">
             hi, i&apos;m ekaksh.

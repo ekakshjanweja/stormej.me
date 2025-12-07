@@ -4,6 +4,7 @@ import {
   removeCursor,
   getCursors,
   type CursorPosition,
+  type CursorAnchor,
 } from "@/lib/realtime-store";
 
 export const dynamic = "force-dynamic";
@@ -14,10 +15,11 @@ interface CursorPayload {
   userId: string;
   name: string;
   color: string;
-  x: number;
-  y: number;
-  currentTyping?: string; // Text being typed (not yet sent)
-  path: string; // Current route path
+  percentX: number;
+  percentY: number;
+  anchor?: CursorAnchor;
+  currentTyping?: string;
+  path: string;
 }
 
 interface SendMessagePayload {
@@ -50,8 +52,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           userId: body.payload.userId,
           name: body.payload.name,
           color: body.payload.color,
-          x: body.payload.x,
-          y: body.payload.y,
+          percentX: body.payload.percentX,
+          percentY: body.payload.percentY,
+          anchor: body.payload.anchor,
           lastUpdate: Date.now(),
           currentTyping: body.payload.currentTyping,
           messages: existingCursor?.messages || [],

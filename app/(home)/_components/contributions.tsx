@@ -5,7 +5,7 @@ export const Contributions = async () => {
   const { contributions, total, year } = await getGithubContributions();
 
   return (
-    <section>
+    <section data-cursor-anchor="contributions">
       <ContributionsGraphClient
         data={contributions}
         total={total}

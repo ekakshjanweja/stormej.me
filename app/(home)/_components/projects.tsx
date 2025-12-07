@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 export function Projects() {
   return (
-    <section>
+    <section data-cursor-anchor="projects">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg md:text-xl font-semibold tracking-tight">
           projects

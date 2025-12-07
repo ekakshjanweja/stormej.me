@@ -13,6 +13,7 @@ import { usePathname } from "next/navigation";
 import { LiveCursors } from "@/components/live-cursors";
 import {
   type CursorPosition,
+  type CursorAnchor,
   type RealtimeEvent,
   generateRandomName,
   generateRandomColor,
@@ -29,7 +30,12 @@ interface RealtimeContextValue {
   cursors: CursorPosition[];
   user: UserIdentity | null;
   pathname: string;
-  sendCursorPosition: (x: number, y: number, currentTyping?: string) => void;
+  sendCursorPosition: (
+    percentX: number,
+    percentY: number,
+    anchor?: CursorAnchor,
+    currentTyping?: string
+  ) => void;
   sendMessage: (message: string) => void;
 }
 
@@ -168,7 +174,12 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 
   // Send cursor position to server (fire-and-forget for low latency)
   const sendCursorPosition = useCallback(
-    (x: number, y: number, currentTyping?: string) => {
+    (
+      percentX: number,
+      percentY: number,
+      anchor?: CursorAnchor,
+      currentTyping?: string
+    ) => {
       if (!user || !isConnected) return;
 
       // Fire-and-forget: don't await, just send
@@ -181,8 +192,9 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
             userId: user.userId,
             name: user.name,
             color: user.color,
-            x,
-            y,
+            percentX,
+            percentY,
+            anchor,
             currentTyping: currentTyping || undefined,
             path: pathname,
           },

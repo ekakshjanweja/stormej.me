@@ -15,12 +15,22 @@ export interface CursorMessage {
   timestamp: number;
 }
 
+// Element anchor for cross-device cursor positioning
+export interface CursorAnchor {
+  selector: string; // CSS selector (e.g., "[data-cursor-anchor='hero']")
+  relativeX: number; // 0-1 position within element's width
+  relativeY: number; // 0-1 position within element's height
+}
+
 export interface CursorPosition {
   userId: string;
   name: string;
   color: string;
-  x: number;
-  y: number;
+  // Element-based positioning (preferred for cross-device)
+  anchor?: CursorAnchor;
+  // Fallback: percentage of viewport dimensions (0-1)
+  percentX: number;
+  percentY: number;
   lastUpdate: number;
   currentTyping?: string; // What user is currently typing
   messages: CursorMessage[]; // Last 3 sent messages
