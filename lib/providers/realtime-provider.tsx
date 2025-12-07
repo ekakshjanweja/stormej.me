@@ -84,25 +84,40 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserIdentity | null>(null);
   const [cursors, setCursors] = useState<CursorPosition[]>([]);
   const [isConnected, setIsConnected] = useState(false);
-  const eventSourceRef = useRef<EventSource | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialize user identity
   useEffect(() => {
     setUser(getOrCreateIdentity());
   }, []);
 
-  // Connect to SSE stream
-  useEffect(() => {
+  const connect = useCallback(() => {
     if (!user) return;
+    if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
-    const eventSource = new EventSource("/api/realtime/stream");
-    eventSourceRef.current = eventSource;
+    // Default to localhost:8787 for dev if env var is not set
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8787/ws";
+    const ws = new WebSocket(wsUrl);
+    wsRef.current = ws;
 
-    eventSource.onopen = () => {
+    ws.onopen = () => {
       setIsConnected(true);
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
+      }
+
+      // Announce join
+      ws.send(
+        JSON.stringify({
+          type: "user_join",
+          payload: { userId: user.userId, name: user.name, color: user.color },
+        })
+      );
     };
 
-    eventSource.onmessage = (event) => {
+    ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data) as RealtimeEvent;
 
@@ -118,6 +133,34 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
               return [...filtered, data.payload];
             });
             break;
+          case "message":
+            // Messages are attached to cursors in the backend state,
+            // but we might receive them as separate events too.
+            // The backend broadcasts 'message' type.
+            // We need to find the cursor and update its messages.
+            setCursors((prev) =>
+              prev.map((c) => {
+                if (c.userId === data.payload.userId) {
+                  const newMessages = [
+                    ...c.messages,
+                    {
+                      text: data.payload.text,
+                      timestamp: data.payload.timestamp,
+                    },
+                  ];
+                  return { ...c, messages: newMessages.slice(-3) }; // Keep last 3
+                }
+                return c;
+              })
+            );
+            break;
+          case "user_join":
+            // We don't need to do much, the next cursor update will add them,
+            // but we can ensure they exist?
+            // Actually, 'user_join' payload in my backend implementation just has basic info.
+            // The backend 'init' sends full cursor objects.
+            // Let's just wait for a cursor update or handle it if we want to show a notification.
+            break;
           case "user_leave":
             setCursors((prev) =>
               prev.filter((c) => c.userId !== data.payload.userId)
@@ -125,31 +168,34 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
             break;
         }
       } catch (error) {
-        console.error("Error parsing SSE event:", error);
+        console.error("Error parsing WS event:", error);
       }
     };
 
-    eventSource.onerror = () => {
+    ws.onclose = () => {
       setIsConnected(false);
+      wsRef.current = null;
+      // Reconnect after 3s
+      reconnectTimeoutRef.current = setTimeout(connect, 3000);
     };
 
-    // Notify server when leaving
-    const handleBeforeUnload = () => {
-      if (user) {
-        navigator.sendBeacon(
-          "/api/realtime/send",
-          JSON.stringify({ type: "leave", payload: { userId: user.userId } })
-        );
-      }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      eventSource.close();
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+    ws.onerror = () => {
+      ws.close();
     };
   }, [user]);
+
+  // Connect to WebSocket
+  useEffect(() => {
+    connect();
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+    };
+  }, [connect]);
 
   // Clean up expired messages from cursors
   useEffect(() => {
@@ -172,7 +218,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(interval);
   }, []);
 
-  // Send cursor position to server (fire-and-forget for low latency)
+  // Send cursor position to server
   const sendCursorPosition = useCallback(
     (
       percentX: number,
@@ -180,54 +226,51 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
       anchor?: CursorAnchor,
       currentTyping?: string
     ) => {
-      if (!user || !isConnected) return;
+      if (!user || !isConnected || !wsRef.current) return;
 
-      // Fire-and-forget: don't await, just send
-      fetch("/api/realtime/send", {
-        method: "POST",
-        keepalive: true,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const payload = {
+        userId: user.userId,
+        name: user.name,
+        color: user.color,
+        percentX,
+        percentY,
+        anchor,
+        currentTyping: currentTyping || undefined,
+        path: pathname,
+        messages: [], // Backend handles messages history
+        lastUpdate: Date.now(),
+      };
+
+      wsRef.current.send(
+        JSON.stringify({
           type: "cursor",
-          payload: {
-            userId: user.userId,
-            name: user.name,
-            color: user.color,
-            percentX,
-            percentY,
-            anchor,
-            currentTyping: currentTyping || undefined,
-            path: pathname,
-          },
-        }),
-      }).catch(() => {
-        // Silently fail for cursor updates
-      });
+          payload,
+        })
+      );
     },
     [user, isConnected, pathname]
   );
 
   // Send message to server
   const sendMessage = useCallback(
-    async (message: string) => {
-      if (!user || !isConnected) return;
+    (message: string) => {
+      if (!user || !isConnected || !wsRef.current) return;
 
-      try {
-        await fetch("/api/realtime/send", {
-          method: "POST",
-          keepalive: true,
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            type: "send_message",
-            payload: {
-              userId: user.userId,
-              message,
-            },
-          }),
-        });
-      } catch {
-        // Silently fail
-      }
+      const payload = {
+        id: crypto.randomUUID(),
+        userId: user.userId,
+        name: user.name,
+        text: message,
+        color: user.color,
+        timestamp: Date.now(),
+      };
+
+      wsRef.current.send(
+        JSON.stringify({
+          type: "message",
+          payload,
+        })
+      );
     },
     [user, isConnected]
   );

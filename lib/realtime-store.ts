@@ -1,5 +1,5 @@
-// In-memory store for real-time features (chat messages + cursor positions)
-// This data is ephemeral and will be cleared on server restart
+// Types and helper functions for real-time features
+// The actual state is now managed by the Hono backend
 
 export interface Message {
   id: string;
@@ -49,113 +49,6 @@ export type RealtimeEvent =
       type: "init";
       payload: { messages: Message[]; cursors: CursorPosition[] };
     };
-
-// Use globalThis to persist store across hot reloads in dev mode
-interface RealtimeStore {
-  messages: Message[];
-  cursors: Map<string, CursorPosition>;
-  clients: Set<(event: RealtimeEvent) => void>;
-}
-
-declare global {
-  // eslint-disable-next-line no-var
-  var realtimeStore: RealtimeStore | undefined;
-}
-
-const MAX_MESSAGES = 50;
-
-// Initialize or reuse existing store
-function getStore(): RealtimeStore {
-  if (!globalThis.realtimeStore) {
-    globalThis.realtimeStore = {
-      messages: [],
-      cursors: new Map(),
-      clients: new Set(),
-    };
-  }
-  return globalThis.realtimeStore;
-}
-
-// Message functions
-export function addMessage(message: Message): void {
-  const store = getStore();
-  store.messages.push(message);
-  if (store.messages.length > MAX_MESSAGES) {
-    store.messages.shift();
-  }
-  broadcast({ type: "message", payload: message });
-}
-
-export function getMessages(): Message[] {
-  return [...getStore().messages];
-}
-
-// Cursor functions
-export function updateCursor(cursor: CursorPosition): void {
-  const store = getStore();
-  store.cursors.set(cursor.userId, cursor);
-  broadcast({ type: "cursor", payload: cursor });
-}
-
-export function removeCursor(userId: string): void {
-  const store = getStore();
-  store.cursors.delete(userId);
-  broadcast({ type: "user_leave", payload: { userId } });
-}
-
-export function getCursors(): CursorPosition[] {
-  return Array.from(getStore().cursors.values());
-}
-
-// Client management
-export function addClient(
-  callback: (event: RealtimeEvent) => void
-): () => void {
-  const store = getStore();
-  store.clients.add(callback);
-
-  // Send initial state
-  callback({
-    type: "init",
-    payload: {
-      messages: getMessages(),
-      cursors: getCursors(),
-    },
-  });
-
-  // Return cleanup function
-  return () => {
-    store.clients.delete(callback);
-  };
-}
-
-export function broadcast(event: RealtimeEvent): void {
-  const store = getStore();
-  store.clients.forEach((callback) => {
-    try {
-      callback(event);
-    } catch (error) {
-      console.error("Error broadcasting to client:", error);
-    }
-  });
-}
-
-// Cleanup stale cursors (called periodically)
-export function cleanupStaleCursors(maxAge: number = 10000): void {
-  const store = getStore();
-  const now = Date.now();
-  const staleUserIds: string[] = [];
-
-  store.cursors.forEach((cursor, cursorUserId) => {
-    if (now - cursor.lastUpdate > maxAge) {
-      staleUserIds.push(cursorUserId);
-    }
-  });
-
-  staleUserIds.forEach((cursorUserId) => {
-    removeCursor(cursorUserId);
-  });
-}
 
 // Generate random identity
 const adjectives = [
