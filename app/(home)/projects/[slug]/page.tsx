@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { YouTubeVideo } from "@/components/video-component";
+import { WebsitePreview } from "@/components/website-preview";
 import { ProjectImages } from "./project-images";
 
 interface PageProps {
@@ -144,9 +145,16 @@ export default async function Page({ params }: PageProps) {
           </div>
         )}
 
-        {/* 6. YouTube Video */}
+        {/* 6. Website Preview */}
+        {project.website && project.id === "turi" && (
+          <div className="mb-8">
+            <WebsitePreview url={project.website} title={project.title} />
+          </div>
+        )}
+
+        {/* 7. YouTube Video */}
         {project.youtube && (
-          <div className="group relative rounded-2xl overflow-hidden border border-border/40 hover:border-highlight/30 transition-all duration-500">
+          <div className="mb-8 group relative rounded-2xl overflow-hidden border border-border/40 hover:border-highlight/30 transition-all duration-500">
             <YouTubeVideo
               videoId={extractYouTubeVideoId(project.youtube)!}
               title={project.title}
@@ -154,7 +162,7 @@ export default async function Page({ params }: PageProps) {
           </div>
         )}
 
-        {/* 7. Project Images */}
+        {/* 8. Project Images */}
         <ProjectImages project={project} />
       </div>
     </main>
