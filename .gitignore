@@ -43,3 +43,6 @@ next-env.d.ts
 
 # Lock files
 *lock*
+
+# Environment
+.env

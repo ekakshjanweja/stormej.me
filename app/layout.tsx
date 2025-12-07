@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/lib/providers/theme-provider";
+import { PostHogProvider } from "@/lib/providers/posthog-provider";
 import { Navbar } from "@/components/navbar";
 import Footer from "@/components/footer";
 
@@ -87,36 +88,38 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={geistMono.className} suppressHydrationWarning>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-          storageKey="stormej.theme"
-        >
-          {/* Skip to content link for accessibility */}
-          <a
-            href="#main-content"
-            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+        <PostHogProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+            storageKey="stormej.theme"
           >
-            Skip to main content
-          </a>
-          <div className="bg-background min-h-screen">
-            <div className="flex justify-center w-full">
-              <div className="md:max-w-3xl w-full flex flex-col min-h-screen">
-                <Navbar />
-                <main
-                  id="main-content"
-                  className="flex-1 pb-8 px-4"
-                  tabIndex={-1}
-                >
-                  {children}
-                </main>
-                <Footer />
+            {/* Skip to content link for accessibility */}
+            <a
+              href="#main-content"
+              className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            >
+              Skip to main content
+            </a>
+            <div className="bg-background min-h-screen">
+              <div className="flex justify-center w-full">
+                <div className="md:max-w-3xl w-full flex flex-col min-h-screen">
+                  <Navbar />
+                  <main
+                    id="main-content"
+                    className="flex-1 pb-8 px-4"
+                    tabIndex={-1}
+                  >
+                    {children}
+                  </main>
+                  <Footer />
+                </div>
               </div>
             </div>
-          </div>
-        </ThemeProvider>
+          </ThemeProvider>
+        </PostHogProvider>
       </body>
     </html>
   );
