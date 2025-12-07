@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/lib/providers/theme-provider";
 import { PostHogProvider } from "@/lib/providers/posthog-provider";
+import { RealtimeProvider } from "@/lib/providers/realtime-provider";
 import { Navbar } from "@/components/navbar";
 import Footer from "@/components/footer";
 
@@ -103,21 +104,23 @@ export default function RootLayout({
             >
               Skip to main content
             </a>
-            <div className="bg-background min-h-screen">
-              <div className="flex justify-center w-full">
-                <div className="md:max-w-3xl w-full flex flex-col min-h-screen">
-                  <Navbar />
-                  <main
-                    id="main-content"
-                    className="flex-1 pb-8 px-4"
-                    tabIndex={-1}
-                  >
-                    {children}
-                  </main>
-                  <Footer />
+            <RealtimeProvider>
+              <div className="bg-background min-h-screen">
+                <div className="flex justify-center w-full">
+                  <div className="md:max-w-3xl w-full flex flex-col min-h-screen">
+                    <Navbar />
+                    <main
+                      id="main-content"
+                      className="flex-1 pb-8 px-4"
+                      tabIndex={-1}
+                    >
+                      {children}
+                    </main>
+                    <Footer />
+                  </div>
                 </div>
               </div>
-            </div>
+            </RealtimeProvider>
           </ThemeProvider>
         </PostHogProvider>
       </body>
