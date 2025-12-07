@@ -96,12 +96,27 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
     if (!user) return;
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
-    // Default to localhost:8787 for dev if env var is not set
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8787/ws";
+    // Determine WS URL
+    let wsUrl = process.env.NEXT_PUBLIC_WS_URL;
+
+    // If running on localhost, prefer local backend unless explicitly overridden
+    if (
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1"
+    ) {
+      wsUrl = "ws://localhost:8787/ws";
+    }
+
+    // Fallback
+    if (!wsUrl) {
+      wsUrl = "ws://localhost:8787/ws";
+    }
+
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
     ws.onopen = () => {
+      console.log("WebSocket connected to", wsUrl);
       setIsConnected(true);
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
@@ -134,10 +149,6 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
             });
             break;
           case "message":
-            // Messages are attached to cursors in the backend state,
-            // but we might receive them as separate events too.
-            // The backend broadcasts 'message' type.
-            // We need to find the cursor and update its messages.
             setCursors((prev) =>
               prev.map((c) => {
                 if (c.userId === data.payload.userId) {
@@ -148,18 +159,14 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
                       timestamp: data.payload.timestamp,
                     },
                   ];
-                  return { ...c, messages: newMessages.slice(-3) }; // Keep last 3
+                  return { ...c, messages: newMessages.slice(-3) };
                 }
                 return c;
               })
             );
             break;
           case "user_join":
-            // We don't need to do much, the next cursor update will add them,
-            // but we can ensure they exist?
-            // Actually, 'user_join' payload in my backend implementation just has basic info.
-            // The backend 'init' sends full cursor objects.
-            // Let's just wait for a cursor update or handle it if we want to show a notification.
+            // User will be added on first cursor update
             break;
           case "user_leave":
             setCursors((prev) =>

@@ -124,14 +124,14 @@ export function LiveCursors() {
         // Find nearest anchor element
         const anchor = findNearestAnchor(clientX, clientY);
 
-        // Throttle server updates
+        // Throttle server updates (16ms = ~60fps for smooth real-time)
         const now = Date.now();
         const last = lastSentRef.current;
         const posChanged =
           Math.abs(percentX - last.percentX) > 0.001 ||
           Math.abs(percentY - last.percentY) > 0.001;
 
-        if (posChanged && now - last.time >= 80) {
+        if (posChanged && now - last.time >= 16) {
           lastSentRef.current = { percentX, percentY, time: now };
           sendCursorPosition(
             percentX,
@@ -364,7 +364,7 @@ export function LiveCursors() {
               className="absolute will-change-transform"
               style={{
                 transform: `translate3d(${x}px, ${y}px, 0)`,
-                transition: "transform 80ms cubic-bezier(0.22, 1, 0.36, 1)",
+                transition: "transform 16ms linear",
               }}
             >
               <Cursor>
