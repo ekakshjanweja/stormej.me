@@ -5,7 +5,11 @@ export type CursorProps = HTMLAttributes<HTMLSpanElement>;
 
 export const Cursor = ({ className, children, ...props }: CursorProps) => (
   <span
-    className={cn("pointer-events-none relative select-none", className)}
+    className={cn(
+      "pointer-events-none relative select-none",
+      "animate-in fade-in zoom-in-95 duration-200",
+      className
+    )}
     {...props}
   >
     {children}
@@ -17,7 +21,10 @@ export type CursorPointerProps = SVGProps<SVGSVGElement>;
 export const CursorPointer = ({ className, ...props }: CursorPointerProps) => (
   <svg
     aria-hidden="true"
-    className={cn("size-3.5", className)}
+    className={cn(
+      "size-3.5 drop-shadow-sm transition-transform duration-150",
+      className
+    )}
     fill="none"
     focusable="false"
     height="20"
@@ -45,6 +52,9 @@ export const CursorBody = ({
       "relative ml-3.5 flex flex-col whitespace-nowrap rounded-xl py-1 pr-3 pl-2.5 text-xs",
       Children.count(children) > 1 && "rounded-tl [&>:first-child]:opacity-70",
       "bg-secondary text-foreground",
+      "shadow-lg backdrop-blur-sm",
+      "animate-in fade-in slide-in-from-left-1 duration-200",
+      "transition-all ease-out",
       className
     )}
     {...props}
@@ -55,8 +65,19 @@ export const CursorBody = ({
 
 export type CursorNameProps = HTMLAttributes<HTMLSpanElement>;
 
-export const CursorName = (props: CursorNameProps) => <span {...props} />;
+export const CursorName = ({ className, ...props }: CursorNameProps) => (
+  <span className={cn("font-medium", className)} {...props} />
+);
 
 export type CursorMessageProps = HTMLAttributes<HTMLSpanElement>;
 
-export const CursorMessage = (props: CursorMessageProps) => <span {...props} />;
+export const CursorMessage = ({ className, ...props }: CursorMessageProps) => (
+  <span
+    className={cn(
+      "animate-in fade-in slide-in-from-top-1 duration-150",
+      "transition-opacity",
+      className
+    )}
+    {...props}
+  />
+);

@@ -16,16 +16,21 @@ export function LiveCursors() {
   const { cursors, user, pathname, sendCursorPosition, sendMessage } =
     useRealtime();
 
-  // UI State (managed locally)
+  // UI State
   const [isChatMode, setIsChatMode] = useState(false);
   const [currentMessage, setCurrentMessage] = useState("");
-  const [localCursorPos, setLocalCursorPos] = useState({ x: 0, y: 0 });
   const [sentMessages, setSentMessages] = useState<
     Array<{ text: string; timestamp: number }>
   >([]);
 
-  const lastUpdateRef = useRef<number>(0);
-  const throttleMs = 16; // ~60fps for smoother updates
+  // Use refs for positions to avoid re-renders on every mouse move
+  const viewportPosRef = useRef({ x: 0, y: 0 }); // clientX, clientY
+  const [displayPos, setDisplayPos] = useState({ x: 0, y: 0 }); // For rendering
+  const lastSentRef = useRef({ x: 0, y: 0, scrollX: 0, scrollY: 0, time: 0 });
+  const rafRef = useRef<number | null>(null);
+
+  // Scroll position as state (for viewport bounds filtering)
+  const [scroll, setScroll] = useState({ x: 0, y: 0 });
 
   // Clean up expired sent messages
   useEffect(() => {
@@ -38,42 +43,97 @@ export function LiveCursors() {
     return () => clearInterval(interval);
   }, []);
 
-  // Track last sent position for heartbeat
-  const lastSentPosRef = useRef({ x: 0, y: 0 });
+  // Unified position update function using RAF for smooth batching
+  const updatePosition = useCallback(
+    (
+      viewportX: number,
+      viewportY: number,
+      scrollX: number,
+      scrollY: number
+    ) => {
+      // Cancel any pending RAF
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
 
-  // Handle mouse move
-  const handleMouseMove = useCallback(
-    (e: MouseEvent) => {
-      const now = Date.now();
+      rafRef.current = requestAnimationFrame(() => {
+        // Update display position (viewport-relative for rendering)
+        setDisplayPos({ x: viewportX, y: viewportY });
+        viewportPosRef.current = { x: viewportX, y: viewportY };
 
-      // Always update local cursor position for display
-      setLocalCursorPos({ x: e.clientX, y: e.clientY });
+        // Calculate document-relative position for server
+        const docX = viewportX + scrollX;
+        const docY = viewportY + scrollY;
 
-      if (now - lastUpdateRef.current < throttleMs) return;
-      lastUpdateRef.current = now;
+        // Throttle server updates (every 16ms = ~60fps)
+        const now = Date.now();
+        const last = lastSentRef.current;
+        const posChanged =
+          Math.abs(docX - last.x) > 1 ||
+          Math.abs(docY - last.y) > 1 ||
+          scrollX !== last.scrollX ||
+          scrollY !== last.scrollY;
 
-      // Calculate position as percentage of viewport
-      const x = (e.clientX / window.innerWidth) * 100;
-      const y = (e.clientY / window.innerHeight) * 100;
-
-      // Store last sent position for heartbeat
-      lastSentPosRef.current = { x, y };
-
-      // Pass current message so other users can see it while typing
-      sendCursorPosition(x, y, isChatMode ? currentMessage : undefined);
+        if (posChanged && now - last.time >= 16) {
+          lastSentRef.current = {
+            x: docX,
+            y: docY,
+            scrollX,
+            scrollY,
+            time: now,
+          };
+          sendCursorPosition(
+            docX,
+            docY,
+            isChatMode ? currentMessage : undefined
+          );
+        }
+      });
     },
     [sendCursorPosition, isChatMode, currentMessage]
   );
 
-  // Heartbeat: send cursor position every 5 seconds to keep alive
+  // Handle mouse move
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      updatePosition(e.clientX, e.clientY, window.scrollX, window.scrollY);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [updatePosition]);
+
+  // Handle scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollX = window.scrollX;
+      const scrollY = window.scrollY;
+      setScroll({ x: scrollX, y: scrollY });
+
+      // Update position with current viewport pos + new scroll
+      updatePosition(
+        viewportPosRef.current.x,
+        viewportPosRef.current.y,
+        scrollX,
+        scrollY
+      );
+    };
+
+    // Set initial scroll
+    setScroll({ x: window.scrollX, y: window.scrollY });
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [updatePosition]);
+
+  // Heartbeat every 5 seconds
   useEffect(() => {
     const heartbeat = setInterval(() => {
-      const { x, y } = lastSentPosRef.current;
+      const { x, y } = viewportPosRef.current;
       if (x > 0 || y > 0) {
-        sendCursorPosition(x, y, isChatMode ? currentMessage : undefined);
+        const docX = x + window.scrollX;
+        const docY = y + window.scrollY;
+        sendCursorPosition(docX, docY, isChatMode ? currentMessage : undefined);
       }
     }, 5000);
-
     return () => clearInterval(heartbeat);
   }, [sendCursorPosition, isChatMode, currentMessage]);
 
@@ -100,18 +160,16 @@ export function LiveCursors() {
         e.stopPropagation();
 
         if (e.key === "Escape") {
-          // Exit chat mode, clear message
           setCurrentMessage("");
           setIsChatMode(false);
           return;
         }
 
         if (e.key === "Enter" && currentMessage.trim()) {
-          // Send message and add to local sent messages
           const messageText = currentMessage.trim();
           sendMessage(messageText);
           setSentMessages((prev) => [
-            ...prev.slice(-2), // Keep last 2 + new = 3 max
+            ...prev.slice(-2),
             { text: messageText, timestamp: Date.now() },
           ]);
           setCurrentMessage("");
@@ -123,10 +181,8 @@ export function LiveCursors() {
           return;
         }
 
-        // Only add printable characters
         if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
           if (currentMessage.length < 100) {
-            // Limit message length
             setCurrentMessage((prev) => prev + e.key);
           }
         }
@@ -137,22 +193,41 @@ export function LiveCursors() {
     return () => window.removeEventListener("keydown", handleKeyDown, true);
   }, [isChatMode, currentMessage, sendMessage]);
 
-  // Mouse move listener
+  // Cleanup RAF on unmount
   useEffect(() => {
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [handleMouseMove]);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
 
   if (!user) return null;
 
-  // Filter cursors: only show those on same path and not current user
-  // Cursors are removed when user closes browser (via leave event)
-  const activeCursors = cursors.filter(
+  // Viewport bounds
+  const viewportWidth = typeof window !== "undefined" ? window.innerWidth : 0;
+  const viewportHeight = typeof window !== "undefined" ? window.innerHeight : 0;
+
+  // Check if anyone else is on the same path (for showing your own cursor)
+  const hasOthersOnSamePath = cursors.some(
     (cursor) => cursor.userId !== user.userId && cursor.path === pathname
   );
 
-  // Check if there's anyone else on the same page
-  const hasOthersOnSamePage = activeCursors.length > 0;
+  // Filter cursors to only those visible in viewport (for rendering others)
+  const visibleCursors = cursors.filter((cursor) => {
+    if (cursor.userId === user.userId) return false;
+    if (cursor.path !== pathname) return false;
+
+    // Convert doc position to viewport position
+    const viewportX = cursor.x - scroll.x;
+    const viewportY = cursor.y - scroll.y;
+
+    // Check if in viewport (with some margin for cursor size)
+    return (
+      viewportX >= -50 &&
+      viewportX <= viewportWidth + 50 &&
+      viewportY >= -50 &&
+      viewportY <= viewportHeight + 50
+    );
+  });
 
   return (
     <div
@@ -160,23 +235,19 @@ export function LiveCursors() {
       aria-hidden="true"
     >
       {/* Other users' cursors */}
-      {activeCursors.map((cursor) => {
-        const x =
-          (cursor.x / 100) *
-          (typeof window !== "undefined" ? window.innerWidth : 0);
-        const y =
-          (cursor.y / 100) *
-          (typeof window !== "undefined" ? window.innerHeight : 0);
-
+      {visibleCursors.map((cursor) => {
+        // Convert to viewport position for display
+        const x = cursor.x - scroll.x;
+        const y = cursor.y - scroll.y;
         const hasContent = cursor.messages.length > 0 || cursor.currentTyping;
 
         return (
           <div
             key={cursor.userId}
-            className="absolute transition-all duration-75 ease-out"
+            className="absolute will-change-transform"
             style={{
-              left: x,
-              top: y,
+              transform: `translate3d(${x}px, ${y}px, 0)`,
+              transition: "transform 80ms cubic-bezier(0.22, 1, 0.36, 1)",
             }}
           >
             <Cursor>
@@ -189,7 +260,6 @@ export function LiveCursors() {
                   }}
                 >
                   <CursorName>{cursor.name}</CursorName>
-                  {/* Show last 3 messages */}
                   {cursor.messages.map((msg, idx) => (
                     <CursorMessage
                       key={msg.timestamp}
@@ -200,7 +270,6 @@ export function LiveCursors() {
                       {msg.text}
                     </CursorMessage>
                   ))}
-                  {/* Show current typing */}
                   {cursor.currentTyping && (
                     <CursorMessage className="opacity-80 italic">
                       {cursor.currentTyping}
@@ -225,13 +294,12 @@ export function LiveCursors() {
         );
       })}
 
-      {/* Current user's cursor - only show if others are on same page */}
-      {hasOthersOnSamePage && (
+      {/* Current user's cursor - only show if others on same page */}
+      {hasOthersOnSamePath && (
         <div
-          className="absolute transition-all duration-75 ease-out"
+          className="absolute will-change-transform"
           style={{
-            left: localCursorPos.x,
-            top: localCursorPos.y,
+            transform: `translate3d(${displayPos.x}px, ${displayPos.y}px, 0)`,
           }}
         >
           <Cursor>
@@ -243,7 +311,6 @@ export function LiveCursors() {
               }}
             >
               <CursorName>{user.name}</CursorName>
-              {/* Show sent messages */}
               {sentMessages.map((msg, idx) => (
                 <CursorMessage
                   key={msg.timestamp}
@@ -252,7 +319,6 @@ export function LiveCursors() {
                   {msg.text}
                 </CursorMessage>
               ))}
-              {/* Show typing indicator in chat mode */}
               {isChatMode && (
                 <CursorMessage className="opacity-80 italic">
                   {currentMessage || (
@@ -261,7 +327,6 @@ export function LiveCursors() {
                   <span className="animate-pulse">|</span>
                 </CursorMessage>
               )}
-              {/* Show hint if not in chat mode and no messages */}
               {!isChatMode && sentMessages.length === 0 && (
                 <CursorMessage className="opacity-60 text-[10px]">
                   press{" "}
@@ -278,8 +343,8 @@ export function LiveCursors() {
 
       {/* Chat mode indicator */}
       {isChatMode && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg bg-secondary/90 backdrop-blur-sm border border-border text-sm text-muted-foreground animate-in fade-in slide-in-from-bottom-2">
-          {hasOthersOnSamePage ? (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-lg bg-secondary/95 backdrop-blur-md border border-border/50 shadow-lg text-sm text-muted-foreground animate-in fade-in slide-in-from-bottom-3 duration-300">
+          {hasOthersOnSamePath ? (
             <>
               <span className="font-medium">Chat mode</span> · Type to chat ·{" "}
               <kbd className="px-1.5 py-0.5 rounded bg-background border text-xs">
