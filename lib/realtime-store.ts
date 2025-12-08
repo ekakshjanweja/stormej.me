@@ -120,24 +120,26 @@ const animals = [
   "chital",
 ];
 
+// Cursor colors harmonized with the app's blue-gray theme (hue 250)
+// These work well in both light and dark mode while remaining distinct
 const colors = [
-  "#ef4444",
-  "#f97316",
-  "#f59e0b",
-  "#eab308",
-  "#84cc16",
-  "#22c55e",
-  "#10b981",
-  "#14b8a6",
-  "#06b6d4",
-  "#0ea5e9",
-  "#3b82f6",
-  "#6366f1",
-  "#8b5cf6",
-  "#a855f7",
-  "#d946ef",
-  "#ec4899",
-  "#f43f5e",
+  "#6366f1", // Indigo - primary accent
+  "#8b5cf6", // Violet
+  "#a78bfa", // Light violet
+  "#c084fc", // Purple
+  "#e879f9", // Fuchsia
+  "#f472b6", // Pink
+  "#38bdf8", // Sky blue
+  "#22d3ee", // Cyan
+  "#2dd4bf", // Teal
+  "#4ade80", // Emerald
+  "#a3e635", // Lime
+  "#fbbf24", // Amber
+  "#fb923c", // Orange
+  "#f87171", // Red
+  "#818cf8", // Periwinkle
+  "#7dd3fc", // Light sky
+  "#5eead4", // Light teal
 ];
 
 export function generateRandomName(): string {
