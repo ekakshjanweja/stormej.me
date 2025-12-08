@@ -1,28 +1,50 @@
-import { Env, RealtimeEvent, CursorPosition, Message } from "./types";
+import {
+  Env,
+  RealtimeEvent,
+  CursorPosition,
+  Message,
+  clientEventSchema,
+} from "./types";
+import { REALTIME_CONSTANTS } from "@shared/constants";
 
-const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
-const CLEANUP_INTERVAL_MS = 5 * 60 * 1000; // Check every 5 minutes
+const { INACTIVITY_TIMEOUT_MS, CLEANUP_INTERVAL_MS, MAX_MESSAGES } =
+  REALTIME_CONSTANTS;
 
 export class RealtimeRoom implements DurableObject {
   private state: DurableObjectState;
   private cursors: Map<string, CursorPosition> = new Map();
-  private lastActivity: Map<string, number> = new Map(); // Track last activity per user
+  private lastActivity: Map<string, number> = new Map();
   private messages: Message[] = [];
-  private readonly MAX_MESSAGES = 50;
-  private cleanupInterval: ReturnType<typeof setInterval> | null = null;
+  private alarmScheduled: boolean = false;
 
-  constructor(state: DurableObjectState, env: Env) {
+  constructor(state: DurableObjectState, _env: Env) {
     this.state = state;
-    // Start cleanup interval
-    this.startCleanupInterval();
   }
 
-  private startCleanupInterval() {
-    if (this.cleanupInterval) return;
+  /**
+   * Cloudflare's alarm API handler - replaces setInterval to prevent leaking
+   * on Durable Object eviction
+   */
+  async alarm() {
+    this.cleanupInactiveUsers();
 
-    this.cleanupInterval = setInterval(() => {
-      this.cleanupInactiveUsers();
-    }, CLEANUP_INTERVAL_MS);
+    // Only reschedule if we still have active users
+    if (this.cursors.size > 0 || this.lastActivity.size > 0) {
+      await this.scheduleCleanupAlarm();
+    } else {
+      this.alarmScheduled = false;
+    }
+  }
+
+  private async scheduleCleanupAlarm() {
+    if (this.alarmScheduled) return;
+
+    try {
+      await this.state.storage.setAlarm(Date.now() + CLEANUP_INTERVAL_MS);
+      this.alarmScheduled = true;
+    } catch (e) {
+      console.error("[RealtimeRoom] Failed to schedule alarm:", e);
+    }
   }
 
   private cleanupInactiveUsers() {
@@ -81,6 +103,9 @@ export class RealtimeRoom implements DurableObject {
 
       console.log(`[RealtimeRoom] New connection`);
 
+      // Schedule cleanup alarm when we get connections
+      await this.scheduleCleanupAlarm();
+
       // Send initial state
       const initEvent: RealtimeEvent = {
         type: "init",
@@ -99,19 +124,31 @@ export class RealtimeRoom implements DurableObject {
 
   async webSocketMessage(ws: WebSocket, message: string | ArrayBuffer) {
     try {
-      const data = JSON.parse(message as string) as RealtimeEvent;
+      const rawData = JSON.parse(message as string);
+
+      // Validate incoming message using Zod schema
+      const parseResult = clientEventSchema.safeParse(rawData);
+      if (!parseResult.success) {
+        console.error(
+          "[RealtimeRoom] Invalid message:",
+          parseResult.error.errors
+        );
+        return; // Silently drop invalid messages
+      }
+
+      const data = parseResult.data;
 
       switch (data.type) {
         case "cursor":
           this.cursors.set(data.payload.userId, data.payload);
-          this.lastActivity.set(data.payload.userId, Date.now()); // Update activity
+          this.lastActivity.set(data.payload.userId, Date.now());
           ws.serializeAttachment({ userId: data.payload.userId });
           this.broadcast(data, ws);
           break;
 
         case "message":
           this.messages.push(data.payload);
-          if (this.messages.length > this.MAX_MESSAGES) {
+          if (this.messages.length > MAX_MESSAGES) {
             this.messages.shift();
           }
 
@@ -127,14 +164,14 @@ export class RealtimeRoom implements DurableObject {
             senderCursor.lastUpdate = Date.now();
             this.cursors.set(data.payload.userId, senderCursor);
           }
-          this.lastActivity.set(data.payload.userId, Date.now()); // Update activity
+          this.lastActivity.set(data.payload.userId, Date.now());
 
           this.broadcast(data, ws);
           break;
 
         case "user_join":
           ws.serializeAttachment({ userId: data.payload.userId });
-          this.lastActivity.set(data.payload.userId, Date.now()); // Track activity
+          this.lastActivity.set(data.payload.userId, Date.now());
           this.broadcast(data, ws);
           break;
 
@@ -149,7 +186,7 @@ export class RealtimeRoom implements DurableObject {
     }
   }
 
-  async webSocketClose(ws: WebSocket, code: number, reason: string) {
+  async webSocketClose(ws: WebSocket, _code: number, _reason: string) {
     const meta = ws.deserializeAttachment() as { userId: string } | null;
     const userId = meta?.userId;
 

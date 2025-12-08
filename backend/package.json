@@ -7,7 +7,8 @@
     "cf-typegen": "bunx wrangler types --env-interface CloudflareBindings"
   },
   "dependencies": {
-    "hono": "^4.10.7"
+    "hono": "^4.10.7",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "bun-types": "^1.3.4",

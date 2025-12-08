@@ -4,7 +4,17 @@ import { Env } from "./types";
 
 const app = new Hono<{ Bindings: Env }>();
 
-app.use("*", cors({ origin: "*" }));
+app.use(
+  "*",
+  cors({
+    origin: [
+      "https://www.stormej.me",
+      "https://stormej.me",
+      "http://localhost:3000",
+      "http://localhost:8787",
+    ],
+  })
+);
 
 app.get("/health", (c) => c.text("OK"));
 
@@ -21,3 +31,4 @@ app.all("/", async (c) => {
 });
 
 export default app;
+export { RealtimeRoom } from "./durable-objects";

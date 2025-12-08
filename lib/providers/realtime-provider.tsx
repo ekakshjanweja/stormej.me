@@ -19,6 +19,14 @@ import {
   generateRandomColor,
   generateUserId,
 } from "@/lib/realtime-store";
+import { REALTIME_CONSTANTS } from "@shared/constants";
+
+const {
+  MESSAGE_EXPIRY_MS,
+  STORAGE_KEY,
+  RECONNECT_INITIAL_MS,
+  RECONNECT_MAX_MS,
+} = REALTIME_CONSTANTS;
 
 interface UserIdentity {
   userId: string;
@@ -51,9 +59,6 @@ export function useRealtime() {
   return context;
 }
 
-const STORAGE_KEY = "stormej.realtime.identity";
-const MESSAGE_EXPIRY_MS = 30000; // 30 seconds
-
 function getOrCreateIdentity(): UserIdentity {
   if (typeof window === "undefined") {
     return {
@@ -81,6 +86,16 @@ function getOrCreateIdentity(): UserIdentity {
   return identity;
 }
 
+// Pending cursor update type
+interface PendingCursorUpdate {
+  percentX: number;
+  percentY: number;
+  anchor?: CursorAnchor;
+  currentTyping?: string;
+  scrollX: number;
+  scrollY: number;
+}
+
 export function RealtimeProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [user, setUser] = useState<UserIdentity | null>(null);
@@ -88,7 +103,14 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
   const [isConnected, setIsConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const lastActivityRef = useRef<number>(Date.now()); // Track last activity time
+  const lastActivityRef = useRef<number>(Date.now());
+
+  // Fix #5: Queue pending updates when disconnected
+  const pendingCursorUpdateRef = useRef<PendingCursorUpdate | null>(null);
+  const pendingMessagesRef = useRef<string[]>([]);
+
+  // Fix #8: Exponential backoff for reconnection
+  const retryCountRef = useRef(0);
 
   // Initialize user identity
   useEffect(() => {
@@ -121,6 +143,8 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
     ws.onopen = () => {
       console.log("WebSocket connected to", wsUrl);
       setIsConnected(true);
+      retryCountRef.current = 0; // Reset retry count on successful connection
+
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
         reconnectTimeoutRef.current = null;
@@ -133,6 +157,50 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
           payload: { userId: user.userId, name: user.name, color: user.color },
         })
       );
+
+      // Flush pending cursor update (Fix #5: race condition)
+      if (pendingCursorUpdateRef.current) {
+        const { percentX, percentY, anchor, currentTyping, scrollX, scrollY } =
+          pendingCursorUpdateRef.current;
+        ws.send(
+          JSON.stringify({
+            type: "cursor",
+            payload: {
+              userId: user.userId,
+              name: user.name,
+              color: user.color,
+              percentX,
+              percentY,
+              scrollX,
+              scrollY,
+              anchor,
+              currentTyping: currentTyping || undefined,
+              path: pathname,
+              messages: [],
+              lastUpdate: Date.now(),
+            },
+          })
+        );
+        pendingCursorUpdateRef.current = null;
+      }
+
+      // Flush pending messages (Fix #5: race condition)
+      pendingMessagesRef.current.forEach((message) => {
+        ws.send(
+          JSON.stringify({
+            type: "message",
+            payload: {
+              id: crypto.randomUUID(),
+              userId: user.userId,
+              name: user.name,
+              text: message,
+              color: user.color,
+              timestamp: Date.now(),
+            },
+          })
+        );
+      });
+      pendingMessagesRef.current = [];
     };
 
     ws.onmessage = (event) => {
@@ -185,14 +253,23 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
     ws.onclose = () => {
       setIsConnected(false);
       wsRef.current = null;
-      // Reconnect after 3s
-      reconnectTimeoutRef.current = setTimeout(connect, 3000);
+
+      // Fix #8: Exponential backoff for reconnection
+      const delay = Math.min(
+        RECONNECT_INITIAL_MS * Math.pow(2, retryCountRef.current),
+        RECONNECT_MAX_MS
+      );
+      retryCountRef.current++;
+      console.log(
+        `WebSocket disconnected, reconnecting in ${delay}ms (attempt ${retryCountRef.current})`
+      );
+      reconnectTimeoutRef.current = setTimeout(connect, delay);
     };
 
     ws.onerror = () => {
       ws.close();
     };
-  }, [user]);
+  }, [user, pathname]);
 
   // Connect to WebSocket
   useEffect(() => {
@@ -241,13 +318,25 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
       // Update activity time
       lastActivityRef.current = Date.now();
 
-      // Try to reconnect if not connected
-      if (!isConnected || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-        connect();
-        return; // Will send on next update after connected
-      }
-
       if (!user) return;
+
+      // Fix #5: Queue update if not connected (will be flushed on reconnect)
+      if (
+        !isConnected ||
+        !wsRef.current ||
+        wsRef.current.readyState !== WebSocket.OPEN
+      ) {
+        pendingCursorUpdateRef.current = {
+          percentX,
+          percentY,
+          anchor,
+          currentTyping,
+          scrollX: scrollX ?? 0,
+          scrollY: scrollY ?? 0,
+        };
+        connect();
+        return;
+      }
 
       const payload = {
         userId: user.userId,
@@ -280,13 +369,18 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
       // Update activity time
       lastActivityRef.current = Date.now();
 
-      // Try to reconnect if not connected
-      if (!isConnected || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+      if (!user) return;
+
+      // Fix #5: Queue message if not connected (will be flushed on reconnect)
+      if (
+        !isConnected ||
+        !wsRef.current ||
+        wsRef.current.readyState !== WebSocket.OPEN
+      ) {
+        pendingMessagesRef.current.push(message);
         connect();
         return;
       }
-
-      if (!user) return;
 
       const payload = {
         id: crypto.randomUUID(),

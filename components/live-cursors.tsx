@@ -10,9 +10,10 @@ import {
 } from "@/components/kibo-ui/cursor";
 import { useRealtime } from "@/lib/providers/realtime-provider";
 import { type CursorAnchor, type CursorPosition } from "@/lib/realtime-store";
+import { REALTIME_CONSTANTS } from "@shared/constants";
 import { MessageCircle, X } from "lucide-react";
 
-const MESSAGE_EXPIRY = 30000; // 30 seconds
+const { MESSAGE_EXPIRY_MS, CURSOR_THROTTLE_MS } = REALTIME_CONSTANTS;
 
 // Find the nearest element with data-cursor-anchor attribute
 function findNearestAnchor(
@@ -78,10 +79,22 @@ export function LiveCursors() {
   >([]);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
 
+  // Fix #9: Use ref for currentMessage to prevent event handler re-registration
+  const currentMessageRef = useRef(currentMessage);
+  currentMessageRef.current = currentMessage;
+
   // Position refs
   const viewportPosRef = useRef({ x: 0, y: 0 });
-  const [displayPos, setDisplayPos] = useState({ x: 0, y: 0 });
-  const lastSentRef = useRef({ percentX: 0, percentY: 0, scrollX: 0, scrollY: 0, time: 0 });
+  // Fix #6: Replace displayPos state with ref to prevent re-renders on every mouse move
+  const displayPosRef = useRef({ x: 0, y: 0 });
+  const userCursorRef = useRef<HTMLDivElement>(null);
+  const lastSentRef = useRef({
+    percentX: 0,
+    percentY: 0,
+    scrollX: 0,
+    scrollY: 0,
+    time: 0,
+  });
   const rafRef = useRef<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [localScroll, setLocalScroll] = useState({ x: 0, y: 0 });
@@ -114,7 +127,7 @@ export function LiveCursors() {
     const interval = setInterval(() => {
       const now = Date.now();
       setSentMessages((prev) =>
-        prev.filter((msg) => now - msg.timestamp < MESSAGE_EXPIRY)
+        prev.filter((msg) => now - msg.timestamp < MESSAGE_EXPIRY_MS)
       );
     }, 1000);
     return () => clearInterval(interval);
@@ -126,8 +139,14 @@ export function LiveCursors() {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
 
       rafRef.current = requestAnimationFrame(() => {
-        setDisplayPos({ x: clientX, y: clientY });
+        // Fix #6: Update ref and manipulate DOM directly instead of using state
+        displayPosRef.current = { x: clientX, y: clientY };
         viewportPosRef.current = { x: clientX, y: clientY };
+
+        // Direct DOM manipulation for user cursor (avoids React re-renders)
+        if (userCursorRef.current) {
+          userCursorRef.current.style.transform = `translate3d(${clientX}px, ${clientY}px, 0)`;
+        }
 
         // Calculate percentage-based position
         const percentX = clientX / window.innerWidth;
@@ -138,7 +157,7 @@ export function LiveCursors() {
         // Find nearest anchor element
         const anchor = findNearestAnchor(clientX, clientY);
 
-        // Throttle server updates (8ms = ~120fps for ultra-smooth real-time)
+        // Throttle server updates using shared constant
         const now = Date.now();
         const last = lastSentRef.current;
         const posChanged =
@@ -147,21 +166,30 @@ export function LiveCursors() {
           Math.abs(scrollX - last.scrollX) > 1 ||
           Math.abs(scrollY - last.scrollY) > 1;
 
-        if (posChanged && now - last.time >= 8) {
-          lastSentRef.current = { percentX, percentY, scrollX, scrollY, time: now };
-          // Desktop users can show typing state, mobile users don't
+        if (posChanged && now - last.time >= CURSOR_THROTTLE_MS) {
+          lastSentRef.current = {
+            percentX,
+            percentY,
+            scrollX,
+            scrollY,
+            time: now,
+          };
+          // Fix #9: Use currentMessageRef to avoid re-creating this callback
           sendCursorPosition(
             percentX,
             percentY,
             anchor ?? undefined,
-            !isTouchDevice && isChatMode ? currentMessage : undefined,
+            !isTouchDevice && isChatMode
+              ? currentMessageRef.current
+              : undefined,
             scrollX,
             scrollY
           );
         }
       });
     },
-    [sendCursorPosition, isChatMode, currentMessage, isTouchDevice]
+    // Fix #9: currentMessage removed from deps since we use currentMessageRef
+    [sendCursorPosition, isChatMode, isTouchDevice]
   );
 
   // Handle mouse move
@@ -199,8 +227,21 @@ export function LiveCursors() {
 
       // Throttle updates - don't send currentMessage for mobile (only show sent messages)
       if (now - last.time >= 100) {
-        lastSentRef.current = { percentX: 0.5, percentY: 0.35, scrollX: window.scrollX, scrollY: window.scrollY, time: now };
-        sendCursorPosition(0.5, 0.35, undefined, undefined, window.scrollX, window.scrollY);
+        lastSentRef.current = {
+          percentX: 0.5,
+          percentY: 0.35,
+          scrollX: window.scrollX,
+          scrollY: window.scrollY,
+          time: now,
+        };
+        sendCursorPosition(
+          0.5,
+          0.35,
+          undefined,
+          undefined,
+          window.scrollX,
+          window.scrollY
+        );
       }
     }
   }, [isTouchDevice, isChatMode, sendCursorPosition]);
@@ -232,7 +273,14 @@ export function LiveCursors() {
     const heartbeat = setInterval(() => {
       // If on mobile and in chat mode, force the virtual position (no typing state)
       if (isTouchDevice && isChatMode) {
-        sendCursorPosition(0.5, 0.35, undefined, undefined, window.scrollX, window.scrollY);
+        sendCursorPosition(
+          0.5,
+          0.35,
+          undefined,
+          undefined,
+          window.scrollX,
+          window.scrollY
+        );
         return;
       }
 
@@ -384,9 +432,7 @@ export function LiveCursors() {
   return (
     <>
       {/* Hide native cursor when live cursor is shown */}
-      {shouldHideCursor && (
-        <style>{`* { cursor: none !important; }`}</style>
-      )}
+      {shouldHideCursor && <style>{`* { cursor: none !important; }`}</style>}
       <div
         className="pointer-events-none fixed inset-0 z-40 overflow-hidden"
         aria-hidden="true"
@@ -459,9 +505,10 @@ export function LiveCursors() {
           aria-hidden="true"
         >
           <div
+            ref={userCursorRef}
             className="absolute will-change-transform"
             style={{
-              transform: `translate3d(${displayPos.x}px, ${displayPos.y}px, 0)`,
+              transform: `translate3d(${displayPosRef.current.x}px, ${displayPosRef.current.y}px, 0)`,
             }}
           >
             <Cursor>
@@ -610,7 +657,7 @@ export function LiveCursors() {
 
 function getContrastColor(hexColor: string): string {
   // Handle edge cases
-  if (!hexColor || typeof hexColor !== 'string') {
+  if (!hexColor || typeof hexColor !== "string") {
     return "#ffffff";
   }
 
