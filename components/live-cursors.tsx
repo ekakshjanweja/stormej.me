@@ -138,7 +138,9 @@ export function LiveCursors() {
             percentX,
             percentY,
             anchor ?? undefined,
-            !isTouchDevice && isChatMode ? currentMessage : undefined
+            !isTouchDevice && isChatMode ? currentMessage : undefined,
+            window.scrollX,
+            window.scrollY
           );
         }
       });
@@ -182,7 +184,7 @@ export function LiveCursors() {
       // Throttle updates - don't send currentMessage for mobile (only show sent messages)
       if (now - last.time >= 100) {
         lastSentRef.current = { percentX: 0.5, percentY: 0.35, time: now };
-        sendCursorPosition(0.5, 0.35, undefined, undefined);
+        sendCursorPosition(0.5, 0.35, undefined, undefined, window.scrollX, window.scrollY);
       }
     }
   }, [isTouchDevice, isChatMode, sendCursorPosition]);
@@ -202,7 +204,9 @@ export function LiveCursors() {
         0.5, // 50% width
         0.35, // 35% height
         undefined,
-        undefined
+        undefined,
+        window.scrollX,
+        window.scrollY
       );
     }
   }, [isChatMode, isTouchDevice, sendCursorPosition]);
@@ -212,7 +216,7 @@ export function LiveCursors() {
     const heartbeat = setInterval(() => {
       // If on mobile and in chat mode, force the virtual position (no typing state)
       if (isTouchDevice && isChatMode) {
-        sendCursorPosition(0.5, 0.35, undefined, undefined);
+        sendCursorPosition(0.5, 0.35, undefined, undefined, window.scrollX, window.scrollY);
         return;
       }
 
@@ -226,7 +230,9 @@ export function LiveCursors() {
           percentX,
           percentY,
           anchor ?? undefined,
-          !isTouchDevice && isChatMode ? currentMessage : undefined
+          !isTouchDevice && isChatMode ? currentMessage : undefined,
+          window.scrollX,
+          window.scrollY
         );
       }
     }, 5000);
@@ -320,6 +326,10 @@ export function LiveCursors() {
   const resolvePosition = (
     cursor: CursorPosition
   ): { x: number; y: number } | null => {
+    // Calculate scroll difference between sender and local
+    const scrollDiffX = (cursor.scrollX ?? 0) - window.scrollX;
+    const scrollDiffY = (cursor.scrollY ?? 0) - window.scrollY;
+
     // Try anchor-based position first
     if (cursor.anchor) {
       const anchorPos = resolveAnchorPosition(cursor.anchor);
@@ -328,9 +338,9 @@ export function LiveCursors() {
       }
     }
 
-    // Fallback to percentage-based position
-    const x = cursor.percentX * window.innerWidth;
-    const y = cursor.percentY * window.innerHeight;
+    // Fallback to percentage-based position, adjusted for scroll difference
+    const x = cursor.percentX * window.innerWidth - scrollDiffX;
+    const y = cursor.percentY * window.innerHeight - scrollDiffY;
 
     if (isInViewport(x, y)) {
       return { x, y };

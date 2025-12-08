@@ -1,41 +1,40 @@
 // Types and helper functions for real-time features
 // The actual state is now managed by the Hono backend
 
-export interface Message {
+export type Message = {
   id: string;
   userId: string;
   name: string;
   text: string;
   color: string;
   timestamp: number;
-}
+};
 
-export interface CursorMessage {
+export type CursorMessage = {
   text: string;
   timestamp: number;
-}
+};
 
-// Element anchor for cross-device cursor positioning
-export interface CursorAnchor {
-  selector: string; // CSS selector (e.g., "[data-cursor-anchor='hero']")
-  relativeX: number; // 0-1 position within element's width
-  relativeY: number; // 0-1 position within element's height
-}
+export type CursorAnchor = {
+  selector: string;
+  relativeX: number;
+  relativeY: number;
+};
 
-export interface CursorPosition {
+export type CursorPosition = {
   userId: string;
   name: string;
   color: string;
-  // Element-based positioning (preferred for cross-device)
   anchor?: CursorAnchor;
-  // Fallback: percentage of viewport dimensions (0-1)
   percentX: number;
   percentY: number;
+  scrollX: number;
+  scrollY: number;
   lastUpdate: number;
-  currentTyping?: string; // What user is currently typing
-  messages: CursorMessage[]; // Last 3 sent messages
-  path: string; // Current route path for filtering
-}
+  currentTyping?: string;
+  messages: CursorMessage[];
+  path: string;
+};
 
 export type RealtimeEvent =
   | { type: "message"; payload: Message }
@@ -76,6 +75,15 @@ const adjectives = [
   "dark",
   "cool",
   "warm",
+  "chai",
+  "masala",
+  "jalebi",
+  "bollywood",
+  "desi",
+  "samosa",
+  "tandoori",
+  "spicy",
+  "mango",
 ];
 
 const animals = [
@@ -103,6 +111,13 @@ const animals = [
   "turtle",
   "rabbit",
   "deer",
+  "mongoose",
+  "peacock",
+  "langur",
+  "elephant",
+  "rhino",
+  "nilgai",
+  "chital",
 ];
 
 const colors = [

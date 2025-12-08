@@ -34,7 +34,9 @@ interface RealtimeContextValue {
     percentX: number,
     percentY: number,
     anchor?: CursorAnchor,
-    currentTyping?: string
+    currentTyping?: string,
+    scrollX?: number,
+    scrollY?: number
   ) => void;
   sendMessage: (message: string) => void;
 }
@@ -231,7 +233,9 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
       percentX: number,
       percentY: number,
       anchor?: CursorAnchor,
-      currentTyping?: string
+      currentTyping?: string,
+      scrollX?: number,
+      scrollY?: number
     ) => {
       if (!user || !isConnected || !wsRef.current) return;
 
@@ -241,6 +245,8 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
         color: user.color,
         percentX,
         percentY,
+        scrollX: scrollX ?? 0,
+        scrollY: scrollY ?? 0,
         anchor,
         currentTyping: currentTyping || undefined,
         path: pathname,
