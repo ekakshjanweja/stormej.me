@@ -81,9 +81,10 @@ export function LiveCursors() {
   // Position refs
   const viewportPosRef = useRef({ x: 0, y: 0 });
   const [displayPos, setDisplayPos] = useState({ x: 0, y: 0 });
-  const lastSentRef = useRef({ percentX: 0, percentY: 0, time: 0 });
+  const lastSentRef = useRef({ percentX: 0, percentY: 0, scrollX: 0, scrollY: 0, time: 0 });
   const rafRef = useRef<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [, forceUpdate] = useState(0); // For triggering re-renders on scroll
 
   // Detect touch device
   useEffect(() => {
@@ -120,27 +121,31 @@ export function LiveCursors() {
         // Calculate percentage-based position
         const percentX = clientX / window.innerWidth;
         const percentY = clientY / window.innerHeight;
+        const scrollX = window.scrollX;
+        const scrollY = window.scrollY;
 
         // Find nearest anchor element
         const anchor = findNearestAnchor(clientX, clientY);
 
-        // Throttle server updates (16ms = ~60fps for smooth real-time)
+        // Throttle server updates (8ms = ~120fps for ultra-smooth real-time)
         const now = Date.now();
         const last = lastSentRef.current;
         const posChanged =
-          Math.abs(percentX - last.percentX) > 0.001 ||
-          Math.abs(percentY - last.percentY) > 0.001;
+          Math.abs(percentX - last.percentX) > 0.0005 ||
+          Math.abs(percentY - last.percentY) > 0.0005 ||
+          Math.abs(scrollX - last.scrollX) > 1 ||
+          Math.abs(scrollY - last.scrollY) > 1;
 
-        if (posChanged && now - last.time >= 16) {
-          lastSentRef.current = { percentX, percentY, time: now };
+        if (posChanged && now - last.time >= 8) {
+          lastSentRef.current = { percentX, percentY, scrollX, scrollY, time: now };
           // Desktop users can show typing state, mobile users don't
           sendCursorPosition(
             percentX,
             percentY,
             anchor ?? undefined,
             !isTouchDevice && isChatMode ? currentMessage : undefined,
-            window.scrollX,
-            window.scrollY
+            scrollX,
+            scrollY
           );
         }
       });
@@ -175,6 +180,30 @@ export function LiveCursors() {
     return () => window.removeEventListener("touchmove", handleTouchMove);
   }, [updatePosition, isTouchDevice]);
 
+  // Force re-render on scroll to update cursor positions in real-time
+  useEffect(() => {
+    const handleScroll = () => {
+      forceUpdate((n) => n + 1);
+      // Also send updated position on scroll
+      const { x, y } = viewportPosRef.current;
+      if (x > 0 || y > 0) {
+        const percentX = x / window.innerWidth;
+        const percentY = y / window.innerHeight;
+        sendCursorPosition(
+          percentX,
+          percentY,
+          undefined,
+          undefined,
+          window.scrollX,
+          window.scrollY
+        );
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [sendCursorPosition]);
+
   // Sync position on mobile (without typing state - messages only shown when sent)
   useEffect(() => {
     if (isTouchDevice && isChatMode) {
@@ -183,7 +212,7 @@ export function LiveCursors() {
 
       // Throttle updates - don't send currentMessage for mobile (only show sent messages)
       if (now - last.time >= 100) {
-        lastSentRef.current = { percentX: 0.5, percentY: 0.35, time: now };
+        lastSentRef.current = { percentX: 0.5, percentY: 0.35, scrollX: window.scrollX, scrollY: window.scrollY, time: now };
         sendCursorPosition(0.5, 0.35, undefined, undefined, window.scrollX, window.scrollY);
       }
     }
@@ -326,10 +355,6 @@ export function LiveCursors() {
   const resolvePosition = (
     cursor: CursorPosition
   ): { x: number; y: number } | null => {
-    // Calculate scroll difference between sender and local
-    const scrollDiffX = (cursor.scrollX ?? 0) - window.scrollX;
-    const scrollDiffY = (cursor.scrollY ?? 0) - window.scrollY;
-
     // Try anchor-based position first
     if (cursor.anchor) {
       const anchorPos = resolveAnchorPosition(cursor.anchor);
@@ -338,9 +363,15 @@ export function LiveCursors() {
       }
     }
 
+    // Calculate scroll offset difference
+    // If sender scrolled more than us, their cursor should appear lower on our screen
+    // If we scrolled more than sender, their cursor should appear higher
+    const scrollOffsetX = window.scrollX - (cursor.scrollX ?? 0);
+    const scrollOffsetY = window.scrollY - (cursor.scrollY ?? 0);
+
     // Fallback to percentage-based position, adjusted for scroll difference
-    const x = cursor.percentX * window.innerWidth - scrollDiffX;
-    const y = cursor.percentY * window.innerHeight - scrollDiffY;
+    const x = cursor.percentX * window.innerWidth + scrollOffsetX;
+    const y = cursor.percentY * window.innerHeight + scrollOffsetY;
 
     if (isInViewport(x, y)) {
       return { x, y };
@@ -381,10 +412,9 @@ export function LiveCursors() {
           return (
             <div
               key={cursor.userId}
-              className="absolute will-change-transform"
+              className="absolute will-change-transform cursor-smooth"
               style={{
                 transform: `translate3d(${x}px, ${y}px, 0)`,
-                transition: "transform 16ms linear",
               }}
             >
               <Cursor>
@@ -432,7 +462,14 @@ export function LiveCursors() {
         })}
 
         {/* Current user's cursor - only show on desktop if others on same page */}
-        {!isTouchDevice && hasOthersOnSamePath && (
+      </div>
+
+      {/* Current user's cursor wrapper - separate z-index so it's above navbar */}
+      {!isTouchDevice && hasOthersOnSamePath && (
+        <div
+          className="pointer-events-none fixed inset-0 z-[9999] overflow-hidden"
+          aria-hidden="true"
+        >
           <div
             className="absolute will-change-transform"
             style={{
@@ -478,8 +515,8 @@ export function LiveCursors() {
               </CursorBody>
             </Cursor>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Desktop chat mode indicator */}
       {!isTouchDevice && isChatMode && (

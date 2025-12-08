@@ -7,7 +7,8 @@ export const Cursor = ({ className, children, ...props }: CursorProps) => (
   <span
     className={cn(
       "pointer-events-none relative select-none",
-      "animate-in fade-in zoom-in-95 duration-200",
+      "animate-in fade-in zoom-in-90 duration-300 ease-out",
+      "drop-shadow-lg",
       className
     )}
     {...props}
@@ -22,7 +23,11 @@ export const CursorPointer = ({ className, ...props }: CursorPointerProps) => (
   <svg
     aria-hidden="true"
     className={cn(
-      "size-3.5 drop-shadow-sm transition-transform duration-150",
+      "size-4 drop-shadow-md",
+      "transition-all duration-200 ease-out",
+      "hover:scale-110",
+      // Subtle pulse animation
+      "animate-[cursor-pulse_2s_ease-in-out_infinite]",
       className
     )}
     fill="none"
@@ -31,6 +36,9 @@ export const CursorPointer = ({ className, ...props }: CursorPointerProps) => (
     viewBox="0 0 20 20"
     width="20"
     xmlns="http://www.w3.org/2000/svg"
+    style={{
+      filter: "drop-shadow(0 0 6px currentColor)",
+    }}
     {...props}
   >
     <path
@@ -49,12 +57,13 @@ export const CursorBody = ({
 }: CursorBodyProps) => (
   <span
     className={cn(
-      "relative ml-3.5 flex flex-col whitespace-nowrap rounded-xl py-1 pr-3 pl-2.5 text-xs",
-      Children.count(children) > 1 && "rounded-tl [&>:first-child]:opacity-70",
-      "bg-secondary text-foreground",
-      "shadow-lg backdrop-blur-sm",
-      "animate-in fade-in slide-in-from-left-1 duration-200",
-      "transition-all ease-out",
+      "relative ml-3 flex flex-col whitespace-nowrap rounded-2xl py-1.5 pr-3.5 pl-3 text-xs",
+      Children.count(children) > 1 && "rounded-tl-md [&>:first-child]:opacity-80",
+      "bg-gradient-to-br from-secondary/95 to-secondary/80 text-foreground",
+      "shadow-xl backdrop-blur-md",
+      "border border-white/10",
+      "animate-in fade-in slide-in-from-left-2 zoom-in-95 duration-300 ease-out",
+      "transition-all duration-200 ease-out",
       className
     )}
     {...props}
@@ -66,7 +75,14 @@ export const CursorBody = ({
 export type CursorNameProps = HTMLAttributes<HTMLSpanElement>;
 
 export const CursorName = ({ className, ...props }: CursorNameProps) => (
-  <span className={cn("font-medium", className)} {...props} />
+  <span
+    className={cn(
+      "font-semibold tracking-tight",
+      "animate-in fade-in duration-200",
+      className
+    )}
+    {...props}
+  />
 );
 
 export type CursorMessageProps = HTMLAttributes<HTMLSpanElement>;
@@ -74,8 +90,9 @@ export type CursorMessageProps = HTMLAttributes<HTMLSpanElement>;
 export const CursorMessage = ({ className, ...props }: CursorMessageProps) => (
   <span
     className={cn(
-      "animate-in fade-in slide-in-from-top-1 duration-150",
-      "transition-opacity",
+      "animate-in fade-in slide-in-from-top-1 zoom-in-95 duration-200 ease-out",
+      "transition-all duration-150",
+      "leading-relaxed",
       className
     )}
     {...props}
