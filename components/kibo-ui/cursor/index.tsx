@@ -7,7 +7,6 @@ export const Cursor = ({ className, children, ...props }: CursorProps) => (
   <span
     className={cn(
       "pointer-events-none relative select-none",
-      "animate-in fade-in zoom-in-90 duration-300 ease-out",
       "drop-shadow-lg",
       className
     )}
@@ -24,7 +23,6 @@ export const CursorPointer = ({ className, ...props }: CursorPointerProps) => (
     aria-hidden="true"
     className={cn(
       "size-4 drop-shadow-md",
-      "transition-all duration-200 ease-out",
       className
     )}
     fill="none"
@@ -51,12 +49,10 @@ export const CursorBody = ({
 }: CursorBodyProps) => (
   <span
     className={cn(
-      "relative ml-3 flex flex-col whitespace-nowrap rounded-2xl py-1.5 pr-3.5 pl-3 text-xs",
+      "relative ml-3 flex flex-col whitespace-nowrap rounded-xl py-1.5 pr-3.5 pl-3 text-xs",
       Children.count(children) > 1 && "rounded-tl-md [&>:first-child]:opacity-80",
-      "shadow-xl backdrop-blur-sm",
+      "shadow-lg",
       "border border-white/20 dark:border-white/10",
-      "animate-in fade-in slide-in-from-left-2 zoom-in-95 duration-300 ease-out",
-      "transition-all duration-200 ease-out",
       className
     )}
     {...props}
@@ -71,7 +67,6 @@ export const CursorName = ({ className, ...props }: CursorNameProps) => (
   <span
     className={cn(
       "font-semibold tracking-tight",
-      "animate-in fade-in duration-200",
       className
     )}
     {...props}
@@ -83,8 +78,6 @@ export type CursorMessageProps = HTMLAttributes<HTMLSpanElement>;
 export const CursorMessage = ({ className, ...props }: CursorMessageProps) => (
   <span
     className={cn(
-      "animate-in fade-in slide-in-from-top-1 zoom-in-95 duration-200 ease-out",
-      "transition-all duration-150",
       "leading-relaxed",
       className
     )}
