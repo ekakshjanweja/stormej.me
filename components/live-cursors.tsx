@@ -350,8 +350,15 @@ export function LiveCursors() {
     }))
     .filter((cursor) => cursor.resolvedPos !== null);
 
+  // Determine if we should hide the native cursor
+  const shouldHideCursor = !isTouchDevice && hasOthersOnSamePath;
+
   return (
     <>
+      {/* Hide native cursor when live cursor is shown */}
+      {shouldHideCursor && (
+        <style>{`* { cursor: none !important; }`}</style>
+      )}
       <div
         className="pointer-events-none fixed inset-0 z-40 overflow-hidden"
         aria-hidden="true"
