@@ -289,19 +289,20 @@ export function LiveCursors() {
         const percentX = x / window.innerWidth;
         const percentY = y / window.innerHeight;
         const anchor = findNearestAnchor(x, y);
-        // Desktop users can show typing state, mobile users don't
+        // Fix #9: Use currentMessageRef to avoid re-creating heartbeat interval
         sendCursorPosition(
           percentX,
           percentY,
           anchor ?? undefined,
-          !isTouchDevice && isChatMode ? currentMessage : undefined,
+          !isTouchDevice && isChatMode ? currentMessageRef.current : undefined,
           window.scrollX,
           window.scrollY
         );
       }
     }, 5000);
     return () => clearInterval(heartbeat);
-  }, [sendCursorPosition, isChatMode, currentMessage, isTouchDevice]);
+    // currentMessage removed from deps - using ref instead
+  }, [sendCursorPosition, isChatMode, isTouchDevice]);
 
   // Handle keyboard events (desktop only)
   useEffect(() => {
@@ -331,8 +332,8 @@ export function LiveCursors() {
           return;
         }
 
-        if (e.key === "Enter" && currentMessage.trim()) {
-          const messageText = currentMessage.trim();
+        if (e.key === "Enter" && currentMessageRef.current.trim()) {
+          const messageText = currentMessageRef.current.trim();
           sendMessage(messageText);
           setSentMessages((prev) => [
             ...prev.slice(-2),
@@ -348,7 +349,7 @@ export function LiveCursors() {
         }
 
         if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-          if (currentMessage.length < 100) {
+          if (currentMessageRef.current.length < 100) {
             setCurrentMessage((prev) => prev + e.key);
           }
         }
@@ -357,7 +358,8 @@ export function LiveCursors() {
 
     window.addEventListener("keydown", handleKeyDown, true);
     return () => window.removeEventListener("keydown", handleKeyDown, true);
-  }, [isChatMode, currentMessage, sendMessage, isTouchDevice]);
+    // Fix #9: currentMessage removed from deps - using ref instead
+  }, [isChatMode, sendMessage, isTouchDevice]);
 
   // Cleanup RAF on unmount
   useEffect(() => {

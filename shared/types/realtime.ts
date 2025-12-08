@@ -33,13 +33,16 @@ export const cursorPositionSchema = z.object({
   userId: z.string(),
   name: z.string(),
   color: z.string(),
-  anchor: cursorAnchorSchema.optional(),
-  percentX: z.number().min(0).max(1),
-  percentY: z.number().min(0).max(1),
+  // Anchor can be null, undefined, or a valid anchor object
+  anchor: cursorAnchorSchema.nullable().optional(),
+  // Note: percentX/percentY can be slightly outside 0-1 when cursor is near viewport edges
+  percentX: z.number(),
+  percentY: z.number(),
   scrollX: z.number(),
   scrollY: z.number(),
   lastUpdate: z.number(),
-  currentTyping: z.string().max(100).optional(),
+  // currentTyping can be null, undefined, or a string
+  currentTyping: z.string().max(100).nullable().optional(),
   messages: z.array(cursorMessageSchema),
   path: z.string(),
 });
