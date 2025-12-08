@@ -77,6 +77,7 @@ export function LiveCursors() {
     Array<{ text: string; timestamp: number }>
   >([]);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [isFirefox, setIsFirefox] = useState(false);
 
   // Position refs
   const viewportPosRef = useRef({ x: 0, y: 0 });
@@ -86,9 +87,11 @@ export function LiveCursors() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [, forceUpdate] = useState(0); // For triggering re-renders on scroll
 
-  // Detect touch device
+  // Detect touch device and Firefox
   useEffect(() => {
     setIsTouchDevice("ontouchstart" in window || navigator.maxTouchPoints > 0);
+    // Detect Firefox browser
+    setIsFirefox(navigator.userAgent.toLowerCase().includes('firefox'));
   }, []);
 
   // Focus input when chat mode opens on mobile
@@ -391,8 +394,8 @@ export function LiveCursors() {
     }))
     .filter((cursor) => cursor.resolvedPos !== null);
 
-  // Determine if we should hide the native cursor
-  const shouldHideCursor = !isTouchDevice && hasOthersOnSamePath;
+  // Determine if we should hide the native cursor (not for Firefox - has compatibility issues)
+  const shouldHideCursor = !isTouchDevice && !isFirefox && hasOthersOnSamePath;
 
   return (
     <>
@@ -465,7 +468,8 @@ export function LiveCursors() {
       </div>
 
       {/* Current user's cursor wrapper - separate z-index so it's above navbar */}
-      {!isTouchDevice && hasOthersOnSamePath && (
+      {/* Disabled for Firefox due to compatibility issues */}
+      {!isTouchDevice && !isFirefox && hasOthersOnSamePath && (
         <div
           className="pointer-events-none fixed inset-0 z-[9999] overflow-hidden"
           aria-hidden="true"
