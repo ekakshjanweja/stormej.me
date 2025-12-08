@@ -122,14 +122,17 @@ export function LiveCursors() {
     }
   }, [isChatMode, isTouchDevice]);
 
-  // Clean up expired sent messages
+  // Clean up expired sent messages (same expiry as other users' messages)
   useEffect(() => {
     const interval = setInterval(() => {
       const now = Date.now();
-      setSentMessages((prev) =>
-        prev.filter((msg) => now - msg.timestamp < MESSAGE_EXPIRY_MS)
-      );
-    }, 1000);
+      setSentMessages((prev) => {
+        const filtered = prev.filter(
+          (msg) => now - msg.timestamp < MESSAGE_EXPIRY_MS
+        );
+        return filtered;
+      });
+    }, 500); // Check every 500ms for more responsive cleanup
     return () => clearInterval(interval);
   }, []);
 
