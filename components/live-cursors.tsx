@@ -84,12 +84,22 @@ export function LiveCursors() {
   const lastSentRef = useRef({ percentX: 0, percentY: 0, scrollX: 0, scrollY: 0, time: 0 });
   const rafRef = useRef<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [, forceUpdate] = useState(0); // For triggering re-renders on scroll
+  const [localScroll, setLocalScroll] = useState({ x: 0, y: 0 });
 
-  // Detect touch device and Firefox
+  // Detect touch device
   useEffect(() => {
     setIsTouchDevice("ontouchstart" in window || navigator.maxTouchPoints > 0);
-    // Detect Firefox browser
+    // Initialize local scroll
+    setLocalScroll({ x: window.scrollX, y: window.scrollY });
+  }, []);
+
+  // Track local scroll position for cursor positioning
+  useEffect(() => {
+    const handleScroll = () => {
+      setLocalScroll({ x: window.scrollX, y: window.scrollY });
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Focus input when chat mode opens on mobile
@@ -180,30 +190,6 @@ export function LiveCursors() {
     window.addEventListener("touchmove", handleTouchMove, { passive: true });
     return () => window.removeEventListener("touchmove", handleTouchMove);
   }, [updatePosition, isTouchDevice]);
-
-  // Force re-render on scroll to update cursor positions in real-time
-  useEffect(() => {
-    const handleScroll = () => {
-      forceUpdate((n) => n + 1);
-      // Also send updated position on scroll
-      const { x, y } = viewportPosRef.current;
-      if (x > 0 || y > 0) {
-        const percentX = x / window.innerWidth;
-        const percentY = y / window.innerHeight;
-        sendCursorPosition(
-          percentX,
-          percentY,
-          undefined,
-          undefined,
-          window.scrollX,
-          window.scrollY
-        );
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [sendCursorPosition]);
 
   // Sync position on mobile (without typing state - messages only shown when sent)
   useEffect(() => {
@@ -364,15 +350,15 @@ export function LiveCursors() {
       }
     }
 
-    // Calculate scroll offset difference
-    // If sender scrolled more than us, their cursor should appear lower on our screen
-    // If we scrolled more than sender, their cursor should appear higher
-    const scrollOffsetX = window.scrollX - (cursor.scrollX ?? 0);
-    const scrollOffsetY = window.scrollY - (cursor.scrollY ?? 0);
-
-    // Fallback to percentage-based position, adjusted for scroll difference
-    const x = cursor.percentX * window.innerWidth + scrollOffsetX;
-    const y = cursor.percentY * window.innerHeight + scrollOffsetY;
+    // Convert sender's viewport position to document position, then to local viewport
+    // Sender's position on document = viewport pos + their scroll
+    // Local viewport position = document pos - our scroll
+    const senderViewportX = cursor.percentX * window.innerWidth;
+    const senderViewportY = cursor.percentY * window.innerHeight;
+    const senderDocX = senderViewportX + (cursor.scrollX ?? 0);
+    const senderDocY = senderViewportY + (cursor.scrollY ?? 0);
+    const x = senderDocX - localScroll.x;
+    const y = senderDocY - localScroll.y;
 
     if (isInViewport(x, y)) {
       return { x, y };
