@@ -1,13 +1,69 @@
 import { Env, RealtimeEvent, CursorPosition, Message } from "./types";
 
+const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+const CLEANUP_INTERVAL_MS = 5 * 60 * 1000; // Check every 5 minutes
+
 export class RealtimeRoom implements DurableObject {
   private state: DurableObjectState;
   private cursors: Map<string, CursorPosition> = new Map();
+  private lastActivity: Map<string, number> = new Map(); // Track last activity per user
   private messages: Message[] = [];
   private readonly MAX_MESSAGES = 50;
+  private cleanupInterval: ReturnType<typeof setInterval> | null = null;
 
   constructor(state: DurableObjectState, env: Env) {
     this.state = state;
+    // Start cleanup interval
+    this.startCleanupInterval();
+  }
+
+  private startCleanupInterval() {
+    if (this.cleanupInterval) return;
+
+    this.cleanupInterval = setInterval(() => {
+      this.cleanupInactiveUsers();
+    }, CLEANUP_INTERVAL_MS);
+  }
+
+  private cleanupInactiveUsers() {
+    const now = Date.now();
+    const inactiveUsers: string[] = [];
+
+    // Find inactive users
+    for (const [userId, lastTime] of this.lastActivity.entries()) {
+      if (now - lastTime > INACTIVITY_TIMEOUT_MS) {
+        inactiveUsers.push(userId);
+      }
+    }
+
+    // Remove inactive users
+    for (const userId of inactiveUsers) {
+      console.log(`[RealtimeRoom] Removing inactive user: ${userId}`);
+      this.cursors.delete(userId);
+      this.lastActivity.delete(userId);
+
+      // Broadcast user leave
+      this.broadcast({ type: "user_leave", payload: { userId } });
+
+      // Close their WebSocket if still connected
+      const webSockets = this.state.getWebSockets();
+      for (const ws of webSockets) {
+        const meta = ws.deserializeAttachment() as { userId: string } | null;
+        if (meta?.userId === userId) {
+          try {
+            ws.close(1000, "Inactive for 30 minutes");
+          } catch (e) {
+            // Ignore close errors
+          }
+        }
+      }
+    }
+
+    if (inactiveUsers.length > 0) {
+      console.log(
+        `[RealtimeRoom] Cleaned up ${inactiveUsers.length} inactive users`
+      );
+    }
   }
 
   async fetch(request: Request): Promise<Response> {
@@ -48,6 +104,7 @@ export class RealtimeRoom implements DurableObject {
       switch (data.type) {
         case "cursor":
           this.cursors.set(data.payload.userId, data.payload);
+          this.lastActivity.set(data.payload.userId, Date.now()); // Update activity
           ws.serializeAttachment({ userId: data.payload.userId });
           this.broadcast(data, ws);
           break;
@@ -70,17 +127,20 @@ export class RealtimeRoom implements DurableObject {
             senderCursor.lastUpdate = Date.now();
             this.cursors.set(data.payload.userId, senderCursor);
           }
+          this.lastActivity.set(data.payload.userId, Date.now()); // Update activity
 
           this.broadcast(data, ws);
           break;
 
         case "user_join":
           ws.serializeAttachment({ userId: data.payload.userId });
+          this.lastActivity.set(data.payload.userId, Date.now()); // Track activity
           this.broadcast(data, ws);
           break;
 
         case "user_leave":
           this.cursors.delete(data.payload.userId);
+          this.lastActivity.delete(data.payload.userId);
           this.broadcast(data, ws);
           break;
       }
@@ -95,6 +155,7 @@ export class RealtimeRoom implements DurableObject {
 
     if (userId) {
       this.cursors.delete(userId);
+      this.lastActivity.delete(userId);
       this.broadcast({ type: "user_leave", payload: { userId } }, ws);
     }
   }

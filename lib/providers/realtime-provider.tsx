@@ -88,6 +88,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
   const [isConnected, setIsConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastActivityRef = useRef<number>(Date.now()); // Track last activity time
 
   // Initialize user identity
   useEffect(() => {
@@ -237,7 +238,16 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
       scrollX?: number,
       scrollY?: number
     ) => {
-      if (!user || !isConnected || !wsRef.current) return;
+      // Update activity time
+      lastActivityRef.current = Date.now();
+
+      // Try to reconnect if not connected
+      if (!isConnected || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+        connect();
+        return; // Will send on next update after connected
+      }
+
+      if (!user) return;
 
       const payload = {
         userId: user.userId,
@@ -261,13 +271,22 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
         })
       );
     },
-    [user, isConnected, pathname]
+    [user, isConnected, pathname, connect]
   );
 
   // Send message to server
   const sendMessage = useCallback(
     (message: string) => {
-      if (!user || !isConnected || !wsRef.current) return;
+      // Update activity time
+      lastActivityRef.current = Date.now();
+
+      // Try to reconnect if not connected
+      if (!isConnected || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+        connect();
+        return;
+      }
+
+      if (!user) return;
 
       const payload = {
         id: crypto.randomUUID(),
@@ -285,7 +304,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
         })
       );
     },
-    [user, isConnected]
+    [user, isConnected, connect]
   );
 
   const contextValue: RealtimeContextValue = {
