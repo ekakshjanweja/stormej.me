@@ -25,9 +25,6 @@ export const CursorPointer = ({ className, ...props }: CursorPointerProps) => (
     className={cn(
       "size-4 drop-shadow-md",
       "transition-all duration-200 ease-out",
-      "hover:scale-110",
-      // Subtle pulse animation
-      "animate-[cursor-pulse_2s_ease-in-out_infinite]",
       className
     )}
     fill="none"
@@ -36,9 +33,6 @@ export const CursorPointer = ({ className, ...props }: CursorPointerProps) => (
     viewBox="0 0 20 20"
     width="20"
     xmlns="http://www.w3.org/2000/svg"
-    style={{
-      filter: "drop-shadow(0 0 6px currentColor)",
-    }}
     {...props}
   >
     <path
@@ -59,9 +53,8 @@ export const CursorBody = ({
     className={cn(
       "relative ml-3 flex flex-col whitespace-nowrap rounded-2xl py-1.5 pr-3.5 pl-3 text-xs",
       Children.count(children) > 1 && "rounded-tl-md [&>:first-child]:opacity-80",
-      "bg-gradient-to-br from-secondary/95 to-secondary/80 text-foreground",
-      "shadow-xl backdrop-blur-md",
-      "border border-white/10",
+      "shadow-xl backdrop-blur-sm",
+      "border border-white/20 dark:border-white/10",
       "animate-in fade-in slide-in-from-left-2 zoom-in-95 duration-300 ease-out",
       "transition-all duration-200 ease-out",
       className

@@ -621,10 +621,30 @@ export function LiveCursors() {
 }
 
 function getContrastColor(hexColor: string): string {
+  // Handle edge cases
+  if (!hexColor || typeof hexColor !== 'string') {
+    return "#ffffff";
+  }
+
   const hex = hexColor.replace("#", "");
+
+  // Validate hex format
+  if (hex.length !== 6) {
+    return "#ffffff";
+  }
+
   const r = parseInt(hex.substring(0, 2), 16);
   const g = parseInt(hex.substring(2, 4), 16);
   const b = parseInt(hex.substring(4, 6), 16);
+
+  // Check for NaN
+  if (isNaN(r) || isNaN(g) || isNaN(b)) {
+    return "#ffffff";
+  }
+
+  // Calculate relative luminance
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  return luminance > 0.5 ? "#000000" : "#ffffff";
+
+  // Use threshold of 0.6 to prefer white text (more readable on colored backgrounds)
+  return luminance > 0.6 ? "#000000" : "#ffffff";
 }
