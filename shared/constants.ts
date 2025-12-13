@@ -13,8 +13,8 @@ export const REALTIME_CONSTANTS = {
   /** How often to send heartbeat updates (5 seconds) */
   HEARTBEAT_INTERVAL_MS: 5_000,
 
-  /** Minimum time between cursor position updates (~120fps) */
-  CURSOR_THROTTLE_MS: 8,
+  /** Minimum time between cursor position updates (~250fps) */
+  CURSOR_THROTTLE_MS: 4,
 
   /** Maximum number of messages to retain in history */
   MAX_MESSAGES: 50,
