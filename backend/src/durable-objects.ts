@@ -7,8 +7,12 @@ import {
 } from "./types";
 import { REALTIME_CONSTANTS } from "@shared/constants";
 
-const { INACTIVITY_TIMEOUT_MS, CLEANUP_INTERVAL_MS, MAX_MESSAGES } =
-  REALTIME_CONSTANTS;
+const {
+  INACTIVITY_TIMEOUT_MS,
+  CLEANUP_INTERVAL_MS,
+  MAX_MESSAGES,
+  MESSAGE_EXPIRY_MS,
+} = REALTIME_CONSTANTS;
 
 export class RealtimeRoom implements DurableObject {
   private state: DurableObjectState;
@@ -27,6 +31,7 @@ export class RealtimeRoom implements DurableObject {
    */
   async alarm() {
     this.cleanupInactiveUsers();
+    this.cleanupExpiredMessages();
 
     // Only reschedule if we still have active users
     if (this.cursors.size > 0 || this.lastActivity.size > 0) {
@@ -85,6 +90,35 @@ export class RealtimeRoom implements DurableObject {
       console.log(
         `[RealtimeRoom] Cleaned up ${inactiveUsers.length} inactive users`
       );
+    }
+  }
+
+  private cleanupExpiredMessages() {
+    const now = Date.now();
+    let cleanedCount = 0;
+
+    // Clean up global messages array
+    const initialGlobalCount = this.messages.length;
+    this.messages = this.messages.filter(
+      (msg) => now - msg.timestamp < MESSAGE_EXPIRY_MS
+    );
+    cleanedCount += initialGlobalCount - this.messages.length;
+
+    // Clean up messages in all cursor objects
+    for (const [userId, cursor] of this.cursors.entries()) {
+      const initialCursorCount = cursor.messages.length;
+      cursor.messages = cursor.messages.filter(
+        (msg) => now - msg.timestamp < MESSAGE_EXPIRY_MS
+      );
+      const removed = initialCursorCount - cursor.messages.length;
+      if (removed > 0) {
+        cleanedCount += removed;
+        this.cursors.set(userId, cursor);
+      }
+    }
+
+    if (cleanedCount > 0) {
+      console.log(`[RealtimeRoom] Cleaned up ${cleanedCount} expired messages`);
     }
   }
 
