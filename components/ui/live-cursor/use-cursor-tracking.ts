@@ -76,8 +76,8 @@ export function useCursorTracking({
             percentX,
             percentY,
             anchor ?? undefined,
-            !isTouchDevice && isChatMode
-              ? currentMessageRef.current
+            !isTouchDevice && isChatMode && currentMessageRef.current
+              ? "typing"
               : undefined,
             scrollX,
             scrollY
@@ -148,7 +148,9 @@ export function useCursorTracking({
           percentX,
           percentY,
           anchor ?? undefined,
-          !isTouchDevice && isChatMode ? currentMessageRef.current : undefined,
+          !isTouchDevice && isChatMode && currentMessageRef.current
+            ? "typing"
+            : undefined,
           window.scrollX,
           window.scrollY
         );

@@ -26,6 +26,8 @@ const {
   STORAGE_KEY,
   RECONNECT_INITIAL_MS,
   RECONNECT_MAX_MS,
+  PING_INTERVAL_MS,
+  VISIBILITY_RECONNECT_DELAY_MS,
 } = REALTIME_CONSTANTS;
 
 interface UserIdentity {
@@ -105,29 +107,52 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastActivityRef = useRef<number>(Date.now());
 
-  // Fix #5: Queue pending updates when disconnected
+  // Queue pending updates when disconnected
   const pendingCursorUpdateRef = useRef<PendingCursorUpdate | null>(null);
   const pendingMessagesRef = useRef<string[]>([]);
 
-  // Fix #8: Exponential backoff for reconnection
+  // Exponential backoff for reconnection
   const retryCountRef = useRef(0);
+
+  // Track connection state to prevent duplicate connections
+  const isConnectingRef = useRef(false);
+
+  // Ping interval ref
+  const pingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Timeout for visibility debounce
+  const visibilityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Use ref for pathname to avoid callback recreation
+  const pathnameRef = useRef(pathname);
+  pathnameRef.current = pathname;
+
+  // Track if tab is visible
+  const isVisibleRef = useRef(true);
+
+  // Track if browser is online
+  const isOnlineRef = useRef(true);
 
   // Initialize user identity
   useEffect(() => {
-    setUser(getOrCreateIdentity());
+    const identity = getOrCreateIdentity();
+    // Append session ID to make userId unique per tab
+    // This prevents cursor conflicts when opening multiple tabs
+    const sessionUserId = `${identity.userId}-${Math.random()
+      .toString(36)
+      .slice(2, 7)}`;
+    setUser({ ...identity, userId: sessionUserId });
   }, []);
 
-  const connect = useCallback(() => {
-    if (!user) return;
-    if (wsRef.current?.readyState === WebSocket.OPEN) return;
-
-    // Determine WS URL
+  // Helper to get WebSocket URL
+  const getWsUrl = useCallback(() => {
     let wsUrl = process.env.NEXT_PUBLIC_WS_URL;
 
     // If running on localhost, prefer local backend unless explicitly overridden
     if (
-      window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1"
+      typeof window !== "undefined" &&
+      (window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1")
     ) {
       wsUrl = "ws://localhost:8787/ws";
     }
@@ -137,18 +162,85 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
       wsUrl = "ws://localhost:8787/ws";
     }
 
+    return wsUrl;
+  }, []);
+
+  // Cleanup function for connection resources
+  const cleanup = useCallback(() => {
+    if (pingIntervalRef.current) {
+      clearInterval(pingIntervalRef.current);
+      pingIntervalRef.current = null;
+    }
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
+    if (visibilityTimeoutRef.current) {
+      clearTimeout(visibilityTimeoutRef.current);
+      visibilityTimeoutRef.current = null;
+    }
+  }, []);
+
+  // Disconnect function - gracefully close connection
+  const disconnect = useCallback(
+    (sendLeave = false) => {
+      cleanup();
+      isConnectingRef.current = false;
+
+      if (wsRef.current) {
+        // Send user_leave before closing if requested and connection is open
+        if (sendLeave && wsRef.current.readyState === WebSocket.OPEN && user) {
+          try {
+            wsRef.current.send(
+              JSON.stringify({
+                type: "user_leave",
+                payload: { userId: user.userId },
+              })
+            );
+          } catch {
+            // Ignore send errors during disconnect
+          }
+        }
+
+        // Remove event handlers to prevent reconnection attempts
+        wsRef.current.onclose = null;
+        wsRef.current.onerror = null;
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+
+      setIsConnected(false);
+    },
+    [cleanup, user]
+  );
+
+  const connect = useCallback(() => {
+    if (!user) return;
+
+    // Prevent duplicate connections
+    if (isConnectingRef.current) return;
+    if (wsRef.current?.readyState === WebSocket.OPEN) return;
+    if (wsRef.current?.readyState === WebSocket.CONNECTING) return;
+
+    // Don't connect if tab is hidden or browser is offline
+    if (!isVisibleRef.current || !isOnlineRef.current) return;
+
+    isConnectingRef.current = true;
+    const wsUrl = getWsUrl();
+
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
     ws.onopen = () => {
       console.log("WebSocket connected to", wsUrl);
       setIsConnected(true);
+      isConnectingRef.current = false;
       retryCountRef.current = 0; // Reset retry count on successful connection
 
-      if (reconnectTimeoutRef.current) {
+      // Clear any pending reconnects/pings but NOT visibility timeout
+      if (pingIntervalRef.current) clearInterval(pingIntervalRef.current);
+      if (reconnectTimeoutRef.current)
         clearTimeout(reconnectTimeoutRef.current);
-        reconnectTimeoutRef.current = null;
-      }
 
       // Announce join
       ws.send(
@@ -158,7 +250,19 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
         })
       );
 
-      // Flush pending cursor update (Fix #5: race condition)
+      // Start ping interval to keep connection alive
+      pingIntervalRef.current = setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+          try {
+            ws.send(JSON.stringify({ type: "ping" }));
+          } catch {
+            // Connection might be stale, force reconnect
+            ws.close();
+          }
+        }
+      }, PING_INTERVAL_MS);
+
+      // Flush pending cursor update
       if (pendingCursorUpdateRef.current) {
         const { percentX, percentY, anchor, currentTyping, scrollX, scrollY } =
           pendingCursorUpdateRef.current;
@@ -175,7 +279,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
               scrollY,
               anchor,
               currentTyping: currentTyping || undefined,
-              path: pathname,
+              path: pathnameRef.current,
               messages: [],
               lastUpdate: Date.now(),
             },
@@ -184,7 +288,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
         pendingCursorUpdateRef.current = null;
       }
 
-      // Flush pending messages (Fix #5: race condition)
+      // Flush pending messages
       pendingMessagesRef.current.forEach((message) => {
         ws.send(
           JSON.stringify({
@@ -256,17 +360,43 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
               prev.filter((c) => c.userId !== data.payload.userId)
             );
             break;
+          case "pong":
+            // Server acknowledged our ping, connection is healthy
+            break;
         }
       } catch (error) {
         console.error("Error parsing WS event:", error);
       }
     };
 
-    ws.onclose = () => {
+    ws.onclose = (event) => {
       setIsConnected(false);
       wsRef.current = null;
+      isConnectingRef.current = false;
 
-      // Fix #8: Exponential backoff for reconnection
+      // Clear ping interval
+      if (pingIntervalRef.current) {
+        clearInterval(pingIntervalRef.current);
+        pingIntervalRef.current = null;
+      }
+
+      // Don't clear visibility timeout here as it might be controlling this
+
+      // Don't reconnect if tab is hidden or browser is offline
+      if (!isVisibleRef.current || !isOnlineRef.current) {
+        console.log(
+          "WebSocket disconnected, not reconnecting (tab hidden or offline)"
+        );
+        return;
+      }
+
+      // Don't reconnect if this was a clean close (code 1000)
+      if (event.code === 1000) {
+        console.log("WebSocket closed cleanly");
+        return;
+      }
+
+      // Exponential backoff for reconnection
       const delay = Math.min(
         RECONNECT_INITIAL_MS * Math.pow(2, retryCountRef.current),
         RECONNECT_MAX_MS
@@ -279,22 +409,107 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
     };
 
     ws.onerror = () => {
+      isConnectingRef.current = false;
       ws.close();
     };
-  }, [user, pathname]);
+  }, [user, getWsUrl, cleanup]);
 
   // Connect to WebSocket
   useEffect(() => {
     connect();
     return () => {
-      if (wsRef.current) {
-        wsRef.current.close();
+      disconnect(false);
+    };
+  }, [connect, disconnect]);
+
+  // Handle visibility change - disconnect when hidden, reconnect when visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      const isVisible = document.visibilityState === "visible";
+      isVisibleRef.current = isVisible;
+
+      // Clear any existing visibility timeout
+      if (visibilityTimeoutRef.current) {
+        clearTimeout(visibilityTimeoutRef.current);
+        visibilityTimeoutRef.current = null;
       }
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
+
+      if (isVisible) {
+        // Tab became visible - reconnect after a short delay
+        visibilityTimeoutRef.current = setTimeout(() => {
+          if (isVisibleRef.current && !wsRef.current) {
+            retryCountRef.current = 0; // Reset retry count
+            connect();
+          }
+        }, VISIBILITY_RECONNECT_DELAY_MS);
+      } else {
+        // Tab became hidden - disconnect after a short delay
+        visibilityTimeoutRef.current = setTimeout(() => {
+          if (!isVisibleRef.current) {
+            disconnect(true);
+          }
+        }, VISIBILITY_RECONNECT_DELAY_MS);
       }
     };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [connect, disconnect]);
+
+  // Handle online/offline status
+  useEffect(() => {
+    const handleOnline = () => {
+      console.log("Browser came online");
+      isOnlineRef.current = true;
+      retryCountRef.current = 0; // Reset retry count
+      connect();
+    };
+
+    const handleOffline = () => {
+      console.log("Browser went offline");
+      isOnlineRef.current = false;
+      // Cancel any pending reconnection attempts
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
+      }
+    };
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    // Set initial state
+    isOnlineRef.current = navigator.onLine;
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
   }, [connect]);
+
+  // Handle page unload - send user_leave before closing
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (wsRef.current?.readyState === WebSocket.OPEN && user) {
+        // Use sendBeacon for reliability during page unload
+        // Fall back to sync WebSocket send if sendBeacon isn't available
+        const payload = JSON.stringify({
+          type: "user_leave",
+          payload: { userId: user.userId },
+        });
+
+        try {
+          wsRef.current.send(payload);
+        } catch {
+          // Ignore errors during unload
+        }
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [user]);
 
   // Clean up expired messages from cursors
   useEffect(() => {
@@ -332,7 +547,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 
       if (!user) return;
 
-      // Fix #5: Queue update if not connected (will be flushed on reconnect)
+      // Queue update if not connected (will be flushed on reconnect)
       if (
         !isConnected ||
         !wsRef.current ||
@@ -360,7 +575,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
         scrollY: scrollY ?? 0,
         anchor,
         currentTyping: currentTyping || undefined,
-        path: pathname,
+        path: pathnameRef.current,
         messages: [], // Backend handles messages history
         lastUpdate: Date.now(),
       };
@@ -372,7 +587,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
         })
       );
     },
-    [user, isConnected, pathname, connect]
+    [user, isConnected, connect]
   );
 
   // Send message to server
@@ -383,7 +598,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 
       if (!user) return;
 
-      // Fix #5: Queue message if not connected (will be flushed on reconnect)
+      // Queue message if not connected (will be flushed on reconnect)
       if (
         !isConnected ||
         !wsRef.current ||

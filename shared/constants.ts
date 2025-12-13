@@ -28,6 +28,12 @@ export const REALTIME_CONSTANTS = {
   /** Maximum reconnection delay cap */
   RECONNECT_MAX_MS: 30_000,
 
+  /** Ping interval to keep connection alive and detect stale connections */
+  PING_INTERVAL_MS: 25_000,
+
+  /** Delay before reconnecting when tab becomes visible (debounce) */
+  VISIBILITY_RECONNECT_DELAY_MS: 100,
+
   /** LocalStorage key for user identity */
   STORAGE_KEY: "stormej.realtime.identity",
 } as const;

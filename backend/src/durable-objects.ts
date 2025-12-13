@@ -220,6 +220,22 @@ export class RealtimeRoom implements DurableObject {
           this.lastActivity.delete(data.payload.userId);
           this.broadcast(data, ws);
           break;
+
+        case "ping":
+          // Respond with pong to keep connection alive
+          // Also update last activity for the user if we have their ID
+          const pingMeta = ws.deserializeAttachment() as {
+            userId: string;
+          } | null;
+          if (pingMeta?.userId) {
+            this.lastActivity.set(pingMeta.userId, Date.now());
+          }
+          try {
+            ws.send(JSON.stringify({ type: "pong" }));
+          } catch {
+            // Ignore send errors
+          }
+          break;
       }
     } catch (e) {
       console.error("[RealtimeRoom] Error parsing message:", e);

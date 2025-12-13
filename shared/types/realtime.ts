@@ -82,12 +82,21 @@ export const initEventSchema = z.object({
   }),
 });
 
+export const pingEventSchema = z.object({
+  type: z.literal("ping"),
+});
+
+export const pongEventSchema = z.object({
+  type: z.literal("pong"),
+});
+
 export const realtimeEventSchema = z.discriminatedUnion("type", [
   cursorEventSchema,
   messageEventSchema,
   userJoinEventSchema,
   userLeaveEventSchema,
   initEventSchema,
+  pongEventSchema,
 ]);
 
 // Client-to-server events (subset that clients can send)
@@ -96,6 +105,7 @@ export const clientEventSchema = z.discriminatedUnion("type", [
   messageEventSchema,
   userJoinEventSchema,
   userLeaveEventSchema,
+  pingEventSchema,
 ]);
 
 // ============================================================================

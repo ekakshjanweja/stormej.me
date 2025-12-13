@@ -47,8 +47,7 @@ export const RemoteCursor = memo(function RemoteCursor({
           ))}
           {cursor.currentTyping && (
             <CursorMessage className="opacity-80 italic">
-              {cursor.currentTyping}
-              <span className="animate-pulse">|</span>
+              typing<span className="animate-pulse">...</span>
             </CursorMessage>
           )}
         </CursorBody>
