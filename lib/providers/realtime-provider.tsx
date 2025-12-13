@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { usePathname } from "next/navigation";
-import { LiveCursors } from "@/components/live-cursors";
+import { LiveCursors } from "@/components/ui/live-cursor/live-cursors";
 import {
   type CursorPosition,
   type CursorAnchor,
