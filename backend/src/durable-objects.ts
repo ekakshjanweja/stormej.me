@@ -140,10 +140,16 @@ export class RealtimeRoom implements DurableObject {
 
       switch (data.type) {
         case "cursor":
-          this.cursors.set(data.payload.userId, data.payload);
+          // Merge cursor position with existing messages (don't overwrite messages)
+          const existingCursor = this.cursors.get(data.payload.userId);
+          const updatedCursor = {
+            ...data.payload,
+            messages: existingCursor?.messages || [],
+          };
+          this.cursors.set(data.payload.userId, updatedCursor);
           this.lastActivity.set(data.payload.userId, Date.now());
           ws.serializeAttachment({ userId: data.payload.userId });
-          this.broadcast(data, ws);
+          this.broadcast({ type: "cursor", payload: updatedCursor }, ws);
           break;
 
         case "message":

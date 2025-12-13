@@ -220,21 +220,33 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
             });
             break;
           case "message":
-            setCursors((prev) =>
-              prev.map((c) => {
-                if (c.userId === data.payload.userId) {
-                  const newMessages = [
-                    ...c.messages,
-                    {
-                      text: data.payload.text,
-                      timestamp: data.payload.timestamp,
-                    },
-                  ];
-                  return { ...c, messages: newMessages.slice(-3) };
-                }
-                return c;
-              })
-            );
+            // Only add message to OTHER users' cursors, not our own
+            // (we handle our own messages via sentMessages state in live-cursors.tsx)
+            if (data.payload.userId !== user?.userId) {
+              setCursors((prev) =>
+                prev.map((c) => {
+                  if (c.userId === data.payload.userId) {
+                    // Check if message already exists (deduplicate by timestamp)
+                    const messageExists = c.messages.some(
+                      (msg) => msg.timestamp === data.payload.timestamp
+                    );
+                    if (messageExists) {
+                      return c; // Don't add duplicate
+                    }
+
+                    const newMessages = [
+                      ...c.messages,
+                      {
+                        text: data.payload.text,
+                        timestamp: data.payload.timestamp,
+                      },
+                    ];
+                    return { ...c, messages: newMessages.slice(-3) };
+                  }
+                  return c;
+                })
+              );
+            }
             break;
           case "user_join":
             // User will be added on first cursor update
