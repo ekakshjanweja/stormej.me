@@ -445,7 +445,12 @@ export function LiveCursors() {
         {/* Other users' cursors */}
         {visibleCursors.map((cursor) => {
           const { x, y } = cursor.resolvedPos!;
-          const hasContent = cursor.messages.length > 0 || cursor.currentTyping;
+          // Filter out messages older than 30 seconds
+          const now = Date.now();
+          const activeMessages = cursor.messages.filter(
+            (msg) => now - msg.timestamp < MESSAGE_EXPIRY_MS
+          );
+          const hasContent = activeMessages.length > 0 || cursor.currentTyping;
 
           return (
             <div
@@ -465,11 +470,11 @@ export function LiveCursors() {
                     }}
                   >
                     <CursorName>{cursor.name}</CursorName>
-                    {cursor.messages.map((msg, idx) => (
+                    {activeMessages.map((msg, idx) => (
                       <CursorMessage
                         key={msg.timestamp}
                         className={
-                          idx < cursor.messages.length - 1 ? "opacity-60" : ""
+                          idx < activeMessages.length - 1 ? "opacity-60" : ""
                         }
                       >
                         {msg.text}
@@ -525,16 +530,19 @@ export function LiveCursors() {
                 }}
               >
                 <CursorName>{user.name}</CursorName>
-                {sentMessages.map((msg, idx) => (
-                  <CursorMessage
-                    key={msg.timestamp}
-                    className={
-                      idx < sentMessages.length - 1 ? "opacity-60" : ""
-                    }
-                  >
-                    {msg.text}
-                  </CursorMessage>
-                ))}
+                {/* Filter out messages older than 30 seconds */}
+                {sentMessages
+                  .filter(
+                    (msg) => Date.now() - msg.timestamp < MESSAGE_EXPIRY_MS
+                  )
+                  .map((msg, idx, arr) => (
+                    <CursorMessage
+                      key={msg.timestamp}
+                      className={idx < arr.length - 1 ? "opacity-60" : ""}
+                    >
+                      {msg.text}
+                    </CursorMessage>
+                  ))}
                 {isChatMode && (
                   <CursorMessage className="opacity-80 italic">
                     {currentMessage || (
@@ -543,15 +551,18 @@ export function LiveCursors() {
                     <span className="animate-pulse">|</span>
                   </CursorMessage>
                 )}
-                {!isChatMode && sentMessages.length === 0 && (
-                  <CursorMessage className="opacity-60 text-[10px]">
-                    press{" "}
-                    <kbd className="px-1 py-0.5 rounded bg-black/20 mx-0.5">
-                      /
-                    </kbd>{" "}
-                    to chat
-                  </CursorMessage>
-                )}
+                {!isChatMode &&
+                  sentMessages.filter(
+                    (msg) => Date.now() - msg.timestamp < MESSAGE_EXPIRY_MS
+                  ).length === 0 && (
+                    <CursorMessage className="opacity-60 text-[10px]">
+                      press{" "}
+                      <kbd className="px-1 py-0.5 rounded bg-black/20 mx-0.5">
+                        /
+                      </kbd>{" "}
+                      to chat
+                    </CursorMessage>
+                  )}
               </CursorBody>
             </Cursor>
           </div>
