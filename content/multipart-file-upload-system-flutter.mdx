@@ -1,0 +1,153 @@
+---
+title: "designing large file uploads reliable in flutter"
+date: "2026-03-11"
+description: "lessons from building a cross-platform upload system that handles flaky networks, background execution, and resumable uploads."
+---
+
+# introduction
+
+uploading a large file from a mobile app seems simple until you try to make it reliable.
+
+on paper, the flow looks simple pick a file, send it to the backend, show a progress bar, 
+and wait for success. but what happens irl when things become a lot less predictable? apps get
+backgrounded, processes are killed, and networks drop mid upload, if the upload states are on memory
+they disappear.
+
+flutter makes this problem interesting in its own way, because you get a shared cross-platform 
+application layer. which in itself is great for building consistent product features, but the underlying 
+platforms still behave very differently. android and ios both have different restrictions on
+background execution, file access and long running work which means the upload execution cannot be 
+identical across platforms if relaibility is key.
+
+while working on a large video upload in a flutter application i had to design a system that could 
+survive real world conditions, shitty networks, backgrounding and partially completed uploads across restarts.
+
+in this post lets talk about the architecture and key design decisions that helped me build this video upload system.
+
+
+# high level architecture
+
+once it clicks that large uploads are not a "network problem" but a state and recovery problem, architecture changes.
+they cannot be treated as simple task siting inside a widget state that only works when everything goes right. but real
+world conditions are much more complex.
+
+so instead of scattering logic across ui, services and callbacks, we designed a system around a few core ideas:
+
+- a single orchestration layer
+- a durable source of truth (caching layer)
+- a clean separation between shared logic and platform specific implementation
+
+```txt
+flutter ui
+   ↓
+queue manager
+   ↓
+upload service
+   ↓
+platform upload engine
+   ├─ android: dart-based chunk uploads
+   └─ ios: native background urlsession
+   ↓
+local db (drift) 
+```
+- flutter ui handles only the intent and updates to the user
+- queue manager handles the queue of uploads and the state of the uploads
+- upload service handles the upload of the file to the backend and connects to the upload engine
+- platform upload engine handles the upload of the file to backend for ios
+- local db (drift) stores the state of the uploads so that it can be persisted across restarts
+
+
+# resume-first design: why the database becomes the source of truth
+
+the most important design decision in this system was not chunk size, background uploads or concurrency.
+it was "resume behaviour accross restarts".
+
+
+most upload systems dont work this way, they are designed as create a task, track progress and hope the app stays alive.
+
+this is why the database owns the upload life cycle.
+
+each upload entry inside the db contains all the information to reconstruct and resume upload from where it left off.
+
+- parts already uploaded
+- total parts
+- total chunks (constant size)
+- status (idle | in_progress | complete | failed)
+- retry metadata (max retries, current retry count, last retry time)
+
+which means even after intervention, we can relaibly resume the uploads.
+
+## how does the upload chunks actually go to the backend and s3?
+- register an upload 
+- get presigned urls for x mb chunks 
+- upload/post the chunk on the presigned url on s3 
+- tell the backend its completed with the part ids
+
+# queue processing: why only upload one file at a time
+
+once the upload lifecycle became db driven and resumable, the next logical step was to figure out how to schedule the work.
+
+at first, it might seem tempting to upload multple files simultaneously. but that introduces a lot of complexity and edge cases.
+
+so intentionally, we only upload one file at a time but upload multiple chunks in parallel.
+
+### why not upload multiple files simultaneously?
+
+large uploads are already heavy bandwith, memory, cpu, db writes and ui updates.
+now multiply this accross multiple files and chunks, yeah that will definitely break the app.
+
+so instead of parallelizing at the file level, scheduling should be kept simple and concurrency should be pushed to the chunk level.
+
+### what does the queue manager actually do?
+
+the queue manager sits between the ui and the upload pipeline. it is responsible for:
+- what runs next
+- what's active/pending/failed/paused
+- what happens of failure, completion or cancellation
+- it watches a stream from the db for changes and updates the state accordingly
+- also prioritizes uploads based on the status and metadata
+
+# concurrency
+
+once the file is split into chunks, the next question is how many chunks to upload in parallel?
+a naive answer would be more chunks means faster uploads, but that's not always the case.
+
+on mobile this would break quickly. aggressive concurrency leads to,
+- packet loss
+- retries
+- unstable latency
+- memory pressure
+
+so the goal is not to maximize parallel requests, but be fast on **good networks and resilient-stable on bad networks.**
+
+### why fixed concurrency fails?
+
+a fixed number of concurrent chunks sound simple, but mobile networks are not stable.
+on a good network, it maybe too low and on a bad network, it maybe too high.
+
+so on android we have adaptive concurrency since the uploads are directly controlled on the dart side.
+we used an **AIMD-style approach**, what does that mean?
+- start with one
+- increase concurrency by 1 if the upload completed in a certain time
+- decrease concurrency by half if the upload failed or took too long
+
+this approach helps us to be fast on good networks and resilient on bad networks.
+
+ios is a bit different, as we dont have direct control over the uploads. they go through **URLSession.background** which is os managed.
+
+# background execution
+
+this is where things stop being cross-platform. at flutter level, everything looks shared:
+- queue
+- state model
+- persistence
+- user actions
+
+
+
+
+
+
+
+
+
