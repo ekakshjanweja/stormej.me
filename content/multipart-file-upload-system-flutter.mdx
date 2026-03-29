@@ -1,5 +1,5 @@
 ---
-title: "designing large file uploads reliable in flutter"
+title: "making large file uploads reliable in flutter"
 date: "2026-03-11"
 description: "lessons from building a cross-platform upload system that handles flaky networks, background execution, and resumable uploads."
 ---
@@ -143,11 +143,130 @@ this is where things stop being cross-platform. at flutter level, everything loo
 - persistence
 - user actions
 
+### why background execution matters?
+
+uploads take time, which means they overlap with app switching, screen lock, app suspension and more.
+if the uploads only work when the app is forgrounded, they are not gonna cut it. which makes background execution a core requirement.
+
+## android background upload
+
+on android a foreground notification service helps to run the dart engine while is app is in the background and not killed
+due to this we dont have to create a separate native service for this so the orchestration layer stays in dart. 
+
+native stuff is used for content uri access and reading the files, whereas for the foreground notifications we use the local notification package.
+
+## ios: had to go fully native here
+
+ios works very differently. To actually enable background upload capabilities, we have to go fully native and use [URLSession](https://developer.apple.com/documentation/foundation/urlsession).
+
+this is because when the app is even backgrounded on ios the os gives you a grace period of about 30 seconds to start a background task but then the app 
+is essentially killed for our purposes.
+
+on ios flutter acts as the orchestration layer, native code is the actual execution engine and the os handles scheduling and persistence. what this actually
+means is that the uploads keep on working even when the app is completely killed.
+
+step 1: compute chunk size and offset, get presigned url + other metadata required pass it to the native engine. which will read the exact byte range
+write it in a temp file (because ios cannot upload from a byte it needs a file) and then create a background upload task.
+
+step 2: native execution happens in URLSessionConfiguration.background which is configured with sessionSendsLaunchEvents = true and waitsForConnectivity = true. what 
+this means is uploads continue when app is suspended, network recovery is handled automatically and os can launch the app for completion.
+
+step 3: 
+      case a - app is alive
+         native layer sends updates via an event channel to the dart layer which gets flutter progress, completion metadata and failures. and db layer on flutter can be updated accordingly
+      case b - app is dead
+         completed and failed user parts are stored in UserDefaults which are read by the flutter layer on every app restart to update the db.
+
+step 4: when the app is launched again, flutter layer runs a sync logic which fetches pending, completed and failed chunks merges everything in the db clear the native pending states.
+
+step 5: since uploads on iOS happen outside the flutter/dart process, we need to coordinate state between flutter and the native layer.
+
+here's how we do it:
+
+- we keep track of which chunks have already been uploaded, and which ones are currently in progress.
+- if the app is restarted or killed, the native code exposes which upload tasks are still active.
+- the flutter layer picks up this in-flight state from native and continues to reflect progress in the UI and database.
+- this way, we avoid rescheduling or double-uploading any chunk—no repeats, no wasted upload cycles.
+
+# file access: why reading the file is not trivial
+
+this is one of the parts which sounds boring but sure is critical cause how you actually read the file matters more than you think.
+loading a 20 gig file in memory doesnt actually make sense at all.
+
+## android: content uri vs file paths
+on android, files don’t always come as simple paths. they can be:
+-> file:// paths which are essentially local storage paths
+-> content:// uris (gallery, storage access framework, etc)
+
+content uris are not real paths so for chunk uploads
+- detect uri type
+- resolve uri using a **ContentUriResolver** class
+
+this is why we end up using the native code here.
+
+## ios: security scoped access
+ios is even stricter, if a file comes from outside your app, you don’t actually own it. you need security scoped access to the file.
+
+which means: you need explicit permission to read it
+- that permission has to be persisted
+- and restored on every restart
+
+### why this matters for uploads?
+chunk uploads depend on reading exact byte ranges. so file access has to be relaible across restarts, memory efficient and background execution compatible.
 
 
+### subtle problem: background + file access
 
+this point matters most on ios.
 
+why? because:
 
+- uploads are handled in the background
+- the native layer, not flutter, reads the file
+- sometimes the flutter/dart process isn’t running at all
 
+so: file access logic must work independently of flutter.
 
+this isn’t a minor technical detail—it’s a key part of making uploads reliable.
 
+the key insight:
+
+**reliable uploads begin with reliable file access**.
+
+if you can’t always access the right bytes on demand, the whole upload pipeline becomes fragile.
+
+# failure modes we actually hit in production
+this is where things got real.
+these were not theoretical problems. they showed up only after real users started uploading large videos.
+
+**app killed mid upload:**
+upload state incomplete, missing parts
+
+**duplicate chunk uploads:**
+stale in-memory state vs act  ual uploaded parts
+
+**presigned urls expiring mid upload:**
+chunks failing with 401/403
+
+**ios uploads completing without flutter:**
+no event delivery, state mismatch
+
+**content uri permission loss (android):**
+file read failures after restart
+
+## how we handled them
+
+- persisted every meaningful step in the database
+
+- skipped already uploaded parts using uploadedParts
+
+- treated iOS as eventually consistent, not real-time
+
+- added reconciliation on every restart
+
+- used native bridges for file access
+
+**the key idea was simple:**
+**don’t try to prevent failure, make recovery predictable**
+
+# things we intentionally did not solve
