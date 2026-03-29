@@ -1,29 +1,56 @@
 ---
-title: "making large file uploads reliable in flutter"
+title: "what i learned making large uploads reliable in flutter"
 date: "2026-03-11"
-description: "lessons from building a cross-platform upload system that handles flaky networks, background execution, and resumable uploads."
+description: "an opinionated guide to building a cross-platform upload system that handles flaky networks, background execution, and resumable uploads."
 ---
 
 # introduction
 
-uploading a large file from a mobile app seems simple until you try to make it reliable.
+uploading a large file from a mobile app seems simple - until you try to make it **reliable**.
 
-on paper, the flow looks simple pick a file, send it to the backend, show a progress bar, 
-and wait for success. but what happens irl when things become a lot less predictable? apps get
-backgrounded, processes are killed, and networks drop mid upload, if the upload states are on memory
-they disappear.
+on paper, the flow is straightforward:
 
-flutter makes this problem interesting in its own way, because you get a shared cross-platform 
-application layer. which in itself is great for building consistent product features, but the underlying 
-platforms still behave very differently. android and ios both have different restrictions on
-background execution, file access and long running work which means the upload execution cannot be 
-identical across platforms if relaibility is key.
+- pick a file
+- send it to the backend
+- show a progress bar
+- wait for success
 
-while working on a large video upload in a flutter application i had to design a system that could 
-survive real world conditions, shitty networks, backgrounding and partially completed uploads across restarts.
+but in practice, things are not predictable:
 
-in this post lets talk about the architecture and key design decisions that helped me build this video upload system.
+- apps get backgrounded
+- processes get killed
+- networks drop mid-upload
+- if upload state lives in memory, it disappears with the process
 
+> this is why large uploads are not just a networking problem - they are a **state and recovery problem**.
+
+flutter makes this especially interesting. you get a shared cross-platform application layer, which is great for consistent product features. but the underlying platforms still behave very differently. android and ios have different constraints around **background execution**, **file access**, and **long-running work**, which means upload execution cannot be identical across platforms if reliability is the goal.
+
+while working on large video uploads in a flutter app, i had to design a system that could survive real-world conditions - flaky networks, backgrounding, and partially completed uploads across restarts.
+
+in this post, i will walk through the architecture and key design decisions that made that possible.
+
+## tldr
+
+large file uploads are not just a networking problem - they are a **state and recovery problem**.
+
+if upload state lives in memory, it breaks the moment the app is backgrounded or killed.
+
+so the system needs to be built around:
+
+- **a database as the source of truth** (not in-memory state)
+- **a resume-first design** that can continue after interruptions
+- **a queue-based scheduler** (one file at a time, concurrency inside chunks)
+- **adaptive concurrency** for unstable mobile networks
+- **platform-specific execution**
+  - android: dart-driven uploads + foreground service
+  - ios: native `URLSession` + reconciliation
+
+the key idea:
+
+> an upload is not a request - it is a **long-running workflow**.
+
+once you treat it that way, reliability becomes a lot easier to reason about.
 
 # high level architecture
 
@@ -48,20 +75,24 @@ platform upload engine
    ├─ android: dart-based chunk uploads
    └─ ios: native background urlsession
    ↓
-local db (drift) 
+local db (drift)
 ```
+
 - flutter ui handles only the intent and updates to the user
 - queue manager handles the queue of uploads and the state of the uploads
 - upload service handles the upload of the file to the backend and connects to the upload engine
 - platform upload engine handles the upload of the file to backend for ios
 - local db (drift) stores the state of the uploads so that it can be persisted across restarts
 
-
 # resume-first design: why the database becomes the source of truth
+
+<Callout type="tip" title="Core Principle">
+  resume behavior across restarts decides whether large uploads feel reliable in
+  production.
+</Callout>
 
 the most important design decision in this system was not chunk size, background uploads or concurrency.
 it was "resume behaviour accross restarts".
-
 
 most upload systems dont work this way, they are designed as create a task, track progress and hope the app stays alive.
 
@@ -78,10 +109,13 @@ each upload entry inside the db contains all the information to reconstruct and 
 which means even after intervention, we can relaibly resume the uploads.
 
 ## how does the upload chunks actually go to the backend and s3?
-- register an upload 
-- get presigned urls for x mb chunks 
-- upload/post the chunk on the presigned url on s3 
-- tell the backend its completed with the part ids
+
+<Steps>
+  <li>register an upload</li>
+  <li>get presigned urls for x mb chunks</li>
+  <li>upload/post each chunk on the presigned s3 url</li>
+  <li>tell the backend the upload is complete with the part ids</li>
+</Steps>
 
 # queue processing: why only upload one file at a time
 
@@ -101,6 +135,7 @@ so instead of parallelizing at the file level, scheduling should be kept simple 
 ### what does the queue manager actually do?
 
 the queue manager sits between the ui and the upload pipeline. it is responsible for:
+
 - what runs next
 - what's active/pending/failed/paused
 - what happens of failure, completion or cancellation
@@ -113,6 +148,7 @@ once the file is split into chunks, the next question is how many chunks to uplo
 a naive answer would be more chunks means faster uploads, but that's not always the case.
 
 on mobile this would break quickly. aggressive concurrency leads to,
+
 - packet loss
 - retries
 - unstable latency
@@ -127,6 +163,7 @@ on a good network, it maybe too low and on a bad network, it maybe too high.
 
 so on android we have adaptive concurrency since the uploads are directly controlled on the dart side.
 we used an **AIMD-style approach**, what does that mean?
+
 - start with one
 - increase concurrency by 1 if the upload completed in a certain time
 - decrease concurrency by half if the upload failed or took too long
@@ -138,6 +175,7 @@ ios is a bit different, as we dont have direct control over the uploads. they go
 # background execution
 
 this is where things stop being cross-platform. at flutter level, everything looks shared:
+
 - queue
 - state model
 - persistence
@@ -151,7 +189,7 @@ if the uploads only work when the app is forgrounded, they are not gonna cut it.
 ## android background upload
 
 on android a foreground notification service helps to run the dart engine while is app is in the background and not killed
-due to this we dont have to create a separate native service for this so the orchestration layer stays in dart. 
+due to this we dont have to create a separate native service for this so the orchestration layer stays in dart.
 
 native stuff is used for content uri access and reading the files, whereas for the foreground notifications we use the local notification package.
 
@@ -159,27 +197,46 @@ native stuff is used for content uri access and reading the files, whereas for t
 
 ios works very differently. To actually enable background upload capabilities, we have to go fully native and use [URLSession](https://developer.apple.com/documentation/foundation/urlsession).
 
-this is because when the app is even backgrounded on ios the os gives you a grace period of about 30 seconds to start a background task but then the app 
+this is because when the app is even backgrounded on ios the os gives you a grace period of about 30 seconds to start a background task but then the app
 is essentially killed for our purposes.
 
 on ios flutter acts as the orchestration layer, native code is the actual execution engine and the os handles scheduling and persistence. what this actually
 means is that the uploads keep on working even when the app is completely killed.
 
-step 1: compute chunk size and offset, get presigned url + other metadata required pass it to the native engine. which will read the exact byte range
-write it in a temp file (because ios cannot upload from a byte it needs a file) and then create a background upload task.
-
-step 2: native execution happens in URLSessionConfiguration.background which is configured with sessionSendsLaunchEvents = true and waitsForConnectivity = true. what 
-this means is uploads continue when app is suspended, network recovery is handled automatically and os can launch the app for completion.
-
-step 3: 
-      case a - app is alive
-         native layer sends updates via an event channel to the dart layer which gets flutter progress, completion metadata and failures. and db layer on flutter can be updated accordingly
-      case b - app is dead
-         completed and failed user parts are stored in UserDefaults which are read by the flutter layer on every app restart to update the db.
-
-step 4: when the app is launched again, flutter layer runs a sync logic which fetches pending, completed and failed chunks merges everything in the db clear the native pending states.
-
-step 5: since uploads on iOS happen outside the flutter/dart process, we need to coordinate state between flutter and the native layer.
+<Steps>
+  <li>
+    compute chunk size and offset, get presigned url + metadata, and pass that
+    to the native engine. native reads the exact byte range, writes it to a temp
+    file (ios uploads from files, not byte ranges), then creates a background
+    upload task.
+  </li>
+  <li>
+    run native execution in URLSessionConfiguration.background with
+    sessionSendsLaunchEvents = true and waitsForConnectivity = true, so uploads
+    continue while suspended and recover on network return.
+  </li>
+  <li>
+    handle completion paths:
+    <ul>
+      <li>
+        app alive: native sends events through a channel and flutter updates db
+        state.
+      </li>
+      <li>
+        app dead: completed/failed parts are stored in UserDefaults and merged
+        on restart.
+      </li>
+    </ul>
+  </li>
+  <li>
+    on launch, flutter syncs pending/completed/failed chunks and clears stale
+    native pending state.
+  </li>
+  <li>
+    continuously reconcile flutter state with native in-flight tasks to prevent
+    duplicate chunk scheduling.
+  </li>
+</Steps>
 
 here's how we do it:
 
@@ -194,26 +251,30 @@ this is one of the parts which sounds boring but sure is critical cause how you 
 loading a 20 gig file in memory doesnt actually make sense at all.
 
 ## android: content uri vs file paths
+
 on android, files don’t always come as simple paths. they can be:
 -> file:// paths which are essentially local storage paths
 -> content:// uris (gallery, storage access framework, etc)
 
 content uris are not real paths so for chunk uploads
+
 - detect uri type
 - resolve uri using a **ContentUriResolver** class
 
 this is why we end up using the native code here.
 
 ## ios: security scoped access
+
 ios is even stricter, if a file comes from outside your app, you don’t actually own it. you need security scoped access to the file.
 
 which means: you need explicit permission to read it
+
 - that permission has to be persisted
 - and restored on every restart
 
 ### why this matters for uploads?
-chunk uploads depend on reading exact byte ranges. so file access has to be relaible across restarts, memory efficient and background execution compatible.
 
+chunk uploads depend on reading exact byte ranges. so file access has to be relaible across restarts, memory efficient and background execution compatible.
 
 ### subtle problem: background + file access
 
@@ -236,14 +297,18 @@ the key insight:
 if you can’t always access the right bytes on demand, the whole upload pipeline becomes fragile.
 
 # failure modes we actually hit in production
-this is where things got real.
-these were not theoretical problems. they showed up only after real users started uploading large videos.
+
+<Callout type="warning" title="Production Reality">
+  these are failures we saw with real user traffic, not synthetic test cases.
+</Callout>
+this is where things got real. these were not theoretical problems. they showed
+up only after real users started uploading large videos.
 
 **app killed mid upload:**
 upload state incomplete, missing parts
 
 **duplicate chunk uploads:**
-stale in-memory state vs act  ual uploaded parts
+stale in-memory state vs act ual uploaded parts
 
 **presigned urls expiring mid upload:**
 chunks failing with 401/403
@@ -270,3 +335,74 @@ file read failures after restart
 **don’t try to prevent failure, make recovery predictable**
 
 # things we intentionally did not solve
+
+not everything needs to be solved in v1, so some tradeoffs were made deliberately.
+
+- no parallel file uploads ()
+- no dynamic presign refresh mid upload (makes state transitions tricky)
+- no server side orchestration (decreases client control)
+- no chunk size auto tuning
+
+# chunking strategy: why ~30mb worked?
+
+chunk size looks like a small decision, but it affects everything.
+
+too small:
+
+- too many requests
+- more overhead
+- more db writes
+- more chances of failure
+
+too large:
+
+- higher memory usage
+- expensive retries
+- slower recovery
+
+we settled around ~30mb per chunk.
+
+it gave us:
+
+- reasonable request count
+- efficient throughput
+- manageable retry cost
+- stable memory usage
+
+there’s no perfect number, but this worked well in practice.
+
+# why flutter worked well (and where it didn’t)
+
+flutter was a great fit for the control plane.
+
+it let us centralize **queue management**, **upload orchestration**, **retry logic**, **progress aggregation**, **persistence**.
+
+<Compare
+  leftTitle="where flutter worked well"
+  rightTitle="where native was required"
+  left={
+    <ul>
+      <li>shared logic across android + ios</li>
+      <li>consistent user experience</li>
+      <li>single source of truth (db)</li>
+      <li>clean ui integration</li>
+    </ul>
+  }
+  right={
+    <ul>
+      <li>background execution on ios</li>
+      <li>low-level file access</li>
+      <li>os-level lifecycle control</li>
+    </ul>
+  }
+/>
+
+for those, native integration was required.
+
+flutter gave us a shared brain, but the body still depends on the platform.
+
+# final thoughts
+
+large uploads look like a network problem on the surface, but it's actually a state and recovery problem.
+once you accept that things will break in production scenarios, you can start to design a system that can recover from failures.
+an upload is also not a request but a long running workflow.
