@@ -3,7 +3,8 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 export const BlogRow = async () => {
-  const blogs = await getBlogs();
+  // Default: published posts only (see `getBlogs` in lib/fetcher.ts).
+  const blogs = getBlogs();
 
   blogs.sort((a, b) => {
     return new Date(b.meta.date).getTime() - new Date(a.meta.date).getTime();

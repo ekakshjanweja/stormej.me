@@ -18,6 +18,14 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
+## Blog posts
+
+Posts live as MDX files under `content/`. Each file uses YAML front matter (`title`, `date`, `description`, optional `published`).
+
+- **`published`** (optional): omit or `true` to list the post on `/blog` and the homepage blog section. Set to `false` to **unpublish** (hidden from those lists; the post remains reachable at `/blog/[slug]` if you share the link).
+
+Listing logic: [`lib/fetcher.ts`](lib/fetcher.ts) (`getBlogs()`).
+
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More

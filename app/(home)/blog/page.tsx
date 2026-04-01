@@ -2,6 +2,7 @@ import { getBlogs } from "@/lib/fetcher";
 import Link from "next/link";
 
 export default function Blog() {
+  // Default: published posts only (see `getBlogs` in lib/fetcher.ts).
   const blogs = getBlogs();
 
   blogs.sort((a, b) => {
