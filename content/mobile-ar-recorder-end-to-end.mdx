@@ -1,13 +1,11 @@
 ---
 title: "what we learned building a mobile ar recorder end-to-end"
 date: "2026-04-28"
-description: "how we built a cross-platform ar recording pipeline with deterministic sampling, mcap, and reliable uploads."
-published: false
+description: "how we built a cross-platform ar recording pipeline with deterministic sampling, mcap serialization, and reliable multipart uploads"
+published: true
 ---
 
-# introduction
-
-this started way simpler in my head.
+# this started as "just record ar"
 
 i thought this would be easy.
 
@@ -15,345 +13,418 @@ open ar session -> capture frames -> save -> upload
 
 done.
 
-yeah... not even close.
-
-very quickly, reality kicked in:
-
-- frames != imu timestamps
-- depth comes at random intervals
-- ios and android behave differently
-- uploads fail midway
-- debugging data is painful
-
-and thats when it clicked:
-
-> this is not recording video
-> this is recording a distributed real-time system
-
-# quick detour: what ar frameworks actually give you
-
-before going deeper, it helps to understand what arkit and arcore are doing under the hood.
-
-both frameworks basically solve one hard problem:
-
-> where is the phone in 3d space right now?
-
-they do this using slam (simultaneous localization and mapping):
-
-- track visual features from camera
-- combine with imu data
-- build a map of the environment
-- estimate device pose in real time ([Onirix][1])
-
-what you get per frame is something like:
-
-- camera image
-- pose (position + rotation)
-- depth (sometimes)
-- point cloud (feature points)
-
-sounds clean.
-
-its not.
-
-# the first wrong approach
-
-we treated this like:
-
-```id="wrong"
-frames + logs + metadata -> zip -> upload
-```
-
-which works...
-
-until you try to:
-
-- replay it
-- align sensors
-- train anything on top
-
-# the mental shift that fixed everything
-
-we stopped thinking in files and started thinking in pipelines
-
-```id="pipeline"
-capture -> synchronize -> sample -> serialize -> upload
-```
-
-this sounds obvious in hindsight.
-
-but this one shift drove every design decision after.
-
-# what the system actually became
-
-```id="system"
-Flutter UI
-   ↓
-Native Recorder (ARKit / ARCore)
-   ↓
-Per-frame pipeline
-   ↓
-MCAP writer
-   ↓
-Session folder
-   ↓
-Multipart upload
-```
-
-each layer has strict boundaries.
-
-no shortcuts.
-
-# the core loop (this is where things break or work)
-
-```id="frame-loop"
-AR Frame
-  ↓
-is tracking stable?
-  ↓
-should we sample?
-  ↓
-extract pose / depth / points
-  ↓
-encode rgb (jpeg)
-  ↓
-drain imu buffer
-  ↓
-write with timestamps
-```
-
-this loop runs around 30 times per second.
-
-if your assumptions are wrong here -> everything downstream is garbage.
-
-# mistake 1: recording based on frames
-
-initial logic:
-
-> if a frame arrives -> record it
-
-this is intuitive.
-
-and completely wrong.
-
-## why this breaks
-
-- fps is not stable
-- depth runs at different cadence (around 15 hz on lidar)
-- frames drop under load
-- tracking pauses introduce gaps
-
-result:
-
-- inconsistent datasets
-- drift across devices
-- unpredictable sizes
-
-# the fix: deterministic sampling
-
-we switched from frame-driven to time-driven.
-
-```id="sampling"
-elapsed_time -> expected_sample_index -> record?
-```
-
-we basically quantize time into buckets.
-
-## why this works
-
-- independent of device fps
-- consistent across ios and android
-- no long-term drift
-
-this is one of those things that feels small but fixes everything.
-
-# quick explainer: why timestamps matter more than frames
-
-in ar systems:
+then reality hit:
 
 - camera -> around 30 fps
 - imu -> 100 to 200 hz
 - depth -> around 15 hz
+- tracking randomly pauses
+- ios and android behave differently
 
-these streams are not aligned.
+and suddenly:
 
-the only common reference is:
+> nothing lines up.
 
-> timestamp
+# the core realization
 
-so your system is really:
+this is not a camera problem.
 
-```id="time-model"
-multiple async streams -> aligned by time -> unified dataset
+this is a time synchronization problem across multiple asynchronous streams.
+
+# system architecture
+
+here is the actual system we ended up building:
+
+```svg
+┌──────────────┐
+│   Flutter UI │
+└──────┬───────┘
+       │
+       ▼
+┌──────────────────────────┐
+│ Native Recorder Layer    │
+│ (ARKit / ARCore)         │
+└──────┬───────────────────┘
+       │
+       ▼
+┌──────────────────────────┐
+│ Frame Orchestrator       │
+│ (sampling + sync logic)  │
+└──────┬───────────────────┘
+       │
+       ▼
+┌──────────────────────────┐
+│ Dataset Writer (MCAP)    │
+│ (serialization layer)    │
+└──────┬───────────────────┘
+       │
+       ▼
+┌──────────────────────────┐
+│ Session Directory        │
+└──────┬───────────────────┘
+       │
+       ▼
+┌──────────────────────────┐
+│ Multipart Upload System  │
+└──────────────────────────┘
 ```
 
-if timestamps are wrong -> nothing lines up.
+each layer has one job:
 
-# mistake 2: too many files
+- native -> capture
+- orchestrator -> decisions
+- writer -> structure
+- upload -> reliability
 
-we initially had:
+this separation is what made the system stable.
 
-```id="files"
-frames/
-imu.csv
-pose.csv
-depth/
-metadata.json
+# the core loop (this is everything)
+
+this runs around 30 times per second:
+
+```kotlin
+// android/app/src/main/kotlin/com/example/aura_lens/ar_recorder/coordination/RecordingFrameOrchestrator.kt
+val shouldSample = isTracking && frameSampler.shouldEncodeFrame(timestamp)
+if (shouldSample) {
+  val pose = frameProcessor.extractPose(camera)
+  datasetWriter.writePoseRow(timestamp, pose, trackingState)
+
+  val pointCloud = frameProcessor.extractPointCloudFrame(frame, timestamp)
+  datasetWriter.writePointCloud(timestamp, pointCloud)
+
+  val depth = frameProcessor.extractDepthImage(frame)
+  datasetWriter.writeDepthFrame(timestamp, depth)
+
+  val jpeg = eglManager.renderCameraToJpeg(...)
+  datasetWriter.writeCompressedRgbFrame(timestamp, jpeg)
+}
+
+val imuSamples = imuCollector.drainSamples()
+datasetWriter.writeImuSamples(imuSamples)
 ```
 
-this becomes painful because:
+this loop is your ground truth generator.
 
-- syncing is manual
-- replay is hard
-- uploads are fragmented
+# deterministic sampling (the real unlock)
 
-# the fix: mcap (this was a big unlock)
+initially we did:
 
-we moved everything into a single file:
+> if a frame arrives -> record it
 
-```id="mcap"
-session_data.mcap
+this breaks instantly.
+
+## the correct model
+
+```text
+// android/app/src/main/kotlin/com/example/aura_lens/ar_recorder/encoding/FrameSamplerImpl.kt
+elapsed = timestamp - sessionStart - trackingPauseOffset
+expectedFrames = floor(elapsed / frameInterval) + 1
+if expectedFrames > deterministicFrameIndex:
+  deterministicFrameIndex = expectedFrames
+  encode
+else:
+  skip
 ```
 
-# quick explainer: what is mcap?
+# why this matters
 
-mcap is a container format designed for robotics and time-series data ([Foxglove][2]).
+```svg
+Time ->
+│----│----│----│----│
+  t0   t1   t2   t3
 
-think of it like:
-
-> mp4, but for sensor data instead of video
-
-inside mcap:
-
-```id="mcap-structure"
-topics:
-  /camera/pose
-  /device/imu
-  /camera/rgb
-  /camera/depth
+Only sample at boundaries
 ```
 
-each topic:
+this gives you:
 
-- has timestamps
-- has schema (structure)
-- is indexed for fast seeking
+- device-independent datasets
+- stable cadence (15 hz, 30 hz)
+- zero long-term drift
 
-## why mcap works so well here
+# what ar frameworks actually give you
 
-- single file -> easy upload
-- time-indexed -> easy replay
-- supports multiple streams -> perfect for ar
+both arkit and arcore are doing slam:
 
-this is what turned our output into a real dataset.
+- visual tracking (camera)
+- inertial tracking (imu)
+- map reconstruction
 
-# ios vs android (not as symmetric as you think)
+they output:
 
-this part was surprisingly tricky.
+- pose (6dof)
+- camera frame
+- feature points
+- depth (if available)
 
-## android (arcore)
+but:
 
-- pull model (session.update())
-- unified sampling
-- depth varies by device
+> these are not synchronized streams.
 
-## ios (arkit)
+# the real problem: multi-rate data
 
-- push model (frame callbacks)
-- separate samplers
-- lidar adds depth and mesh
-
-# quick explainer: why this difference matters
-
-- pull model -> you control timing
-- push model -> system controls timing
-
-so:
-
-- android -> easier to centralize loop
-- ios -> requires buffering and queues
-
-this is why we ended up with:
-
-> platform-specific pipelines + shared output format
-
-# uploads: where everything broke again
-
-recording worked.
-
-then we tried uploading.
-
-large files (around 100 to 500 mb):
-
-- fail mid upload
-- restart from scratch
-- block ui
-
-# the fix: multipart uploads
-
-```id="upload"
-mcap file
-  ↓
-split into chunks (around 30 mb)
-  ↓
-upload in parallel
-  ↓
-retry failures
-  ↓
-finalize
+```svg
+Camera (30Hz) ───────┐
+IMU (100Hz)  ───────┼──→ TIMESTAMP -> unified dataset
+Depth (~15Hz)───────┘
 ```
 
-## why this matters technically
+everything must align on:
 
-- network failures become recoverable
-- upload becomes resumable
-- memory usage stays bounded
+> timestamp, not frame index.
 
-this turned uploads from:
+# deep dive: mcap (why this was a game changer)
 
-> hope it works -> guaranteed eventually
+we moved from:
 
-# things that were way harder than expected
+```text
+frames/ + imu.csv + pose.csv + depth/
+```
 
-these were real pain points:
+to:
 
-- syncing imu with ar timestamps
-- handling tracking loss
-- managing storage pressure
-- backpressure when writing data
-- avoiding dropped frames
+```text
+session.mcap
+```
 
-none of this shows up in demos.
+# what mcap actually is
 
-all of this shows up in production.
+mcap is a container format for heterogeneous timestamped data ([mcap.dev][1]).
 
-# the real takeaway
+its not encoding, it wraps multiple streams into one file.
 
-if i had to compress everything:
+# why it exists
 
-> ar recording is not about capturing frames
-> its about maintaining temporal consistency across multiple streams
+before mcap:
 
-once you think in:
+- ros bags (hard to use outside ros)
+- sqlite logs (not self-contained)
+- custom formats (painful)
 
-- timestamps
-- pipelines
-- deterministic sampling
+mcap solves this by being:
 
-you stop fighting the system.
+- self-contained
+- multi-stream
+- indexed
+- append-only ([Foxglove][2])
 
-and start controlling it.
+# mcap mental model
 
-# what this unlocks
+```svg
+session.mcap
+  ├── /camera/pose
+  ├── /device/imu
+  ├── /camera/rgb
+  ├── /camera/depth
+  └── metadata
+```
 
-once your data is clean:
+each stream = topic
 
-- replay systems
-- 3d reconstruction
-- ml datasets
-- spatial analytics
+each entry = timestamped message
 
-all become possible.
+# actual file structure (internal)
+
+```svg
+[Magic]
+[Header]
+[Data Section]
+   ├── Chunk
+   │     ├── Message
+   │     ├── Message
+   │     └── ...
+[Summary / Index]
+[Footer]
+[Magic]
+```
+
+## key concept: records
+
+mcap is built from records:
+
+- schema -> defines structure
+- channel -> defines topic
+- message -> actual data
+- chunk -> batch of messages
+- index -> fast lookup
+
+([Monday Morning Haskell][3])
+
+# why chunking matters
+
+```svg
+Incoming Data
+   │
+   ▼
+Buffer (chunk)
+   │
+   ├── flush -> disk
+   └── continue
+```
+
+your system:
+
+- android -> around 1 mb chunks
+- ios -> around 512 kb
+
+this gives:
+
+- high write throughput
+- fewer disk ops
+- recoverable files
+
+mcap's append-only design even allows recovery after crashes ([Foxglove][2]).
+
+# indexing (this is huge)
+
+without index:
+
+```text
+scan entire file -> find data
+```
+
+with index:
+
+```text
+jump -> read exact time range
+```
+
+mcap supports:
+
+- topic-based lookup
+- timestamp-based seeking
+- partial reads over network ([Segments.ai][4])
+
+this is critical when:
+
+- files are 500 mb and larger
+- data is remote
+
+# serialization layer (ros2 + cdr)
+
+your pipeline uses:
+
+- ros2 message schemas
+- cdr encoding
+
+cdr (common data representation):
+
+- binary serialization format used by dds and ros2
+- ensures cross-language compatibility
+
+so each message becomes:
+
+```text
+(topic, timestamp, binary payload)
+```
+
+# ios vs android architecture
+
+## android (pull model)
+
+```kotlin
+// android/app/src/main/kotlin/com/example/aura_lens/ar_recorder/session/ArSessionManagerImpl.kt
+while (true) {
+    val frame = session.update()
+    process(frame)
+}
+```
+
+## ios (push model)
+
+```swift
+// ios/Runner/ar_recorder/session/ArSessionManagerImpl.swift
+func session(_ session: ARSession, didUpdate frame: ARFrame) {
+    processingQueue.async {
+        process(frame)
+    }
+}
+```
+
+## why this matters
+
+| problem        | android | ios      |
+| -------------- | ------- | -------- |
+| timing control | easy    | hard     |
+| buffering      | minimal | required |
+| backpressure   | rare    | common   |
+
+this is why:
+
+- ios needs queues and backpressure handling
+- android can stay simpler
+
+# upload architecture
+
+## naive approach
+
+```svg
+file -> upload -> fail -> restart
+```
+
+## actual system
+
+```svg
+MCAP File
+   │
+   ▼
+Split (30MB chunks)
+   │
+   ▼
+Parallel Upload
+   │
+   ▼
+Retry Failed Parts
+   │
+   ▼
+Complete Upload
+```
+
+## implementation idea
+
+```dart
+// lib/src/services/upload_service/uploads_service.dart
+final parts = splitFile(file, 30MB)
+
+await Future.wait(parts.map(uploadPart))
+
+await completeMultipartUpload()
+```
+
+this gives:
+
+- resumability
+- parallelism
+- reliability
+
+# hardest problems (real ones)
+
+these took the most time:
+
+- imu and frame timestamp alignment
+- tracking loss compensation
+- deterministic sampling correctness
+- writer backpressure
+- storage exhaustion handling
+
+these are invisible in demos.
+but define production systems.
+
+# final takeaway
+
+```svg
+AR Recording
+   != video capture
+
+AR Recording
+   = time-synchronized multi-stream system
+```
+
+once you understand this:
+
+- sampling becomes obvious
+- mcap makes sense
+- uploads become solvable
 
 # closing
 
@@ -361,14 +432,16 @@ this started as:
 
 > lets record ar
 
-it turned into:
+it became:
 
-- real-time systems design
-- cross-platform architecture
+- real-time systems
 - data engineering
+- serialization design
 - distributed uploads
 
 and honestly, thats what made it worth building.
 
-[1]: https://www.onirix.com/arkit-vs-arcore/ "ARKit vs ARCore: Mobile augmented reality from Apple"
+[1]: https://mcap.dev/guides "Introduction"
 [2]: https://foxglove.dev/blog/introducing-the-mcap-file-format "Introducing the MCAP File Format - Foxglove"
+[3]: https://mmhaskell.com/blog/2025/12/01/the-structure-of-an-mcap-file "The Structure of an MCAP File"
+[4]: https://segments.ai/blog/mcap-vs-ros-bag-simplifying-multi-modal-sensor-data-in-robotics/ "MCAP vs ROS bag: Simplifying Multi-Modal Sensor Data in Robotics"
