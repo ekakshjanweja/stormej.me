@@ -1,0 +1,384 @@
+---
+title: "what we learned building a mobile ar recorder end-to-end"
+date: "2026-04-28"
+description: "how we built a cross-platform ar recording pipeline with deterministic sampling, mcap, and reliable uploads."
+published: false
+---
+
+# introduction
+
+this started way simpler in my head.
+
+i thought this would be easy.
+
+open ar session -> capture frames -> save -> upload
+
+done.
+
+yeah... not even close.
+
+very quickly, reality kicked in:
+
+- frames != imu timestamps
+- depth comes at random intervals
+- ios and android behave differently
+- uploads fail midway
+- debugging data is painful
+
+and thats when it clicked:
+
+> this is not recording video
+> this is recording a distributed real-time system
+
+# quick detour: what ar frameworks actually give you
+
+before going deeper, it helps to understand what arkit and arcore are doing under the hood.
+
+both frameworks basically solve one hard problem:
+
+> where is the phone in 3d space right now?
+
+they do this using slam (simultaneous localization and mapping):
+
+- track visual features from camera
+- combine with imu data
+- build a map of the environment
+- estimate device pose in real time ([Onirix][1])
+
+what you get per frame is something like:
+
+- camera image
+- pose (position + rotation)
+- depth (sometimes)
+- point cloud (feature points)
+
+sounds clean.
+
+its not.
+
+# the first wrong approach
+
+we treated this like:
+
+```id="wrong"
+frames + logs + metadata -> zip -> upload
+```
+
+which works...
+
+until you try to:
+
+- replay it
+- align sensors
+- train anything on top
+
+# the mental shift that fixed everything
+
+we stopped thinking in files and started thinking in pipelines
+
+```id="pipeline"
+capture -> synchronize -> sample -> serialize -> upload
+```
+
+this sounds obvious in hindsight.
+
+but this one shift drove every design decision after.
+
+# what the system actually became
+
+```id="system"
+Flutter UI
+   ↓
+Native Recorder (ARKit / ARCore)
+   ↓
+Per-frame pipeline
+   ↓
+MCAP writer
+   ↓
+Session folder
+   ↓
+Multipart upload
+```
+
+each layer has strict boundaries.
+
+no shortcuts.
+
+# the core loop (this is where things break or work)
+
+```id="frame-loop"
+AR Frame
+  ↓
+is tracking stable?
+  ↓
+should we sample?
+  ↓
+extract pose / depth / points
+  ↓
+encode rgb (jpeg)
+  ↓
+drain imu buffer
+  ↓
+write with timestamps
+```
+
+this loop runs around 30 times per second.
+
+if your assumptions are wrong here -> everything downstream is garbage.
+
+# mistake 1: recording based on frames
+
+initial logic:
+
+> if a frame arrives -> record it
+
+this is intuitive.
+
+and completely wrong.
+
+## why this breaks
+
+- fps is not stable
+- depth runs at different cadence (around 15 hz on lidar)
+- frames drop under load
+- tracking pauses introduce gaps
+
+result:
+
+- inconsistent datasets
+- drift across devices
+- unpredictable sizes
+
+# the fix: deterministic sampling
+
+we switched from frame-driven to time-driven.
+
+```id="sampling"
+elapsed_time -> expected_sample_index -> record?
+```
+
+we basically quantize time into buckets.
+
+## why this works
+
+- independent of device fps
+- consistent across ios and android
+- no long-term drift
+
+this is one of those things that feels small but fixes everything.
+
+# quick explainer: why timestamps matter more than frames
+
+in ar systems:
+
+- camera -> around 30 fps
+- imu -> 100 to 200 hz
+- depth -> around 15 hz
+
+these streams are not aligned.
+
+the only common reference is:
+
+> timestamp
+
+so your system is really:
+
+```id="time-model"
+multiple async streams -> aligned by time -> unified dataset
+```
+
+if timestamps are wrong -> nothing lines up.
+
+# mistake 2: too many files
+
+we initially had:
+
+```id="files"
+frames/
+imu.csv
+pose.csv
+depth/
+metadata.json
+```
+
+this becomes painful because:
+
+- syncing is manual
+- replay is hard
+- uploads are fragmented
+
+# the fix: mcap (this was a big unlock)
+
+we moved everything into a single file:
+
+```id="mcap"
+session_data.mcap
+```
+
+# quick explainer: what is mcap?
+
+mcap is a container format designed for robotics and time-series data ([Foxglove][2]).
+
+think of it like:
+
+> mp4, but for sensor data instead of video
+
+inside mcap:
+
+```id="mcap-structure"
+topics:
+  /camera/pose
+  /device/imu
+  /camera/rgb
+  /camera/depth
+```
+
+each topic:
+
+- has timestamps
+- has schema (structure)
+- is indexed for fast seeking
+
+## why mcap works so well here
+
+- single file -> easy upload
+- time-indexed -> easy replay
+- supports multiple streams -> perfect for ar
+
+this is what turned our output into a real dataset.
+
+# ios vs android (not as symmetric as you think)
+
+this part was surprisingly tricky.
+
+## android (arcore)
+
+- pull model (session.update())
+- unified sampling
+- depth varies by device
+
+## ios (arkit)
+
+- push model (frame callbacks)
+- separate samplers
+- lidar adds depth and mesh
+
+# quick explainer: why this difference matters
+
+- pull model -> you control timing
+- push model -> system controls timing
+
+so:
+
+- android -> easier to centralize loop
+- ios -> requires buffering and queues
+
+this is why we ended up with:
+
+> platform-specific pipelines + shared output format
+
+# uploads: where everything broke again
+
+recording worked.
+
+then we tried uploading.
+
+large files (around 100 to 500 mb):
+
+- fail mid upload
+- restart from scratch
+- block ui
+
+# the fix: multipart uploads
+
+```id="upload"
+mcap file
+  ↓
+split into chunks (around 30 mb)
+  ↓
+upload in parallel
+  ↓
+retry failures
+  ↓
+finalize
+```
+
+## why this matters technically
+
+- network failures become recoverable
+- upload becomes resumable
+- memory usage stays bounded
+
+this turned uploads from:
+
+> hope it works -> guaranteed eventually
+
+# things that were way harder than expected
+
+these were real pain points:
+
+- syncing imu with ar timestamps
+- handling tracking loss
+- managing storage pressure
+- backpressure when writing data
+- avoiding dropped frames
+
+none of this shows up in demos.
+
+all of this shows up in production.
+
+# the real takeaway
+
+if i had to compress everything:
+
+> ar recording is not about capturing frames
+> its about maintaining temporal consistency across multiple streams
+
+once you think in:
+
+- timestamps
+- pipelines
+- deterministic sampling
+
+you stop fighting the system.
+
+and start controlling it.
+
+# what this unlocks
+
+once your data is clean:
+
+- replay systems
+- 3d reconstruction
+- ml datasets
+- spatial analytics
+
+all become possible.
+
+# closing
+
+this started as:
+
+> lets record ar
+
+it turned into:
+
+- real-time systems design
+- cross-platform architecture
+- data engineering
+- distributed uploads
+
+and honestly, thats what made it worth building.
+
+# if you want next level
+
+we can push this even further:
+
+- add actual visuals (svg diagrams like stormej)
+- add code snippets from your repo
+- or write part 2: deep dive into sampling or mcap internals
+
+just tell me.
+
+[1]: https://www.onirix.com/arkit-vs-arcore/ "ARKit vs ARCore: Mobile augmented reality from Apple"
+[2]: https://foxglove.dev/blog/introducing-the-mcap-file-format "Introducing the MCAP File Format - Foxglove"
