@@ -40,13 +40,13 @@ export default async function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <div className="space-y-12">
+      <div className="space-y-16">
         <Hero />
         <Work />
-        <Contributions />
-        <Stack />
         <Projects />
         <BlogRow />
+        <Stack />
+        <Contributions />
       </div>
     </>
   );

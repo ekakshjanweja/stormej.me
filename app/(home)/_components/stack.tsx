@@ -4,80 +4,34 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
 import { Bun } from "@/components/ui/svgs/bun";
 import { Dart } from "@/components/ui/svgs/dart";
 import { Flutter } from "@/components/ui/svgs/flutter";
 import { NextjsIconDark as Nextjs } from "@/components/ui/svgs/nextjsIconDark";
 import { Typescript } from "@/components/ui/svgs/typescript";
-
 import { Hono } from "@/components/ui/svgs/hono";
 import { Tailwindcss } from "@/components/ui/svgs/tailwindcss";
 
 export default function Stack() {
   const stack = [
-    {
-      name: "flutter",
-      icon: Flutter,
-    },
-    {
-      name: "dart",
-      icon: Dart,
-    },
-    {
-      name: "typescript",
-      icon: Typescript,
-    },
-    {
-      name: "next.js",
-      icon: Nextjs,
-    },
-    {
-      name: "tailwindcss",
-      icon: Tailwindcss,
-    },
-    {
-      name: "bun",
-      icon: Bun,
-    },
-    {
-      name: "hono",
-      icon: Hono,
-    },
+    { name: "flutter", icon: Flutter },
+    { name: "dart", icon: Dart },
+    { name: "typescript", icon: Typescript },
+    { name: "next.js", icon: Nextjs },
+    { name: "tailwindcss", icon: Tailwindcss },
+    { name: "bun", icon: Bun },
+    { name: "hono", icon: Hono },
   ];
 
   return (
     <section data-cursor-anchor="stack">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-lg md:text-xl font-semibold tracking-tight">
-          stack
-        </h2>
-      </div>
-      <div className="flex flex-wrap gap-3">
+      <h2 className="section-label mb-6">stack</h2>
+      <div className="flex flex-wrap items-center gap-6">
         <TooltipProvider>
           {stack.map((tech) => (
             <Tooltip key={tech.name}>
-              <TooltipTrigger>
-                <div
-                  className={cn(
-                    "group relative overflow-hidden rounded-md",
-                    "border border-border/10 bg-muted/20",
-                    "hover:border-border/50 dark:hover:border-border/40",
-                    "hover:bg-muted/40 dark:hover:bg-card/60",
-                    "backdrop-blur-sm transition-all duration-500 ease-in-out",
-                    "cursor-pointer p-3",
-                    "hover:shadow-sm hover:shadow-primary/10 dark:hover:shadow-primary/5",
-                    "transform-gpu hover:scale-[1.05]"
-                  )}
-                >
-                  {/* Animated gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 dark:from-primary/5 dark:via-transparent dark:to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out" />
-
-                  {/* Shimmer effect on hover */}
-                  <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-primary/5 to-transparent dark:via-white/5 opacity-0 group-hover:opacity-100" />
-
-                  <tech.icon className="relative z-10 h-5 w-5 text-muted-foreground opacity-95 group-hover:text-foreground group-hover:opacity-100 transition-all duration-300" />
-                </div>
+              <TooltipTrigger className="hover-dim focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded">
+                <tech.icon className="h-4 w-4 text-foreground" />
               </TooltipTrigger>
               <TooltipContent>
                 <p>{tech.name}</p>

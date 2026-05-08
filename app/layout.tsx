@@ -1,34 +1,54 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import {
+  Geist,
+  Geist_Mono,
+  Space_Mono,
+  EB_Garamond,
+  Handjet,
+  Fraunces,
+} from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/lib/providers/theme-provider";
 import { PostHogProvider } from "@/lib/providers/posthog-provider";
 import { RealtimeProvider } from "@/lib/providers/realtime-provider";
 import { Navbar } from "@/components/navbar";
 import Footer from "@/components/footer";
+import { RootProvider } from "fumadocs-ui/provider/next";
 
-{
-  /*
-  const geistSans = localFont({
-    src: "./fonts/GeistVF.woff",
-    variable: "--font-geist-sans",
-    weight: "100 900",
-  });
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
 
-  const monaspace = localFont({
-    src: "./fonts/MonaspaceNeonVarVF.woff",
-    variable: "--font-monaspace",
-    weight: "100 300 400 500 600 700 900",
-  });
-*/
-}
-
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
+const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
-  weight: "100 900",
-  display: "swap",
-  preload: true,
+  subsets: ["latin"],
+});
+
+const spaceMono = Space_Mono({
+  variable: "--font-space-mono",
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  style: ["italic", "normal"],
+});
+
+const ebGaramond = EB_Garamond({
+  variable: "--font-garamond",
+  subsets: ["latin"],
+  weight: ["400", "500"],
+});
+
+const handjet = Handjet({
+  variable: "--font-handjet",
+  subsets: ["latin"],
+  weight: ["400", "500"],
+});
+
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  weight: ["300", "400", "500"],
+  style: ["italic", "normal"],
 });
 
 export const metadata: Metadata = {
@@ -87,8 +107,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={geistMono.className} suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${geistMono.variable} ${spaceMono.variable} ${ebGaramond.variable} ${handjet.variable} ${fraunces.variable}`}
+    >
+      <body
+        className="antialiased"
+        style={{
+          fontFamily: "var(--font-geist-sans), ui-sans-serif, system-ui",
+        }}
+        suppressHydrationWarning
+      >
         <PostHogProvider>
           <ThemeProvider
             attribute="class"
@@ -104,23 +134,25 @@ export default function RootLayout({
             >
               Skip to main content
             </a>
-            <RealtimeProvider>
-              <div className="bg-background min-h-screen">
-                <div className="flex justify-center w-full">
-                  <div className="md:max-w-3xl w-full flex flex-col min-h-screen">
-                    <Navbar />
-                    <main
-                      id="main-content"
-                      className="flex-1 pb-8 px-4"
-                      tabIndex={-1}
-                    >
-                      {children}
-                    </main>
-                    <Footer />
+            <RootProvider theme={{ enabled: false }}>
+              <RealtimeProvider>
+                <div className="bg-background min-h-screen">
+                  <div className="flex justify-center w-full">
+                    <div className="md:max-w-3xl w-full flex flex-col min-h-screen">
+                      <Navbar />
+                      <main
+                        id="main-content"
+                        className="flex-1 pb-8 px-4"
+                        tabIndex={-1}
+                      >
+                        {children}
+                      </main>
+                      <Footer />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </RealtimeProvider>
+              </RealtimeProvider>
+            </RootProvider>
           </ThemeProvider>
         </PostHogProvider>
       </body>

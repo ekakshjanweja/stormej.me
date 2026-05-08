@@ -1,61 +1,36 @@
-import { getBlogs } from "@/lib/fetcher";
 import Link from "next/link";
+import { listBlogs } from "@/lib/blog";
 
 export default function Blog() {
-  // Default: published posts only (see `getBlogs` in lib/fetcher.ts).
-  const blogs = getBlogs();
-
-  blogs.sort((a, b) => {
-    return new Date(b.meta.date).getTime() - new Date(a.meta.date).getTime();
-  });
+  const blogs = listBlogs();
 
   return (
     <main>
-      {/* Page Header */}
-      <div className="mb-6">
-        <h1 className="text-lg md:text-xl font-semibold tracking-tight">
-          blogs
-        </h1>
-      </div>
-
-      {/* Blog Posts */}
-      <div className="flex flex-col gap-4">
+      <h1 className="section-label mb-8">writing</h1>
+      <ul className="flex flex-col gap-5">
         {blogs.map((blog) => (
-          <Link key={blog.slug} href={`/blog/${blog.slug}`} className="group">
-            <div className="group relative overflow-hidden rounded-lg border border-border/10 bg-muted/30 hover:border-border/30 hover:bg-card/50 backdrop-blur-sm transition-all duration-300 ease-out cursor-pointer p-3 hover:shadow-sm hover:shadow-primary/5">
-              {/* Subtle gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-              {/* Content */}
-              <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                  <h3 className="text-sm md:text-base font-semibold tracking-tight text-foreground group-hover:text-primary/95 transition-colors duration-200">
-                    {blog.meta.title}
-                  </h3>
-                  <p className="text-xs md:text-sm text-muted-foreground font-medium transition-colors duration-200">
-                    {blog.meta.description}
-                  </p>
-                </div>
-                <div className="text-left md:text-right mt-1 md:mt-0 flex-shrink-0">
-                  <p className="text-xs md:text-sm text-muted-foreground/70 transition-colors duration-200 whitespace-nowrap">
-                    {blog.formattedDate}
-                  </p>
-                </div>
+          <li key={blog.slug}>
+            <Link
+              href={blog.url}
+              className="group flex items-baseline justify-between gap-4 hover-dim focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
+            >
+              <div className="flex flex-col gap-0.5 min-w-0">
+                <span className="text-[14px] font-medium text-foreground truncate">
+                  {blog.title}
+                </span>
+                {blog.description && (
+                  <span className="text-[12px] font-light text-muted-foreground leading-snug line-clamp-1">
+                    {blog.description}
+                  </span>
+                )}
               </div>
-
-              {/* Subtle border animation */}
-              <div className="absolute inset-0 rounded-lg border border-transparent group-hover:border-primary/20 transition-all duration-500" />
-            </div>
-          </Link>
+              <span className="meta-tag whitespace-nowrap shrink-0">
+                {blog.formattedDate}
+              </span>
+            </Link>
+          </li>
         ))}
-      </div>
-
-      {/* Footer section for better spacing */}
-      <div className="mt-16 pt-8 border-t border-border/30 text-center">
-        <p className="text-sm text-muted-foreground/60">
-          {blogs.length} {blogs.length === 1 ? "post" : "posts"} published
-        </p>
-      </div>
+      </ul>
     </main>
   );
 }

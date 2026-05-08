@@ -44,7 +44,7 @@ export const ContributionsGraphClient = ({
         totalCount={total}
         className={cn("contribution-grid text-[11px] text-muted-foreground")}
       >
-        <ContributionGraphCalendar className="custom-scrollbar mt-4 max-w-full overflow-x-auto pb-2">
+        <ContributionGraphCalendar className="mt-4 w-full overflow-hidden pb-2 [&>svg]:!h-auto [&>svg]:!w-full">
           {({ activity, dayIndex, weekIndex }) => (
             <Tooltip key={`${activity.date}-${weekIndex}-${dayIndex}`}>
               <TooltipTrigger asChild>

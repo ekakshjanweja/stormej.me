@@ -7,43 +7,52 @@ published: true
 
 Hey, I'm Ekaksh.
 
-In this post I'm going to walk you through how I set up dark mode and light mode in Flutter
-using nothing besides ValueNotifier and ValueListenableBuilder.
+In this post I'm going to walk you through how I set up dark mode and light mode in Flutter using nothing besides `ValueNotifier` and `ValueListenableBuilder`.
 
 This is exactly the same setup I showed in my YouTube video.
 
 <Yt videoId={"uX_zaJGLIvQ"} />
 
-I use this pattern in basically every Flutter app I build because it's clean, simple, and works everywhere in the app without dragging in state-management packages just for toggling a theme.
+<Callout type="tip" title="why this pattern">
+I use this in basically every Flutter app I build because it's clean, simple, and works everywhere in the app without dragging in state-management packages just for toggling a theme.
+</Callout>
 
 Let's jump into it.
 
-<hr style={{ borderColor: 'var(--muted)', paddingBottom: '24px' }} />
+<Steps>
 
-### Step 1: Create a new project and install dependencies (optional)
+<Step>
+
+### Create a new project and install dependencies (optional)
 
 Create a new Flutter project:
+
 ```bash
 flutter create theme_1
 cd theme_1
 ```
 
-Add shared_preferences if you want to persist the theme choice:
+Add `shared_preferences` if you want to persist the theme choice:
+
 ```bash
 flutter pub add shared_preferences
 ```
 
-Now, just remove the boilerplate from <span style={{ color: 'var(--destructive)', fontStyle: 'italic' }}>main.dart</span>, create your usual <span style={{ color: 'var(--destructive)', fontStyle: 'italic' }}>app.dart</span> and <span style={{ color: 'var(--destructive)', fontStyle: 'italic' }}>home.dart</span>, and get a basic MaterialApp running.
+Now, just remove the boilerplate from `main.dart`, create your usual `app.dart` and `home.dart`, and get a basic `MaterialApp` running.
 
-### Step 2: Create the Theme Notifier (this is the core)
+</Step>
 
-We need something to tell the entire app:\
-<span style={{ color: 'var(--text-highlight)', fontStyle: 'italic' }}>"Theme mode changed — rebuild yourself."</span>
+<Step>
 
-Flutter already gives us <span style={{ color: 'var(--destructive)', fontStyle: 'italic' }}>ValueNotifier</span>, so we'll just use that.\
-So, let's create a <span style={{ color: 'var(--destructive)', fontStyle: 'italic' }}>theme_notifier.dart</span> file and write the following code:
+### Create the Theme Notifier (this is the core)
 
-```dart
+We need something to tell the entire app:
+
+> "Theme mode changed — rebuild yourself."
+
+Flutter already gives us `ValueNotifier`, so we'll just use that. Let's create a `theme_notifier.dart` file and write the following code:
+
+```dart title="theme_notifier.dart"
 class ThemeNotifier {
   static final ThemeNotifier _instance = ThemeNotifier._internal();
   factory ThemeNotifier() => _instance;
@@ -69,17 +78,21 @@ class ThemeNotifier {
 }
 ```
 
-Why a singleton?
-Because I want to access this from anywhere in the app without passing BuildContext around like it’s hot potato.
+<Callout type="note" title="why a singleton?">
+Because I want to access this from anywhere in the app without passing `BuildContext` around like it's hot potato.
+</Callout>
 
-### Step 3: Persisting the theme with SharedPreferences (optional)
+</Step>
+
+<Step>
+
+### Persist the theme with SharedPreferences (optional)
 
 If someone switches to dark mode, closes the app, opens it again — the app should *stay* in dark mode.
 
-For this, we can use the <span style={{ color: 'var(--destructive)', fontStyle: 'italic' }}>shared_preferences</span> package we added earlier.\
-Let's create a class called <span style={{ color: 'var(--destructive)', fontStyle: 'italic' }}>LocalStorage</span> in a file called <span style={{ color: 'var(--destructive)', fontStyle: 'italic' }}>local_storage.dart</span> to handle saving and retrieving things from local storage:
+For this, we can use the `shared_preferences` package we added earlier. Let's create a class called `LocalStorage` in a file called `local_storage.dart` to handle saving and retrieving things from local storage:
 
-```dart
+```dart title="local_storage.dart"
 class LocalStorage {
   static SharedPreferences? _prefs;
   static SharedPreferences? get prefs => _prefs;
@@ -136,11 +149,15 @@ class LocalStorage {
 }
 ```
 
-### Step 4: Complete the theme notifier with persistence
+</Step>
 
-Now let's complete the theme notifier by implementing the <span style={{ color: 'var(--destructive)', fontStyle: 'italic' }}>loadThemeMode</span>, <span style={{ color: 'var(--destructive)', fontStyle: 'italic' }}>saveThemeMode</span>, and <span style={{ color: 'var(--destructive)', fontStyle: 'italic' }}>toggleTheme</span> methods:
+<Step>
 
-```dart
+### Complete the theme notifier with persistence
+
+Now let's complete the theme notifier by implementing `loadThemeMode`, `saveThemeMode`, and `toggleTheme`:
+
+```dart title="theme_notifier.dart"
 class ThemeNotifier {
   static final ThemeNotifier _instance = ThemeNotifier._internal();
   factory ThemeNotifier() => _instance;
@@ -186,11 +203,15 @@ class ThemeNotifier {
 }
 ```
 
-### Step 5: Setup the material app to listen to theme changes
+</Step>
 
-In your <span style={{ color: 'var(--destructive)', fontStyle: 'italic' }}>app.dart</span>, wrap your <span style={{ color: 'var(--destructive)', fontStyle: 'italic' }}>MaterialApp</span> with a <span style={{ color: 'var(--destructive)', fontStyle: 'italic' }}>ValueListenableBuilder</span> that listens to the <span style={{ color: 'var(--destructive)', fontStyle: 'italic' }}>themeModeNotifier</span>:
+<Step>
 
-```dart
+### Setup the material app to listen to theme changes
+
+In your `app.dart`, wrap your `MaterialApp` with a `ValueListenableBuilder` that listens to `themeModeNotifier`:
+
+```dart title="app.dart"
 class App extends StatelessWidget {
   const App({super.key});
 
@@ -212,9 +233,9 @@ class App extends StatelessWidget {
 }
 ```
 
-Finally in your <span style={{ color: 'var(--destructive)', fontStyle: 'italic' }}>main.dart</span>, initialize the <span style={{ color: 'var(--destructive)', fontStyle: 'italic' }}>LocalStorage</span> and <span style={{ color: 'var(--destructive)', fontStyle: 'italic' }}>loadThemeMode</span> before running the app:
+Finally in your `main.dart`, initialize `LocalStorage` and call `loadThemeMode` before running the app:
 
-```dart
+```dart title="main.dart"
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
   await bootStrap();
@@ -225,12 +246,15 @@ Future<void> bootStrap() async {
   await LocalStorage.init();
   await ThemeNotifier().loadThemeMode();
 }
-
 ```
 
-### Step 6: Setup your home.dart
+</Step>
 
-```dart
+<Step>
+
+### Setup your home.dart
+
+```dart title="home.dart"
 class Home extends StatelessWidget {
   const Home({super.key});
 
@@ -258,12 +282,14 @@ class Home extends StatelessWidget {
 }
 ```
 
-<hr style={{ borderColor: 'var(--muted)', paddingBottom: '24px' }} />
+</Step>
 
-Great! Now we have a working <span style={{ color: 'var(--text-highlight)', fontStyle: 'italic' }}>dark mode</span> and <span style={{ color: 'var(--text-highlight)', fontStyle: 'italic' }}>light mode</span> toggle, with persistence using <span style={{ color: 'var(--text-highlight)', fontStyle: 'italic' }}>local storage</span> and zero external state-management packages. Just simple <span style={{ color: 'var(--destructive)', fontStyle: 'italic' }}>ValueNotifiers</span> doing their job.
+</Steps>
 
-Here is the full source code:  
-[Theme Notifier Tutorial](https://github.com/ekakshjanweja/theme_notifier_tutorial)
+<Callout type="tip" title="that's it">
+You now have a working **dark mode** and **light mode** toggle, with persistence via local storage and zero external state-management packages. Just simple `ValueNotifier`s doing their job.
+</Callout>
 
-Thanks for reading, hope this helps you keep your theming clean.
+Here is the full source code: [Theme Notifier Tutorial](https://github.com/ekakshjanweja/theme_notifier_tutorial).
 
+Thanks for reading — hope this helps you keep your theming clean.

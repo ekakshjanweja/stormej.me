@@ -1,70 +1,61 @@
 import { domi, resume } from "@/lib/constants/links";
 import Link from "next/link";
 import SocialLinks from "./social-links";
-import { Button } from "@/components/ui/button";
 import { FileText, Mail } from "lucide-react";
 
 export default function Hero() {
   return (
-    <>
-      <section aria-labelledby="hero-heading" data-cursor-anchor="hero">
-        <div className="space-y-3 mt-2 md:mt-12">
-          <p className="text-xs md:text-sm text-foreground font-light leading-relaxed">
-            hi, i&apos;m ekaksh.
-          </p>
-          <p className="text-xs md:text-sm text-foreground font-light leading-relaxed">
-            i build mobile apps that feel fast, clean and reliable. i&apos;ve
-            spent the last couple of years shipping products at early stage
-            startups and right now i&apos;m building the consumer experience at{" "}
-            <Link
-              href={domi}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline decoration-muted-foreground underline-offset-4 hover:decoration-highlight hover:text-highlight transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
-            >
-              digitaldomi
-            </Link>
-            .
-          </p>
-          <p className="text-xs md:text-sm text-foreground font-light leading-relaxed">
-            i enjoy taking product problems apart and building clean solutions.
-          </p>
-          <div className="text-xs md:text-sm text-foreground font-light leading-relaxed space-y-1 pt-2">
-            <p>other things about me:</p>
-            <p>i use arch btw.</p>
-            <p>i play valorant.</p>
-          </div>
-        </div>
+    <section aria-labelledby="hero-heading" data-cursor-anchor="hero">
+      <p
+        id="hero-heading"
+        className="hero-lede text-[clamp(22px,2.6vw,34px)] max-w-[58ch]"
+      >
+        i build mobile apps that feel <em>fast</em>, <em>clean</em>, and{" "}
+        <em>reliable</em>. for the past few years i&apos;ve shipped products at
+        early-stage startups, and right now i&apos;m shaping the consumer
+        experience at{" "}
+        <Link
+          href={domi}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="squiggle-link font-serif"
+        >
+          digitaldomi
+        </Link>
+        .
+      </p>
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-3 pt-6">
-          <Button
-            asChild
-            variant="outline"
-            className="group gap-2 py-5 font-medium rounded-lg transition-all duration-300 hover:scale-[1.01] hover:shadow-md border-border/50 hover:border-border hover:bg-accent/50"
-          >
-            <Link href={resume} target="_blank" rel="noopener noreferrer">
-              <FileText className="w-4 h-4" />
-              resume
-            </Link>
-          </Button>
-          <Button
-            asChild
-            className="group relative gap-2 py-5 font-medium rounded-lg transition-all duration-300 hover:scale-[1.01] hover:shadow-lg bg-accent-foreground text-primary-foreground hover:bg-accent-foreground/90"
-          >
-            <Link
-              href="https://cal.com/ekaksh-janweja-pfvauh"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Mail className="w-4 h-4 transition-transform duration-300" />
-              get in touch
-            </Link>
-          </Button>
+      <section data-cursor-anchor="elsewhere" className="mt-16">
+        <h2 className="section-label mb-6">elsewhere</h2>
+        <div className="space-y-1.5 text-[14px] leading-[1.6] font-light text-foreground">
+          <p>based in new delhi.</p>
+          <p>arch linux on the desktop.</p>
+          <p>valorant after hours.</p>
         </div>
-        {/* Social Links */}
-        <SocialLinks />
       </section>
-    </>
+
+      <div className="mt-12 flex flex-wrap items-center gap-x-6 gap-y-3 text-[13px]">
+        <Link
+          href={resume}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-foreground hover-dim focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
+        >
+          <FileText className="w-3.5 h-3.5" />
+          resume
+        </Link>
+        <Link
+          href="https://cal.com/ekaksh-janweja-pfvauh"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-foreground hover-dim focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
+        >
+          <Mail className="w-3.5 h-3.5" />
+          get in touch
+        </Link>
+      </div>
+
+      <SocialLinks />
+    </section>
   );
 }

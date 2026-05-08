@@ -1,10 +1,9 @@
-import type { NextConfig } from "next";
+import { createMDX } from "fumadocs-mdx/next";
 
-const nextConfig: NextConfig = {
-  // Enable React strict mode for better development experience
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   reactStrictMode: true,
 
-  // PostHog reverse proxy to bypass ad blockers
   async rewrites() {
     return [
       {
@@ -22,18 +21,20 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // Optimize images
   images: {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    remotePatterns: [
+      { protocol: "https", hostname: "cdn.hashnode.com" },
+      { protocol: "https", hostname: "**.hashnode.com" },
+    ],
   },
 
-  // Compress output
   compress: true,
-
-  // Enable powered by header removal (optional, but cleaner)
   poweredByHeader: false,
 };
 
-export default nextConfig;
+const withMDX = createMDX();
+
+export default withMDX(nextConfig);

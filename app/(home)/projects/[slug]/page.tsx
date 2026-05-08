@@ -1,8 +1,7 @@
 import { projects } from "@/lib/constants/projects";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ExternalLink } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowUpRight } from "lucide-react";
 import { YouTubeVideo } from "@/components/video-component";
 import { WebsitePreview } from "@/components/website-preview";
 import { ProjectImages } from "./project-images";
@@ -14,157 +13,122 @@ interface PageProps {
 export default async function Page({ params }: PageProps) {
   const { slug } = await params;
 
-  const project = projects.find((project) => project.id === slug);
-
-  if (project === undefined) {
-    notFound();
-  }
+  const project = projects.find((p) => p.id === slug);
+  if (!project) notFound();
 
   return (
     <main>
-      <div className="max-w-4xl mx-auto">
-        {/* Back Navigation */}
-        <Link
-          href="/projects"
-          className="group inline-flex items-center gap-2 mb-12 text-sm text-muted-foreground hover:text-foreground transition-all duration-300 hover:gap-3"
-        >
-          <span className="transform group-hover:-translate-x-1 transition-transform duration-300">
-            ←
-          </span>
-          <span className="relative">
-            back to projects
-            <span className="absolute inset-x-0 bottom-0 h-px bg-foreground/20 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
-          </span>
-        </Link>
+      <Link
+        href="/projects"
+        className="meta-tag hover-dim inline-flex items-center gap-1.5 mb-12 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
+      >
+        ← back
+      </Link>
 
-        {/* Project Header */}
-        <div className="mb-12">
-          <div className="space-y-4">
-            {/* 1. Title + Website */}
-            <div className="flex items-center gap-2">
-              {project.website ? (
-                <a
-                  href={project.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-center gap-2"
-                >
-                  <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
-                  <p className="text-lg md:text-xl font-semibold tracking-tight group-hover:text-primary transition-colors duration-200">
-                    {project.title}
-                  </p>
-                </a>
-              ) : (
-                <p className="text-lg md:text-xl font-semibold tracking-tight">
-                  {project.title}
-                </p>
-              )}
-            </div>
+      <header className="mb-10 space-y-4">
+        {project.website ? (
+          <a
+            href={project.website}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="headline text-[clamp(22px,2.4vw,30px)] hover-dim inline-flex items-center gap-2"
+          >
+            {project.title}
+            <ArrowUpRight className="w-4 h-4 text-muted-foreground" />
+          </a>
+        ) : (
+          <h1 className="headline text-[clamp(22px,2.4vw,30px)]">
+            {project.title}
+          </h1>
+        )}
 
-            {/* 2. Subtitle */}
-            <div className="text-xs md:text-sm text-muted-foreground font-medium">
-              {project.subtitle}
-            </div>
+        {project.subtitle && (
+          <p className="text-[14px] font-light text-muted-foreground">
+            {project.subtitle}
+          </p>
+        )}
 
-            {/* 3. Description */}
-            {project.description && (
-              <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
-                {project.description}
-              </p>
+        {project.description && (
+          <p className="text-[14px] font-light leading-[1.6] text-muted-foreground">
+            {project.description}
+          </p>
+        )}
+
+        {project.tech && project.tech.length > 0 && (
+          <p className="meta-tag">{project.tech.join(" · ")}</p>
+        )}
+
+        {(project.website || project.github || project.youtube) && (
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px]">
+            {project.website && (
+              <a
+                href={project.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover-dim inline-flex items-center gap-1 text-foreground"
+              >
+                website <ArrowUpRight className="w-3 h-3" />
+              </a>
             )}
+            {project.github && (
+              <a
+                href={project.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover-dim inline-flex items-center gap-1 text-foreground"
+              >
+                github <ArrowUpRight className="w-3 h-3" />
+              </a>
+            )}
+            {project.youtube && (
+              <a
+                href={project.youtube}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover-dim inline-flex items-center gap-1 text-foreground"
+              >
+                youtube <ArrowUpRight className="w-3 h-3" />
+              </a>
+            )}
+          </div>
+        )}
+      </header>
 
-            {/* 4. Tech Stack */}
-            <div className="flex flex-wrap gap-1 mb-3">
-              {project.tech.map((tech, index) => (
-                <span
-                  key={index}
-                  className="text-xs px-2 py-1 rounded-md bg-muted/50 text-muted-foreground/70 font-medium"
-                >
-                  {tech}
+      {project.highlights && project.highlights.length > 0 && (
+        <section className="mb-10">
+          <h2 className="section-label mb-5">highlights</h2>
+          <ul className="space-y-3">
+            {project.highlights.map((highlight, i) => (
+              <li
+                key={i}
+                className="flex items-start gap-3 text-[14px] font-light leading-[1.6] text-foreground"
+              >
+                <span className="select-none text-muted-foreground mt-[2px]">
+                  —
                 </span>
-              ))}
-            </div>
+                <span>{highlight}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
-            {/* 4.5. External Links */}
-            {(project.website || project.github || project.youtube) && (
-              <div className="flex flex-wrap gap-2">
-                {project.website && (
-                  <Button variant="outline" size="sm" asChild>
-                    <a
-                      href={project.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      website
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </Button>
-                )}
-                {project.github && (
-                  <Button variant="outline" size="sm" asChild>
-                    <a
-                      href={project.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      github
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </Button>
-                )}
-                {project.youtube && (
-                  <Button variant="outline" size="sm" asChild>
-                    <a
-                      href={project.youtube}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      youtube
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </Button>
-                )}
-              </div>
-            )}
-          </div>
+      {project.website && project.id === "turi" && (
+        <div className="mb-10">
+          <WebsitePreview url={project.website} title={project.title} />
         </div>
+      )}
 
-        {/* 5. Highlights */}
-        {project.highlights && project.highlights.length > 0 && (
-          <div className="mb-6">
-            <div className="space-y-2.5">
-              {project.highlights.map((highlight, index) => (
-                <div key={index} className="flex items-start gap-2.5">
-                  <span className="w-1.5 h-1.5 mt-1.5 bg-muted-foreground/60 rounded-full flex-shrink-0" />
-                  <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
-                    {highlight}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+      {project.youtube && (
+        <div className="mb-10 rounded-lg overflow-hidden">
+          <YouTubeVideo
+            videoId={extractYouTubeVideoId(project.youtube)!}
+            title={project.title}
+          />
+        </div>
+      )}
 
-        {/* 6. Website Preview */}
-        {project.website && project.id === "turi" && (
-          <div className="mb-8">
-            <WebsitePreview url={project.website} title={project.title} />
-          </div>
-        )}
-
-        {/* 7. YouTube Video */}
-        {project.youtube && (
-          <div className="mb-8 group relative rounded-2xl overflow-hidden border border-border/40 hover:border-highlight/30 transition-all duration-500">
-            <YouTubeVideo
-              videoId={extractYouTubeVideoId(project.youtube)!}
-              title={project.title}
-            />
-          </div>
-        )}
-
-        {/* 8. Project Images */}
-        <ProjectImages project={project} />
-      </div>
+      <ProjectImages project={project} />
     </main>
   );
 }
@@ -172,8 +136,6 @@ export default async function Page({ params }: PageProps) {
 function extractYouTubeVideoId(url: string): string | null {
   const youtubeUrlRegex =
     /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-
   const match = url.match(youtubeUrlRegex);
-
   return match ? match[1] : "dQw4w9WgXcQ";
 }

@@ -7,34 +7,34 @@ import { Linkedin } from "@/components/ui/svgs/linkedin";
 
 export default function SocialLinks() {
   return (
-    <div className="flex items-center gap-8 pt-8">
+    <div className="flex items-center gap-5 mt-8">
       <Link
         href={github}
         target="_blank"
         rel="noopener noreferrer"
-        className="group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
-        aria-label="Visit my GitHub profile"
+        className="hover-dim focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
+        aria-label="GitHub"
       >
-        <GithubLight className="w-5 h-5 transition-all duration-300 group-hover:scale-110 dark:hidden text-foreground" />
-        <GithubDark className="w-5 h-5 transition-all duration-300 group-hover:scale-110 hidden dark:block text-foreground" />
+        <GithubLight className="w-4 h-4 dark:hidden text-foreground" />
+        <GithubDark className="w-4 h-4 hidden dark:block text-foreground" />
       </Link>
       <Link
         href={xDotCom}
         target="_blank"
         rel="noopener noreferrer"
-        className="group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
-        aria-label="Visit my X (Twitter) profile"
+        className="hover-dim focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
+        aria-label="X (Twitter)"
       >
-        <X className="w-5 h-5 transition-all duration-300 group-hover:scale-110 text-foreground" />
+        <X className="w-4 h-4 text-foreground" />
       </Link>
       <Link
         href={linkedin}
         target="_blank"
         rel="noopener noreferrer"
-        className="group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
-        aria-label="Visit my LinkedIn profile"
+        className="hover-dim focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
+        aria-label="LinkedIn"
       >
-        <Linkedin className="w-5 h-5 transition-all duration-300 group-hover:scale-110 text-foreground" />
+        <Linkedin className="w-4 h-4 text-foreground" />
       </Link>
     </div>
   );
