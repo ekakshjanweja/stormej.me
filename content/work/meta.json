@@ -1,9 +1,4 @@
 {
   "title": "work",
-  "pages": [
-    "digital-domi",
-    "merlin",
-    "team-black-box",
-    "zuai"
-  ]
+  "pages": ["fpv-labs", "digital-domi", "merlin", "team-black-box", "zuai"]
 }

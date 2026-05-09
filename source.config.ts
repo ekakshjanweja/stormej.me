@@ -64,7 +64,7 @@ const workFrontmatterSchema = frontmatterSchema.extend({
   endDate: z.coerce.date().optional(),
   website: z.string().optional(),
   tech: z.array(z.string()).default([]),
-  logo: z.string().optional(),
+  logo: workImageAssetSchema.optional(),
   images: z.array(workImageAssetSchema).optional(),
   screenshotMockup: z.literal("iphone-17-pro").optional(),
   challenge: z.string().optional(),

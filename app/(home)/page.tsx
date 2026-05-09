@@ -1,6 +1,6 @@
 import { BlogRow } from "./_components/blog-row";
 import Hero from "./_components/hero";
-import { Projects } from "./_components/projects";
+// import { Projects } from "./_components/projects";
 import Work from "./_components/work";
 import Stack from "./_components/stack";
 import { Contributions } from "./_components/contributions";
@@ -43,7 +43,7 @@ export default async function Home() {
       <div className="space-y-16">
         <Hero />
         <Work />
-        <Projects />
+        {/* <Projects /> */}
         <BlogRow />
         <Stack />
         <Contributions />

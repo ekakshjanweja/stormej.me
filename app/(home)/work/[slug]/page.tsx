@@ -2,7 +2,7 @@ import { workSource } from "@/lib/source";
 import { getWork, type WorkFrontmatter } from "@/lib/work";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
+import { WorkLogoMark } from "@/components/work-logo";
 import { ArrowUpRight } from "lucide-react";
 import type { Metadata } from "next";
 import { Chapter } from "@/components/mdx/chapter";
@@ -150,16 +150,7 @@ function CaseStudyHeader({
   return (
     <header className="mb-10 space-y-5">
       <div className="flex items-center gap-3">
-        {fm.logo && (
-          <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-md bg-muted/40">
-            <Image
-              src={fm.logo}
-              alt=""
-              fill
-              className="object-contain p-1.5"
-            />
-          </span>
-        )}
+        {fm.logo && <WorkLogoMark logo={fm.logo} />}
         {fm.website ? (
           <a
             href={fm.website}
@@ -211,16 +202,7 @@ function DefaultHeader({
   return (
     <header className="mb-10 space-y-4">
       <div className="flex items-center gap-3">
-        {fm.logo && (
-          <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-md bg-muted/40">
-            <Image
-              src={fm.logo}
-              alt=""
-              fill
-              className="object-contain p-1.5"
-            />
-          </span>
-        )}
+        {fm.logo && <WorkLogoMark logo={fm.logo} />}
         {fm.website ? (
           <a
             href={fm.website}

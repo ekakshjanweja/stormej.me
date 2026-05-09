@@ -7,14 +7,18 @@ import Link from "next/link";
 import * as React from "react";
 import { Iphone17Pro } from "@/components/ui/iphone-17-pro";
 import { cn } from "@/lib/utils";
-import type { ScreenshotMockupKind, WorkImageAsset } from "@/lib/types/types";
+import type {
+  ScreenshotMockupKind,
+  WorkImageAsset,
+  WorkLogoAsset,
+} from "@/lib/types/types";
 import { isPairedScreenshots, isVideoAsset } from "@/lib/work-image";
 
 type WorkPreviewProps = {
   children: React.ReactNode;
   title: string;
   href: string;
-  logo?: string;
+  logo?: WorkLogoAsset;
   images?: WorkImageAsset[];
   screenshotMockup?: ScreenshotMockupKind;
   className?: string;
@@ -26,6 +30,27 @@ const PLACEHOLDER_GRADIENTS = [
   "from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800",
 ];
 
+/** Exact width: 3×PhoneFrame + 2×gap-2 + 2×px-3 on the strip (gap-2 = 0.5rem, px-3 = 0.75rem @ 16px root). */
+const PREVIEW_CARD_WIDTH_PX = {
+  "iphone-17-pro": 292, // 252 + 16 + 24
+  default: 280, // 240 + 16 + 24
+} as const;
+
+function previewCardWidthPx(mockup?: ScreenshotMockupKind) {
+  return mockup === "iphone-17-pro"
+    ? PREVIEW_CARD_WIDTH_PX["iphone-17-pro"]
+    : PREVIEW_CARD_WIDTH_PX.default;
+}
+
+/** Capped at phone-strip width so long titles cannot widen the hover card (flex min-width:auto). */
+function previewCardShellStyle(px: number): React.CSSProperties {
+  return {
+    width: `min(${px}px, calc(100vw - 1.5rem))`,
+    maxWidth: `min(${px}px, calc(100vw - 1.5rem))`,
+    minWidth: 0,
+  };
+}
+
 export function WorkPreview({
   children,
   title,
@@ -36,7 +61,10 @@ export function WorkPreview({
   className,
 }: WorkPreviewProps) {
   const [isOpen, setOpen] = React.useState(false);
-  const slots = images && images.length > 0 ? images.slice(0, 3) : [null, null, null];
+  const slots =
+    images && images.length > 0 ? images.slice(0, 3) : [null, null, null];
+  const cardPx = previewCardWidthPx(screenshotMockup);
+  const cardShellStyle = previewCardShellStyle(cardPx);
 
   return (
     <HoverCardPrimitive.Root
@@ -49,7 +77,7 @@ export function WorkPreview({
       </HoverCardPrimitive.Trigger>
 
       <HoverCardPrimitive.Content
-        className="z-50 origin-[--radix-hover-card-content-transform-origin]"
+        className="z-50 w-max min-w-0 origin-[--radix-hover-card-content-transform-origin] p-0 outline-none"
         side="top"
         align="start"
         sideOffset={12}
@@ -57,6 +85,8 @@ export function WorkPreview({
         <AnimatePresence>
           {isOpen && (
             <motion.div
+              className="min-w-0 overflow-hidden"
+              style={cardShellStyle}
               initial={{ opacity: 0, y: 4, scale: 0.97 }}
               animate={{
                 opacity: 1,
@@ -73,9 +103,12 @@ export function WorkPreview({
             >
               <Link
                 href={href}
-                className="group block overflow-hidden rounded-md border border-border bg-popover transition-colors duration-150 hover:border-foreground/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
+                style={cardShellStyle}
+                className={cn(
+                  "box-border flex min-w-0 shrink-0 flex-col overflow-hidden rounded-md border border-border bg-popover transition-colors duration-150 hover:border-foreground/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
+                )}
               >
-                <div className="flex items-end gap-2 px-3 pt-3 pb-2">
+                <div className="flex w-full items-end justify-center gap-2 px-3 pt-3 pb-2">
                   {slots.map((src, i) => (
                     <PhoneFrame
                       key={i}
@@ -83,13 +116,18 @@ export function WorkPreview({
                       logo={logo}
                       title={title}
                       screenshotMockup={screenshotMockup}
-                      gradient={PLACEHOLDER_GRADIENTS[i % PLACEHOLDER_GRADIENTS.length]}
+                      gradient={
+                        PLACEHOLDER_GRADIENTS[i % PLACEHOLDER_GRADIENTS.length]
+                      }
                       delay={i}
                     />
                   ))}
                 </div>
-                <div className="border-t border-border/70 px-3 py-1.5">
-                  <span className="meta-tag truncate normal-case tracking-[0.08em]">
+                <div className="min-w-0 overflow-hidden border-t border-border/70 px-3 py-1.5">
+                  <span
+                    className="meta-tag block min-w-0 truncate normal-case tracking-[0.08em]"
+                    title={title}
+                  >
                     {title}
                   </span>
                 </div>
@@ -111,7 +149,7 @@ function PhoneFrame({
   delay,
 }: {
   src: WorkImageAsset | null;
-  logo?: string;
+  logo?: WorkLogoAsset;
   title: string;
   screenshotMockup?: ScreenshotMockupKind;
   gradient: string;
@@ -128,13 +166,17 @@ function PhoneFrame({
       animate={{
         opacity: 1,
         y: 0,
-        transition: { duration: 0.25, delay: 0.05 + delay * 0.05, ease: [0.16, 1, 0.3, 1] },
+        transition: {
+          duration: 0.25,
+          delay: 0.05 + delay * 0.05,
+          ease: [0.16, 1, 0.3, 1],
+        },
       }}
       className={cn(
         "relative flex shrink-0 items-center justify-center",
         useIphone17
           ? "h-[158px] w-[84px] overflow-visible px-px"
-          : "h-[160px] w-[80px] overflow-hidden rounded-[10px] border border-border/80 bg-background shadow-sm",
+          : "h-[160px] w-[80px] overflow-hidden rounded-[10px] border border-border/80 bg-background shadow-sm"
       )}
     >
       {src ? (
@@ -198,13 +240,32 @@ function PhoneFrame({
           <div className="absolute left-1/2 top-2 h-1 w-6 -translate-x-1/2 rounded-full bg-foreground/20" />
           {logo && (
             <span className="absolute left-1/2 top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 opacity-50">
-              <Image
-                src={logo}
-                alt=""
-                fill
-                sizes="24px"
-                className="object-contain"
-              />
+              {isPairedScreenshots(logo) ? (
+                <>
+                  <Image
+                    src={logo.light}
+                    alt=""
+                    fill
+                    sizes="24px"
+                    className="object-contain dark:hidden"
+                  />
+                  <Image
+                    src={logo.dark}
+                    alt=""
+                    fill
+                    sizes="24px"
+                    className="hidden object-contain dark:block"
+                  />
+                </>
+              ) : (
+                <Image
+                  src={logo}
+                  alt=""
+                  fill
+                  sizes="24px"
+                  className="object-contain"
+                />
+              )}
             </span>
           )}
         </div>

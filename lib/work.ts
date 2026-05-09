@@ -1,5 +1,5 @@
 import { workSource } from "@/lib/source";
-import type { WorkImageAsset, ScreenshotMockupKind } from "@/lib/types/types";
+import type { WorkImageAsset, ScreenshotMockupKind, WorkLogoAsset } from "@/lib/types/types";
 import workMeta from "@/content/work/meta.json";
 
 /** Slug order from `content/work/meta.json` → `pages` (Fumadocs meta). */
@@ -22,7 +22,7 @@ export type WorkFrontmatter = {
   endDate?: Date;
   website?: string;
   tech: string[];
-  logo?: string;
+  logo?: WorkLogoAsset;
   images?: WorkImageAsset[];
   screenshotMockup?: ScreenshotMockupKind;
   challenge?: string;
@@ -38,7 +38,7 @@ export type WorkListItem = {
   role: string;
   startDate: Date;
   endDate?: Date;
-  logo?: string;
+  logo?: WorkLogoAsset;
   images?: WorkImageAsset[];
   screenshotMockup?: ScreenshotMockupKind;
 };

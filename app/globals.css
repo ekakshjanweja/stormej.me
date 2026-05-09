@@ -179,6 +179,16 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Text selection */
+::selection {
+  background-color: var(--text-highlight);
+  color: var(--background);
+}
+::-moz-selection {
+  background-color: var(--text-highlight);
+  color: var(--background);
+}
+
 /* Editorial label — uppercase, tracked-out mono.
    Used for section headings (work, projects, blog). */
 .section-label {
