@@ -1,20 +1,44 @@
-import { projects } from "@/lib/constants/projects";
+import { projectsSource } from "@/lib/source";
+import { getProject, type ProjectFrontmatter } from "@/lib/projects";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import type { Metadata } from "next";
 import { YouTubeVideo } from "@/components/video-component";
-import { WebsitePreview } from "@/components/website-preview";
+import { LinkPreview } from "@/components/ui/link-preview";
 import { ProjectImages } from "./project-images";
+import { getMDXComponents } from "@/components/mdx";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+export async function generateStaticParams() {
+  return projectsSource.generateParams().map(({ slug }) => ({
+    slug: slug?.[0] ?? "",
+  }));
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const page = getProject(slug);
+  if (!page) notFound();
+  const fm = page.data as ProjectFrontmatter;
+  return {
+    title: fm.title,
+    description: fm.description ?? fm.subtitle,
+  };
+}
+
 export default async function Page({ params }: PageProps) {
   const { slug } = await params;
+  const page = getProject(slug);
+  if (!page) notFound();
 
-  const project = projects.find((p) => p.id === slug);
-  if (!project) notFound();
+  const fm = page.data as ProjectFrontmatter;
+  const MDX = page.data.body;
 
   return (
     <main>
@@ -26,43 +50,53 @@ export default async function Page({ params }: PageProps) {
       </Link>
 
       <header className="mb-10 space-y-4">
-        {project.website ? (
-          <a
-            href={project.website}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="headline text-[clamp(22px,2.4vw,30px)] hover-dim inline-flex items-center gap-2"
-          >
-            {project.title}
-            <ArrowUpRight className="w-4 h-4 text-muted-foreground" />
-          </a>
+        {fm.website ? (
+          slug === "turi" ? (
+            <h1 className="headline m-0 text-[clamp(22px,2.4vw,30px)]">
+              <LinkPreview
+                url={fm.website}
+                className="squiggle-link hover-dim inline-flex items-center gap-2"
+              >
+                {fm.title}
+                <ArrowUpRight className="w-4 h-4 shrink-0 text-muted-foreground" />
+              </LinkPreview>
+            </h1>
+          ) : (
+            <a
+              href={fm.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="headline text-[clamp(22px,2.4vw,30px)] hover-dim inline-flex items-center gap-2"
+            >
+              {fm.title}
+              <ArrowUpRight className="w-4 h-4 text-muted-foreground" />
+            </a>
+          )
         ) : (
-          <h1 className="headline text-[clamp(22px,2.4vw,30px)]">
-            {project.title}
-          </h1>
+          <h1 className="headline text-[clamp(22px,2.4vw,30px)]">{fm.title}</h1>
         )}
 
-        {project.subtitle && (
+        {fm.subtitle && (
           <p className="text-[14px] font-light text-muted-foreground">
-            {project.subtitle}
+            {fm.subtitle}
           </p>
         )}
 
-        {project.description && (
+        {fm.description && (
           <p className="text-[14px] font-light leading-[1.6] text-muted-foreground">
-            {project.description}
+            {fm.description}
           </p>
         )}
 
-        {project.tech && project.tech.length > 0 && (
-          <p className="meta-tag">{project.tech.join(" · ")}</p>
+        {fm.tech && fm.tech.length > 0 && (
+          <p className="meta-tag">{fm.tech.join(" · ")}</p>
         )}
 
-        {(project.website || project.github || project.youtube) && (
+        {(fm.website || fm.github || fm.youtube) && (
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px]">
-            {project.website && (
+            {fm.website && (
               <a
-                href={project.website}
+                href={fm.website}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover-dim inline-flex items-center gap-1 text-foreground"
@@ -70,9 +104,9 @@ export default async function Page({ params }: PageProps) {
                 website <ArrowUpRight className="w-3 h-3" />
               </a>
             )}
-            {project.github && (
+            {fm.github && (
               <a
-                href={project.github}
+                href={fm.github}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover-dim inline-flex items-center gap-1 text-foreground"
@@ -80,9 +114,9 @@ export default async function Page({ params }: PageProps) {
                 github <ArrowUpRight className="w-3 h-3" />
               </a>
             )}
-            {project.youtube && (
+            {fm.youtube && (
               <a
-                href={project.youtube}
+                href={fm.youtube}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover-dim inline-flex items-center gap-1 text-foreground"
@@ -94,11 +128,11 @@ export default async function Page({ params }: PageProps) {
         )}
       </header>
 
-      {project.highlights && project.highlights.length > 0 && (
+      {fm.highlights && fm.highlights.length > 0 && (
         <section className="mb-10">
           <h2 className="section-label mb-5">highlights</h2>
           <ul className="space-y-3">
-            {project.highlights.map((highlight, i) => (
+            {fm.highlights.map((highlight, i) => (
               <li
                 key={i}
                 className="flex items-start gap-3 text-[14px] font-light leading-[1.6] text-foreground"
@@ -113,22 +147,20 @@ export default async function Page({ params }: PageProps) {
         </section>
       )}
 
-      {project.website && project.id === "turi" && (
-        <div className="mb-10">
-          <WebsitePreview url={project.website} title={project.title} />
-        </div>
-      )}
-
-      {project.youtube && (
+      {fm.youtube && (
         <div className="mb-10 rounded-lg overflow-hidden">
           <YouTubeVideo
-            videoId={extractYouTubeVideoId(project.youtube)!}
-            title={project.title}
+            videoId={extractYouTubeVideoId(fm.youtube)!}
+            title={fm.title}
           />
         </div>
       )}
 
-      <ProjectImages project={project} />
+      <ProjectImages title={fm.title} images={fm.images} />
+
+      <article className="prose-fuma mt-10">
+        <MDX components={getMDXComponents()} />
+      </article>
     </main>
   );
 }

@@ -1,8 +1,9 @@
-import { projects } from "@/lib/constants/projects";
+import { listProjects } from "@/lib/projects";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 
 export default function Projects() {
+  const projects = listProjects();
   return (
     <main>
       <h1 className="section-label mb-8">projects</h1>
@@ -13,12 +14,12 @@ export default function Projects() {
             const hasDescription =
               project.description && project.description.length > 0;
             const href = hasDescription
-              ? `/projects/${project.id}`
-              : project.website || `/projects/${project.id}`;
+              ? `/projects/${project.slug}`
+              : project.website || `/projects/${project.slug}`;
             const isExternal = !hasDescription && !!project.website;
 
             return (
-              <li key={project.id}>
+              <li key={project.slug}>
                 <Link
                   href={href}
                   target={isExternal ? "_blank" : undefined}

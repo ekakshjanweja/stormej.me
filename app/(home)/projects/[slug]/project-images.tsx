@@ -3,19 +3,19 @@
 import { useState } from "react";
 import Image from "next/image";
 import { ImageModal } from "@/components/image-modal";
-import type { Project } from "@/lib/types/types";
 
 interface ProjectImagesProps {
-  project: Project;
+  title: string;
+  images?: string[];
 }
 
-export function ProjectImages({ project }: ProjectImagesProps) {
+export function ProjectImages({ title, images }: ProjectImagesProps) {
   const [selectedImage, setSelectedImage] = useState<{
     src: string;
     alt: string;
   } | null>(null);
 
-  if (!project.images || project.images.length === 0) {
+  if (!images || images.length === 0) {
     return null;
   }
 
@@ -27,20 +27,20 @@ export function ProjectImages({ project }: ProjectImagesProps) {
           diagrams
         </h3>
         <div className="space-y-6">
-          {project.images.map((image, index) => (
+          {images.map((image, index) => (
             <div
               key={index}
               className="group relative rounded-2xl overflow-hidden border border-border/40 hover:border-highlight/30 transition-all duration-500 cursor-pointer"
               onClick={() => {
                 setSelectedImage({
                   src: `/${image}`,
-                  alt: `${project.title} - Image ${index + 1}`,
+                  alt: `${title} - Image ${index + 1}`,
                 });
               }}
             >
               <Image
                 src={`/${image}`}
-                alt={`${project.title} - Image ${index + 1}`}
+                alt={`${title} - Image ${index + 1}`}
                 width={800}
                 height={600}
                 className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"

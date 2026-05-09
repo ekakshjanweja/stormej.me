@@ -94,17 +94,17 @@ function galleryLayoutClass(count: number) {
   if (count <= 1) {
     return "mx-auto grid max-w-[260px] grid-cols-1 justify-items-stretch";
   }
+  const mobileScroll =
+    "-mx-2 flex snap-x snap-mandatory gap-5 overflow-x-auto px-2 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
   if (count === 2) {
     return cn(
-      "mx-auto grid max-w-xl grid-cols-1 justify-items-stretch gap-6",
-      "sm:grid-cols-2 sm:gap-5",
-      "md:gap-6",
+      mobileScroll,
+      "md:mx-auto md:grid md:max-w-xl md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0",
     );
   }
   return cn(
-    "mx-auto grid max-w-5xl grid-cols-1 justify-items-stretch gap-7",
-    "sm:grid-cols-3 sm:items-end sm:gap-5",
-    "md:gap-7",
+    mobileScroll,
+    "md:mx-auto md:grid md:max-w-5xl md:grid-cols-3 md:items-end md:gap-7 md:overflow-visible md:px-0 md:pb-0",
   );
 }
 
@@ -173,7 +173,10 @@ export function CaseStudyScreens({
         >
           <ul className={galleryLayoutClass(count)}>
             {images.map((asset, i) => (
-              <li key={workImageStableKey(asset, i)} className="min-w-0">
+              <li
+                key={workImageStableKey(asset, i)}
+                className="min-w-0 shrink-0 basis-[72%] snap-start sm:basis-[52%] md:shrink md:basis-auto md:snap-align-none"
+              >
                 <ScreenCard
                   asset={asset}
                   title={title}

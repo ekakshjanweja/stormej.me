@@ -1,4 +1,4 @@
-import { work } from "@/lib/constants/work";
+import { listWork } from "@/lib/work";
 import Link from "next/link";
 import Image from "next/image";
 import { WorkPreview } from "@/components/work-preview";
@@ -12,6 +12,7 @@ function formatRange(start: Date, end?: Date | null) {
 }
 
 export default function Work() {
+  const work = listWork();
   return (
     <section data-cursor-anchor="work">
       <div className="flex justify-between items-baseline mb-6">
@@ -27,16 +28,16 @@ export default function Work() {
       </div>
       <ul className="flex flex-col gap-5">
         {work.slice(0, 2).map((item) => (
-          <li key={item.id}>
+          <li key={item.slug}>
             <WorkPreview
               title={item.title}
-              href={`/work/${item.id}`}
+              href={`/work/${item.slug}`}
               logo={item.logo}
               images={item.images}
               screenshotMockup={item.screenshotMockup}
             >
               <Link
-                href={`/work/${item.id}`}
+                href={`/work/${item.slug}`}
                 className="group flex items-baseline justify-between gap-4 hover-dim focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
               >
                 <div className="flex items-center gap-3 min-w-0">
