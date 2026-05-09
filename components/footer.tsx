@@ -8,7 +8,9 @@ export default function Footer() {
       </span>
       <span className="meta-tag inline-flex items-center gap-2">
         <span>© {new Date().getFullYear()} · new delhi</span>
-        <span aria-hidden className="opacity-40">·</span>
+        <span aria-hidden className="opacity-40">
+          ·
+        </span>
         <FooterClock />
       </span>
     </footer>
