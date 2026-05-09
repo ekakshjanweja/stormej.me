@@ -12,14 +12,6 @@ function sortKeyForWorkSlug(slug: string) {
 }
 
 export type WorkChapterNav = { id: string; label: string };
-export type WorkOutcome = { metric: string; label: string };
-export type WorkProject = {
-  title: string;
-  highlights?: string[];
-  playstore?: string;
-  appstore?: string;
-  website?: string;
-};
 
 export type WorkFrontmatter = {
   title: string;
@@ -33,11 +25,8 @@ export type WorkFrontmatter = {
   logo?: string;
   images?: WorkImageAsset[];
   screenshotMockup?: ScreenshotMockupKind;
-  highlights?: string[];
-  projects?: WorkProject[];
   challenge?: string;
   chapters?: WorkChapterNav[];
-  outcomes?: WorkOutcome[];
   published?: boolean;
 };
 

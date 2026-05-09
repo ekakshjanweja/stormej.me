@@ -128,26 +128,7 @@ export default async function Page({ params }: PageProps) {
         )}
       </header>
 
-      {fm.highlights && fm.highlights.length > 0 && (
-        <section className="mb-10">
-          <h2 className="section-label mb-5">highlights</h2>
-          <ul className="space-y-3">
-            {fm.highlights.map((highlight, i) => (
-              <li
-                key={i}
-                className="flex items-start gap-3 text-[14px] font-light leading-[1.6] text-foreground"
-              >
-                <span className="select-none text-muted-foreground mt-[2px]">
-                  —
-                </span>
-                <span>{highlight}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {fm.youtube && (
+{fm.youtube && (
         <div className="mb-10 rounded-lg overflow-hidden">
           <YouTubeVideo
             videoId={extractYouTubeVideoId(fm.youtube)!}
@@ -156,7 +137,9 @@ export default async function Page({ params }: PageProps) {
         </div>
       )}
 
-      <ProjectImages title={fm.title} images={fm.images} />
+      {!fm.inlineGallery && (
+        <ProjectImages title={fm.title} images={fm.images} />
+      )}
 
       <article className="prose-fuma mt-10">
         <MDX components={getMDXComponents()} />

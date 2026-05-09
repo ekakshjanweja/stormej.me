@@ -18,8 +18,8 @@ export type ProjectFrontmatter = {
   website?: string;
   github?: string;
   youtube?: string;
-  highlights?: string[];
   images?: string[];
+  inlineGallery?: boolean;
   hidden?: boolean;
   published?: boolean;
 };

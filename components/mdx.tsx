@@ -14,6 +14,12 @@ import { Step, Steps } from "fumadocs-ui/components/steps";
 import { Tab, Tabs } from "fumadocs-ui/components/tabs";
 import { TypeTable } from "fumadocs-ui/components/type-table";
 import { Mermaid } from "./mdx/mermaid";
+import { Screens } from "./mdx/screens";
+import { Figure } from "./mdx/figure";
+import { Gallery } from "./mdx/gallery";
+import { Highlights } from "./mdx/highlights";
+import { Outcomes } from "./mdx/outcomes";
+import { Links } from "./mdx/links";
 
 // Bridge old callout types to Fumadocs types so existing posts keep rendering.
 type LegacyCalloutType = "note" | "tip" | "warning" | "danger";
@@ -125,6 +131,12 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     Yt,
     Compare,
     Badge,
+    Screens,
+    Figure,
+    Gallery,
+    Highlights,
+    Outcomes,
+    Links,
     CodeBlock,
     Pre,
     // Click-to-zoom for inline images.

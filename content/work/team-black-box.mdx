@@ -23,27 +23,6 @@ chapters:
     label: nlp
   - id: maps
     label: maps
-outcomes:
-  - metric: 3 apps
-    label: features shipped
-  - metric: ~30% gain
-    label: reminder parsing accuracy
-  - metric: rn · firebase · skia
-    label: stack
-projects:
-  - title: take a sip
-    highlights:
-      - built the custom sips feature using react native and firebase
-      - added markdown-based changelog support inside the app
-    playstore: https://play.google.com/store/apps/details?id=app.takeasip
-  - title: i won't forget
-    highlights:
-      - used nlp via compromise.cool to extract reminder details and improve accuracy by 30%
-      - wrote unit tests to ensure parsing stability
-    playstore: https://play.google.com/store/apps/details?id=app.iwontforget
-  - title: land blocks
-    highlights:
-      - plotted polygons on maps using location data and react-native-skia
 ---
 
 <Chapter id="internship" label="internship" title="three products, one six-month run">
@@ -73,3 +52,46 @@ i wrote **unit tests** around the extraction paths so refactors didn't silently 
 on **land blocks** i took location data and **drew polygons on the map** using **react-native-skia**, wiring geo inputs to something visual on screen.
 
 </Chapter>
+
+<Links
+  title="take a sip"
+  items={[
+    { label: "play store", href: "https://play.google.com/store/apps/details?id=app.takeasip" },
+  ]}
+/>
+
+<Highlights
+  items={[
+    "built the custom sips feature using react native and firebase",
+    "added markdown-based changelog support inside the app",
+  ]}
+/>
+
+<Links
+  title="i won't forget"
+  items={[
+    { label: "play store", href: "https://play.google.com/store/apps/details?id=app.iwontforget" },
+  ]}
+/>
+
+<Highlights
+  items={[
+    "used nlp via compromise.cool to extract reminder details and improve accuracy by 30%",
+    "wrote unit tests to ensure parsing stability",
+  ]}
+/>
+
+<Highlights
+  title="land blocks"
+  items={[
+    "plotted polygons on maps using location data and react-native-skia",
+  ]}
+/>
+
+<Outcomes
+  items={[
+    { metric: "3 apps", label: "features shipped" },
+    { metric: "~30% gain", label: "reminder parsing accuracy" },
+    { metric: "rn · firebase · skia", label: "stack" },
+  ]}
+/>

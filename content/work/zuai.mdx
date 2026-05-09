@@ -22,20 +22,6 @@ chapters:
     label: shipping
   - id: polish
     label: polish
-outcomes:
-  - metric: 500k+ users
-    label: scale at the time
-  - metric: first prod ship
-    label: my first real release
-  - metric: flutter · firebase
-    label: stack
-projects:
-  - title: zuapp
-    highlights:
-      - built onboarding and dashboard pages in flutter
-      - used riverpod and dio to support scale for 500k+ users
-      - added dark mode and contributed to ui polish
-    playstore: https://play.google.com/store/apps/details?id=in.zupay.app&hl=en
 ---
 
 <Chapter id="first-job" label="first job" title="showing up barely knowing github">
@@ -54,6 +40,14 @@ the app needed to handle **500k+ users** across patchy networks, so i used **riv
 
 </Chapter>
 
+<Screens
+  images={[
+    "/images/zuai/zuai_one.webp",
+    "/images/zuai/zuai_two.webp",
+    "/images/zuai/zuai_three.webp",
+  ]}
+/>
+
 <Chapter id="polish" label="polish" title="dark mode and the small stuff">
 
 i added **dark mode** across the screens i owned and nudged general ui polish along the way (spacing, type scale, hit targets). boring on paper but it keeps the product from feeling janky.
@@ -61,3 +55,25 @@ i added **dark mode** across the screens i owned and nudged general ui polish al
 this was where i first learned that **detail work compounds**. shipping a ticket isn't always the same thing as finishing it.
 
 </Chapter>
+
+<Links
+  items={[
+    { label: "play store", href: "https://play.google.com/store/apps/details?id=in.zupay.app&hl=en" },
+  ]}
+/>
+
+<Highlights
+  items={[
+    "built onboarding and dashboard pages in flutter",
+    "used riverpod and dio to support scale for 500k+ users",
+    "added dark mode and contributed to ui polish",
+  ]}
+/>
+
+<Outcomes
+  items={[
+    { metric: "500k+ users", label: "scale at the time" },
+    { metric: "first prod ship", label: "my first real release" },
+    { metric: "flutter · firebase", label: "stack" },
+  ]}
+/>

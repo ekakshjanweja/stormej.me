@@ -30,8 +30,8 @@ const projectFrontmatterSchema = frontmatterSchema.extend({
   website: z.string().optional(),
   github: z.string().optional(),
   youtube: z.string().optional(),
-  highlights: z.array(z.string()).optional(),
   images: z.array(z.string()).optional(),
+  inlineGallery: z.boolean().optional(),
   hidden: z.boolean().optional(),
   published: z.boolean().optional(),
 });
@@ -57,19 +57,6 @@ const workChapterNavSchema = z.object({
   label: z.string(),
 });
 
-const workOutcomeSchema = z.object({
-  metric: z.string(),
-  label: z.string(),
-});
-
-const workProjectSchema = z.object({
-  title: z.string(),
-  highlights: z.array(z.string()).optional(),
-  playstore: z.string().optional(),
-  appstore: z.string().optional(),
-  website: z.string().optional(),
-});
-
 const workFrontmatterSchema = frontmatterSchema.extend({
   subtitle: z.string().optional(),
   role: z.string(),
@@ -80,11 +67,8 @@ const workFrontmatterSchema = frontmatterSchema.extend({
   logo: z.string().optional(),
   images: z.array(workImageAssetSchema).optional(),
   screenshotMockup: z.literal("iphone-17-pro").optional(),
-  highlights: z.array(z.string()).optional(),
-  projects: z.array(workProjectSchema).optional(),
   challenge: z.string().optional(),
   chapters: z.array(workChapterNavSchema).optional(),
-  outcomes: z.array(workOutcomeSchema).optional(),
   published: z.boolean().optional(),
 });
 

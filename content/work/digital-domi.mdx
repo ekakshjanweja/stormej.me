@@ -17,14 +17,6 @@ images:
     dark: /images/domi/domi_two_dark.PNG
   - light: /images/domi/domi_three.PNG
     dark: /images/domi/domi_three_dark.PNG
-  - light: /images/domi/domi_four.PNG
-    dark: /images/domi/domi_four_dark.PNG
-  - light: /images/domi/domi_five.PNG
-    dark: /images/domi/domi_five_dark.PNG
-  - light: /images/domi/domi_six.PNG
-    dark: /images/domi/domi_six_dark.PNG
-  - light: /images/domi/domi_seven.PNG
-    dark: /images/domi/domi_seven_dark.PNG
 challenge: shape a mobile experience for digital mailboxes from scratch, on a small team, aiming for consumer-grade polish.
 chapters:
   - id: starting-point
@@ -35,24 +27,6 @@ chapters:
     label: shipping
   - id: system
     label: system
-outcomes:
-  - metric: ios + android + web
-    label: live on
-  - metric: github actions → s3
-    label: ci/cd
-  - metric: flutter · dart
-    label: stack
-projects:
-  - title: domi app
-    highlights:
-      - "built a flutter mobile app end to end: core flows, edge cases, and ui polish"
-      - used an mvc architecture with providers and value notifiers, keeping most state ephemeral
-      - developed a mail management system to share media and ad campaigns
-      - shipped a flutter web version with ci cd to s3 via github actions
-      - created a unified design system for both mobile and web
-    playstore: https://play.google.com/store/apps/details?id=com.domilabs.domi
-    appstore: https://apps.apple.com/us/app/digital-domi/id6738277048
-    website: https://web.digitaldomi.com/
 ---
 
 <Chapter id="starting-point" label="starting point" title="founding mobile at digital domi">
@@ -79,6 +53,18 @@ in parallel i shipped the **flutter web build**. same codebase, deployed to s3 v
 
 </Chapter>
 
+<Screens
+  images={[
+    { light: "/images/domi/domi_one.PNG", dark: "/images/domi/domi_one_dark.PNG" },
+    { light: "/images/domi/domi_two.PNG", dark: "/images/domi/domi_two_dark.PNG" },
+    { light: "/images/domi/domi_three.PNG", dark: "/images/domi/domi_three_dark.PNG" },
+    { light: "/images/domi/domi_four.PNG", dark: "/images/domi/domi_four_dark.PNG" },
+    { light: "/images/domi/domi_five.PNG", dark: "/images/domi/domi_five_dark.PNG" },
+    { light: "/images/domi/domi_six.PNG", dark: "/images/domi/domi_six_dark.PNG" },
+    { light: "/images/domi/domi_seven.PNG", dark: "/images/domi/domi_seven_dark.PNG" },
+  ]}
+/>
+
 <Chapter id="system" label="system" title="one design language across surfaces">
 
 as the surface grew, the components got pulled into a **unified design system** shared between mobile and web. button, sheet, list row, empty state: same primitives, same tokens, both targets.
@@ -86,3 +72,29 @@ as the surface grew, the components got pulled into a **unified design system** 
 the result: a release on one platform doesn't drift visually from the other, and a single change propagates everywhere it should.
 
 </Chapter>
+
+<Links
+  items={[
+    { label: "web", href: "https://web.digitaldomi.com/" },
+    { label: "play store", href: "https://play.google.com/store/apps/details?id=com.domilabs.domi" },
+    { label: "app store", href: "https://apps.apple.com/us/app/digital-domi/id6738277048" },
+  ]}
+/>
+
+<Highlights
+  items={[
+    "built a flutter mobile app end to end: core flows, edge cases, and ui polish",
+    "used an mvc architecture with providers and value notifiers, keeping most state ephemeral",
+    "developed a mail management system to share media and ad campaigns",
+    "shipped a flutter web version with ci cd to s3 via github actions",
+    "created a unified design system for both mobile and web",
+  ]}
+/>
+
+<Outcomes
+  items={[
+    { metric: "ios + android + web", label: "live on" },
+    { metric: "github actions → s3", label: "ci/cd" },
+    { metric: "flutter · dart", label: "stack" },
+  ]}
+/>
