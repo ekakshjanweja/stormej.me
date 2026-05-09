@@ -6,7 +6,7 @@
 @theme {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
-  --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-serif: var(--font-instrument-serif), ui-serif, Georgia, serif;
   --font-garamond: var(--font-garamond), ui-serif, Georgia, serif;
   --font-handjet: var(--font-handjet), ui-monospace, monospace;
   --font-space-mono: var(--font-space-mono), ui-monospace, monospace;
@@ -203,7 +203,7 @@ html {
 /* Editorial headline — serif display.
    Used for hero, blog titles, page-level statements. */
 .headline {
-  font-family: var(--font-fraunces), ui-serif, Georgia, serif;
+  font-family: var(--font-instrument-serif), ui-serif, Georgia, serif;
   font-weight: 400;
   letter-spacing: -0.01em;
   line-height: 1.25;
@@ -216,7 +216,7 @@ html {
   font-weight: 300;
 }
 
-/* Hero lede — Geist sans with Fraunces drops for emphasis. */
+/* Hero lede — Geist sans with Instrument Serif drops for emphasis. */
 .hero-lede {
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
   font-weight: 400;
@@ -226,7 +226,7 @@ html {
 }
 .hero-lede em,
 .hero-lede i {
-  font-family: var(--font-fraunces), ui-serif, Georgia, serif;
+  font-family: var(--font-instrument-serif), ui-serif, Georgia, serif;
   font-style: italic;
   font-weight: 300;
 }
@@ -239,7 +239,7 @@ html {
   color: var(--foreground);
 }
 
-/* Editorial MDX article body — sans body, Fraunces headings.
+/* Editorial MDX article body — sans body, Instrument Serif headings.
    Code blocks defer to Fumadocs <CodeBlock> styling. */
 .prose-fuma {
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
@@ -256,7 +256,7 @@ html {
 .prose-fuma h4,
 .prose-fuma h5,
 .prose-fuma h6 {
-  font-family: var(--font-fraunces), ui-serif, Georgia, serif;
+  font-family: var(--font-instrument-serif), ui-serif, Georgia, serif;
   font-weight: 500;
   letter-spacing: -0.01em;
   line-height: 1.25;

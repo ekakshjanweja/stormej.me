@@ -11,6 +11,7 @@ import { NextjsIconDark as Nextjs } from "@/components/ui/svgs/nextjsIconDark";
 import { Typescript } from "@/components/ui/svgs/typescript";
 import { Hono } from "@/components/ui/svgs/hono";
 import { Tailwindcss } from "@/components/ui/svgs/tailwindcss";
+import { Arch } from "@/components/ui/svgs/arch";
 
 export default function Stack() {
   const stack = [
@@ -21,6 +22,7 @@ export default function Stack() {
     { name: "tailwindcss", icon: Tailwindcss },
     { name: "bun", icon: Bun },
     { name: "hono", icon: Hono },
+    { name: "arch linux (on the desktop)", icon: Arch },
   ];
 
   return (

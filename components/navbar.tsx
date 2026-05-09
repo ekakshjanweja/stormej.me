@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { resume, valorant } from "@/lib/constants/links";
+import { resume } from "@/lib/constants/links";
 import { cn } from "@/lib/utils";
 import { Menu, X as CloseIcon } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -95,9 +95,6 @@ export function Navbar() {
           case "r":
             window.open(resume, "_blank");
             break;
-          case "v":
-            window.open(valorant, "_blank");
-            break;
         }
       }
     };
@@ -109,7 +106,7 @@ export function Navbar() {
     <>
       <nav
         className={cn(
-          "sticky top-0 z-50 px-4 md:px-0 py-5 mb-10",
+          "sticky top-0 z-50 px-4 py-5 mb-10",
           "flex items-center justify-between",
           "bg-background/85 backdrop-blur-md"
         )}

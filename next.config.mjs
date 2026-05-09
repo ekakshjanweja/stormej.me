@@ -28,6 +28,7 @@ const nextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "cdn.hashnode.com" },
       { protocol: "https", hostname: "**.hashnode.com" },
+      { protocol: "https", hostname: "api.microlink.io" },
     ],
   },
 

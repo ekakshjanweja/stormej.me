@@ -5,7 +5,7 @@ import {
   Space_Mono,
   EB_Garamond,
   Handjet,
-  Fraunces,
+  Instrument_Serif,
 } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/lib/providers/theme-provider";
@@ -44,10 +44,10 @@ const handjet = Handjet({
   weight: ["400", "500"],
 });
 
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
   subsets: ["latin"],
-  weight: ["300", "400", "500"],
+  weight: ["400"],
   style: ["italic", "normal"],
 });
 
@@ -110,7 +110,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${spaceMono.variable} ${ebGaramond.variable} ${handjet.variable} ${fraunces.variable}`}
+      className={`${geistSans.variable} ${geistMono.variable} ${spaceMono.variable} ${ebGaramond.variable} ${handjet.variable} ${instrumentSerif.variable}`}
     >
       <body
         className="antialiased"

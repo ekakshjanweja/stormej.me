@@ -7,7 +7,7 @@ import { Linkedin } from "@/components/ui/svgs/linkedin";
 
 export default function SocialLinks() {
   return (
-    <div className="flex items-center gap-5 mt-8">
+    <div className="flex items-center gap-5">
       <Link
         href={github}
         target="_blank"
