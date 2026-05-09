@@ -12,8 +12,8 @@ const Dart = (props: SVGProps<SVGSVGElement>) => (
         fy="50.002%"
         gradientTransform="matrix(1 0 0 .99985 0 0)"
       >
-        <stop offset="0%" stop-color="#FFF" stop-opacity=".1" />
-        <stop offset="100%" stop-color="#FFF" stop-opacity="0" />
+        <stop offset="0%" stopColor="#FFF" stopOpacity=".1" />
+        <stop offset="100%" stopColor="#FFF" stopOpacity="0" />
       </radialGradient>
     </defs>
     <path

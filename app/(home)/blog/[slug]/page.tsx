@@ -1,108 +1,76 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import fs from "fs";
-import path from "path";
-import matter from "gray-matter";
-import type { Metadata } from "next";
-import { MDX } from "./mdx";
+import { source } from "@/lib/source";
+import { notFound } from "next/navigation";
 import Link from "next/link";
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
-  const post = await getPost(await params);
-  const title = post.frontMatter.title;
-  const description = post.frontMatter.description;
-
-  return {
-    title: title,
-    description: description,
-  };
-}
-
-async function getPost({ slug }: { slug: string }) {
-  try {
-    const markdownFile = fs.readFileSync(
-      path.join("content", slug + ".mdx"),
-      "utf-8"
-    );
-
-    const { data: frontMatter, content } = matter(markdownFile);
-    return {
-      frontMatter,
-      slug,
-      content,
-    };
-  } catch (error) {
-    console.error("Error fetching post:", error);
-    throw new Error(`Unable to fetch the post for slug: ${slug}`);
-  }
-}
-
-export async function generateStaticParams() {
-  const files = fs.readdirSync(path.join("content"));
-  const params = files.map((filename) => ({
-    slug: filename.replace(".mdx", ""),
-  }));
-
-  return params;
-}
+import type { Metadata } from "next";
+import { getMDXComponents } from "@/components/mdx";
+import { createRelativeLink } from "fumadocs-ui/mdx";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+export async function generateStaticParams() {
+  return source.generateParams().map(({ slug }) => ({
+    slug: slug?.[0] ?? "",
+  }));
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const page = source.getPage([slug]);
+  if (!page) notFound();
+
+  return {
+    title: page.data.title,
+    description: page.data.description,
+  };
+}
+
 export default async function Page({ params }: PageProps) {
-  const props = await getPost(await params);
+  const { slug } = await params;
+  const page = source.getPage([slug]);
+  if (!page) notFound();
+
+  const MDX = page.data.body;
+
+  const dateText = page.data.date
+    ? new Date(page.data.date).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : null;
 
   return (
     <main>
-      <div className="max-w-4xl mx-auto">
-        {/* Back Navigation */}
-        <Link
-          href="/blog"
-          className="group inline-flex items-center gap-2 mb-12 text-sm text-muted-foreground hover:text-foreground transition-all duration-300 hover:gap-3"
-        >
-          <span className="transform group-hover:-translate-x-1 transition-transform duration-300">
-            ←
-          </span>
-          <span className="relative">
-            back to blogs
-            <span className="absolute inset-x-0 bottom-0 h-px bg-foreground/20 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
-          </span>
-        </Link>
+      <Link
+        href="/blog"
+        className="meta-tag hover-dim inline-flex items-center gap-1.5 mb-12 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
+      >
+        ← back
+      </Link>
 
-        {/* Blog Header */}
-        <div className="mb-12">
-          <div className="space-y-4">
-            {/* 1. Title */}
-            <p className="text-lg md:text-xl font-semibold tracking-tight">
-              {props.frontMatter.title}
-            </p>
+      <header className="mb-10 space-y-4">
+        <h1 className="headline text-[clamp(24px,2.8vw,36px)]">
+          {page.data.title}
+        </h1>
+        {dateText && <p className="meta-tag">{dateText}</p>}
+        {page.data.description && (
+          <p className="text-[14px] font-light leading-[1.6] text-muted-foreground">
+            {page.data.description}
+          </p>
+        )}
+      </header>
 
-            {/* 2. Meta information */}
-            <div className="text-xs md:text-sm text-muted-foreground font-medium">
-              {new Date(props.frontMatter.date).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}{" "}
-              • {Math.ceil(props.content.split(" ").length / 200)} min read
-            </div>
-
-            {/* 3. Description */}
-            <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
-              {props.frontMatter.description}
-            </p>
-          </div>
-        </div>
-
-        {/* Blog Content */}
-        <article className="max-w-none">
-          <MDX source={props.content} />
-        </article>
-      </div>
+      <article className="prose-fuma">
+        <MDX
+          components={getMDXComponents({
+            a: createRelativeLink(source, page),
+          })}
+        />
+      </article>
     </main>
   );
 }

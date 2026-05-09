@@ -24,7 +24,7 @@ Posts live as MDX files under `content/`. Each file uses YAML front matter (`tit
 
 - **`published`** (optional): omit or `true` to list the post on `/blog` and the homepage blog section. Set to `false` to **unpublish** (hidden from those lists; the post remains reachable at `/blog/[slug]` if you share the link).
 
-Listing logic: [`lib/fetcher.ts`](lib/fetcher.ts) (`getBlogs()`).
+Listing logic: [`lib/blog.ts`](lib/blog.ts) (`listBlogs()`), backed by Fumadocs MDX (`content/`).
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 

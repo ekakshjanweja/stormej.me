@@ -1,6 +1,6 @@
 import { BlogRow } from "./_components/blog-row";
 import Hero from "./_components/hero";
-import { Projects } from "./_components/projects";
+// import { Projects } from "./_components/projects";
 import Work from "./_components/work";
 import Stack from "./_components/stack";
 import { Contributions } from "./_components/contributions";
@@ -40,13 +40,13 @@ export default async function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <div className="space-y-12">
+      <div className="space-y-16">
         <Hero />
         <Work />
-        <Contributions />
-        <Stack />
-        <Projects />
+        {/* <Projects /> */}
         <BlogRow />
+        <Stack />
+        <Contributions />
       </div>
     </>
   );

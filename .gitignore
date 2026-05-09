@@ -19,6 +19,9 @@
 /.next/
 /out/
 
+# fumadocs generated source
+/.source/
+
 # production
 /build
 
@@ -43,6 +46,7 @@ next-env.d.ts
 
 # Lock files
 *lock*
+!components/footer-clock.tsx
 
 # Environment
 .env

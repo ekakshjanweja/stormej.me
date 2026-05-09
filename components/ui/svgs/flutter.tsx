@@ -5,7 +5,7 @@ const Flutter = (props: SVGProps<SVGSVGElement>) => (
     <defs>
       <linearGradient x1="4%" y1="27%" x2="75.9%" y2="52.9%" id="a">
         <stop offset="0%" />
-        <stop stop-opacity="0" offset="100%" />
+        <stop stopOpacity="0" offset="100%" />
       </linearGradient>
     </defs>
     <path
@@ -14,7 +14,7 @@ const Flutter = (props: SVGProps<SVGSVGElement>) => (
     />
     <path fill="#00569E" d="m121 280 37 37h97l-85-86z" />
     <path fill="#00B5F8" d="m72 230 48-48 50 49-49 49z" />
-    <path fill-opacity=".8" fill="url(#a)" d="m121 280 41-14 4-31z" />
+    <path fillOpacity=".8" fill="url(#a)" d="m121 280 41-14 4-31z" />
   </svg>
 );
 

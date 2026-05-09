@@ -1,0 +1,124 @@
+---
+title: merlin - all in one ai
+subtitle: flutter, ai, and pushing the limits
+description: worked on merlin's flutter app building new features, tightening the ux, and improving dev workflows.
+role: mobile intern
+startDate: 2024-05-01
+endDate: 2024-10-01
+website: https://www.getmerlin.in/
+tech:
+  - flutter
+  - dart
+  - firebase
+  - kotlin
+  - jetpack glance
+logo: /images/logos/merlin.svg
+images:
+  - light: /images/merlin/merlin_one.png
+    dark: /images/merlin/merlin_one_dark.png
+  - light: /images/merlin/merlin_two.png
+    dark: /images/merlin/merlin_two_dark.png
+  - light: /images/merlin/merlin_six.png
+    dark: /images/merlin/merlin_six_dark.png
+screenshotMockup: iphone-17-pro
+challenge: ship native-feeling android features and a new ai image-gen app on top of merlin's existing flutter codebase, without slowing the team down.
+chapters:
+  - id: context
+    label: context
+  - id: android-native
+    label: android
+  - id: platform
+    label: platform
+  - id: wallflower
+    label: wallflower
+---
+
+<Chapter id="context" label="context" title="joining a fast-moving consumer ai app">
+
+merlin was already shipping fast when i joined: a flutter app talking to multiple ai backends, growing across ios and android. my job was to **push the surface area outward**: native android touchpoints, sharper ux, and a second app under the same brand.
+
+</Chapter>
+
+<Chapter id="android-native" label="android" title="widgets, shortcuts, and intents" pullQuote="the cheapest engagement is the one users don't have to open the app for.">
+
+android users expected the app to feel native, not just look like a flutter shell. i added **home-screen widgets via jetpack glance**, **app shortcuts**, and **share-sheet intents** so merlin could be invoked from anywhere on the system.
+
+push notifications got rebuilt around action affordances so a tap opens the right thread instead of dumping you on the home screen.
+
+</Chapter>
+
+<Chapter id="platform" label="platform" title="a dart client for the backend">
+
+the team was rewriting api calls in every feature. i built a **dart client library** that wrapped auth, retries, and typed responses, so feature work stopped being plumbing work.
+
+alongside it: **http streaming** for chat responses and **config caching** to cut cold-start latency on flaky networks.
+
+</Chapter>
+
+<Screens
+  images={[
+    { light: "/images/merlin/merlin_one.png", dark: "/images/merlin/merlin_one_dark.png" },
+    { light: "/images/merlin/merlin_two.png", dark: "/images/merlin/merlin_two_dark.png" },
+    { light: "/images/merlin/merlin_three.png", dark: "/images/merlin/merlin_three_dark.png" },
+    { light: "/images/merlin/merlin_four.png", dark: "/images/merlin/merlin_four_dark.png" },
+    { light: "/images/merlin/merlin_five.png", dark: "/images/merlin/merlin_five_dark.png" },
+    { light: "/images/merlin/merlin_six.png", dark: "/images/merlin/merlin_six_dark.png" },
+    { light: "/images/merlin/merlin_seven.png", dark: "/images/merlin/merlin_seven_dark.png" },
+  ]}
+/>
+
+<Chapter id="wallflower" label="wallflower" title="a second app, same dna">
+
+i led **wallflower** end to end as a standalone ai image-gen app powered by **flux 1.1 pro** and **ideogram 2.0**. generation flows, prompt ux, gallery, and sharing, soup to nuts.
+
+it shipped on both stores and reused merlin's component vocabulary so the brand felt continuous across products.
+
+</Chapter>
+
+<Screens
+  images={[
+  "/images/merlin/wallflower_one.png",
+  "/images/merlin/wallflower_two.png",
+  "/images/merlin/wallflower_three.png",
+  "/images/merlin/wallflower_four.png",
+  ]}
+/>
+
+<Links
+  title="merlin - chat with ai"
+  items={[
+    { label: "play store", href: "https://play.google.com/store/apps/details?id=com.foyer.merlin&hl=en_IN" },
+    { label: "app store", href: "https://apps.apple.com/us/app/merlin-ai-ask-chat-write/id6453692447" },
+  ]}
+/>
+
+<Highlights
+  items={[
+    "added android widgets, app shortcuts, sharing intents, and push notifications",
+    "built a dart client library to streamline backend access",
+    "added http streaming and config caching to improve performance and stability",
+  ]}
+/>
+
+<Links
+  title="wallflower - ai image generator"
+  items={[
+    { label: "play store", href: "https://play.google.com/store/apps/details?id=com.foyer.wallflower" },
+    { label: "app store", href: "https://apps.apple.com/in/app/wallflower-ai-image-generator/id6670315498" },
+  ]}
+/>
+
+<Highlights
+  items={[
+    "led wallflower's development for an ai image gen app using models like flux 1.1 pro and ideogram 2.0",
+    "handled image generation flows, ux, and feature development end to end",
+  ]}
+/>
+
+<Outcomes
+  items={[
+    { metric: "2 apps", label: "shipped on ios + android" },
+    { metric: "jetpack glance", label: "android home-screen widgets" },
+    { metric: "flux + ideogram", label: "image-gen models in prod" },
+  ]}
+/>

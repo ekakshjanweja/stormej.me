@@ -1,98 +1,67 @@
-import { work } from "@/lib/constants/work";
+import { listWork } from "@/lib/work";
 import Link from "next/link";
-import Image from "next/image";
-import { cn } from "@/lib/utils";
+import { WorkPreview } from "@/components/work-preview";
+import { WorkLogoMark } from "@/components/work-logo";
+
+function formatRange(start: Date, end?: Date | null) {
+  const fmt = (d: Date) =>
+    d
+      .toLocaleString("default", { month: "short", year: "numeric" })
+      .toLowerCase();
+  return `${fmt(start)} to ${end ? fmt(end) : "present"}`;
+}
 
 export default function Work() {
+  const work = listWork();
   return (
     <main>
-      {/* Page Header */}
-      <div className="mb-6">
-        <h1 className="text-lg md:text-xl font-semibold tracking-tight">
-          work
-        </h1>
-      </div>
-
-      {/* Work Experience List */}
-      <div className="flex flex-col gap-4">
+      <h1 className="section-label mb-8">work</h1>
+      <ul className="flex flex-col gap-6">
         {work.map((item) => (
-          <Link key={item.id} href={`/work/${item.id}`} className="group">
-            <div
-              className={cn(
-                "group relative overflow-hidden rounded-lg",
-                "border border-border/10 bg-muted/30",
-                "hover:border-border/50 dark:hover:border-border/40",
-                "hover:bg-muted/50 dark:hover:bg-card/70",
-                "backdrop-blur-sm transition-all duration-700 ease-in-out",
-                "cursor-pointer p-3",
-                "hover:shadow-md hover:shadow-primary/10 dark:hover:shadow-primary/5",
-                "transform-gpu"
-              )}
+          <li key={item.slug}>
+            <WorkPreview
+              title={item.title}
+              href={`/work/${item.slug}`}
+              logo={item.logo}
+              images={item.images}
+              screenshotMockup={item.screenshotMockup}
             >
-              {/* Animated gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 dark:from-primary/5 dark:via-transparent dark:to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 ease-in-out" />
-
-              {/* Shimmer effect on hover */}
-              <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1500 ease-in-out bg-gradient-to-r from-transparent via-primary/5 to-transparent dark:via-white/5 opacity-0 group-hover:opacity-100" />
-
-              {/* Content */}
-              <div className="relative flex flex-col gap-3">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                  <div className="flex items-center gap-3">
+              <Link
+                href={`/work/${item.slug}`}
+                className="group flex flex-col gap-2 hover-dim focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
+              >
+                <div className="flex items-baseline justify-between gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
                     {item.logo && (
-                      <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-md bg-muted/20 p-1.5 border border-border/10 opacity-95 transition-all duration-500 group-hover:opacity-100 group-hover:grayscale-0">
-                        <Image
-                          src={item.logo}
-                          alt={item.title}
-                          fill
-                          className="object-contain"
-                        />
-                      </div>
+                      <WorkLogoMark
+                        logo={item.logo}
+                        boxClassName="h-7 w-7"
+                        imagePadClassName="p-1"
+                      />
                     )}
-                    <div className="flex flex-col gap-0.5">
-                      <h3 className="text-sm md:text-base font-semibold tracking-tight text-foreground group-hover:text-primary transition-colors duration-700 ease-in-out">
+                    <div className="flex flex-col gap-0.5 min-w-0">
+                      <span className="text-[14px] font-medium text-foreground truncate">
                         {item.title}
-                      </h3>
-                      <p className="text-xs md:text-sm text-muted-foreground font-medium transition-colors duration-700 ease-in-out group-hover:text-muted-foreground/90">
+                      </span>
+                      <span className="text-[12px] font-light text-muted-foreground leading-tight">
                         {item.role}
-                      </p>
+                      </span>
                     </div>
                   </div>
-                  <div className="text-left md:text-right mt-1 md:mt-0">
-                    <p className="text-xs md:text-sm text-muted-foreground/70 transition-colors duration-700 ease-in-out group-hover:text-muted-foreground/90">
-                      {item.startDate
-                        .toLocaleString("default", {
-                          month: "short",
-                          year: "numeric",
-                        })
-                        .toLowerCase()}{" "}
-                      -{" "}
-                      {item.endDate
-                        ? item.endDate
-                            .toLocaleString("default", {
-                              month: "short",
-                              year: "numeric",
-                            })
-                            .toLowerCase()
-                        : "present"}
-                    </p>
-                  </div>
+                  <span className="meta-tag whitespace-nowrap shrink-0">
+                    {formatRange(item.startDate, item.endDate)}
+                  </span>
                 </div>
-
-                {/* Description */}
                 {item.description && (
-                  <p className="text-xs md:text-sm text-muted-foreground/80 leading-relaxed group-hover:text-muted-foreground/90 transition-colors duration-700 ease-in-out">
+                  <p className="text-[13px] font-light leading-[1.55] text-muted-foreground pl-10">
                     {item.description}
                   </p>
                 )}
-              </div>
-
-              {/* Animated border */}
-              <div className="absolute inset-0 rounded-lg border-2 border-transparent group-hover:border-primary/20 dark:group-hover:border-primary/30 transition-all duration-700 ease-in-out" />
-            </div>
-          </Link>
+              </Link>
+            </WorkPreview>
+          </li>
         ))}
-      </div>
+      </ul>
     </main>
   );
 }

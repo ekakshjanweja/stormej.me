@@ -1,70 +1,57 @@
 import { domi, resume } from "@/lib/constants/links";
 import Link from "next/link";
 import SocialLinks from "./social-links";
-import { Button } from "@/components/ui/button";
-import { FileText, Mail } from "lucide-react";
+import { ArrowUpRight, FileText, Mail } from "lucide-react";
+import { LinkPreview } from "@/components/ui/link-preview";
 
 export default function Hero() {
   return (
-    <>
-      <section aria-labelledby="hero-heading" data-cursor-anchor="hero">
-        <div className="space-y-3 mt-2 md:mt-12">
-          <p className="text-xs md:text-sm text-foreground font-light leading-relaxed">
-            hi, i&apos;m ekaksh.
-          </p>
-          <p className="text-xs md:text-sm text-foreground font-light leading-relaxed">
-            i build mobile apps that feel fast, clean and reliable. i&apos;ve
-            spent the last couple of years shipping products at early stage
-            startups and right now i&apos;m building the consumer experience at{" "}
-            <Link
-              href={domi}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline decoration-muted-foreground underline-offset-4 hover:decoration-highlight hover:text-highlight transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
-            >
-              digitaldomi
-            </Link>
-            .
-          </p>
-          <p className="text-xs md:text-sm text-foreground font-light leading-relaxed">
-            i enjoy taking product problems apart and building clean solutions.
-          </p>
-          <div className="text-xs md:text-sm text-foreground font-light leading-relaxed space-y-1 pt-2">
-            <p>other things about me:</p>
-            <p>i use arch btw.</p>
-            <p>i play valorant.</p>
-          </div>
-        </div>
+    <section aria-labelledby="hero-heading" data-cursor-anchor="hero">
+      <p
+        id="hero-heading"
+        className="hero-lede text-[clamp(26px,4vw,34px)] max-w-[58ch]"
+      >
+        buildng mobile apps and shipping products at early-stage startups for
+        past few years, right now i&apos;m shaping{" "}
+        <LinkPreview url={domi} className="squiggle-link font-serif italic">
+          digitaldomi
+        </LinkPreview>
+        .
+      </p>
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-3 pt-6">
-          <Button
-            asChild
-            variant="outline"
-            className="group gap-2 py-5 font-medium rounded-lg transition-all duration-300 hover:scale-[1.01] hover:shadow-md border-border/50 hover:border-border hover:bg-accent/50"
+      <div className="mt-10 flex w-full max-w-[58ch] flex-col gap-6 text-[13px] sm:mt-12 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-4 sm:gap-y-6">
+        <div className="flex w-full gap-3 sm:w-auto max-sm:[&>a]:min-h-11 max-sm:[&>a]:flex-1 max-sm:[&>a]:justify-center">
+          <Link
+            href="https://cal.com/ekaksh-janweja-pfvauh"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-foreground px-4 py-3 text-background transition-all duration-200 hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 sm:py-2"
           >
-            <Link href={resume} target="_blank" rel="noopener noreferrer">
-              <FileText className="w-4 h-4" />
-              resume
-            </Link>
-          </Button>
-          <Button
-            asChild
-            className="group relative gap-2 py-5 font-medium rounded-lg transition-all duration-300 hover:scale-[1.01] hover:shadow-lg bg-accent-foreground text-primary-foreground hover:bg-accent-foreground/90"
+            <Mail className="size-4 shrink-0 sm:size-3.5" aria-hidden />
+            <span className="tabular-nums">get in touch</span>
+            <ArrowUpRight
+              className="size-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 sm:size-3.5"
+              aria-hidden
+            />
+          </Link>
+          <Link
+            href={resume}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex shrink-0 items-center gap-2 rounded-full border border-border px-4 py-3 text-foreground transition-all duration-200 hover:border-foreground/40 hover:bg-muted/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 sm:py-2"
           >
-            <Link
-              href="https://cal.com/ekaksh-janweja-pfvauh"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Mail className="w-4 h-4 transition-transform duration-300" />
-              get in touch
-            </Link>
-          </Button>
+            <FileText className="size-4 shrink-0 sm:size-3.5" aria-hidden />
+            <span className="tabular-nums">resume</span>
+            <ArrowUpRight
+              className="size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-foreground sm:size-3.5"
+              aria-hidden
+            />
+          </Link>
         </div>
-        {/* Social Links */}
-        <SocialLinks />
-      </section>
-    </>
+        <div className="flex w-full shrink-0 items-center pl-2 pt-5 sm:w-auto sm:border-0 sm:pt-0">
+          <SocialLinks />
+        </div>
+      </div>
+    </section>
   );
 }

@@ -6,6 +6,7 @@ export const Contributions = async () => {
 
   return (
     <section data-cursor-anchor="contributions">
+      <h2 className="section-label mb-6">activity</h2>
       <ContributionsGraphClient
         data={contributions}
         total={total}

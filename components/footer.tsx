@@ -1,17 +1,18 @@
+import { FooterClock } from "./footer-clock";
+
 export default function Footer() {
   return (
-    <footer className="mt-12 border-t border-border/40 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-      <div className="py-8">
-        <div className="flex flex-col items-center gap-6">
-          {/* Copyright and Location */}
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} - new delhi
-            </p>
-            <p className="text-sm font-medium text-foreground">stormej</p>
-          </div>
-        </div>
-      </div>
+    <footer className="mt-24 px-4 py-8 flex items-center justify-between">
+      <span className="display-accent text-[18px] font-medium text-foreground">
+        stormej
+      </span>
+      <span className="meta-tag inline-flex items-center gap-2">
+        <span>© {new Date().getFullYear()} · new delhi</span>
+        <span aria-hidden className="opacity-40">
+          ·
+        </span>
+        <FooterClock />
+      </span>
     </footer>
   );
 }

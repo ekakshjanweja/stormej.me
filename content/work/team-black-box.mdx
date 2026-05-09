@@ -1,0 +1,97 @@
+---
+title: team black box
+subtitle: ui, nlp, and polygons ftw
+description: worked on multiple modules across ui, nlp, and geo-features. first time designing custom ui and playing with skia.
+role: mobile intern
+startDate: 2023-01-01
+endDate: 2023-06-01
+website: https://teamblackbox.in/
+tech:
+  - react
+  - react native
+  - firebase
+  - zustand
+  - skia
+logo: /images/logos/team-black-box.png
+challenge: ship real features across three small apps mixing custom ui, nlp parsing, and map geometry on react native with firebase and skia thrown in.
+chapters:
+  - id: internship
+    label: internship
+  - id: ui
+    label: ui
+  - id: nlp
+    label: nlp
+  - id: maps
+    label: maps
+---
+
+<Chapter id="internship" label="internship" title="three products, one six-month run">
+
+i joined **team black box** for my first long internship (six months) and rotated through **take a sip**, **i won't forget**, and **land blocks**. each one skewed differently: consumer ui, text intelligence, and geo visualization.
+
+the stack was **react native**, **firebase**, and **zustand** for state. it was my first time designing **custom ui** from scratch and my first real exposure to **skia** on mobile.
+
+</Chapter>
+
+<Chapter id="ui" label="ui" title="custom sips and in-app changelogs" pullQuote="if the update lives in the product, people actually read it.">
+
+on **take a sip** i built the **custom sips** flow end to end and wired it to firebase. i also added **markdown-based changelog** support inside the app so shipping notes could stay in-product instead of bouncing people to email or a blog.
+
+</Chapter>
+
+<Chapter id="nlp" label="nlp" title="parsing reminders from natural language">
+
+for **i won't forget** i used **compromise.cool** to pull structured reminder details out of free-form text. tuning the parser moved **accuracy up by about 30%** against our test set.
+
+i wrote **unit tests** around the extraction paths so refactors didn't silently break production behavior. that was my first time treating parsing like a subsystem, not a one-off script.
+
+</Chapter>
+
+<Chapter id="maps" label="maps" title="land plots with react-native-skia">
+
+on **land blocks** i took location data and **drew polygons on the map** using **react-native-skia**, wiring geo inputs to something visual on screen.
+
+</Chapter>
+
+<Links
+  title="take a sip"
+  items={[
+    { label: "play store", href: "https://play.google.com/store/apps/details?id=app.takeasip" },
+  ]}
+/>
+
+<Highlights
+  items={[
+    "built the custom sips feature using react native and firebase",
+    "added markdown-based changelog support inside the app",
+  ]}
+/>
+
+<Links
+  title="i won't forget"
+  items={[
+    { label: "play store", href: "https://play.google.com/store/apps/details?id=app.iwontforget" },
+  ]}
+/>
+
+<Highlights
+  items={[
+    "used nlp via compromise.cool to extract reminder details and improve accuracy by 30%",
+    "wrote unit tests to ensure parsing stability",
+  ]}
+/>
+
+<Highlights
+  title="land blocks"
+  items={[
+    "plotted polygons on maps using location data and react-native-skia",
+  ]}
+/>
+
+<Outcomes
+  items={[
+    { metric: "3 apps", label: "features shipped" },
+    { metric: "~30% gain", label: "reminder parsing accuracy" },
+    { metric: "rn · firebase · skia", label: "stack" },
+  ]}
+/>

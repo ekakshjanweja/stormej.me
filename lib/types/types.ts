@@ -1,42 +1,9 @@
-export type Work = {
-  id: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  role: string;
-  startDate: Date;
-  endDate?: Date;
-  website?: string;
-  tech: string[];
-  highlights?: string[];
-  projects?: WorkProject[];
-  features?: string[];
-  images?: string[];
-  logo?: string;
-};
+/** Device frame for work case-study screenshots (`CaseStudyScreens`). */
+export type ScreenshotMockupKind = "iphone-17-pro";
 
-export type WorkProject = {
-  title: string;
-  highlights: string[];
-  playstore?: string;
-  appstore?: string;
-  website?: string;
-  images?: string[];
-};
+/** One file, or light + dark pair (CSS `dark:` toggles visibility). */
+export type WorkImageAsset = string | { light: string; dark: string };
 
-export type Project = {
-  id: string;
-  title: string;
-  subtitle: string;
-  description?: string;
-  highlights?: string[];
-  features?: string[];
-  playstore?: string;
-  appstore?: string;
-  website?: string;
-  tech: string[];
-  youtube?: string;
-  github?: string;
-  hidden?: boolean;
-  images?: string[];
-};
+/** Work entry logo: same pairing as {@link WorkImageAsset}. */
+export type WorkLogoAsset = WorkImageAsset;
+

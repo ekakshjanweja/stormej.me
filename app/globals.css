@@ -1,4 +1,16 @@
 @import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+@source "../node_modules/fumadocs-ui/dist/**/*.js";
+
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+  --font-serif: var(--font-instrument-serif), ui-serif, Georgia, serif;
+  --font-garamond: var(--font-garamond), ui-serif, Georgia, serif;
+  --font-handjet: var(--font-handjet), ui-monospace, monospace;
+  --font-space-mono: var(--font-space-mono), ui-monospace, monospace;
+}
 
 :root {
   --radius: 0.65rem;
@@ -42,6 +54,25 @@
   --contribution-2: #40c463;
   --contribution-3: #30a14e;
   --contribution-4: #216e39;
+
+  /* Map Fumadocs UI tokens onto our existing palette so its components
+     inherit the editorial colors. */
+  --color-fd-background: var(--background);
+  --color-fd-foreground: var(--foreground);
+  --color-fd-card: var(--card);
+  --color-fd-card-foreground: var(--card-foreground);
+  --color-fd-popover: var(--popover);
+  --color-fd-popover-foreground: var(--popover-foreground);
+  --color-fd-primary: var(--primary);
+  --color-fd-primary-foreground: var(--primary-foreground);
+  --color-fd-secondary: var(--secondary);
+  --color-fd-secondary-foreground: var(--secondary-foreground);
+  --color-fd-muted: var(--muted);
+  --color-fd-muted-foreground: var(--muted-foreground);
+  --color-fd-accent: var(--accent);
+  --color-fd-accent-foreground: var(--accent-foreground);
+  --color-fd-border: var(--border);
+  --color-fd-ring: var(--ring);
 }
 
 .dark {
@@ -84,6 +115,24 @@
   --contribution-2: #006d32;
   --contribution-3: #26a641;
   --contribution-4: #39d353;
+
+  /* Fumadocs token mapping (dark) — inherit dark variants. */
+  --color-fd-background: var(--background);
+  --color-fd-foreground: var(--foreground);
+  --color-fd-card: var(--card);
+  --color-fd-card-foreground: var(--card-foreground);
+  --color-fd-popover: var(--popover);
+  --color-fd-popover-foreground: var(--popover-foreground);
+  --color-fd-primary: var(--primary);
+  --color-fd-primary-foreground: var(--primary-foreground);
+  --color-fd-secondary: var(--secondary);
+  --color-fd-secondary-foreground: var(--secondary-foreground);
+  --color-fd-muted: var(--muted);
+  --color-fd-muted-foreground: var(--muted-foreground);
+  --color-fd-accent: var(--accent);
+  --color-fd-accent-foreground: var(--accent-foreground);
+  --color-fd-border: var(--border);
+  --color-fd-ring: var(--ring);
 }
 
 @theme inline {
@@ -128,6 +177,278 @@
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
+}
+
+/* Text selection */
+::selection {
+  background-color: var(--text-highlight);
+  color: var(--background);
+}
+::-moz-selection {
+  background-color: var(--text-highlight);
+  color: var(--background);
+}
+
+/* Editorial label — uppercase, tracked-out mono.
+   Used for section headings (work, projects, blog). */
+.section-label {
+  font-family: var(--font-space-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--foreground);
+}
+
+/* Small mono caption — used for dates, tags, "MOBILE APP • 2024" style. */
+.meta-tag {
+  font-family: var(--font-space-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+/* Editorial headline — serif display.
+   Used for hero, blog titles, page-level statements. */
+.headline {
+  font-family: var(--font-instrument-serif), ui-serif, Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  color: var(--foreground);
+}
+
+.headline em,
+.headline i {
+  font-style: italic;
+  font-weight: 300;
+}
+
+/* Hero lede — Geist sans with Instrument Serif drops for emphasis. */
+.hero-lede {
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  color: var(--foreground);
+}
+.hero-lede em,
+.hero-lede i {
+  font-family: var(--font-instrument-serif), ui-serif, Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+}
+
+/* Long-form prose — Garamond for blog body. */
+.prose-serif {
+  font-family: var(--font-garamond), ui-serif, Georgia, serif;
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--foreground);
+}
+
+/* Editorial MDX article body — sans body, Instrument Serif headings.
+   Code blocks defer to Fumadocs <CodeBlock> styling. */
+.prose-fuma {
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--foreground);
+}
+.prose-fuma > * + * {
+  margin-top: 1.1em;
+}
+.prose-fuma h1,
+.prose-fuma h2,
+.prose-fuma h3,
+.prose-fuma h4,
+.prose-fuma h5,
+.prose-fuma h6 {
+  font-family: var(--font-instrument-serif), ui-serif, Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  color: var(--foreground);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  scroll-margin-top: 5rem;
+}
+.prose-fuma h1 a,
+.prose-fuma h2 a,
+.prose-fuma h3 a,
+.prose-fuma h4 a,
+.prose-fuma h5 a,
+.prose-fuma h6 a {
+  color: inherit;
+  text-decoration: none;
+}
+.prose-fuma h1 { font-size: clamp(22px, 2.4vw, 30px); }
+.prose-fuma h2 { font-size: clamp(20px, 2vw, 24px); }
+.prose-fuma h3 { font-size: clamp(17px, 1.6vw, 20px); }
+.prose-fuma h4 { font-size: 1rem; font-weight: 600; }
+.prose-fuma p {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+.prose-fuma a {
+  color: var(--text-highlight);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: opacity 150ms ease;
+}
+.prose-fuma a:hover {
+  opacity: 0.65;
+}
+.prose-fuma strong {
+  font-weight: 600;
+  color: var(--foreground);
+}
+.prose-fuma em {
+  font-style: italic;
+}
+.prose-fuma ul,
+.prose-fuma ol {
+  padding-left: 1.4em;
+}
+.prose-fuma ul { list-style: disc; }
+.prose-fuma ol { list-style: decimal; }
+.prose-fuma li { margin-top: 0.35em; }
+.prose-fuma li::marker { color: var(--muted-foreground); }
+.prose-fuma blockquote {
+  border-left: 2px solid var(--border);
+  padding-left: 1em;
+  font-style: italic;
+  color: var(--muted-foreground);
+}
+.prose-fuma hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 2.5em 0;
+}
+/* Inline code only — code fences use Fumadocs CodeBlock so Shiki keeps token colors. */
+.prose-fuma :not(pre) > code {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.875em;
+  padding: 0.15em 0.35em;
+  background: var(--muted);
+  border-radius: 4px;
+  color: var(--foreground);
+}
+/* Editorial overrides for Fumadocs <CodeBlock>.
+   Targets figure.shiki rendered by `pre: <CodeBlock><Pre/></CodeBlock>` mapping. */
+.prose-fuma figure.shiki {
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: none;
+  margin: 1.5em 0;
+}
+.prose-fuma figure.shiki > div:first-child:has(> .flex-1) {
+  /* Title bar — small mono uppercase. */
+  font-family: var(--font-space-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  border-bottom: 1px solid var(--border);
+  height: 2.25rem;
+}
+.prose-fuma figure.shiki pre {
+  background: transparent !important;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  margin: 0;
+}
+.prose-fuma figure.shiki pre code {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
+  color: inherit;
+}
+
+.prose-fuma img {
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.prose-fuma figure {
+  margin: 1.5em 0;
+}
+.prose-fuma figcaption {
+  font-family: var(--font-space-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  margin-top: 0.5em;
+  text-align: center;
+}
+.prose-fuma table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.prose-fuma th,
+.prose-fuma td {
+  border-bottom: 1px solid var(--border);
+  padding: 0.5em 0.75em;
+  text-align: left;
+}
+.prose-fuma th {
+  font-family: var(--font-space-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  font-weight: 400;
+}
+
+/* Display accent — used sparingly (footer brand, decorative). */
+.display-accent {
+  font-family: var(--font-handjet), ui-monospace, monospace;
+  letter-spacing: 0.04em;
+}
+
+/* Subtle dim hover for editorial text links and icons. */
+.hover-dim {
+  transition: opacity 150ms ease;
+}
+.hover-dim:hover {
+  opacity: 0.45;
+}
+
+/* SVG squiggle underline — mask + solid fill so color follows --text-highlight
+   in light/dark (currentColor in background SVG data URLs is unreliable). */
+.squiggle-link {
+  position: relative;
+  text-decoration: none;
+  color: var(--text-highlight);
+}
+.squiggle-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  width: 100%;
+  height: 6px;
+  background-color: var(--text-highlight);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 6'%3E%3Cpath d='M0 4 Q5 1 10 4 T20 4' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 6'%3E%3Cpath d='M0 4 Q5 1 10 4 T20 4' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E");
+  -webkit-mask-repeat: repeat-x;
+  mask-repeat: repeat-x;
+  -webkit-mask-size: 12px 6px;
+  mask-size: 12px 6px;
+  -webkit-mask-position: 0 0;
+  mask-position: 0 0;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+.squiggle-link:hover::after {
+  opacity: 1;
 }
 
 /* Screen reader only utility */

@@ -14,50 +14,20 @@ const gear = [
 export default function Gear() {
   return (
     <main>
-      {/* Page Header */}
-      <div className="mb-6">
-        <h1 className="text-lg md:text-xl font-semibold tracking-tight">
-          gear
-        </h1>
-      </div>
-
-      {/* Gear Grid */}
-      <div className="flex flex-col gap-4">
+      <h1 className="section-label mb-8">gear</h1>
+      <ul className="flex flex-col gap-3">
         {gear.map(({ label, value }) => (
-          <div
+          <li
             key={label}
-            className="group relative overflow-hidden rounded-lg border border-border/10 bg-muted/30 hover:border-border/30 hover:bg-card/50 backdrop-blur-sm transition-all duration-300 ease-out cursor-pointer p-3 hover:shadow-sm hover:shadow-primary/5"
+            className="flex items-baseline justify-between gap-4 border-b border-border/40 pb-3 last:border-0"
           >
-            {/* Subtle gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-            {/* Content */}
-            <div className="relative flex flex-col md:flex-row md:items-center md:justify-between">
-              <div className="flex flex-col gap-0.5">
-                <h3 className="text-sm md:text-base font-semibold tracking-tight text-foreground group-hover:text-primary/95 transition-colors duration-200">
-                  {label}
-                </h3>
-                <p className="text-xs md:text-sm text-muted-foreground font-medium transition-colors duration-200">
-                  {value}
-                </p>
-              </div>
-            </div>
-
-            {/* Subtle border animation */}
-            <div className="absolute inset-0 rounded-lg border border-transparent group-hover:border-primary/20 transition-all duration-500" />
-          </div>
+            <span className="meta-tag">{label}</span>
+            <span className="text-[13px] font-light text-foreground text-right">
+              {value}
+            </span>
+          </li>
         ))}
-      </div>
-
-      {/* Footer Section */}
-      <div className="mt-16 pt-8 border-t border-border/30 text-center">
-        <p className="text-sm text-muted-foreground/60">
-          always evolving, always improving
-        </p>
-        <p className="text-sm text-muted-foreground/40 mt-1">
-          this setup changes as i discover new tools and workflows
-        </p>
-      </div>
+      </ul>
     </main>
   );
 }
