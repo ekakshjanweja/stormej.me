@@ -1,8 +1,8 @@
 ---
 title: fpv labs - infrastructure for physical intelligence
-subtitle: robotics & physical intelligence
-description: building mobile surfaces at fpv labs — aligning product with hardware and intelligence in the physical world.
-role: mobile engineer
+subtitle: remote mobile systems for data capture
+description: building mobile systems at fpv labs for large uploads, ar recording, and reliable field capture across ios and android.
+role: part-time mobile engineer
 startDate: 2025-11-24
 website: https://www.fpvlabs.ai/
 tech:
@@ -19,7 +19,18 @@ images:
     dark: /images/fpv-labs/fpv_two_dark.PNG
   - light: /images/fpv-labs/fpv_three.PNG
     dark: /images/fpv-labs/fpv_three_dark.PNG
-challenge: ship polished mobile experiences for a team building infrastructure for physical intelligence, on a fast-moving roadmap.
+  - light: /images/fpv-labs/fpv_four.PNG
+    dark: /images/fpv-labs/fpv_four_dark.PNG
+  - light: /images/fpv-labs/fpv_five.PNG
+    dark: /images/fpv-labs/fpv_five_dark.PNG
+  - light: /images/fpv-labs/fpv_six.PNG
+    dark: /images/fpv-labs/fpv_six_dark.PNG
+  - light: /images/fpv-labs/fpv_seven.PNG
+    dark: /images/fpv-labs/fpv_seven_dark.PNG
+  - light: /images/fpv-labs/fpv_eight.PNG
+    dark: /images/fpv-labs/fpv_eight_dark.PNG
+  - /images/fpv-labs/IMG_0063.PNG
+challenge: "make mobile capture reliable enough for real-world robotics workflows: big files, long-running recordings, unstable device states, and no room for flaky pipelines."
 chapters:
   - id: starting-point
     label: starting point
@@ -33,24 +44,45 @@ chapters:
 
 <Chapter id="starting-point" label="starting point" title="joining fpv labs">
 
-placeholder — add your story here.
+i joined fpv labs in **nov 2025** as a **part-time remote mobile engineer**. the job was not a typical app surface with a few forms and screens. the phone sat in the middle of a much harder workflow: record the world, move large datasets, and keep the session usable when devices, sensors, and networks behave badly.
+
+that changed the standard for "done". a flow was only good if it survived **field conditions**, not just the simulator.
 
 </Chapter>
 
-<Chapter id="architecture" label="architecture" title="architecture">
+<Chapter id="architecture" label="architecture" title="stability first, then speed" pullQuote="for capture tooling, reliability is the feature. everything else is decoration.">
 
-placeholder — add your story here.
+the first push was reliability. some modules were unstable enough to drag the app crash rate toward **~6%**, which is unacceptable when the app is part of a recording workflow instead of a casual consumer session.
 
-</Chapter>
-
-<Chapter id="shipping" label="shipping" title="shipping">
-
-placeholder — add your story here.
+i refactored the shakier parts of the codebase and tightened **error handling across ios and android**, pushing the crash rate to **under 1%**. the benefit wasn't only cleaner logs. it meant operators could trust that a recording session would stay alive when something unexpected happened.
 
 </Chapter>
 
-<Chapter id="system" label="system" title="system">
+<Chapter id="shipping" label="shipping" title="large uploads that actually finish">
 
-placeholder — add your story here.
+capture sessions get heavy fast, so i built a **cross-platform upload pipeline** for **10gb+ files** with **resumable uploads**, **background execution**, and **failure recovery**.
+
+the goal was simple: if an upload gets interrupted, the app should recover instead of making someone start from zero. that turned uploads from a best-effort feature into infrastructure the team could rely on.
 
 </Chapter>
+
+<Chapter id="system" label="system" title="from ar session to dataset">
+
+i also built a **high-fidelity ar data capture system** on top of **arkit** and **arcore**, recording **video, pose, point cloud, depth, and imu** streams from the same session.
+
+on top of capture, i designed a structured recording pipeline that packages sessions into **mcap datasets** compatible with **ros2**. the system keeps sampling deterministic at roughly **30 fps** and handles session lifecycle cleanly, so what comes out is useful for downstream robotics and physical intelligence workflows, not just raw sensor noise.
+
+</Chapter>
+
+<Screens
+  images={[
+    { light: "/images/fpv-labs/fpv_one.PNG", dark: "/images/fpv-labs/fpv_one_dark.PNG" },
+    { light: "/images/fpv-labs/fpv_two.PNG", dark: "/images/fpv-labs/fpv_two_dark.PNG" },
+    { light: "/images/fpv-labs/fpv_three.PNG", dark: "/images/fpv-labs/fpv_three_dark.PNG" },
+    { light: "/images/fpv-labs/fpv_four.PNG", dark: "/images/fpv-labs/fpv_four_dark.PNG" },
+    { light: "/images/fpv-labs/fpv_five.PNG", dark: "/images/fpv-labs/fpv_five_dark.PNG" },
+    { light: "/images/fpv-labs/fpv_six.PNG", dark: "/images/fpv-labs/fpv_six_dark.PNG" },
+    { light: "/images/fpv-labs/fpv_seven.PNG", dark: "/images/fpv-labs/fpv_seven_dark.PNG" },
+    { light: "/images/fpv-labs/fpv_eight.PNG", dark: "/images/fpv-labs/fpv_eight_dark.PNG" },
+  ]}
+/>
