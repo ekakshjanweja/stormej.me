@@ -46,6 +46,7 @@ next-env.d.ts
 
 # Lock files
 *lock*
+!components/footer-clock.tsx
 
 # Environment
 .env
