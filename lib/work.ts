@@ -5,8 +5,8 @@ import workMeta from "@/content/work/meta.json";
 type WorkMetaJson = {
   title?: string;
   pages?: string[];
-  /** Optional: exact slugs + order for the home page work strip (first N used). */
-  home?: string[];
+  /** How many work rows to show on the home page (first N after `pages` sort). */
+  homeCount?: number;
 };
 
 const workMetaTyped = workMeta as WorkMetaJson;
@@ -15,6 +15,11 @@ const workMetaTyped = workMeta as WorkMetaJson;
 const workOrderIndex = new Map(
   (workMetaTyped.pages ?? []).map((slug, i) => [slug, i])
 );
+
+function workHomeCount(): number {
+  const n = workMetaTyped.homeCount;
+  return typeof n === "number" && n > 0 ? n : 4;
+}
 
 function sortKeyForWorkSlug(slug: string) {
   return workOrderIndex.get(slug) ?? Number.POSITIVE_INFINITY;
@@ -85,18 +90,9 @@ export function listWork(): WorkListItem[] {
     });
 }
 
-/** Home work strip: uses `meta.json` → `home` when set, else first `limit` entries of {@link listWork}. */
-export function listHomeWork(limit = 4): WorkListItem[] {
-  const all = listWork();
-  const homeSlugs = workMetaTyped.home?.filter(Boolean);
-  if (homeSlugs && homeSlugs.length > 0) {
-    const bySlug = new Map(all.map((w) => [w.slug, w]));
-    return homeSlugs
-      .slice(0, limit)
-      .map((slug) => bySlug.get(slug))
-      .filter((w): w is WorkListItem => w != null);
-  }
-  return all.slice(0, limit);
+/** First `homeCount` entries of {@link listWork} (order + count from `content/work/meta.json`). */
+export function listWorkForHome(): WorkListItem[] {
+  return listWork().slice(0, workHomeCount());
 }
 
 export function getWork(slug: string) {

@@ -1,4 +1,4 @@
-import { listHomeWork, listWork } from "@/lib/work";
+import { listWorkForHome } from "@/lib/work";
 import Link from "next/link";
 import { WorkPreview } from "@/components/work-preview";
 import { LogoTile } from "@/components/logo-tile";
@@ -11,23 +11,18 @@ function formatRange(start: Date, end?: Date | null) {
   return `${fmt(start)} to ${end ? fmt(end) : "present"}`;
 }
 
-const HOME_WORK_LIMIT = 4;
-
 export default function Work() {
-  const allWork = listWork();
-  const work = listHomeWork(HOME_WORK_LIMIT);
+  const work = listWorkForHome();
   return (
     <section data-cursor-anchor="work">
       <div className="flex justify-between items-baseline mb-6">
         <h2 className="section-label">work</h2>
-        {allWork.length > HOME_WORK_LIMIT && (
-          <Link
-            href="/work"
-            className="meta-tag hover-dim focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
-          >
-            view all
-          </Link>
-        )}
+        <Link
+          href="/work"
+          className="meta-tag hover-dim focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
+        >
+          view all
+        </Link>
       </div>
       <ul className="flex flex-col">
         {work.map((item) => (
