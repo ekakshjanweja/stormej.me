@@ -1,6 +1,5 @@
 import { listWorkForHome } from "@/lib/work";
 import Link from "next/link";
-import { WorkPreview } from "@/components/work-preview";
 import { LogoTile } from "@/components/logo-tile";
 
 function formatRange(start: Date, end?: Date | null) {
@@ -27,47 +26,39 @@ export default function Work() {
       <ul className="flex flex-col">
         {work.map((item) => (
           <li key={item.slug} className="py-4 first:pt-0 last:pb-0">
-            <WorkPreview
-              title={item.title}
+            <Link
               href={`/work/${item.slug}`}
-              logo={item.logo}
-              images={item.images}
-              screenshotMockup={item.screenshotMockup}
+              className="group flex items-center gap-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
             >
-              <Link
-                href={`/work/${item.slug}`}
-                className="group flex items-center gap-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
-              >
-                {item.logo ? (
-                  <LogoTile src={item.logo} size={36} />
-                ) : (
-                  <span
-                    aria-hidden
-                    className="font-serif italic text-[34px] leading-none text-foreground/85 w-9 shrink-0 text-center select-none"
-                    style={{
-                      fontFamily: "var(--font-instrument-serif), serif",
-                    }}
-                  >
-                    {item.title.charAt(0).toLowerCase()}
-                  </span>
-                )}
-                <div className="flex items-center justify-between gap-4 min-w-0 flex-1">
-                  <div className="flex flex-col gap-0.5 min-w-0">
-                    <div className="flex items-baseline min-w-0">
-                      <span className="squiggle-link-hover text-[14px] font-medium text-foreground truncate">
-                        {item.title}
-                      </span>
-                    </div>
-                    <span className="text-[12px] font-light text-muted-foreground leading-tight">
-                      {item.role}
+              {item.logo ? (
+                <LogoTile src={item.logo} boxClassName="h-9 w-9" />
+              ) : (
+                <span
+                  aria-hidden
+                  className="font-serif italic text-[34px] leading-none text-foreground/85 w-9 shrink-0 text-center select-none"
+                  style={{
+                    fontFamily: "var(--font-instrument-serif), serif",
+                  }}
+                >
+                  {item.title.charAt(0).toLowerCase()}
+                </span>
+              )}
+              <div className="flex items-center justify-between gap-4 min-w-0 flex-1">
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  <div className="flex items-baseline min-w-0">
+                    <span className="squiggle-link-hover text-[14px] font-medium text-foreground truncate">
+                      {item.title}
                     </span>
                   </div>
-                  <span className="meta-tag whitespace-nowrap shrink-0">
-                    {formatRange(item.startDate, item.endDate)}
+                  <span className="text-[12px] font-light text-muted-foreground leading-tight">
+                    {item.role}
                   </span>
                 </div>
-              </Link>
-            </WorkPreview>
+                <span className="meta-tag whitespace-nowrap shrink-0">
+                  {formatRange(item.startDate, item.endDate)}
+                </span>
+              </div>
+            </Link>
           </li>
         ))}
       </ul>
