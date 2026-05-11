@@ -51,27 +51,17 @@ export default async function Page({ params }: PageProps) {
 
       <header className="mb-10 space-y-4">
         {fm.website ? (
-          slug === "turi" ? (
-            <h1 className="headline m-0 text-[clamp(22px,2.4vw,30px)]">
-              <LinkPreview
-                url={fm.website}
-                className="squiggle-link hover-dim inline-flex items-center gap-2"
-              >
-                {fm.title}
-                <ArrowUpRight className="w-4 h-4 shrink-0 text-muted-foreground" />
-              </LinkPreview>
-            </h1>
-          ) : (
-            <a
-              href={fm.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="headline text-[clamp(22px,2.4vw,30px)] hover-dim inline-flex items-center gap-2"
+          <h1 className="headline m-0 text-[clamp(22px,2.4vw,30px)]">
+            <LinkPreview
+              url={fm.website}
+              className="font-serif italic inline-flex min-w-0 items-center gap-2"
             >
-              {fm.title}
-              <ArrowUpRight className="w-4 h-4 text-muted-foreground" />
-            </a>
-          )
+              <span className="squiggle-link min-w-0 [overflow-wrap:anywhere]">
+                {fm.title}
+              </span>
+              <ArrowUpRight className="w-4 h-4 shrink-0 text-muted-foreground" />
+            </LinkPreview>
+          </h1>
         ) : (
           <h1 className="headline text-[clamp(22px,2.4vw,30px)]">{fm.title}</h1>
         )}
@@ -128,7 +118,7 @@ export default async function Page({ params }: PageProps) {
         )}
       </header>
 
-{fm.youtube && (
+      {fm.youtube && (
         <div className="mb-10 rounded-lg overflow-hidden">
           <YouTubeVideo
             videoId={extractYouTubeVideoId(fm.youtube)!}

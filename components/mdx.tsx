@@ -20,6 +20,8 @@ import { Gallery } from "./mdx/gallery";
 import { Highlights } from "./mdx/highlights";
 import { Outcomes } from "./mdx/outcomes";
 import { Links } from "./mdx/links";
+import { ChapterNav } from "./mdx/chapter-nav";
+import { StoreLinks } from "./mdx/store-links";
 
 // Bridge old callout types to Fumadocs types so existing posts keep rendering.
 type LegacyCalloutType = "note" | "tip" | "warning" | "danger";
@@ -137,6 +139,8 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     Highlights,
     Outcomes,
     Links,
+    ChapterNav,
+    StoreLinks,
     CodeBlock,
     Pre,
     // Click-to-zoom for inline images.

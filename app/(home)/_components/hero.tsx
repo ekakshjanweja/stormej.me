@@ -13,7 +13,10 @@ export default function Hero() {
       >
         buildng mobile apps and shipping products at early-stage startups for
         past few years, right now i&apos;m shaping{" "}
-        <LinkPreview url={domi} className="squiggle-link font-serif italic">
+        <LinkPreview
+          url={domi}
+          className="squiggle-link font-serif italic !text-[var(--text-highlight)]"
+        >
           digitaldomi
         </LinkPreview>
         .
@@ -25,7 +28,7 @@ export default function Hero() {
             href="https://cal.com/ekaksh-janweja-pfvauh"
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-foreground px-4 py-3 text-background transition-all duration-200 hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 sm:py-2"
+            className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-foreground px-4 py-3 text-background shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 sm:py-2"
           >
             <Mail className="size-4 shrink-0 sm:size-3.5" aria-hidden />
             <span className="tabular-nums">get in touch</span>
@@ -38,7 +41,7 @@ export default function Hero() {
             href={resume}
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex shrink-0 items-center gap-2 rounded-full border border-border px-4 py-3 text-foreground transition-all duration-200 hover:border-foreground/40 hover:bg-muted/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 sm:py-2"
+            className="group inline-flex shrink-0 items-center gap-2 rounded-full border border-border/40 bg-background px-4 py-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-foreground/40 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 sm:py-2"
           >
             <FileText className="size-4 shrink-0 sm:size-3.5" aria-hidden />
             <span className="tabular-nums">resume</span>

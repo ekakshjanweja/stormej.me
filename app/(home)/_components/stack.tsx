@@ -28,12 +28,15 @@ export default function Stack() {
   return (
     <section data-cursor-anchor="stack">
       <h2 className="section-label mb-6">stack</h2>
-      <div className="flex flex-wrap items-center gap-6">
+      <div className="flex flex-wrap gap-3">
         <TooltipProvider>
           {stack.map((tech) => (
             <Tooltip key={tech.name}>
-              <TooltipTrigger className="hover-dim focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded">
-                <tech.icon className="h-4 w-4 text-foreground" />
+              <TooltipTrigger className="group relative inline-flex h-10 items-center gap-2 rounded-full border border-border/40 bg-background px-4 py-2 shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:border-border/70 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2">
+                <tech.icon className="h-4 w-4 text-muted-foreground transition-colors duration-150 group-hover:text-foreground" />
+                <span className="text-[12px] font-light text-muted-foreground transition-colors duration-150 group-hover:text-foreground">
+                  {tech.name}
+                </span>
               </TooltipTrigger>
               <TooltipContent>
                 <p>{tech.name}</p>

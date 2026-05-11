@@ -37,7 +37,7 @@ export function Projects() {
                 className="group flex items-baseline justify-between gap-4 hover-dim focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
               >
                 <div className="flex flex-col gap-0.5 min-w-0">
-                  <span className="text-[14px] font-medium text-foreground truncate">
+                  <span className="squiggle-link-hover text-[14px] font-medium text-foreground truncate">
                     {project.title}
                   </span>
                   <span className="text-[12px] font-light text-muted-foreground leading-snug line-clamp-1">

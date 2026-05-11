@@ -1,9 +1,11 @@
+import Link from "next/link";
+
 export function Outcomes({
   items,
   sectionId = "outcomes",
   label = "outcomes",
 }: {
-  items: { metric: string; label: string }[];
+  items: { metric: string; label: string; href?: string }[];
   sectionId?: string;
   label?: string;
 }) {
@@ -18,7 +20,13 @@ export function Outcomes({
         {items.map((o, i) => (
           <div key={i} className="space-y-2">
             <dd className="headline text-[clamp(20px,1.8vw,24px)] leading-[1.15]">
-              {o.metric}
+              {o.href ? (
+                <Link href={o.href} className="hover:opacity-70 transition-opacity">
+                  {o.metric}
+                </Link>
+              ) : (
+                o.metric
+              )}
             </dd>
             <dt className="meta-tag">{o.label}</dt>
           </div>

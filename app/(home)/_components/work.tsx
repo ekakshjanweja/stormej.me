@@ -11,12 +11,23 @@ function formatRange(start: Date, end?: Date | null) {
   return `${fmt(start)} to ${end ? fmt(end) : "present"}`;
 }
 
+const HOME_WORK_LIMIT = 4;
+
 export default function Work() {
-  const work = listWork();
+  const allWork = listWork();
+  const work = allWork.slice(0, HOME_WORK_LIMIT);
   return (
     <section data-cursor-anchor="work">
-      <div className="mb-6">
+      <div className="flex justify-between items-baseline mb-6">
         <h2 className="section-label">work</h2>
+        {allWork.length > HOME_WORK_LIMIT && (
+          <Link
+            href="/work"
+            className="meta-tag hover-dim focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
+          >
+            view all
+          </Link>
+        )}
       </div>
       <ul className="flex flex-col">
         {work.map((item) => (
@@ -47,15 +58,9 @@ export default function Work() {
                 )}
                 <div className="flex items-center justify-between gap-4 min-w-0 flex-1">
                   <div className="flex flex-col gap-0.5 min-w-0">
-                    <div className="flex items-baseline gap-2 min-w-0">
-                      <span className="text-[14px] font-medium text-foreground truncate group-hover:underline underline-offset-4 decoration-1">
+                    <div className="flex items-baseline min-w-0">
+                      <span className="squiggle-link-hover text-[14px] font-medium text-foreground truncate">
                         {item.title}
-                      </span>
-                      <span
-                        aria-hidden
-                        className="text-[14px] text-muted-foreground opacity-0 -translate-x-1 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0"
-                      >
-                        →
                       </span>
                     </div>
                     <span className="text-[12px] font-light text-muted-foreground leading-tight">

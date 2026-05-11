@@ -63,6 +63,8 @@ const workFrontmatterSchema = frontmatterSchema.extend({
   startDate: z.coerce.date(),
   endDate: z.coerce.date().optional(),
   website: z.string().optional(),
+  appStore: z.string().optional(),
+  playStore: z.string().optional(),
   tech: z.array(z.string()).default([]),
   logo: workImageAssetSchema.optional(),
   images: z.array(workImageAssetSchema).optional(),

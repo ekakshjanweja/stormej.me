@@ -21,6 +21,8 @@ export type WorkFrontmatter = {
   startDate: Date;
   endDate?: Date;
   website?: string;
+  appStore?: string;
+  playStore?: string;
   tech: string[];
   logo?: WorkLogoAsset;
   images?: WorkImageAsset[];

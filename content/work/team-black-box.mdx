@@ -39,6 +39,14 @@ on **take a sip** i built the **custom sips** flow end to end and wired it to fi
 
 </Chapter>
 
+<Links
+  title="take a sip"
+  items={[
+    { label: "website", href: "https://takeasip.app/" },
+    { label: "play store", href: "https://play.google.com/store/apps/details?id=app.takeasip" },
+  ]}
+/>
+
 <Chapter id="nlp" label="nlp" title="parsing reminders from natural language">
 
 for **i won't forget** i used **compromise.cool** to pull structured reminder details out of free-form text. tuning the parser moved **accuracy up by about 30%** against our test set.
@@ -47,46 +55,20 @@ i wrote **unit tests** around the extraction paths so refactors didn't silently 
 
 </Chapter>
 
+<Links
+  title="i won't forget"
+  items={[
+    { label: "website", href: "https://iwontforget.app/" },
+    { label: "app store", href: "https://apps.apple.com/us/app/i-wont-forget/id1667093471" },
+    { label: "play store", href: "https://play.google.com/store/apps/details?id=app.iwontforget" },
+  ]}
+/>
+
 <Chapter id="maps" label="maps" title="land plots with react-native-skia">
 
 on **land blocks** i took location data and **drew polygons on the map** using **react-native-skia**, wiring geo inputs to something visual on screen.
 
 </Chapter>
-
-<Links
-  title="take a sip"
-  items={[
-    { label: "play store", href: "https://play.google.com/store/apps/details?id=app.takeasip" },
-  ]}
-/>
-
-<Highlights
-  items={[
-    "built the custom sips feature using react native and firebase",
-    "added markdown-based changelog support inside the app",
-  ]}
-/>
-
-<Links
-  title="i won't forget"
-  items={[
-    { label: "play store", href: "https://play.google.com/store/apps/details?id=app.iwontforget" },
-  ]}
-/>
-
-<Highlights
-  items={[
-    "used nlp via compromise.cool to extract reminder details and improve accuracy by 30%",
-    "wrote unit tests to ensure parsing stability",
-  ]}
-/>
-
-<Highlights
-  title="land blocks"
-  items={[
-    "plotted polygons on maps using location data and react-native-skia",
-  ]}
-/>
 
 <Outcomes
   items={[

@@ -15,7 +15,9 @@ export default function Work() {
   const work = listWork();
   return (
     <main>
-      <h1 className="section-label mb-8">work</h1>
+      <div className="sticky top-16 z-20 -mx-2 mb-8 bg-background/85 px-2 py-3 backdrop-blur-md">
+        <h1 className="section-label">work</h1>
+      </div>
       <ul className="flex flex-col gap-6">
         {work.map((item) => (
           <li key={item.slug}>
@@ -28,7 +30,7 @@ export default function Work() {
             >
               <Link
                 href={`/work/${item.slug}`}
-                className="group flex flex-col gap-2 hover-dim focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
+                className="group flex flex-col gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
               >
                 <div className="flex items-baseline justify-between gap-4">
                   <div className="flex items-center gap-3 min-w-0">
@@ -40,7 +42,7 @@ export default function Work() {
                       />
                     )}
                     <div className="flex flex-col gap-0.5 min-w-0">
-                      <span className="text-[14px] font-medium text-foreground truncate">
+                      <span className="squiggle-link-hover text-[14px] font-medium text-foreground truncate">
                         {item.title}
                       </span>
                       <span className="text-[12px] font-light text-muted-foreground leading-tight">

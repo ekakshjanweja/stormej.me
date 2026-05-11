@@ -2,12 +2,15 @@
 title: fpv labs - infrastructure for physical intelligence
 subtitle: remote mobile systems for data capture
 description: building mobile systems at fpv labs for large uploads, ar recording, and reliable field capture across ios and android.
-role: part-time mobile engineer
+role: mobile engineer
 startDate: 2025-11-24
 website: https://www.fpvlabs.ai/
+appStore: https://apps.apple.com/in/app/stera-by-fpv-labs/id6756263398
 tech:
   - flutter
   - dart
+  - ios
+  - android
 logo:
   light: /images/logos/fpv_light.webp
   dark: /images/logos/fpv_dark.webp
@@ -44,7 +47,7 @@ chapters:
 
 <Chapter id="starting-point" label="starting point" title="joining fpv labs">
 
-i joined fpv labs in **nov 2025** as a **part-time remote mobile engineer**. the job was not a typical app surface with a few forms and screens. the phone sat in the middle of a much harder workflow: record the world, move large datasets, and keep the session usable when devices, sensors, and networks behave badly.
+i joined fpv labs in **nov 2025** as a **mobile engineer**. the job was not a typical app surface with a few forms and screens. the phone sat in the middle of a much harder workflow: record the world, move large datasets, and keep the session usable when devices, sensors, and networks behave badly.
 
 that changed the standard for "done". a flow was only good if it survived **field conditions**, not just the simulator.
 
@@ -74,6 +77,7 @@ on top of capture, i designed a structured recording pipeline that packages sess
 
 </Chapter>
 
+
 <Screens
   images={[
     { light: "/images/fpv-labs/fpv_one.webp", dark: "/images/fpv-labs/fpv_one_dark.webp" },
@@ -84,5 +88,16 @@ on top of capture, i designed a structured recording pipeline that packages sess
     { light: "/images/fpv-labs/fpv_six.webp", dark: "/images/fpv-labs/fpv_six_dark.webp" },
     { light: "/images/fpv-labs/fpv_seven.webp", dark: "/images/fpv-labs/fpv_seven_dark.webp" },
     { light: "/images/fpv-labs/fpv_eight.webp", dark: "/images/fpv-labs/fpv_eight_dark.webp" },
+  ]}
+/>
+
+<Outcomes
+  items={[
+    { metric: "cross-platform", label: "ios + android", href: "/blog/large-file-upload-system-flutter" },
+    { metric: "10gb+ files", label: "large uploads", href: "/blog/large-file-upload-system-flutter" },
+    { metric: "arkit · arcore", label: "ar capture", href: "/blog/mobile-ar-recorder-end-to-end" },
+    { metric: "30 fps | 1080p", label: "deterministic sampling", href: "/blog/mobile-ar-recorder-end-to-end" },
+    { metric: "mcap · ros2", label: "dataset format" },
+    { metric: "under 1%", label: "crash rate" },
   ]}
 />

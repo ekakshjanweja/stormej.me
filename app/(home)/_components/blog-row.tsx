@@ -22,9 +22,9 @@ export const BlogRow = () => {
           <li key={blog.slug}>
             <Link
               href={blog.url}
-              className="group flex items-baseline justify-between gap-4 hover-dim focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
+              className="group flex items-baseline justify-between gap-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
             >
-              <span className="text-[14px] font-medium text-foreground truncate">
+              <span className="squiggle-link-hover text-[14px] font-medium text-foreground truncate">
                 {blog.title}
               </span>
               <span className="meta-tag whitespace-nowrap shrink-0">
