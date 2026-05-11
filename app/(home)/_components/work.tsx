@@ -1,4 +1,4 @@
-import { listWork } from "@/lib/work";
+import { listHomeWork, listWork } from "@/lib/work";
 import Link from "next/link";
 import { WorkPreview } from "@/components/work-preview";
 import { LogoTile } from "@/components/logo-tile";
@@ -15,7 +15,7 @@ const HOME_WORK_LIMIT = 4;
 
 export default function Work() {
   const allWork = listWork();
-  const work = allWork.slice(0, HOME_WORK_LIMIT);
+  const work = listHomeWork(HOME_WORK_LIMIT);
   return (
     <section data-cursor-anchor="work">
       <div className="flex justify-between items-baseline mb-6">

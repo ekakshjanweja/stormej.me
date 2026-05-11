@@ -2,9 +2,18 @@ import { workSource } from "@/lib/source";
 import type { WorkImageAsset, ScreenshotMockupKind, WorkLogoAsset } from "@/lib/types/types";
 import workMeta from "@/content/work/meta.json";
 
+type WorkMetaJson = {
+  title?: string;
+  pages?: string[];
+  /** Optional: exact slugs + order for the home page work strip (first N used). */
+  home?: string[];
+};
+
+const workMetaTyped = workMeta as WorkMetaJson;
+
 /** Slug order from `content/work/meta.json` → `pages` (Fumadocs meta). */
 const workOrderIndex = new Map(
-  (workMeta.pages ?? []).map((slug, i) => [slug, i])
+  (workMetaTyped.pages ?? []).map((slug, i) => [slug, i])
 );
 
 function sortKeyForWorkSlug(slug: string) {
@@ -74,6 +83,20 @@ export function listWork(): WorkListItem[] {
       if (oa !== ob) return oa - ob;
       return b.startDate.getTime() - a.startDate.getTime();
     });
+}
+
+/** Home work strip: uses `meta.json` → `home` when set, else first `limit` entries of {@link listWork}. */
+export function listHomeWork(limit = 4): WorkListItem[] {
+  const all = listWork();
+  const homeSlugs = workMetaTyped.home?.filter(Boolean);
+  if (homeSlugs && homeSlugs.length > 0) {
+    const bySlug = new Map(all.map((w) => [w.slug, w]));
+    return homeSlugs
+      .slice(0, limit)
+      .map((slug) => bySlug.get(slug))
+      .filter((w): w is WorkListItem => w != null);
+  }
+  return all.slice(0, limit);
 }
 
 export function getWork(slug: string) {
