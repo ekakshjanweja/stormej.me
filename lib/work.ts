@@ -5,7 +5,9 @@ import workMeta from "@/content/work/meta.json";
 type WorkMetaJson = {
   title?: string;
   pages?: string[];
-  /** How many work rows to show on the home page (first N after `pages` sort). */
+  /** Optional: exact slugs shown on the home work strip (order preserved). Falls back to first `homeCount` of {@link listWork} when omitted. */
+  home?: string[];
+  /** How many work rows on home when `home` is omitted (first N after `pages` sort). */
   homeCount?: number;
 };
 
@@ -90,9 +92,17 @@ export function listWork(): WorkListItem[] {
     });
 }
 
-/** First `homeCount` entries of {@link listWork} (order + count from `content/work/meta.json`). */
+/** Home work strip: `meta.home` slugs in order when set; else first `homeCount` entries of {@link listWork}. */
 export function listWorkForHome(): WorkListItem[] {
-  return listWork().slice(0, workHomeCount());
+  const all = listWork();
+  const bySlug = new Map(all.map((w) => [w.slug, w]));
+  const homeSlugs = workMetaTyped.home?.filter(Boolean);
+  if (homeSlugs && homeSlugs.length > 0) {
+    return homeSlugs
+      .map((slug) => bySlug.get(slug))
+      .filter((w): w is WorkListItem => w != null);
+  }
+  return all.slice(0, workHomeCount());
 }
 
 export function getWork(slug: string) {
