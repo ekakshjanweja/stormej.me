@@ -1,6 +1,11 @@
 "use client";
 
-import { listWorkForHome } from "@/lib/work";
+import {
+  formatTotalExperienceAriaLabel,
+  formatTotalExperienceShort,
+  listWork,
+  listWorkForHome,
+} from "@/lib/work";
 import Link from "next/link";
 import Image from "next/image";
 import { LogoTile } from "@/components/logo-tile";
@@ -29,11 +34,24 @@ function formatRange(start: Date, end?: Date | null) {
 }
 
 export default function Work() {
-  const work = listWorkForHome();
+  const work = listWork();
+  const totalExp = formatTotalExperienceShort(work);
+  const totalExpAria = formatTotalExperienceAriaLabel(work);
+  const homeWork = listWorkForHome();
   return (
     <section data-cursor-anchor="work">
-      <div className="flex justify-between items-baseline mb-6">
-        <h2 className="section-label">work</h2>
+      <div className="flex justify-between items-baseline mb-6 gap-4">
+        <h2 className="section-label inline-flex min-w-0 flex-wrap items-baseline gap-x-1.5">
+          <span>work</span>
+          {totalExp ? (
+            <span
+              className="meta-tag normal-case tracking-[0.06em]"
+              aria-label={totalExpAria}
+            >
+              ({totalExp})
+            </span>
+          ) : null}
+        </h2>
         <Link
           href="/work"
           className="meta-tag hover-dim focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
@@ -42,7 +60,7 @@ export default function Work() {
         </Link>
       </div>
       <ul className="flex flex-col">
-        {work.map((item) => (
+        {homeWork.map((item) => (
           <HomeWorkItem key={item.slug} item={item} />
         ))}
       </ul>

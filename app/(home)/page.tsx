@@ -45,8 +45,8 @@ export default async function Home() {
         <Work />
         {/* <Projects /> */}
         <BlogRow />
-        <Stack />
         <Contributions />
+        <Stack />
       </div>
     </>
   );

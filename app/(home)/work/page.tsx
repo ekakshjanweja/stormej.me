@@ -1,4 +1,8 @@
-import { listWork } from "@/lib/work";
+import {
+  formatTotalExperienceAriaLabel,
+  formatTotalExperienceShort,
+  listWork,
+} from "@/lib/work";
 import Link from "next/link";
 import { WorkPreview } from "@/components/work-preview";
 import { LogoTile } from "@/components/logo-tile";
@@ -13,10 +17,22 @@ function formatRange(start: Date, end?: Date | null) {
 
 export default function Work() {
   const work = listWork();
+  const totalExp = formatTotalExperienceShort(work);
+  const totalExpAria = formatTotalExperienceAriaLabel(work);
   return (
     <main>
       <div className="sticky top-16 z-20 -mx-2 mb-8 bg-background/85 px-2 py-3 backdrop-blur-md">
-        <h1 className="section-label">work</h1>
+        <h1 className="section-label inline-flex min-w-0 flex-wrap items-baseline gap-x-1.5">
+          <span>work</span>
+          {totalExp ? (
+            <span
+              className="meta-tag normal-case tracking-[0.06em]"
+              aria-label={totalExpAria}
+            >
+              ({totalExp})
+            </span>
+          ) : null}
+        </h1>
       </div>
       <ul className="flex flex-col gap-6">
         {work.map((item) => (
