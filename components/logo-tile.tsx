@@ -10,13 +10,24 @@ type Props = {
   src: WorkLogoAsset;
   alt?: string;
   size?: number;
+  boxClassName?: string;
+  imagePadClassName?: string;
   className?: string;
 };
 
-export function LogoTile({ src, alt = "", size = 32, className }: Props) {
+export function LogoTile({
+  src,
+  alt = "",
+  size,
+  boxClassName,
+  imagePadClassName = "p-1.5",
+  className,
+}: Props) {
   const [bg, setBg] = useState<string | null>(null);
   const cancelled = useRef(false);
   const sampleSrc = isPairedScreenshots(src) ? src.light : src;
+  const usingClassSize = Boolean(boxClassName);
+  const fallbackSize = size ?? 32;
 
   useEffect(() => {
     cancelled.current = false;
@@ -73,18 +84,25 @@ export function LogoTile({ src, alt = "", size = 32, className }: Props) {
     };
   }, [sampleSrc]);
 
+  const sizesAttr = usingClassSize ? undefined : `${fallbackSize}px`;
+
   return (
     <span
       className={cn(
         "relative shrink-0 overflow-hidden rounded-md transition-colors duration-300",
         bg ? "" : "bg-muted/40",
+        boxClassName,
         className,
       )}
-      style={{
-        width: size,
-        height: size,
-        backgroundColor: bg ?? undefined,
-      }}
+      style={
+        usingClassSize
+          ? { backgroundColor: bg ?? undefined }
+          : {
+              width: fallbackSize,
+              height: fallbackSize,
+              backgroundColor: bg ?? undefined,
+            }
+      }
     >
       {isPairedScreenshots(src) ? (
         <>
@@ -92,15 +110,15 @@ export function LogoTile({ src, alt = "", size = 32, className }: Props) {
             src={src.light}
             alt={alt}
             fill
-            sizes={`${size}px`}
-            className="object-contain p-1.5 dark:hidden"
+            sizes={sizesAttr}
+            className={cn("object-contain dark:hidden", imagePadClassName)}
           />
           <Image
             src={src.dark}
             alt={alt}
             fill
-            sizes={`${size}px`}
-            className="hidden object-contain p-1.5 dark:block"
+            sizes={sizesAttr}
+            className={cn("hidden object-contain dark:block", imagePadClassName)}
           />
         </>
       ) : (
@@ -108,8 +126,8 @@ export function LogoTile({ src, alt = "", size = 32, className }: Props) {
           src={src}
           alt={alt}
           fill
-          sizes={`${size}px`}
-          className="object-contain p-1.5"
+          sizes={sizesAttr}
+          className={cn("object-contain", imagePadClassName)}
         />
       )}
     </span>

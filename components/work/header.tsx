@@ -1,5 +1,5 @@
 import { ArrowUpRight } from "lucide-react";
-import { WorkLogoMark } from "@/components/work-logo";
+import { LogoTile } from "@/components/logo-tile";
 import { StoreLinks } from "@/components/mdx/store-links";
 import { LinkPreview } from "@/components/ui/link-preview";
 import type { WorkFrontmatter } from "@/lib/work";
@@ -19,7 +19,7 @@ function StickyTitleRow({ fm }: { fm: WorkFrontmatter }) {
     <div className="sticky top-16 z-20 -mx-2 mb-6 overflow-visible bg-background/85 px-2 py-3 backdrop-blur-md">
       <div className="flex flex-col gap-4 overflow-visible sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-4">
         <div className="flex min-w-0 flex-1 items-center gap-3">
-          {fm.logo && <WorkLogoMark logo={fm.logo} />}
+          {fm.logo && <LogoTile src={fm.logo} boxClassName="h-9 w-9" />}
           {fm.website ? (
             <h1 className="headline m-0 min-w-0 flex-1 text-[clamp(22px,2.4vw,30px)]">
               <LinkPreview

@@ -1,7 +1,7 @@
 import { listWork } from "@/lib/work";
 import Link from "next/link";
 import { WorkPreview } from "@/components/work-preview";
-import { WorkLogoMark } from "@/components/work-logo";
+import { LogoTile } from "@/components/logo-tile";
 
 function formatRange(start: Date, end?: Date | null) {
   const fmt = (d: Date) =>
@@ -35,8 +35,8 @@ export default function Work() {
                 <div className="flex items-baseline justify-between gap-4">
                   <div className="flex items-center gap-3 min-w-0">
                     {item.logo && (
-                      <WorkLogoMark
-                        logo={item.logo}
+                      <LogoTile
+                        src={item.logo}
                         boxClassName="h-7 w-7"
                         imagePadClassName="p-1"
                       />
