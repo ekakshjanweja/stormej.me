@@ -4,6 +4,11 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getMDXComponents } from "@/components/mdx";
 import { createRelativeLink } from "fumadocs-ui/mdx";
+import {
+  buildBlogPostingSchema,
+  buildBreadcrumbSchema,
+  jsonLd,
+} from "@/lib/schema";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -22,9 +27,34 @@ export async function generateMetadata({
   const page = source.getPage([slug]);
   if (!page) notFound();
 
+  const { title, description, date } = page.data as {
+    title: string;
+    description?: string;
+    date?: string;
+  };
+
+  const canonical = `/blog/${slug}`;
+  const ogImage = `/og/blog/${slug}`;
+
   return {
-    title: page.data.title,
-    description: page.data.description,
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      type: "article",
+      publishedTime: date,
+      images: [
+        { url: ogImage, width: 1200, height: 630, alt: title },
+      ],
+    },
+    twitter: {
+      title,
+      description,
+      images: [ogImage],
+    },
   };
 }
 
@@ -43,8 +73,26 @@ export default async function Page({ params }: PageProps) {
       })
     : null;
 
+  const schemas = [
+    buildBlogPostingSchema({
+      slug,
+      title: page.data.title,
+      description: page.data.description,
+      date: page.data.date,
+    }),
+    buildBreadcrumbSchema([
+      { name: "home", url: "/" },
+      { name: "blog", url: "/blog" },
+      { name: page.data.title, url: `/blog/${slug}` },
+    ]),
+  ];
+
   return (
     <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd(schemas) }}
+      />
       <Link
         href="/blog"
         className="meta-tag hover-dim inline-flex items-center gap-1.5 mb-12 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"

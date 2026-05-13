@@ -1,6 +1,34 @@
+import type { Metadata } from "next";
 import { listProjects } from "@/lib/projects";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+
+const description = "side projects, experiments, and things i've shipped";
+
+export const metadata: Metadata = {
+  title: "projects",
+  description,
+  alternates: { canonical: "/projects" },
+  openGraph: {
+    title: "projects | stormej",
+    description,
+    url: "https://www.stormej.me/projects",
+    type: "website",
+    images: [
+      {
+        url: "/og/projects",
+        width: 1200,
+        height: 630,
+        alt: "stormej — projects",
+      },
+    ],
+  },
+  twitter: {
+    title: "projects | stormej",
+    description,
+    images: ["/og/projects"],
+  },
+};
 
 export default function Projects() {
   const projects = listProjects();

@@ -1,5 +1,34 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { listBlogs } from "@/lib/blog";
+
+const description =
+  "writing on mobile development, side projects, and life";
+
+export const metadata: Metadata = {
+  title: "blog",
+  description,
+  alternates: { canonical: "/blog" },
+  openGraph: {
+    title: "blog | stormej",
+    description,
+    url: "https://www.stormej.me/blog",
+    type: "website",
+    images: [
+      {
+        url: "/og/blog",
+        width: 1200,
+        height: 630,
+        alt: "stormej — blog",
+      },
+    ],
+  },
+  twitter: {
+    title: "blog | stormej",
+    description,
+    images: ["/og/blog"],
+  },
+};
 
 export default function Blog() {
   const blogs = listBlogs();
@@ -14,14 +43,14 @@ export default function Blog() {
           <li key={blog.slug}>
             <Link
               href={blog.url}
-              className="group flex items-baseline justify-between gap-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
+              className="group flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
             >
               <div className="flex flex-col gap-0.5 min-w-0">
-                <span className="squiggle-link-hover text-[14px] font-medium text-foreground truncate">
+                <span className="squiggle-link-hover text-[14px] font-medium text-foreground sm:truncate">
                   {blog.title}
                 </span>
                 {blog.description && (
-                  <span className="text-[12px] font-light text-muted-foreground leading-snug line-clamp-1">
+                  <span className="text-[12px] font-light text-muted-foreground leading-snug sm:line-clamp-1">
                     {blog.description}
                   </span>
                 )}

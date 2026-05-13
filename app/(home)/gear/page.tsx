@@ -1,3 +1,32 @@
+import type { Metadata } from "next";
+
+const description = "the hardware i use day-to-day";
+
+export const metadata: Metadata = {
+  title: "gear",
+  description,
+  alternates: { canonical: "/gear" },
+  openGraph: {
+    title: "gear | stormej",
+    description,
+    url: "https://www.stormej.me/gear",
+    type: "website",
+    images: [
+      {
+        url: "/og/gear",
+        width: 1200,
+        height: 630,
+        alt: "stormej — gear",
+      },
+    ],
+  },
+  twitter: {
+    title: "gear | stormej",
+    description,
+    images: ["/og/gear"],
+  },
+};
+
 const gear = [
   { label: "laptop", value: "m4 pro macbook pro base/g14'21" },
   { label: "keyboard", value: "aula f75 pro" },

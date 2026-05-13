@@ -6,7 +6,7 @@ export const runtime = "edge";
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   return renderOg({
-    kind: "gear",
+    kind: "work",
     title: searchParams.get("title"),
     meta: searchParams.get("meta"),
     variant: parseVariant(searchParams.get("v")),

@@ -14,6 +14,7 @@ import { RealtimeProvider } from "@/lib/providers/realtime-provider";
 import { Navbar } from "@/components/navbar";
 import Footer from "@/components/footer";
 import { RootProvider } from "fumadocs-ui/provider/next";
+import { buildWebSiteSchema, jsonLd } from "@/lib/schema";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -54,23 +55,35 @@ const instrumentSerif = Instrument_Serif({
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.stormej.me"),
   title: {
-    default: "stormej",
-    template: "%s | stormej",
+    default: "ekaksh janweja - mobile engineer",
+    template: "%s - ekaksh janweja",
   },
-  description: "mobile dev + life enjoyer &#9996;",
+  description:
+    "mobile developer based in new delhi. building products at early-stage startups — currently at digitaldomi; previously fpv labs, merlin, zuai, team black box. writes about mobile development, large file uploads, and shipping apps.",
+  applicationName: "stormej.me",
+  category: "technology",
   keywords: [
-    "software engineer",
-    "mobile developer",
-    "flutter",
     "ekaksh janweja",
     "stormej",
+    "flutter developer",
+    "flutter developer india",
+    "dart developer",
+    "mobile app developer",
+    "mobile app developer india",
+    "ios developer",
+    "android developer",
+    "react native developer",
+    "freelance flutter developer",
+    "hire flutter developer",
+    "new delhi developer",
+    "software engineer",
   ],
   openGraph: {
     title: "ekaksh janweja",
-    description: "mobile dev + life enjoyer &#9996;",
+    description: "mobile engineer",
     url: "https://www.stormej.me",
     siteName: "ekaksh janweja",
-    locale: "en_US",
+    locale: "en_us",
     type: "website",
     images: [
       {
@@ -119,6 +132,10 @@ export default function RootLayout({
         }}
         suppressHydrationWarning
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLd(buildWebSiteSchema()) }}
+        />
         <PostHogProvider>
           <ThemeProvider
             attribute="class"

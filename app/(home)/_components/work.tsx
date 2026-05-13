@@ -102,18 +102,19 @@ function HomeWorkItem({
             {item.title.charAt(0).toLowerCase()}
           </span>
         )}
-        <div className="flex items-center justify-between gap-4 min-w-0 flex-1">
-          <div className="flex flex-col gap-0.5 min-w-0">
-            <div className="flex items-baseline min-w-0">
-              <span className="squiggle-link-hover text-[14px] font-medium text-foreground truncate">
-                {item.title}
-              </span>
-            </div>
+        <div className="flex items-center justify-between gap-3 sm:gap-4 min-w-0 flex-1">
+          <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+            <span className="squiggle-link-hover text-[14px] font-medium text-foreground truncate">
+              {item.title}
+            </span>
             <span className="text-[12px] font-light text-muted-foreground leading-tight">
               {item.role}
             </span>
+            <span className="meta-tag whitespace-nowrap sm:hidden mt-0.5">
+              {formatRange(item.startDate, item.endDate)}
+            </span>
           </div>
-          <span className="meta-tag whitespace-nowrap shrink-0">
+          <span className="meta-tag whitespace-nowrap shrink-0 hidden sm:inline">
             {formatRange(item.startDate, item.endDate)}
           </span>
         </div>
@@ -152,7 +153,7 @@ function HomeWorkPreview({
     <div
       aria-hidden="true"
       className={cn(
-        "absolute bottom-full left-0 z-50 mb-3 min-w-0 origin-bottom-left rounded-md border border-border bg-popover shadow-sm transition-all duration-150 ease-out md:block",
+        "absolute bottom-full left-0 z-50 mb-3 min-w-0 origin-bottom-left rounded-md border border-border bg-popover shadow-sm transition-all duration-150 ease-out hidden md:block",
         visible
           ? "pointer-events-auto translate-y-0 scale-100 opacity-100"
           : "pointer-events-none translate-y-1 scale-[0.98] opacity-0"

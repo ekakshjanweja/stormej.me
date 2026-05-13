@@ -12,6 +12,11 @@ import { Screens } from "@/components/mdx/screens";
 import { Figure } from "@/components/mdx/figure";
 import { Gallery } from "@/components/mdx/gallery";
 import { getMDXComponents } from "@/components/mdx";
+import {
+  buildBreadcrumbSchema,
+  buildCreativeWorkSchema,
+  jsonLd,
+} from "@/lib/schema";
 
 function formatRange(start: Date, end?: Date | null) {
   const fmt = (d: Date) =>
@@ -38,9 +43,28 @@ export async function generateMetadata({
   const page = getWork(slug);
   if (!page) notFound();
   const fm = page.data as WorkFrontmatter;
+
+  const canonical = `/work/${slug}`;
+  const ogImage = `/og/work/${slug}`;
+
   return {
     title: fm.title,
     description: fm.description,
+    alternates: { canonical },
+    openGraph: {
+      title: fm.title,
+      description: fm.description,
+      url: canonical,
+      type: "article",
+      images: [
+        { url: ogImage, width: 1200, height: 630, alt: fm.title },
+      ],
+    },
+    twitter: {
+      title: fm.title,
+      description: fm.description,
+      images: [ogImage],
+    },
   };
 }
 
@@ -87,8 +111,33 @@ export default async function Page({ params }: PageProps) {
     Gallery,
   });
 
+  const schemas = [
+    buildCreativeWorkSchema({
+      kind: "work",
+      slug,
+      title: fm.title,
+      description: fm.description,
+      about: fm.tech,
+      startDate,
+      endDate,
+      website: fm.website,
+      external: [fm.appStore, fm.playStore].filter(
+        (s): s is string => Boolean(s)
+      ),
+    }),
+    buildBreadcrumbSchema([
+      { name: "home", url: "/" },
+      { name: "work", url: "/work" },
+      { name: fm.title, url: `/work/${slug}` },
+    ]),
+  ];
+
   return (
     <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd(schemas) }}
+      />
       <Link
         href="/work"
         className="meta-tag hover-dim inline-flex items-center gap-1.5 mb-12 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"

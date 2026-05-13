@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import {
   formatTotalExperienceAriaLabel,
   formatTotalExperienceShort,
@@ -6,6 +7,34 @@ import {
 import Link from "next/link";
 import { WorkPreview } from "@/components/work-preview";
 import { LogoTile } from "@/components/logo-tile";
+
+const description =
+  "roles, case studies, and the apps i've built at startups";
+
+export const metadata: Metadata = {
+  title: "work",
+  description,
+  alternates: { canonical: "/work" },
+  openGraph: {
+    title: "work | stormej",
+    description,
+    url: "https://www.stormej.me/work",
+    type: "website",
+    images: [
+      {
+        url: "/og/work",
+        width: 1200,
+        height: 630,
+        alt: "stormej — work",
+      },
+    ],
+  },
+  twitter: {
+    title: "work | stormej",
+    description,
+    images: ["/og/work"],
+  },
+};
 
 function formatRange(start: Date, end?: Date | null) {
   const fmt = (d: Date) =>
@@ -48,8 +77,8 @@ export default function Work() {
                 href={`/work/${item.slug}`}
                 className="group flex flex-col gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
               >
-                <div className="flex items-baseline justify-between gap-4">
-                  <div className="flex items-center gap-3 min-w-0">
+                <div className="flex items-center justify-between gap-3 sm:gap-4">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     {item.logo && (
                       <LogoTile
                         src={item.logo}
@@ -57,16 +86,19 @@ export default function Work() {
                         imagePadClassName="p-1"
                       />
                     )}
-                    <div className="flex flex-col gap-0.5 min-w-0">
+                    <div className="flex flex-col gap-0.5 min-w-0 flex-1">
                       <span className="squiggle-link-hover text-[14px] font-medium text-foreground truncate">
                         {item.title}
                       </span>
                       <span className="text-[12px] font-light text-muted-foreground leading-tight">
                         {item.role}
                       </span>
+                      <span className="meta-tag whitespace-nowrap sm:hidden mt-0.5">
+                        {formatRange(item.startDate, item.endDate)}
+                      </span>
                     </div>
                   </div>
-                  <span className="meta-tag whitespace-nowrap shrink-0">
+                  <span className="meta-tag whitespace-nowrap shrink-0 hidden sm:inline">
                     {formatRange(item.startDate, item.endDate)}
                   </span>
                 </div>

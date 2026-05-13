@@ -8,6 +8,11 @@ import { YouTubeVideo } from "@/components/video-component";
 import { LinkPreview } from "@/components/ui/link-preview";
 import { ProjectImages } from "./project-images";
 import { getMDXComponents } from "@/components/mdx";
+import {
+  buildBreadcrumbSchema,
+  buildCreativeWorkSchema,
+  jsonLd,
+} from "@/lib/schema";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -26,9 +31,27 @@ export async function generateMetadata({
   const page = getProject(slug);
   if (!page) notFound();
   const fm = page.data as ProjectFrontmatter;
+
+  const description = fm.description ?? fm.subtitle;
+  const canonical = `/projects/${slug}`;
+  const ogImage = `/og/projects/${slug}`;
+
   return {
     title: fm.title,
-    description: fm.description ?? fm.subtitle,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      title: fm.title,
+      description,
+      url: canonical,
+      type: "article",
+      images: [{ url: ogImage, width: 1200, height: 630, alt: fm.title }],
+    },
+    twitter: {
+      title: fm.title,
+      description,
+      images: [ogImage],
+    },
   };
 }
 
@@ -40,8 +63,29 @@ export default async function Page({ params }: PageProps) {
   const fm = page.data as ProjectFrontmatter;
   const MDX = page.data.body;
 
+  const schemas = [
+    buildCreativeWorkSchema({
+      kind: "projects",
+      slug,
+      title: fm.title,
+      description: fm.description ?? fm.subtitle,
+      about: fm.tech,
+      website: fm.website,
+      external: [fm.github, fm.youtube].filter((s): s is string => Boolean(s)),
+    }),
+    buildBreadcrumbSchema([
+      { name: "home", url: "/" },
+      { name: "projects", url: "/projects" },
+      { name: fm.title, url: `/projects/${slug}` },
+    ]),
+  ];
+
   return (
     <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd(schemas) }}
+      />
       <Link
         href="/projects"
         className="meta-tag hover-dim inline-flex items-center gap-1.5 mb-12 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
