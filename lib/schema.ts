@@ -1,5 +1,9 @@
 const SITE = "https://www.stormej.me";
 
+/** Person blurb — global SEO, OG home, structured data. */
+export const SITE_TAGLINE =
+  "building fast, scalable mobile apps and ai-powered products end-to-end.";
+
 export type SchemaObject = Record<string, unknown>;
 
 export function buildPersonSchema(): SchemaObject {
@@ -12,8 +16,7 @@ export function buildPersonSchema(): SchemaObject {
     givenName: "ekaksh",
     familyName: "janweja",
     jobTitle: "mobile engineer",
-    description:
-      "mobile developer based in new delhi. building products at early-stage startups — currently at digitaldomi; previously fpv labs, merlin, zuai, team black box. writes about mobile development, large file uploads, and shipping apps.",
+    description: SITE_TAGLINE,
     url: SITE,
     image: `${SITE}/stormej.png`,
     email: "mailto:jekaksh@gmail.com",

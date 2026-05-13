@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { SITE_TAGLINE } from "@/lib/schema";
 
 export type OgKind = "home" | "blog" | "projects" | "gear" | "work";
 export type OgVariant = "editorial" | "dark" | "mono" | "minimal";
@@ -44,10 +45,11 @@ interface Computed {
 }
 
 function compute({ kind, title, meta }: RenderOgOptions): Computed {
-  const headline = title || "ekaksh janweja";
+  const headline = (title?.trim() || "ekaksh janweja") as string;
   const kicker = KIND_LABEL[kind];
-  const metaText = meta?.trim() || null;
-  const headlineIsName = /ekaksh\s+janweja/i.test(headline);
+  let metaText = meta?.trim() || null;
+  const headlineIsName = /^ekaksh\s+janweja$/i.test(headline);
+  if (kind === "home" && headlineIsName && !metaText) metaText = SITE_TAGLINE;
   const byline = headlineIsName ? "stormej" : "ekaksh janweja";
   return { headline, kicker, metaText, byline };
 }
@@ -169,7 +171,7 @@ async function renderDark(opts: RenderOgOptions) {
   const borderColor = "#2E3338";
   const accentColor = "#C9B6FF";
 
-  const monoText = `STORMEJ.ME${kicker ?? ""}${metaText ?? ""}${byline}MOBILE DEV · LIFE ENJOYER`;
+  const monoText = `STORMEJ.ME${kicker ?? ""}${metaText ?? ""}${byline}${SITE_TAGLINE}`;
   const [serifBuf, monoBuf] = await Promise.all([
     loadGoogleFont("Instrument+Serif", headline, 400, true),
     loadGoogleFont("Space+Mono", monoText, 400, false),
@@ -251,7 +253,7 @@ async function renderDark(opts: RenderOgOptions) {
             </div>
           </div>
           <div style={{ display: "flex", fontSize: 14, letterSpacing: "0.24em", textTransform: "uppercase", color: mutedColor }}>
-            mobile dev · life enjoyer
+            stormej.me
           </div>
         </div>
       </div>

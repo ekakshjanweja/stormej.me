@@ -14,7 +14,7 @@ import { RealtimeProvider } from "@/lib/providers/realtime-provider";
 import { Navbar } from "@/components/navbar";
 import Footer from "@/components/footer";
 import { RootProvider } from "fumadocs-ui/provider/next";
-import { buildWebSiteSchema, jsonLd } from "@/lib/schema";
+import { buildWebSiteSchema, jsonLd, SITE_TAGLINE } from "@/lib/schema";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -58,8 +58,7 @@ export const metadata: Metadata = {
     default: "ekaksh janweja - mobile engineer",
     template: "%s - ekaksh janweja",
   },
-  description:
-    "mobile developer based in new delhi. building products at early-stage startups — currently at digitaldomi; previously fpv labs, merlin, zuai, team black box. writes about mobile development, large file uploads, and shipping apps.",
+  description: SITE_TAGLINE,
   applicationName: "stormej.me",
   category: "technology",
   keywords: [
@@ -80,7 +79,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: "ekaksh janweja",
-    description: "mobile engineer",
+    description: SITE_TAGLINE,
     url: "https://www.stormej.me",
     siteName: "ekaksh janweja",
     locale: "en_us",
@@ -90,7 +89,7 @@ export const metadata: Metadata = {
         url: "https://www.stormej.me/og/home",
         width: 1200,
         height: 630,
-        alt: "ekaksh janweja - mobile developer",
+        alt: `ekaksh janweja — ${SITE_TAGLINE}`,
       },
     ],
   },
@@ -103,6 +102,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     title: "ekaksh janweja",
+    description: SITE_TAGLINE,
     card: "summary_large_image",
     creator: "@ekaksh_janweja",
   },

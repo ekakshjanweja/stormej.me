@@ -1,4 +1,5 @@
 import { domi, resume } from "@/lib/constants/links";
+import { SITE_TAGLINE } from "@/lib/schema";
 import Link from "next/link";
 import SocialLinks from "./social-links";
 import { ArrowUpRight, FileText, Mail } from "lucide-react";
@@ -7,13 +8,14 @@ import { LinkPreview } from "@/components/ui/link-preview";
 export default function Hero() {
   return (
     <section aria-labelledby="hero-heading" data-cursor-anchor="hero">
-      <span className="sr-only">ekaksh janweja - mobile engineer.</span>
+      <span className="sr-only">
+        ekaksh janweja. {SITE_TAGLINE}
+      </span>
       <h1
         id="hero-heading"
         className="hero-lede text-[clamp(26px,4vw,34px)] max-w-[58ch]"
       >
-        buildng mobile apps and shipping products at early-stage startups for
-        past few years, right now i&apos;m shaping{" "}
+        {SITE_TAGLINE} right now i&apos;m shaping{" "}
         <LinkPreview
           url={domi}
           className="squiggle-link font-serif italic !text-[var(--text-highlight)]"

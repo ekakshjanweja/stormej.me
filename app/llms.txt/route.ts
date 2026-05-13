@@ -1,6 +1,7 @@
 import { listBlogs } from "@/lib/blog";
 import { listProjects } from "@/lib/projects";
 import { listWork } from "@/lib/work";
+import { SITE_TAGLINE } from "@/lib/schema";
 
 const SITE = "https://www.stormej.me";
 
@@ -21,9 +22,7 @@ export async function GET() {
 
   lines.push("# stormej.me — ekaksh janweja");
   lines.push("");
-  lines.push(
-    "> mobile developer (flutter, dart, ios, android) building products at early-stage startups."
-  );
+  lines.push(`> ${SITE_TAGLINE}`);
   lines.push(
     "> based in new delhi, india. writes about mobile development, file uploads, dark/light mode, and shipping apps."
   );
