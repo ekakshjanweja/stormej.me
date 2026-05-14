@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { listProjects } from "@/lib/projects";
+import { track } from "@/lib/analytics";
 
 export function Projects() {
   const projects = listProjects().filter((p) => !p.hidden);
@@ -34,6 +37,14 @@ export function Projects() {
                 href={href}
                 target={isExternal ? "_blank" : undefined}
                 rel={isExternal ? "noopener noreferrer" : undefined}
+                onClick={() =>
+                  track("content_card_clicked", {
+                    kind: "project",
+                    slug: project.slug,
+                    title: project.title,
+                    external: isExternal,
+                  })
+                }
                 className="group flex items-baseline justify-between gap-4 hover-dim focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
               >
                 <div className="flex flex-col gap-0.5 min-w-0">

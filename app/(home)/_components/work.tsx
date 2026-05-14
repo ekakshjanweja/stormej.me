@@ -18,6 +18,7 @@ import type {
 } from "@/lib/types/types";
 import { isPairedScreenshots, isVideoAsset } from "@/lib/work-image";
 import { useState } from "react";
+import { track } from "@/lib/analytics";
 
 const PLACEHOLDER_GRADIENTS = [
   "from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-800",
@@ -85,6 +86,13 @@ function HomeWorkItem({
     >
       <Link
         href={`/work/${item.slug}`}
+        onClick={() =>
+          track("content_card_clicked", {
+            kind: "work",
+            slug: item.slug,
+            title: item.title,
+          })
+        }
         className="group flex items-center gap-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}

@@ -8,6 +8,7 @@ import { resume } from "@/lib/constants/links";
 import { cn } from "@/lib/utils";
 import { Menu, X as CloseIcon } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
+import { track } from "@/lib/analytics";
 
 const navItems = [
   { href: "/work", label: "work" },
@@ -21,7 +22,12 @@ export function Navbar() {
   const { setTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen((prev) => {
+      track("mobile_menu_toggled", { open: !prev });
+      return !prev;
+    });
+  };
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   useEffect(() => {
@@ -68,7 +74,20 @@ export function Navbar() {
         !event.shiftKey &&
         !event.metaKey
       ) {
-        switch (event.key.toLowerCase()) {
+        const key = event.key.toLowerCase();
+        const shortcutMap: Record<string, string> = {
+          h: "navigate_home",
+          w: "navigate_work",
+          p: "navigate_projects",
+          b: "navigate_blog",
+          g: "navigate_gear",
+          t: "toggle_theme",
+          r: "open_resume",
+        };
+        const action = shortcutMap[key];
+        if (!action) return;
+        track("keyboard_shortcut_used", { key, action });
+        switch (key) {
           case "h":
             router.push("/");
             break;
@@ -84,14 +103,17 @@ export function Navbar() {
           case "g":
             router.push("/gear");
             break;
-          case "t":
+          case "t": {
             const currentTheme = document.documentElement.classList.contains(
               "dark"
             )
               ? "dark"
               : "light";
-            setTheme(currentTheme === "dark" ? "light" : "dark");
+            const next = currentTheme === "dark" ? "light" : "dark";
+            track("theme_toggled", { to: next, source: "keyboard" });
+            setTheme(next);
             break;
+          }
           case "r":
             window.open(resume, "_blank");
             break;
@@ -129,6 +151,13 @@ export function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={() =>
+                  track("nav_link_clicked", {
+                    href: item.href,
+                    label: item.label,
+                    surface: "desktop",
+                  })
+                }
                 className={cn(
                   "text-[15px] font-normal text-foreground transition-opacity duration-150",
                   isActive ? "opacity-100" : "opacity-60 hover:opacity-100",
@@ -181,7 +210,14 @@ export function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  onClick={closeMobileMenu}
+                  onClick={() => {
+                    track("nav_link_clicked", {
+                      href: item.href,
+                      label: item.label,
+                      surface: "mobile",
+                    });
+                    closeMobileMenu();
+                  }}
                   className={cn(
                     "text-base font-normal text-foreground transition-opacity duration-150",
                     isActive ? "opacity-100" : "opacity-60 hover:opacity-100"

@@ -1,9 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import { github, xDotCom, linkedin } from "@/lib/constants/links";
 import { GithubLight } from "@/components/ui/svgs/githubLight";
 import { GithubDark } from "@/components/ui/svgs/githubDark";
 import { X } from "@/components/ui/svgs/x";
 import { Linkedin } from "@/components/ui/svgs/linkedin";
+import { track } from "@/lib/analytics";
 
 export default function SocialLinks() {
   return (
@@ -12,6 +15,7 @@ export default function SocialLinks() {
         href={github}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => track("social_link_clicked", { platform: "github" })}
         className="hover-dim focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
         aria-label="GitHub"
       >
@@ -22,6 +26,7 @@ export default function SocialLinks() {
         href={xDotCom}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => track("social_link_clicked", { platform: "x" })}
         className="hover-dim focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
         aria-label="X (Twitter)"
       >
@@ -31,6 +36,7 @@ export default function SocialLinks() {
         href={linkedin}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => track("social_link_clicked", { platform: "linkedin" })}
         className="hover-dim focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
         aria-label="LinkedIn"
       >

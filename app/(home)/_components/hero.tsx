@@ -1,9 +1,12 @@
+"use client";
+
 import { domi, resume } from "@/lib/constants/links";
 import { SITE_TAGLINE } from "@/lib/schema";
 import Link from "next/link";
 import SocialLinks from "./social-links";
 import { ArrowUpRight, FileText, Mail } from "lucide-react";
 import { LinkPreview } from "@/components/ui/link-preview";
+import { track } from "@/lib/analytics";
 
 export default function Hero() {
   return (
@@ -31,6 +34,7 @@ export default function Hero() {
             href="https://cal.com/ekaksh-janweja-pfvauh"
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => track("cta_clicked", { location: "hero", target: "cal" })}
             className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-foreground px-4 py-3 text-background shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 sm:py-2"
           >
             <Mail className="size-4 shrink-0 sm:size-3.5" aria-hidden />
@@ -44,6 +48,7 @@ export default function Hero() {
             href={resume}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => track("cta_clicked", { location: "hero", target: "resume" })}
             className="group inline-flex shrink-0 items-center gap-2 rounded-full border border-border/40 bg-background px-4 py-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-foreground/40 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 sm:py-2"
           >
             <FileText className="size-4 shrink-0 sm:size-3.5" aria-hidden />

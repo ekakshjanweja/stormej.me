@@ -12,6 +12,7 @@ import { Screens } from "@/components/mdx/screens";
 import { Figure } from "@/components/mdx/figure";
 import { Gallery } from "@/components/mdx/gallery";
 import { getMDXComponents } from "@/components/mdx";
+import { ContentViewTracker } from "@/components/analytics/content-view-tracker";
 import {
   buildBreadcrumbSchema,
   buildCreativeWorkSchema,
@@ -138,6 +139,7 @@ export default async function Page({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd(schemas) }}
       />
+      <ContentViewTracker kind="work" slug={slug} title={fm.title} />
       <Link
         href="/work"
         className="meta-tag hover-dim inline-flex items-center gap-1.5 mb-12 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"

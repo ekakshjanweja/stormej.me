@@ -8,6 +8,7 @@ import { YouTubeVideo } from "@/components/video-component";
 import { LinkPreview } from "@/components/ui/link-preview";
 import { ProjectImages } from "./project-images";
 import { getMDXComponents } from "@/components/mdx";
+import { ContentViewTracker } from "@/components/analytics/content-view-tracker";
 import {
   buildBreadcrumbSchema,
   buildCreativeWorkSchema,
@@ -86,6 +87,7 @@ export default async function Page({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd(schemas) }}
       />
+      <ContentViewTracker kind="project" slug={slug} title={fm.title} />
       <Link
         href="/projects"
         className="meta-tag hover-dim inline-flex items-center gap-1.5 mb-12 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"

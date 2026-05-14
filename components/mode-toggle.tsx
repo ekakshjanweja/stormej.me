@@ -3,6 +3,7 @@ import * as React from "react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
+import { track } from "@/lib/analytics";
 
 export function ModeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
@@ -16,7 +17,9 @@ export function ModeToggle() {
     <button
       onClick={() => {
         if (mounted) {
-          setTheme(resolvedTheme === "dark" ? "light" : "dark");
+          const next = resolvedTheme === "dark" ? "light" : "dark";
+          track("theme_toggled", { to: next, source: "button" });
+          setTheme(next);
         }
       }}
       className={cn(

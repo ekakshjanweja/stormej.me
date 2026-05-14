@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getMDXComponents } from "@/components/mdx";
 import { createRelativeLink } from "fumadocs-ui/mdx";
+import { ContentViewTracker } from "@/components/analytics/content-view-tracker";
 import {
   buildBlogPostingSchema,
   buildBreadcrumbSchema,
@@ -93,6 +94,7 @@ export default async function Page({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd(schemas) }}
       />
+      <ContentViewTracker kind="blog" slug={slug} title={page.data.title} />
       <Link
         href="/blog"
         className="meta-tag hover-dim inline-flex items-center gap-1.5 mb-12 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
