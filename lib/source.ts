@@ -1,4 +1,4 @@
-import { docs, work, projects } from "collections/server";
+import { docs, work, projects, publications } from "collections/server";
 import { loader } from "fumadocs-core/source";
 
 export const source = loader({
@@ -14,4 +14,9 @@ export const workSource = loader({
 export const projectsSource = loader({
   baseUrl: "/projects",
   source: projects.toFumadocsSource(),
+});
+
+export const publicationsSource = loader({
+  baseUrl: "/publications",
+  source: publications.toFumadocsSource(),
 });

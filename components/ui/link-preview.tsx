@@ -12,6 +12,7 @@ type LinkPreviewProps = {
   children: React.ReactNode;
   url: string;
   className?: string;
+  onClick?: () => void;
   width?: number;
   height?: number;
   quality?: number;
@@ -32,6 +33,7 @@ export const LinkPreview = ({
   children,
   url,
   className,
+  onClick,
   width = 240,
   height = 150,
   quality = 60,
@@ -99,7 +101,12 @@ export const LinkPreview = ({
           rel="noopener noreferrer"
           asChild
         >
-          <Link href={url} target="_blank" rel="noopener noreferrer">
+          <Link
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={onClick}
+          >
             {children}
           </Link>
         </HoverCardPrimitive.Trigger>
@@ -132,6 +139,7 @@ export const LinkPreview = ({
                   href={url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={onClick}
                   className="group block overflow-hidden rounded-md border border-border bg-popover transition-colors duration-150 hover:border-foreground/30"
                 >
                   <div

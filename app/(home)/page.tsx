@@ -5,11 +5,8 @@ import Hero from "./_components/hero";
 import Work from "./_components/work";
 import Stack from "./_components/stack";
 import { Contributions } from "./_components/contributions";
-import {
-  buildProfilePageSchema,
-  jsonLd,
-  SITE_TAGLINE,
-} from "@/lib/schema";
+import { PublicationsRow } from "./_components/publications-row";
+import { buildProfilePageSchema, jsonLd, SITE_TAGLINE } from "@/lib/schema";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -40,6 +37,7 @@ export default async function Home() {
         <Hero />
         <Work />
         {/* <Projects /> */}
+        <PublicationsRow />
         <BlogRow />
         <Contributions />
         <Stack />

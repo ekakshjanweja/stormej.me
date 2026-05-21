@@ -85,6 +85,28 @@ export const work = defineDocs({
   },
 });
 
+const publicationFrontmatterSchema = frontmatterSchema.extend({
+  authors: z.array(z.string()).default([]),
+  venue: z.string().optional(),
+  date: z.string().optional(),
+  arxivId: z.string().optional(),
+  arxivUrl: z.string().optional(),
+  pdfUrl: z.string().optional(),
+  doi: z.string().optional(),
+  published: z.boolean().optional(),
+});
+
+export const publications = defineDocs({
+  dir: "content/publications",
+  docs: {
+    files: ["*.mdx"],
+    schema: publicationFrontmatterSchema,
+  },
+  meta: {
+    files: ["*.json"],
+  },
+});
+
 export default defineConfig({
   mdxOptions: {
     remarkPlugins: [remarkMdxMermaid, remarkMdxFiles],

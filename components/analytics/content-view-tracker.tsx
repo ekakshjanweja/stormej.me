@@ -8,7 +8,7 @@ export function ContentViewTracker({
   slug,
   title,
 }: {
-  kind: "work" | "project" | "blog";
+  kind: "work" | "project" | "blog" | "publication";
   slug: string;
   title: string;
 }) {

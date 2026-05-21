@@ -427,6 +427,8 @@ html {
   position: relative;
   text-decoration: none;
   color: inherit;
+  width: fit-content;
+  max-width: 100%;
 }
 .squiggle-link::after {
   content: "";
@@ -452,6 +454,8 @@ html {
   text-decoration: none;
   color: inherit;
   padding-bottom: 3px;
+  width: fit-content;
+  max-width: 100%;
 }
 .squiggle-link-hover::after {
   content: "";
