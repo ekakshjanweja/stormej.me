@@ -1,6 +1,11 @@
 import { createMDX } from "fumadocs-mdx/next";
 
-const workerUrl = process.env.NEXT_PUBLIC_WORKER_URL ?? "http://localhost:8787";
+const workerUrl = (
+  process.env.NEXT_PUBLIC_WORKER_URL ??
+  (process.env.NODE_ENV === "development"
+    ? "http://localhost:8787"
+    : "https://stormej.jekaksh.workers.dev")
+).replace(/\/$/, "");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -11,6 +16,10 @@ const nextConfig = {
       {
         source: "/files/:path*",
         destination: `${workerUrl}/files/:path*`,
+      },
+      {
+        source: "/admin/:path*",
+        destination: `${workerUrl}/admin/:path*`,
       },
       {
         source: "/ingest/static/:path*",
