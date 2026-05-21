@@ -22,6 +22,7 @@
     "@svgl": "https://svgl.app/r/{name}.json",
     "@kibo-ui": "https://www.kibo-ui.com/r/{name}.json",
     "@aceternity": "https://ui.aceternity.com/registry/{name}.json",
-    "@eldoraui": "https://eldoraui.site/r/{name}.json"
+    "@eldoraui": "https://eldoraui.site/r/{name}.json",
+    "@blocks-so": "https://blocks.so/r/{name}.json"
   }
 }

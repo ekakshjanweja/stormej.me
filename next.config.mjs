@@ -1,11 +1,17 @@
 import { createMDX } from "fumadocs-mdx/next";
 
+const workerUrl = process.env.NEXT_PUBLIC_WORKER_URL ?? "http://localhost:8787";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
 
   async rewrites() {
     return [
+      {
+        source: "/files/:path*",
+        destination: `${workerUrl}/files/:path*`,
+      },
       {
         source: "/ingest/static/:path*",
         destination: "https://us-assets.i.posthog.com/static/:path*",

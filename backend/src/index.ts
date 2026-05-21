@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { Env } from "./types";
+import { uploadRoutes } from "./routes/upload";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -13,10 +14,13 @@ app.use(
       "http://localhost:3000",
       "http://localhost:8787",
     ],
+    allowHeaders: ["Authorization", "Content-Type"],
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })
 );
 
 app.get("/health", (c) => c.text("OK"));
+app.route("/", uploadRoutes);
 
 app.all("/ws", async (c) => {
   const id = c.env.REALTIME_ROOM.idFromName("global");

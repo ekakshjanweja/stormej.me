@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { Lock } from "lucide-react";
 import { FooterClock } from "./footer-clock";
 
 export default function Footer() {
@@ -12,6 +14,16 @@ export default function Footer() {
           ·
         </span>
         <FooterClock />
+        <span aria-hidden className="opacity-40">
+          ·
+        </span>
+        <Link
+          href="/vault"
+          className="inline-flex items-center text-muted-foreground transition-colors hover:text-foreground"
+          aria-label="Open vault"
+        >
+          <Lock className="size-3.5" />
+        </Link>
       </span>
     </footer>
   );

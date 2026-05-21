@@ -165,7 +165,7 @@ export class RealtimeRoom implements DurableObject {
       if (!parseResult.success) {
         console.error(
           "[RealtimeRoom] Invalid message:",
-          parseResult.error.errors
+          parseResult.error.issues
         );
         return; // Silently drop invalid messages
       }

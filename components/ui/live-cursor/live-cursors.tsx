@@ -96,6 +96,7 @@ export function LiveCursors() {
   // Keyboard handler (desktop only)
   useEffect(() => {
     if (isTouchDevice) return;
+    if (pathname.startsWith("/vault")) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
@@ -136,7 +137,7 @@ export function LiveCursors() {
 
     window.addEventListener("keydown", handleKeyDown, true);
     return () => window.removeEventListener("keydown", handleKeyDown, true);
-  }, [isChatMode, isTouchDevice, addMessage]);
+  }, [isChatMode, isTouchDevice, addMessage, pathname]);
 
   // Memoized computations
   const now = Date.now();

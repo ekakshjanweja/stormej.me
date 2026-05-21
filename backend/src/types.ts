@@ -19,4 +19,7 @@ export {
 // Backend-specific types
 export type Env = {
   REALTIME_ROOM: DurableObjectNamespace;
+  STORAGE_BUCKET: R2Bucket;
+  ADMIN_USERNAME: string;
+  ADMIN_PASSWORD: string;
 };

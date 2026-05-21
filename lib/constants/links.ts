@@ -1,5 +1,4 @@
-export const resume =
-  "https://drive.google.com/file/d/1JBoUUrkOV0H3LnLFNcUy-uhhjMAnWRiV/view";
+export const resume = "/files/resume.pdf";
 
 export const valorant =
   "https://tracker.gg/valorant/profile/riot/STORMEJ%232020/overview";

@@ -67,6 +67,9 @@ export function Navbar() {
         closeMobileMenu();
         return;
       }
+      if (pathname?.startsWith("/vault")) {
+        return;
+      }
       if (
         !isMobileMenuOpen &&
         !event.ctrlKey &&
@@ -122,7 +125,7 @@ export function Navbar() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [router, setTheme, isMobileMenuOpen]);
+  }, [router, setTheme, isMobileMenuOpen, pathname]);
 
   return (
     <>
