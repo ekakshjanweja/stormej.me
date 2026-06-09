@@ -1,67 +1,73 @@
 "use client";
 
-import { domi, resume } from "@/lib/constants/links";
-import { SITE_TAGLINE } from "@/lib/schema";
+import { fpvLabs, resume } from "@/lib/constants/links";
 import Link from "next/link";
 import SocialLinks from "./social-links";
-import { ArrowUpRight, FileText, Mail } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { LinkPreview } from "@/components/ui/link-preview";
 import { track } from "@/lib/analytics";
+
+const CAL_URL = "https://cal.com/ekaksh-janweja-pfvauh";
+
+const actionLinkClass =
+  "meta-tag hover-dim inline-flex items-center gap-1.5 rounded py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 sm:py-0";
 
 export default function Hero() {
   return (
     <section aria-labelledby="hero-heading" data-cursor-anchor="hero">
       <span className="sr-only">
-        ekaksh janweja. {SITE_TAGLINE}
+        ekaksh janweja. mobile engineer building fast, reliable software across
+        ai, robotics, and consumer products. currently solving data capture for
+        physical intelligence at fpv labs.
       </span>
+
       <h1
         id="hero-heading"
-        className="hero-lede text-[clamp(26px,4vw,34px)] max-w-[58ch]"
+        className="hero-lede max-w-[58ch] text-2xl leading-[1.35]"
       >
-        {SITE_TAGLINE} right now i&apos;m shaping{" "}
-        <LinkPreview
-          url={domi}
-          className="squiggle-link font-serif italic !text-[var(--text-highlight)]"
-        >
-          digitaldomi
-        </LinkPreview>
-        .
+        mobile engineer building fast, reliable software across ai, robotics,
+        and consumer products.
       </h1>
 
-      <div className="mt-10 flex w-full max-w-[58ch] flex-col gap-6 text-[13px] sm:mt-12 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-4 sm:gap-y-6">
-        <div className="flex w-full gap-3 sm:w-auto max-sm:[&>a]:min-h-11 max-sm:[&>a]:flex-1 max-sm:[&>a]:justify-center">
+      <p className="hero-lede mt-5 max-w-[58ch] text-2xl leading-[1.35] text-muted-foreground">
+        currently solving data capture for physical intelligence at{" "}
+        <LinkPreview
+          url={fpvLabs}
+          className="squiggle-link font-serif italic !text-[var(--text-highlight)]"
+        >
+          fpv labs
+        </LinkPreview>
+        .
+      </p>
+
+      <div className="mt-10 flex flex-col gap-6 sm:mt-12 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
           <Link
-            href="https://cal.com/ekaksh-janweja-pfvauh"
+            href={CAL_URL}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => track("cta_clicked", { location: "hero", target: "cal" })}
-            className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-foreground px-4 py-3 text-background shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 sm:py-2"
+            onClick={() =>
+              track("cta_clicked", { location: "hero", target: "cal" })
+            }
+            className={actionLinkClass}
           >
-            <Mail className="size-4 shrink-0 sm:size-3.5" aria-hidden />
-            <span className="tabular-nums">get in touch</span>
-            <ArrowUpRight
-              className="size-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 sm:size-3.5"
-              aria-hidden
-            />
+            get in touch
+            <ArrowUpRight className="size-3 shrink-0" aria-hidden />
           </Link>
           <Link
             href={resume}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => track("cta_clicked", { location: "hero", target: "resume" })}
-            className="group inline-flex shrink-0 items-center gap-2 rounded-full border border-border/40 bg-background px-4 py-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-foreground/40 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 sm:py-2"
+            onClick={() =>
+              track("cta_clicked", { location: "hero", target: "resume" })
+            }
+            className={actionLinkClass}
           >
-            <FileText className="size-4 shrink-0 sm:size-3.5" aria-hidden />
-            <span className="tabular-nums">resume</span>
-            <ArrowUpRight
-              className="size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-foreground sm:size-3.5"
-              aria-hidden
-            />
+            resume
+            <ArrowUpRight className="size-3 shrink-0" aria-hidden />
           </Link>
         </div>
-        <div className="flex w-full shrink-0 items-center pl-2 pt-5 sm:w-auto sm:border-0 sm:pt-0">
-          <SocialLinks />
-        </div>
+        <SocialLinks />
       </div>
     </section>
   );

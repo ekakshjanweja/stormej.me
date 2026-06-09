@@ -11,6 +11,7 @@ export const nvimDotFiles = "https://github.com/ekakshjanweja/neovim_dotfiles";
 
 //Work Ex Links
 
+export const fpvLabs = "https://www.fpvlabs.ai/";
 export const domi = "https://digitaldomi.com/";
 export const getMerlin = "https://www.getmerlin.in/";
 export const tbb = "https://teamblackbox.in/";
@@ -45,7 +46,8 @@ export const zuAppPlayStore =
 
 export const browserAutomationAgent =
   "https://www.youtube.com/watch?v=2xEgXGYzQgw";
-  export const browserUseTsGithub = "https://github.com/kunal00000/browser-use-ts";
+export const browserUseTsGithub =
+  "https://github.com/kunal00000/browser-use-ts";
 
 export const renovatio = "https://renovatio-design.vercel.app/";
 export const renovatioGithub = "https://github.com/ekakshjanweja/renovatio";
