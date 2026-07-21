@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { SITE_TAGLINE } from "@/lib/schema";
 
-export type OgKind = "home" | "blog" | "projects" | "gear" | "work";
+export type OgKind = "home" | "blog" | "projects" | "gear" | "work" | "trove";
 export type OgVariant = "editorial" | "dark" | "mono" | "minimal";
 
 const KIND_LABEL: Record<OgKind, string | null> = {
@@ -10,6 +10,7 @@ const KIND_LABEL: Record<OgKind, string | null> = {
   projects: "projects",
   gear: "gear",
   work: "work",
+  trove: "trove",
 };
 
 async function loadGoogleFont(family: string, text: string, weight = 400, italic = false) {

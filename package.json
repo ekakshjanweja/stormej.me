@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --disable-source-maps",
+    "dev:sourcemaps": "next dev",
     "build": "next build",
     "postbuild": "next-sitemap",
     "start": "next start",

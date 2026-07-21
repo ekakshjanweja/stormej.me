@@ -22,6 +22,8 @@ import { Outcomes } from "./mdx/outcomes";
 import { Links } from "./mdx/links";
 import { ChapterNav } from "./mdx/chapter-nav";
 import { StoreLinks } from "./mdx/store-links";
+import { CopyFile } from "./mdx/copy-file";
+import { FlutterDemo } from "./mdx/flutter-demo";
 
 // Bridge old callout types to Fumadocs types so existing posts keep rendering.
 type LegacyCalloutType = "note" | "tip" | "warning" | "danger";
@@ -141,6 +143,8 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     Links,
     ChapterNav,
     StoreLinks,
+    CopyFile,
+    FlutterDemo,
     CodeBlock,
     Pre,
     // Click-to-zoom for inline images.

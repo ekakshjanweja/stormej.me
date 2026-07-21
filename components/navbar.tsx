@@ -14,6 +14,7 @@ const navItems = [
   { href: "/work", label: "work" },
   { href: "/projects", label: "projects" },
   { href: "/blog", label: "blog" },
+  { href: "/trove", label: "trove" },
 ];
 
 export function Navbar() {
@@ -84,6 +85,7 @@ export function Navbar() {
           p: "navigate_projects",
           b: "navigate_blog",
           g: "navigate_gear",
+          v: "navigate_trove",
           t: "toggle_theme",
           r: "open_resume",
         };
@@ -105,6 +107,9 @@ export function Navbar() {
             break;
           case "g":
             router.push("/gear");
+            break;
+          case "v":
+            router.push("/trove");
             break;
           case "t": {
             const currentTheme = document.documentElement.classList.contains(

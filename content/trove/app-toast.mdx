@@ -1,0 +1,1947 @@
+---
+title: app toast
+subtitle: one file toast for flutter
+description: a toast for flutter in one file. no packages, no DI, no widget wrapping. works with any architecture.
+date: "2026-07-21"
+tech:
+  - flutter
+  - dart
+sourceFile: lib/app_toast.dart
+lines: 1548
+published: true
+---
+
+## tldr
+
+copy one file into your project, register a navigator key, call
+`AppToast.success(message: "saved")` from anywhere. no context needed.
+
+spring entry, card stacking, swipe to dismiss in any direction, duplicate shake,
+and an optional expand then collapse width animation.
+
+<FlutterDemo src="/trove/demo/app-toast/index.html" name="app-toast" />
+
+## install
+
+<Steps>
+
+<Step>
+
+### copy one file
+
+grab it and drop it in at `lib/app_toast.dart`.
+
+<CopyFile name="app_toast.dart" lines={1593}>
+
+```dart
+// A self-contained, plug-and-play toast. Drop this single file into any Flutter
+// project — no packages, no DI, no widget wrapping.
+//
+//   1. Register your root navigator key once at startup:
+//        final navigatorKey = GlobalKey<NavigatorState>();
+//        AppToast.init(navigatorKey: navigatorKey);
+//        GoRouter(navigatorKey: navigatorKey, ...)
+//        MaterialApp(navigatorKey: navigatorKey)
+//
+//   2. Call from anywhere, with or without a BuildContext:
+//        AppToast.show(message: "Saved", event: AppToastEvent.success);
+//        AppToast.success(message: "Saved", description: "All good", animated: true);
+//
+//   3. Restyle whenever you like:
+//        AppToast.init(navigatorKey: navigatorKey, light: AppToastColors.light.copyWith(success: myGreen));
+
+import "dart:async";
+import "dart:math" as math;
+
+import "package:flutter/material.dart";
+import "package:flutter/physics.dart";
+import "package:flutter/scheduler.dart";
+import "package:flutter/services.dart";
+
+// ---------------------------------------------------------------------------
+// Public enums
+// ---------------------------------------------------------------------------
+
+/// Visual variant of a toast — sets the icon and accent color.
+enum AppToastEvent {
+  /// Green check — operation succeeded.
+  success,
+
+  /// Red error — operation failed.
+  error,
+
+  /// Amber warning — needs attention.
+  warning,
+
+  /// Blue info — neutral status update.
+  info,
+}
+
+/// Screen edge where toasts stack independently.
+enum AppToastPosition {
+  /// Top center, below the status bar.
+  top,
+
+  /// Bottom center, above the keyboard when visible.
+  bottom,
+
+  /// Left center.
+  left,
+
+  /// Right center.
+  right,
+}
+
+/// Layout and motion helpers for each [AppToastPosition].
+extension _AppToastPositionGeometry on AppToastPosition {
+  static const double travel = 160;
+  static const double peek = 12;
+
+  Alignment get stackAlignment => switch (this) {
+    AppToastPosition.top => Alignment.topCenter,
+    AppToastPosition.bottom => Alignment.bottomCenter,
+    AppToastPosition.left => Alignment.centerLeft,
+    AppToastPosition.right => Alignment.centerRight,
+  };
+
+  Alignment get scaleAlignment => stackAlignment;
+
+  EdgeInsets padding({required double keyboardInset}) => switch (this) {
+    AppToastPosition.top => const EdgeInsets.fromLTRB(16, 16, 16, 0),
+    AppToastPosition.bottom => EdgeInsets.fromLTRB(
+      16,
+      0,
+      16,
+      16 + keyboardInset,
+    ),
+    AppToastPosition.left => const EdgeInsets.fromLTRB(16, 16, 0, 16),
+    AppToastPosition.right => const EdgeInsets.fromLTRB(0, 16, 16, 16),
+  };
+
+  ({bool top, bool bottom, bool left, bool right}) get safeArea =>
+      switch (this) {
+        AppToastPosition.top => (
+          top: true,
+          bottom: false,
+          left: true,
+          right: true,
+        ),
+        AppToastPosition.bottom => (
+          top: false,
+          bottom: true,
+          left: true,
+          right: true,
+        ),
+        AppToastPosition.left => (
+          top: true,
+          bottom: true,
+          left: true,
+          right: false,
+        ),
+        AppToastPosition.right => (
+          top: true,
+          bottom: true,
+          left: false,
+          right: true,
+        ),
+      };
+
+  /// Rest offset from the entry spring and stack depth (excluding user drag).
+  ///
+  /// [t] is hidden-ness: 1 = fully off-screen, 0 = resting.
+  Offset motionOffset({required double t, required double depth}) {
+    final double depthOffset = depth * peek;
+
+    return switch (this) {
+      AppToastPosition.top => Offset(0, -t * travel + depthOffset),
+      AppToastPosition.bottom => Offset(0, t * travel - depthOffset),
+      AppToastPosition.left => Offset(-t * travel + depthOffset, 0),
+      AppToastPosition.right => Offset(t * travel - depthOffset, 0),
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Theme
+// ---------------------------------------------------------------------------
+
+/// Color tokens for a toast palette.
+///
+/// Use [light] and [dark] presets, or build your own and pass them to
+/// [AppToast.init].
+@immutable
+class AppToastColors {
+  /// Creates a toast color palette.
+  const AppToastColors({
+    required this.foreground,
+    required this.muted,
+    required this.elevated,
+    required this.inverse,
+    required this.success,
+    required this.error,
+    required this.warning,
+    required this.info,
+  });
+
+  /// Message text, depth scrim, and the light-mode drop shadow.
+  final Color foreground;
+
+  /// Description text.
+  final Color muted;
+
+  /// The pill surface.
+  final Color elevated;
+
+  /// The glyph drawn on top of the accent chip.
+  final Color inverse;
+
+  /// Accent for [AppToastEvent.success].
+  final Color success;
+
+  /// Accent for [AppToastEvent.error].
+  final Color error;
+
+  /// Accent for [AppToastEvent.warning].
+  final Color warning;
+
+  /// Accent for [AppToastEvent.info].
+  final Color info;
+
+  /// Default palette for light mode.
+  static const AppToastColors light = AppToastColors(
+    foreground: Color(0xFF0F1113),
+    muted: Color(0xFF63666B),
+    elevated: Color(0xFFFFFFFF),
+    inverse: Color(0xFFFFFFFF),
+    success: Color(0xFF15803D),
+    error: Color(0xFFC62828),
+    warning: Color(0xFFB27700),
+    info: Color(0xFF007AFF),
+  );
+
+  /// Default palette for dark mode.
+  static const AppToastColors dark = AppToastColors(
+    foreground: Color(0xFFF4F6F2),
+    muted: Color(0xFF979BA3),
+    elevated: Color(0xFF212429),
+    inverse: Color(0xFF0A0B0D),
+    success: Color(0xFF3DDC6B),
+    error: Color(0xFFFF5A52),
+    warning: Color(0xFFFFB740),
+    info: Color(0xFF3B9EFF),
+  );
+
+  /// Returns the accent color for [event].
+  Color accentFor(AppToastEvent event) => switch (event) {
+    AppToastEvent.success => success,
+    AppToastEvent.error => error,
+    AppToastEvent.warning => warning,
+    AppToastEvent.info => info,
+  };
+
+  /// Returns a copy with the given fields replaced.
+  AppToastColors copyWith({
+    Color? foreground,
+    Color? muted,
+    Color? elevated,
+    Color? inverse,
+    Color? success,
+    Color? error,
+    Color? warning,
+    Color? info,
+  }) {
+    return AppToastColors(
+      foreground: foreground ?? this.foreground,
+      muted: muted ?? this.muted,
+      elevated: elevated ?? this.elevated,
+      inverse: inverse ?? this.inverse,
+      success: success ?? this.success,
+      error: error ?? this.error,
+      warning: warning ?? this.warning,
+      info: info ?? this.info,
+    );
+  }
+}
+
+/// Typography tokens for toast message and description text.
+@immutable
+class AppToastTypography {
+  /// Creates toast typography settings.
+  const AppToastTypography({
+    this.fontFamily,
+    this.message = const TextStyle(
+      fontSize: 14,
+      height: 20 / 14,
+      fontWeight: FontWeight.w500,
+    ),
+    this.description = const TextStyle(
+      fontSize: 12,
+      height: 16 / 12,
+      fontWeight: FontWeight.w400,
+    ),
+  });
+
+  static const Object _unset = Object();
+
+  /// Applied to both styles unless a style names its own family.
+  ///
+  /// Defaults to the ambient font so a fresh project needs no asset setup.
+  final String? fontFamily;
+
+  /// Style for the primary message line.
+  final TextStyle message;
+
+  /// Style for the optional description line.
+  final TextStyle description;
+
+  /// Resolves [message] with [color] and the configured [fontFamily].
+  TextStyle resolveMessage(Color color) => message.copyWith(
+    color: color,
+    fontFamily: message.fontFamily ?? fontFamily,
+  );
+
+  /// Resolves [description] with [color] and the configured [fontFamily].
+  TextStyle resolveDescription(Color color) => description.copyWith(
+    color: color,
+    fontFamily: description.fontFamily ?? fontFamily,
+  );
+
+  /// Returns a copy with the given fields replaced.
+  ///
+  /// Pass `fontFamily: null` explicitly to clear a previously set family.
+  AppToastTypography copyWith({
+    Object? fontFamily = _unset,
+    TextStyle? message,
+    TextStyle? description,
+  }) {
+    return AppToastTypography(
+      fontFamily: fontFamily == _unset
+          ? this.fontFamily
+          : fontFamily as String?,
+      message: message ?? this.message,
+      description: description ?? this.description,
+    );
+  }
+}
+
+/// Global toast configuration — colors, typography, defaults, and layout.
+@immutable
+class AppToastTheme {
+  /// Creates a toast theme.
+  const AppToastTheme({
+    this.light = AppToastColors.light,
+    this.dark = AppToastColors.dark,
+    this.typography = const AppToastTypography(),
+    this.defaultDuration = const Duration(seconds: 4),
+    this.defaultPosition = AppToastPosition.top,
+    this.maxStack = 3,
+    this.elevation = 6,
+    this.enableHaptics = true,
+    this.brightnessResolver,
+  }) : assert(maxStack >= 1, "maxStack must be at least 1"),
+       assert(elevation >= 0, "elevation must be non-negative");
+
+  static const Object _unset = Object();
+
+  /// Palette used when [brightnessOf] resolves to [Brightness.light].
+  final AppToastColors light;
+
+  /// Palette used when [brightnessOf] resolves to [Brightness.dark].
+  final AppToastColors dark;
+
+  /// Typography for message and description text.
+  final AppToastTypography typography;
+
+  /// Default auto-dismiss delay when [AppToast.show] omits [duration].
+  final Duration defaultDuration;
+
+  /// Default screen edge when [AppToast.show] omits [position].
+  final AppToastPosition defaultPosition;
+
+  /// Maximum live toasts per [AppToastPosition] before the oldest is evicted.
+  final int maxStack;
+
+  /// Material elevation of the pill surface.
+  final double elevation;
+
+  /// Whether new toasts play haptic feedback by default.
+  ///
+  /// Per-toast calls can override this with [AppToast.show]'s [haptic] parameter.
+  /// Duplicates that shake an existing toast never haptic.
+  final bool enableHaptics;
+
+  /// Escape hatch for apps that drive brightness off something other than the
+  /// ambient [Theme].
+  final Brightness Function(BuildContext context)? brightnessResolver;
+
+  /// Resolves the current brightness for [context].
+  Brightness brightnessOf(BuildContext context) =>
+      brightnessResolver?.call(context) ?? Theme.of(context).brightness;
+
+  /// Returns the color palette for [context]'s current brightness.
+  AppToastColors colorsOf(BuildContext context) =>
+      brightnessOf(context) == Brightness.dark ? dark : light;
+
+  /// Returns a copy with the given fields replaced.
+  ///
+  /// Pass `brightnessResolver: null` explicitly to clear a custom resolver.
+  AppToastTheme copyWith({
+    AppToastColors? light,
+    AppToastColors? dark,
+    AppToastTypography? typography,
+    Duration? defaultDuration,
+    AppToastPosition? defaultPosition,
+    int? maxStack,
+    double? elevation,
+    bool? enableHaptics,
+    Object? brightnessResolver = _unset,
+  }) {
+    assert(maxStack == null || maxStack >= 1, "maxStack must be at least 1");
+    assert(
+      elevation == null || elevation >= 0,
+      "elevation must be non-negative",
+    );
+
+    return AppToastTheme(
+      light: light ?? this.light,
+      dark: dark ?? this.dark,
+      typography: typography ?? this.typography,
+      defaultDuration: defaultDuration ?? this.defaultDuration,
+      defaultPosition: defaultPosition ?? this.defaultPosition,
+      maxStack: maxStack ?? this.maxStack,
+      elevation: elevation ?? this.elevation,
+      enableHaptics: enableHaptics ?? this.enableHaptics,
+      brightnessResolver: brightnessResolver == _unset
+          ? this.brightnessResolver
+          : brightnessResolver as Brightness Function(BuildContext context)?,
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Springs
+// ---------------------------------------------------------------------------
+
+/// Approximations of Material expressive / standard spatial-fast springs.
+abstract final class _AppToastSprings {
+  /// Underdamped (zeta ~0.56) — visible overshoot.
+  static const SpringDescription expressive = SpringDescription(
+    mass: 1,
+    stiffness: 380,
+    damping: 22,
+  );
+
+  /// Slight overshoot (zeta ~0.75).
+  static const SpringDescription standard = SpringDescription(
+    mass: 1,
+    stiffness: 400,
+    damping: 30,
+  );
+
+  /// Near-critical (zeta ~0.94) — snappy width collapse, no bounce.
+  static const SpringDescription widthCollapse = SpringDescription(
+    mass: 1,
+    stiffness: 220,
+    damping: 28,
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Model
+// ---------------------------------------------------------------------------
+
+@immutable
+class _AppToastData {
+  const _AppToastData({
+    required this.message,
+    required this.description,
+    required this.event,
+    required this.position,
+    required this.duration,
+    required this.animated,
+    this.haptic,
+  });
+
+  final String message;
+  final String? description;
+  final AppToastEvent event;
+  final AppToastPosition position;
+  final Duration duration;
+
+  /// When true the pill lands at ~90% width, then shrinks to fit its content.
+  final bool animated;
+
+  /// When set, overrides [AppToastTheme.enableHaptics] for this toast.
+  final bool? haptic;
+
+  bool isSameAs(_AppToastData other) {
+    return event == other.event &&
+        message == other.message &&
+        description == other.description &&
+        position == other.position &&
+        animated == other.animated;
+  }
+}
+
+/// One shown toast and the key that reaches its live view.
+class _AppToastEntry {
+  _AppToastEntry({required this.data});
+
+  final GlobalKey<_AppToastPillState> key = GlobalKey<_AppToastPillState>();
+  final _AppToastData data;
+
+  /// Mirrors the pill's dismissing flag. Kept here too because [GlobalKey]
+  /// `currentState` goes null once the element deactivates, which would let a
+  /// dismissing toast count as alive again for stacking.
+  bool isDismissing = false;
+}
+
+// ---------------------------------------------------------------------------
+// Facade
+// ---------------------------------------------------------------------------
+
+/// A self-contained toast overlay for Flutter.
+///
+/// Call [init] once at startup with your root navigator key, then call [show]
+/// (or a shortcut) from anywhere — no [BuildContext] required.
+abstract final class AppToast {
+  AppToast._();
+
+  static final ValueNotifier<List<_AppToastEntry>> _toasts =
+      ValueNotifier<List<_AppToastEntry>>(const []);
+
+  /// Bumped by [init] so pills already on screen restyle themselves.
+  static final ValueNotifier<int> _themeRevision = ValueNotifier<int>(0);
+
+  static AppToastTheme _theme = const AppToastTheme();
+
+  static GlobalKey<NavigatorState>? _navigatorKey;
+
+  static OverlayState? _hostOverlay;
+  static OverlayEntry? _hostEntry;
+  static bool _inserted = false;
+
+  static final List<_AppToastData> _pending = <_AppToastData>[];
+  static const int _maxPending = 32;
+  static const int _maxRetries = 120; // ~2s at 60fps
+  static int _retries = 0;
+  static bool _retryScheduled = false;
+
+  /// The active toast theme.
+  static AppToastTheme get theme => _theme;
+
+  /// Configures AppToast. Must be called before any toast is shown.
+  ///
+  /// Pass the same [navigatorKey] you attach to your [MaterialApp] or GoRouter.
+  /// Safe to call more than once; toasts already on screen restyle immediately.
+  static void init({
+    required GlobalKey<NavigatorState> navigatorKey,
+    AppToastColors? light,
+    AppToastColors? dark,
+    AppToastTypography? typography,
+    Duration? defaultDuration,
+    AppToastPosition? defaultPosition,
+    int? maxStack,
+    double? elevation,
+    bool? enableHaptics,
+    Object? brightnessResolver = AppToastTheme._unset,
+  }) {
+    assert(maxStack == null || maxStack >= 1, "maxStack must be at least 1");
+    assert(
+      elevation == null || elevation >= 0,
+      "elevation must be non-negative",
+    );
+
+    _navigatorKey = navigatorKey;
+
+    _theme = _theme.copyWith(
+      light: light,
+      dark: dark,
+      typography: typography,
+      defaultDuration: defaultDuration,
+      defaultPosition: defaultPosition,
+      maxStack: maxStack,
+      elevation: elevation,
+      enableHaptics: enableHaptics,
+      brightnessResolver: brightnessResolver,
+    );
+    _themeRevision.value++;
+  }
+
+  static void _requireInitialized() {
+    if (_navigatorKey == null) {
+      throw StateError(
+        "AppToast.init(navigatorKey: ...) must be called before showing toasts. "
+        "Pass the same root navigator key you use on MaterialApp or GoRouter.",
+      );
+    }
+  }
+
+  /// Shows a toast with the given [message] and optional [description].
+  ///
+  /// [message] must be non-empty. [event] sets the icon and accent color.
+  /// Set [animated] to land at ~90% width, hold, then collapse to hug the text.
+  ///
+  /// [haptic] overrides [AppToastTheme.enableHaptics] when set. Duplicates that
+  /// shake an existing toast never play haptic feedback.
+  static void show({
+    required String message,
+    String? description,
+    AppToastEvent event = AppToastEvent.info,
+    AppToastPosition? position,
+    Duration? duration,
+    bool animated = false,
+    bool? haptic,
+  }) {
+    assert(message.isNotEmpty, "message must not be empty");
+
+    _dispatch(
+      _AppToastData(
+        message: message,
+        description: description,
+        event: event,
+        position: position ?? _theme.defaultPosition,
+        duration: duration ?? _theme.defaultDuration,
+        animated: animated,
+        haptic: haptic,
+      ),
+    );
+  }
+
+  /// Shows a [AppToastEvent.success] toast.
+  static void success({
+    required String message,
+    String? description,
+    AppToastPosition? position,
+    Duration? duration,
+    bool animated = false,
+    bool? haptic,
+  }) => show(
+    message: message,
+    description: description,
+    event: AppToastEvent.success,
+    position: position,
+    duration: duration,
+    animated: animated,
+    haptic: haptic,
+  );
+
+  /// Shows a [AppToastEvent.error] toast.
+  static void error({
+    required String message,
+    String? description,
+    AppToastPosition? position,
+    Duration? duration,
+    bool animated = false,
+    bool? haptic,
+  }) => show(
+    message: message,
+    description: description,
+    event: AppToastEvent.error,
+    position: position,
+    duration: duration,
+    animated: animated,
+    haptic: haptic,
+  );
+
+  /// Shows a [AppToastEvent.warning] toast.
+  static void warning({
+    required String message,
+    String? description,
+    AppToastPosition? position,
+    Duration? duration,
+    bool animated = false,
+    bool? haptic,
+  }) => show(
+    message: message,
+    description: description,
+    event: AppToastEvent.warning,
+    position: position,
+    duration: duration,
+    animated: animated,
+    haptic: haptic,
+  );
+
+  /// Shows a [AppToastEvent.info] toast.
+  static void info({
+    required String message,
+    String? description,
+    AppToastPosition? position,
+    Duration? duration,
+    bool animated = false,
+    bool? haptic,
+  }) => show(
+    message: message,
+    description: description,
+    event: AppToastEvent.info,
+    position: position,
+    duration: duration,
+    animated: animated,
+    haptic: haptic,
+  );
+
+  /// Dismisses every toast on screen.
+  ///
+  /// Animated by default so pills exit the way they would on tap.
+  static void dismissAll({bool animated = true}) {
+    _pending.clear();
+
+    if (!animated) {
+      _toasts.value = const <_AppToastEntry>[];
+      return;
+    }
+
+    for (final _AppToastEntry entry in List<_AppToastEntry>.of(_toasts.value)) {
+      _dismissEntry(entry);
+    }
+  }
+
+  /// Resets all static state. For use in tests only.
+  @visibleForTesting
+  static void debugReset() {
+    _pending.clear();
+    _retries = 0;
+    _retryScheduled = false;
+    _toasts.value = const <_AppToastEntry>[];
+    if (_inserted) _hostEntry!.remove();
+    _hostEntry?.dispose();
+    _hostEntry = null;
+    _hostOverlay = null;
+    _inserted = false;
+    _theme = const AppToastTheme();
+    _themeRevision.value = 0;
+    _navigatorKey = null;
+  }
+
+  // -- dispatch -------------------------------------------------------------
+
+  /// Inserting an overlay entry and mutating [_toasts] both call `setState` on
+  /// the Overlay, which throws mid-build. Defer whenever we are not idle so
+  /// `show()` is safe from `build`, `initState`, or a router redirect.
+  static void _dispatch(_AppToastData data) {
+    _requireInitialized();
+    WidgetsFlutterBinding.ensureInitialized();
+
+    final SchedulerPhase phase = SchedulerBinding.instance.schedulerPhase;
+    final bool safe =
+        phase == SchedulerPhase.idle ||
+        phase == SchedulerPhase.postFrameCallbacks;
+
+    if (!safe) {
+      SchedulerBinding.instance.addPostFrameCallback((_) => _dispatch(data));
+      // Without this an idle app never produces the frame that runs the
+      // callback, and the toast is silently swallowed.
+      SchedulerBinding.instance.ensureVisualUpdate();
+      return;
+    }
+
+    _enqueue(data);
+  }
+
+  static void _enqueue(_AppToastData data) {
+    if (_ensureHost()) {
+      _flushPending();
+      _addEvent(data);
+      return;
+    }
+
+    if (_pending.length >= _maxPending) _pending.removeAt(0);
+    _pending.add(data);
+    _scheduleRetry();
+  }
+
+  static void _flushPending() {
+    if (_pending.isEmpty) return;
+    final List<_AppToastData> queued = List<_AppToastData>.of(_pending);
+    _pending.clear();
+    for (final _AppToastData data in queued) {
+      _addEvent(data);
+    }
+  }
+
+  static void _scheduleRetry() {
+    if (_retryScheduled) return;
+    _retryScheduled = true;
+
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      _retryScheduled = false;
+
+      if (_ensureHost()) {
+        _retries = 0;
+        _flushPending();
+        return;
+      }
+
+      if (++_retries < _maxRetries) {
+        _scheduleRetry();
+        return;
+      }
+
+      _pending.clear();
+      _retries = 0;
+      assert(() {
+        debugPrint(
+          "AppToast: no Overlay found. Ensure AppToast.init(navigatorKey: ...) "
+          "uses the same key attached to your GoRouter or MaterialApp, and "
+          "that the navigator is mounted before showing toasts.",
+        );
+        return true;
+      }());
+    });
+
+    SchedulerBinding.instance.ensureVisualUpdate();
+  }
+
+  // -- host -----------------------------------------------------------------
+
+  static OverlayState? _resolveOverlay() {
+    final OverlayState? fromKey = _navigatorKey!.currentState?.overlay;
+    if (fromKey != null && fromKey.mounted) return fromKey;
+    return null;
+  }
+
+  static bool _ensureHost() {
+    final OverlayState? target = _resolveOverlay();
+    if (target == null) return false;
+
+    if (_inserted && identical(_hostOverlay, target) && _hostOverlay!.mounted) {
+      return true;
+    }
+
+    // Host changed identity — e.g. a splash MaterialApp swapped for
+    // MaterialApp.router. An OverlayEntry can never be reused across hosts.
+    if (_inserted) {
+      // Always remove before dispose: remove() clears the entry's overlay
+      // pointer and no-ops safely when the overlay is already unmounted, and
+      // dispose() asserts that pointer is null.
+      _hostEntry!.remove();
+      _hostEntry!.dispose();
+      _hostEntry = null;
+      _inserted = false;
+    }
+
+    _hostEntry = OverlayEntry(
+      opaque: false,
+      maintainState: true,
+      builder: (_) => const _AppToastHost(),
+    );
+    target.insert(_hostEntry!);
+    _hostOverlay = target;
+    _inserted = true;
+    return true;
+  }
+
+  // -- list operations ------------------------------------------------------
+
+  static List<_AppToastEntry> _aliveFrom(List<_AppToastEntry> entries) {
+    return entries
+        .where(
+          (_AppToastEntry e) =>
+              !e.isDismissing && !(e.key.currentState?.isDismissing ?? false),
+        )
+        .toList();
+  }
+
+  static List<_AppToastEntry> _aliveAt(
+    List<_AppToastEntry> entries,
+    AppToastPosition position,
+  ) {
+    return _aliveFrom(
+      entries,
+    ).where((_AppToastEntry e) => e.data.position == position).toList();
+  }
+
+  static void _addEvent(_AppToastData data) {
+    for (final _AppToastEntry entry in _aliveAt(_toasts.value, data.position)) {
+      if (entry.data.isSameAs(data)) {
+        _promote(entry);
+        entry.key.currentState?.shake();
+        return;
+      }
+    }
+
+    _playHaptic(data);
+
+    final List<_AppToastEntry> atPosition = _aliveAt(
+      _toasts.value,
+      data.position,
+    );
+    if (atPosition.length >= _theme.maxStack) {
+      _dismissEntry(atPosition.first);
+    }
+
+    _toasts.value = [..._toasts.value, _AppToastEntry(data: data)];
+  }
+
+  static void _playHaptic(_AppToastData data) {
+    final bool enabled = data.haptic ?? _theme.enableHaptics;
+    if (!enabled) return;
+
+    switch (data.event) {
+      case AppToastEvent.success:
+        HapticFeedback.lightImpact();
+      case AppToastEvent.error:
+        HapticFeedback.mediumImpact();
+      case AppToastEvent.warning:
+        HapticFeedback.lightImpact();
+      case AppToastEvent.info:
+        break;
+    }
+  }
+
+  /// Moves [entry] to the newest spot within its position group.
+  static void _promote(_AppToastEntry entry) {
+    final List<_AppToastEntry> without = _toasts.value
+        .where((_AppToastEntry e) => e != entry)
+        .toList();
+    final List<_AppToastEntry> samePosition = without
+        .where((_AppToastEntry e) => e.data.position == entry.data.position)
+        .toList();
+    final List<_AppToastEntry> other = without
+        .where((_AppToastEntry e) => e.data.position != entry.data.position)
+        .toList();
+    _toasts.value = [...other, ...samePosition, entry];
+  }
+
+  static void _dismissEntry(_AppToastEntry entry) {
+    final _AppToastPillState? state = entry.key.currentState;
+    if (state != null) {
+      state.dismiss();
+    } else {
+      _remove(entry);
+    }
+  }
+
+  static void _remove(_AppToastEntry entry) {
+    _toasts.value = [..._toasts.value]..remove(entry);
+  }
+
+  /// Re-emits the list so the stack deals depths again.
+  static void _refresh() =>
+      _toasts.value = List<_AppToastEntry>.of(_toasts.value);
+}
+
+// ---------------------------------------------------------------------------
+// Host
+// ---------------------------------------------------------------------------
+
+/// Everything real lives below this widget so hot reload works — the
+/// [OverlayEntry] builder above stays a trivial closure.
+class _AppToastHost extends StatelessWidget {
+  const _AppToastHost();
+
+  @override
+  Widget build(BuildContext context) {
+    // Guaranteed present under MaterialApp/CupertinoApp/WidgetsApp; cheap
+    // insurance for a hand-rolled root or an odd discovered overlay.
+    Widget host = const _AppToastPositions();
+
+    if (MediaQuery.maybeOf(context) == null) {
+      host = MediaQuery.fromView(view: View.of(context), child: host);
+    }
+    if (Directionality.maybeOf(context) == null) {
+      host = Directionality(textDirection: TextDirection.ltr, child: host);
+    }
+    return host;
+  }
+}
+
+class _AppToastPositions extends StatelessWidget {
+  const _AppToastPositions();
+
+  @override
+  Widget build(BuildContext context) {
+    // expand is required: there is no full-size child here to size the Stack
+    // against, and a loose fit would collapse the anchors.
+    return Stack(
+      fit: StackFit.expand,
+      children: <Widget>[
+        for (final AppToastPosition position in AppToastPosition.values)
+          _AppToastStack(position: position),
+      ],
+    );
+  }
+}
+
+/// Anchored stack at [position]: every live pill in one spot, each at its dealt
+/// depth (0 = front) like a card stack.
+class _AppToastStack extends StatelessWidget {
+  const _AppToastStack({required this.position});
+
+  final AppToastPosition position;
+
+  @override
+  Widget build(BuildContext context) {
+    final ({bool top, bool bottom, bool left, bool right}) safeArea =
+        position.safeArea;
+
+    return SafeArea(
+      top: safeArea.top,
+      bottom: safeArea.bottom,
+      left: safeArea.left,
+      right: safeArea.right,
+      child: Align(
+        alignment: position.stackAlignment,
+        child: Padding(
+          padding: position.padding(
+            keyboardInset: position == AppToastPosition.bottom
+                ? MediaQuery.viewInsetsOf(context).bottom
+                : 0,
+          ),
+          child: ValueListenableBuilder<List<_AppToastEntry>>(
+            valueListenable: AppToast._toasts,
+            builder: (BuildContext context, List<_AppToastEntry> entries, _) {
+              final List<_AppToastEntry> atPosition = entries
+                  .where(
+                    (_AppToastEntry entry) => entry.data.position == position,
+                  )
+                  .toList();
+
+              if (atPosition.isEmpty) return const SizedBox.shrink();
+
+              // Newest first. A dismissing pill takes the current depth without
+              // consuming it, so survivors slide forward immediately.
+              int next = 0;
+              final Map<_AppToastEntry, int> depths = {
+                for (final _AppToastEntry entry in atPosition.reversed)
+                  entry:
+                      (entry.isDismissing ||
+                          (entry.key.currentState?.isDismissing ?? false))
+                      ? next
+                      : next++,
+              };
+
+              return Stack(
+                alignment: position.stackAlignment,
+                clipBehavior: Clip.none,
+                children: <Widget>[
+                  for (final _AppToastEntry entry in atPosition)
+                    _AppToastPill(
+                      key: entry.key,
+                      entry: entry,
+                      depth: depths[entry] ?? 0,
+                    ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Pill
+// ---------------------------------------------------------------------------
+
+enum _DismissMode { none, entryAxis, swipe }
+
+/// One pill: entry and exit springs, its place in the card stack, drag and tap
+/// to dismiss, and the duplicate message shake.
+class _AppToastPill extends StatefulWidget {
+  const _AppToastPill({super.key, required this.entry, required this.depth});
+
+  final _AppToastEntry entry;
+  final int depth;
+
+  @override
+  State<_AppToastPill> createState() => _AppToastPillState();
+}
+
+class _AppToastPillState extends State<_AppToastPill>
+    with TickerProviderStateMixin {
+  static const double _travel = _AppToastPositionGeometry.travel;
+  static const double _fullWidthFactor = 0.9;
+
+  /// Let the toast land at full width before shrinking to content.
+  static const Duration _shrinkDelay = Duration(milliseconds: 400);
+  static const Duration _removalDelay = Duration(milliseconds: 450);
+  static const double _dismissOffset = 24;
+  static const double _dismissVelocity = 300;
+  static const double _shrink = 0.05;
+  static const double _shade = 0.15;
+  static const double _shakeVelocity = 600;
+
+  static const double _padSm = 8;
+  static const double _padXxs = 2;
+  static const double _gap = 12;
+  static const double _padTrailing = 20;
+  static const double _iconSize = 32;
+
+  late final AnimationController _depth = AnimationController.unbounded(
+    vsync: this,
+  )..value = 0;
+
+  /// 1 = off-screen along the entry axis, 0 = resting.
+  late final AnimationController _visibility = AnimationController.unbounded(
+    vsync: this,
+  )..value = 1;
+
+  late final AnimationController _exit = AnimationController.unbounded(
+    vsync: this,
+  )..value = 0;
+
+  /// 0 = full (~90%) width, 1 = content-fitted width.
+  late final AnimationController _width = AnimationController.unbounded(
+    vsync: this,
+  )..value = 0;
+
+  late final AnimationController _dragX = AnimationController.unbounded(
+    vsync: this,
+  )..value = 0;
+
+  late final AnimationController _dragY = AnimationController.unbounded(
+    vsync: this,
+  )..value = 0;
+
+  late final AnimationController _shake = AnimationController.unbounded(
+    vsync: this,
+  )..value = 0;
+
+  _DismissMode _dismissMode = _DismissMode.none;
+  Offset _swipeDirection = Offset.zero;
+  double? _contentWidth;
+  double? _fullWidthCache;
+  bool _removing = false;
+  Timer? _timer;
+  Timer? _shrinkTimer;
+  Timer? _removalTimer;
+
+  _AppToastData get _data => widget.entry.data;
+
+  AppToastPosition get _position => _data.position;
+
+  bool get isDismissing => _removing;
+
+  @override
+  void initState() {
+    super.initState();
+    _depth.value = widget.depth.toDouble();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _spring(_visibility, 0, spring: _AppToastSprings.expressive);
+      if (_data.animated) _scheduleContentShrink();
+    });
+    _timer = Timer(_data.duration, dismiss);
+  }
+
+  @override
+  void didUpdateWidget(_AppToastPill oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.depth != widget.depth) {
+      _spring(
+        _depth,
+        widget.depth.toDouble(),
+        spring: _AppToastSprings.expressive,
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _shrinkTimer?.cancel();
+    _removalTimer?.cancel();
+    _depth.dispose();
+    _visibility.dispose();
+    _exit.dispose();
+    _width.dispose();
+    _dragX.dispose();
+    _dragY.dispose();
+    _shake.dispose();
+    super.dispose();
+  }
+
+  // -- width ----------------------------------------------------------------
+
+  void _scheduleContentShrink() {
+    _shrinkTimer?.cancel();
+    _shrinkTimer = Timer(_shrinkDelay, () {
+      if (!mounted || _removing) return;
+      final double full = _fullWidthCache ?? _fullWidth(context);
+      final double content = _measureContentWidth(context).clamp(0.0, full);
+      if ((full - content).abs() < 1) {
+        _contentWidth = content;
+        return;
+      }
+      setState(() => _contentWidth = content);
+      _spring(_width, 1, spring: _AppToastSprings.widthCollapse);
+    });
+  }
+
+  double _fullWidth(BuildContext context) {
+    // Stay inside the stack's horizontal padding so the pill stays centered on
+    // its edge instead of overflowing and shifting the stack.
+    final double horizontalInset = switch (_position) {
+      AppToastPosition.top || AppToastPosition.bottom => 32,
+      AppToastPosition.left || AppToastPosition.right => 16,
+    };
+    final double available = MediaQuery.sizeOf(context).width - horizontalInset;
+    return available * _fullWidthFactor;
+  }
+
+  /// Intrinsic pill width from chrome + text, uncapped by the full-width shell.
+  double _measureContentWidth(BuildContext context) {
+    final AppToastColors colors = AppToast._theme.colorsOf(context);
+    final AppToastTypography typography = AppToast._theme.typography;
+    final TextScaler scaler = MediaQuery.textScalerOf(context);
+
+    const double chrome = _padSm + _iconSize + _gap + _padTrailing;
+
+    final double messageWidth = _textWidth(
+      context,
+      _data.message,
+      typography.resolveMessage(colors.foreground),
+      scaler,
+    );
+    final double descriptionWidth = _data.description == null
+        ? 0
+        : _textWidth(
+            context,
+            _data.description!,
+            typography.resolveDescription(colors.muted),
+            scaler,
+          );
+    final double textWidth = math.max(messageWidth, descriptionWidth);
+
+    // Slack covers subpixel rounding / font hinting so ellipsis never appears.
+    return chrome + textWidth + 8;
+  }
+
+  double _textWidth(
+    BuildContext context,
+    String text,
+    TextStyle style,
+    TextScaler scaler,
+  ) {
+    final TextPainter painter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textDirection: Directionality.of(context),
+      textScaler: scaler,
+      maxLines: 1,
+    )..layout();
+    return painter.size.width;
+  }
+
+  double? _animatedWidth(BuildContext context) {
+    if (!_data.animated) return null;
+
+    final double full = _fullWidthCache ?? _fullWidth(context);
+    final double content = _contentWidth ?? full;
+    final double t = Curves.easeInOutCubic.transform(
+      _width.value.clamp(0.0, 1.0),
+    );
+    // Hand off to intrinsic sizing once collapsed so the pill hugs content.
+    if (t >= 0.995) return null;
+    return full + (content - full) * t;
+  }
+
+  // -- dismissal ------------------------------------------------------------
+
+  void dismiss() {
+    if (_removing) return;
+    _removing = true;
+    widget.entry.isDismissing = true;
+    _dismissMode = _DismissMode.entryAxis;
+    _timer?.cancel();
+    _shrinkTimer?.cancel();
+    _dragX.stop();
+    _dragY.stop();
+    _width.stop();
+    AppToast._refresh();
+    _spring(_visibility, 1, spring: _AppToastSprings.standard);
+    _scheduleRemoval();
+  }
+
+  void _dismissFromSwipe({
+    required double dx,
+    required double dy,
+    required double vx,
+    required double vy,
+  }) {
+    if (_removing) return;
+    _removing = true;
+    widget.entry.isDismissing = true;
+    _dismissMode = _DismissMode.swipe;
+    _swipeDirection = _primarySwipeDirection(dx, dy, vx, vy);
+    _timer?.cancel();
+    _shrinkTimer?.cancel();
+    _width.stop();
+    AppToast._refresh();
+
+    final double projectedVelocity =
+        _swipeDirection.dx * vx + _swipeDirection.dy * vy;
+    _spring(
+      _exit,
+      1,
+      velocity: projectedVelocity / _travel,
+      spring: _AppToastSprings.standard,
+    );
+    _scheduleRemoval();
+  }
+
+  void _scheduleRemoval() {
+    _removalTimer?.cancel();
+    _removalTimer = Timer(_removalDelay, () {
+      if (!mounted) return;
+      AppToast._remove(widget.entry);
+    });
+  }
+
+  void shake() {
+    if (_removing) return;
+    _timer?.cancel();
+    _timer = Timer(_data.duration, dismiss);
+    // Start and end at rest with velocity — the underdamped spring turns that
+    // into a decaying horizontal wobble.
+    _shake.animateWith(
+      SpringSimulation(_AppToastSprings.expressive, 0, 0, _shakeVelocity),
+    );
+  }
+
+  Offset _primarySwipeDirection(double dx, double dy, double vx, double vy) {
+    final double hx = vx.abs() > _dismissVelocity ? vx : dx;
+    final double hy = vy.abs() > _dismissVelocity ? vy : dy;
+
+    if (hx.abs() >= hy.abs()) return Offset(hx >= 0 ? 1 : -1, 0);
+    return Offset(0, hy >= 0 ? 1 : -1);
+  }
+
+  void _spring(
+    AnimationController controller,
+    double target, {
+    double velocity = 0,
+    required SpringDescription spring,
+  }) {
+    controller.animateWith(
+      SpringSimulation(spring, controller.value, target, velocity),
+    );
+  }
+
+  // -- drag -----------------------------------------------------------------
+
+  void _onDragStart(DragStartDetails details) {
+    _timer?.cancel();
+    _dragX.stop();
+    _dragY.stop();
+  }
+
+  void _onDragUpdate(DragUpdateDetails details) {
+    _dragX.value = (_dragX.value + details.delta.dx).clamp(
+      -_travel * 2,
+      _travel * 2,
+    );
+    _dragY.value = (_dragY.value + details.delta.dy).clamp(
+      -_travel * 2,
+      _travel * 2,
+    );
+  }
+
+  void _onDragEnd(DragEndDetails details) {
+    final double dx = _dragX.value;
+    final double dy = _dragY.value;
+    final double vx = details.velocity.pixelsPerSecond.dx;
+    final double vy = details.velocity.pixelsPerSecond.dy;
+    final double distance = math.sqrt(dx * dx + dy * dy);
+    final double speed = math.sqrt(vx * vx + vy * vy);
+
+    if (distance > _dismissOffset || speed > _dismissVelocity) {
+      _dismissFromSwipe(dx: dx, dy: dy, vx: vx, vy: vy);
+      return;
+    }
+    _settleBack(vx, vy);
+  }
+
+  void _settleBack(double velocityX, double velocityY) {
+    if (_removing) return;
+    _spring(_dragX, 0, velocity: velocityX, spring: _AppToastSprings.standard);
+    _spring(_dragY, 0, velocity: velocityY, spring: _AppToastSprings.standard);
+    // Cancel before re-arming: a plain tap loses the pan to the gesture arena,
+    // so onPanCancel can arrive without onPanStart ever having cancelled this.
+    _timer?.cancel();
+    _timer = Timer(_data.duration, dismiss);
+  }
+
+  // -- motion ---------------------------------------------------------------
+
+  ({Offset offset, double opacity, double scale}) _motion({
+    required double depth,
+    required double visibility,
+  }) {
+    final Offset base = _position.motionOffset(t: visibility, depth: depth);
+    final Offset drag = Offset(_dragX.value, _dragY.value);
+    final Offset shake = Offset(_shake.value, 0);
+
+    if (_dismissMode == _DismissMode.swipe) {
+      final double progress = _exit.value.clamp(0.0, 1.0);
+      final double fade = Curves.easeOutCubic.transform(1 - progress);
+      final double exitTravel = _travel * progress;
+
+      return (
+        offset:
+            base +
+            drag +
+            Offset(
+              _swipeDirection.dx * exitTravel,
+              _swipeDirection.dy * exitTravel,
+            ),
+        opacity: fade.clamp(0.0, 1.0),
+        scale: (1 - depth * _shrink - 0.08 * progress).clamp(0.0, 1.0),
+      );
+    }
+
+    if (_dismissMode == _DismissMode.entryAxis) {
+      final double t = visibility.clamp(0.0, 1.0);
+      return (
+        offset: base + drag + shake,
+        opacity: (1 - Curves.easeOut.transform(t)).clamp(0.0, 1.0),
+        scale: (1 - depth * _shrink - 0.04 * t).clamp(0.0, 1.0),
+      );
+    }
+
+    // Entry and rest: slides in without fading.
+    return (
+      offset: base + drag + shake,
+      opacity: 1.0,
+      scale: (1 - depth * _shrink).clamp(0.0, 1.0),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final AppToastColors colors = AppToast._theme.colorsOf(context);
+    final bool isDarkMode =
+        AppToast._theme.brightnessOf(context) == Brightness.dark;
+    _fullWidthCache = _fullWidth(context);
+
+    return AnimatedBuilder(
+      animation: Listenable.merge(<Listenable>[
+        _depth,
+        _visibility,
+        _exit,
+        _width,
+        _dragX,
+        _dragY,
+        _shake,
+        AppToast._themeRevision,
+      ]),
+      builder: (BuildContext context, _) {
+        final double depth = _depth.value;
+        final double visibility = _visibility.value;
+        final ({Offset offset, double opacity, double scale}) motion = _motion(
+          depth: depth,
+          visibility: visibility,
+        );
+        final double? animatedWidth = _animatedWidth(context);
+        final double collapseProgress = _data.animated
+            ? Curves.easeInOutCubic.transform(_width.value.clamp(0.0, 1.0))
+            : 1.0;
+
+        return Transform.translate(
+          offset: motion.offset,
+          child: Transform.scale(
+            scale: motion.scale,
+            alignment: _position.scaleAlignment,
+            child: Opacity(
+              opacity: motion.opacity,
+              child: DecoratedBox(
+                position: DecorationPosition.foreground,
+                decoration: ShapeDecoration(
+                  shape: const StadiumBorder(),
+                  color: colors.foreground.withValues(
+                    alpha: (depth * _shade).clamp(0.0, 0.5),
+                  ),
+                ),
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: dismiss,
+                  onPanStart: _onDragStart,
+                  onPanUpdate: _onDragUpdate,
+                  onPanEnd: _onDragEnd,
+                  onPanCancel: () => _settleBack(0, 0),
+                  child: _AnimatedWidthShell(
+                    width: animatedWidth,
+                    child: _AppToastPillBody(
+                      data: _data,
+                      colors: colors,
+                      typography: AppToast._theme.typography,
+                      elevation: AppToast._theme.elevation,
+                      isDarkMode: isDarkMode,
+                      collapseProgress: collapseProgress,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Constrains width without expanding layout — an [Align] here would grow the
+/// stack to fill the screen and break edge anchoring.
+class _AnimatedWidthShell extends StatelessWidget {
+  const _AnimatedWidthShell({required this.width, required this.child});
+
+  final double? width;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (width == null) return child;
+    return SizedBox(width: width, child: child);
+  }
+}
+
+class _AppToastPillBody extends StatelessWidget {
+  const _AppToastPillBody({
+    required this.data,
+    required this.colors,
+    required this.typography,
+    required this.elevation,
+    required this.isDarkMode,
+    required this.collapseProgress,
+  });
+
+  final _AppToastData data;
+  final AppToastColors colors;
+  final AppToastTypography typography;
+  final double elevation;
+  final bool isDarkMode;
+
+  /// 0 = full-width (icon left, text centered), 1 = compact (icon + text).
+  final double collapseProgress;
+
+  static const double _iconSize = _AppToastPillState._iconSize;
+  static const double _gap = _AppToastPillState._gap;
+
+  IconData get _icon => switch (data.event) {
+    AppToastEvent.success => Icons.check_circle_rounded,
+    AppToastEvent.error => Icons.error_rounded,
+    AppToastEvent.warning => Icons.warning_rounded,
+    AppToastEvent.info => Icons.info_rounded,
+  };
+
+  Widget _iconChip() {
+    return Container(
+      width: _iconSize,
+      height: _iconSize,
+      decoration: BoxDecoration(
+        color: colors.accentFor(data.event),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(_icon, size: 18, color: colors.inverse),
+    );
+  }
+
+  Widget _textBlock({
+    required CrossAxisAlignment crossAxisAlignment,
+    required TextAlign textAlign,
+  }) {
+    return Semantics(
+      liveRegion: true,
+      child: Column(
+        crossAxisAlignment: crossAxisAlignment,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Text(
+            data.message,
+            maxLines: 1,
+            softWrap: false,
+            overflow: TextOverflow.visible,
+            textAlign: textAlign,
+            style: typography.resolveMessage(colors.foreground),
+          ),
+          if (data.description case final String description?)
+            Padding(
+              padding: const EdgeInsets.only(top: _AppToastPillState._padXxs),
+              child: Text(
+                description,
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.visible,
+                textAlign: textAlign,
+                style: typography.resolveDescription(colors.muted),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double t = collapseProgress.clamp(0.0, 1.0);
+    final bool expanded = data.animated && t < 0.98;
+
+    // Expanded: true center — the trailing spacer mirrors icon + gap.
+    // Collapsed: intrinsic row so the pill hugs the text.
+    final double trailingBalance = (_iconSize + _gap) * (1 - t);
+    final TextAlign textAlign = t < 0.5 ? TextAlign.center : TextAlign.start;
+    final CrossAxisAlignment crossAxisAlignment = t < 0.5
+        ? CrossAxisAlignment.center
+        : CrossAxisAlignment.start;
+
+    return Material(
+      color: colors.elevated,
+      shape: const StadiumBorder(),
+      clipBehavior: Clip.antiAlias,
+      elevation: elevation,
+      shadowColor: isDarkMode ? Colors.black : colors.foreground,
+      child: Padding(
+        padding: const EdgeInsetsDirectional.fromSTEB(
+          _AppToastPillState._padSm,
+          _AppToastPillState._padSm,
+          _AppToastPillState._padTrailing,
+          _AppToastPillState._padSm,
+        ),
+        child: expanded
+            ? Row(
+                children: <Widget>[
+                  _iconChip(),
+                  const SizedBox(width: _gap),
+                  Expanded(
+                    child: _textBlock(
+                      crossAxisAlignment: crossAxisAlignment,
+                      textAlign: textAlign,
+                    ),
+                  ),
+                  if (trailingBalance > 0.5) SizedBox(width: trailingBalance),
+                ],
+              )
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  _iconChip(),
+                  const SizedBox(width: _gap),
+                  _textBlock(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    textAlign: TextAlign.start,
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+}
+```
+
+</CopyFile>
+
+that's the whole dependency list. it imports `dart:async`, `dart:math` and
+flutter sdk libraries (`material`, `physics`, `scheduler`). nothing goes into
+`pubspec.yaml`.
+
+</Step>
+
+<Step>
+
+### register a root navigator key
+
+make the key, hand it to AppToast at startup.
+
+```dart
+final navigatorKey = GlobalKey<NavigatorState>();
+
+void main() {
+  AppToast.init(navigatorKey: navigatorKey);
+  runApp(const MyApp());
+}
+```
+
+</Step>
+
+<Step>
+
+### attach it to your app
+
+same instance goes on your router or app.
+
+go_router
+
+```dart
+GoRouter(
+  navigatorKey: navigatorKey,
+  routes: [...],
+);
+```
+
+plain MaterialApp
+
+```dart
+MaterialApp(
+  navigatorKey: navigatorKey,
+  home: const HomeView(),
+);
+```
+
+`init(navigatorKey: ...)` is required. calling `show()` before init throws a
+`StateError`.
+
+</Step>
+
+</Steps>
+
+## usage
+
+call it from anywhere. a widget, a view model, a repository, an interceptor. no
+`BuildContext` needed.
+
+```dart
+AppToast.show(
+  message: "Changes saved",
+  description: "Your draft is safe",
+  event: AppToastEvent.success,
+  animated: true,
+);
+```
+
+shortcuts for each variant.
+
+```dart
+AppToast.success(message: "Saved");
+AppToast.error(message: "Could not save", description: "Check your connection");
+AppToast.warning(message: "Two items need review");
+AppToast.info(message: "Syncing…");
+```
+
+clear everything on screen.
+
+```dart
+AppToast.dismissAll();              // animated
+AppToast.dismissAll(animated: false); // immediate
+```
+
+### parameters
+
+| parameter | type | default | notes |
+|---|---|---|---|
+| `message` | `String` | required | single line. never wraps or ellipsizes |
+| `description` | `String?` | `null` | optional second line in the muted color |
+| `event` | `AppToastEvent` | `.info` | `success` / `error` / `warning` / `info`. sets icon and accent |
+| `position` | `AppToastPosition?` | `.top` | `top` / `bottom` / `left` / `right`. each side stacks on its own |
+| `duration` | `Duration?` | `4s` | auto dismiss delay |
+| `animated` | `bool` | `false` | lands at ~90% width, holds, then collapses to hug the text |
+| `haptic` | `bool?` | `null` | `null` follows theme `enableHaptics`. `true`/`false` override per toast |
+
+## theming
+
+zero config gets you a palette that follows `Theme.of(context).brightness`
+automatically. to change it, call `init()` once at startup. every field is
+optional.
+
+```dart
+void main() {
+  AppToast.init(
+    navigatorKey: navigatorKey,
+    light: AppToastColors.light.copyWith(success: const Color(0xFF00A86B)),
+    typography: const AppToastTypography(fontFamily: "GeistSans"),
+    defaultPosition: AppToastPosition.bottom,
+    defaultDuration: const Duration(seconds: 3),
+  );
+  runApp(const MyApp());
+}
+```
+
+`init()` is safe to call more than once. it restyles toasts already on screen.
+
+### colors
+
+`AppToastColors` has eight tokens. `light` and `dark` presets ship with it, both
+`copyWith` friendly.
+
+| token | used for |
+|---|---|
+| `foreground` | message text, the depth scrim, light mode shadow |
+| `muted` | description text |
+| `elevated` | the pill surface |
+| `inverse` | the glyph on the accent chip |
+| `success` `error` `warning` `info` | accent chip per variant |
+
+```dart
+AppToast.init(
+  light: const AppToastColors(
+    foreground: Color(0xFF0F1113), muted: Color(0xFF63666B),
+    elevated: Color(0xFFFFFFFF), inverse: Color(0xFFFFFFFF),
+    success: Color(0xFF15803D), error: Color(0xFFC62828),
+    warning: Color(0xFFB27700), info: Color(0xFF007AFF),
+  ),
+  dark: AppToastColors.dark,
+);
+```
+
+### typography
+
+`fontFamily` defaults to `null`, which means the ambient font. so a fresh
+project needs no font assets. set it to match your app.
+
+```dart
+AppToast.init(
+  typography: const AppToastTypography(
+    fontFamily: "GeistSans",
+    message: TextStyle(fontSize: 14, height: 20 / 14, fontWeight: FontWeight.w500),
+    description: TextStyle(fontSize: 12, height: 16 / 12),
+  ),
+);
+```
+
+<Callout type="info">
+`TextStyle.height` is a multiplier, not pixels. for 14px text on a 20px line,
+write `20 / 14`.
+</Callout>
+
+### wiring a design system
+
+the presets exist so the file stays copy-pasteable into a bare project. once you
+have real tokens, trade them in at `init()` instead of letting the toast carry a
+second copy of your palette.
+
+keep the mapping in one function and call that everywhere you'd have called
+`init()`. the toast file stays untouched, so you can still drop a newer version
+in without re-applying edits.
+
+```dart
+// app_toast_setup.dart
+void initAppToast({required GlobalKey<NavigatorState> navigatorKey}) {
+  AppToast.init(
+    navigatorKey: navigatorKey,
+    light: _colors(AppColors.light()),
+    dark: _colors(AppColors.dark()),
+    typography: _typography(),
+  );
+}
+
+AppToastColors _colors(AppColors c) => AppToastColors(
+  foreground: c.foreground,
+  muted: c.muted,
+  elevated: c.elevated,
+  inverse: c.inverse,
+  success: c.success,
+  error: c.error,
+  warning: c.warning,
+  info: c.info,
+);
+
+AppToastTypography _typography() {
+  final textTheme = AppTextTheme.fromColors(AppColors.light());
+
+  return AppToastTypography(
+    fontFamily: AppFonts.sans,
+    message: textTheme.bodyMdMedium,
+    description: textTheme.bodySm,
+  );
+}
+```
+
+two things that trip people up:
+
+`inverse` is the glyph drawn *on* the accent chip, not a surface. it inverts
+against the chip, so it's white on light mode's dark green and near-black on
+dark mode's bright green. mapping it to your background token gives you an
+invisible checkmark.
+
+the typography styles only contribute metrics and family. the toast re-colors
+both per brightness at paint time, so it doesn't matter which palette you build
+them from — pick one and move on.
+
+### other knobs
+
+```dart
+AppToast.init(
+  maxStack: 3,      // live toasts per position before the oldest is evicted
+  elevation: 6,     // material elevation of the pill
+  brightnessResolver: (context) => MyThemeController.of(context).brightness,
+);
+```
+
+pass `brightnessResolver: null` to clear a resolver you set earlier. same for
+`fontFamily: null` on `AppToastTypography.copyWith`.
+
+you only need `brightnessResolver` if your app drives light/dark from something
+other than the ambient `Theme`.
+
+### haptics
+
+new toasts play haptic feedback by default. duplicates that shake an existing
+toast do not.
+
+| event | default haptic |
+|---|---|
+| `success` | light impact |
+| `error` | medium impact |
+| `warning` | light impact |
+| `info` | none |
+
+turn it off globally.
+
+```dart
+AppToast.init(
+  navigatorKey: navigatorKey,
+  enableHaptics: false,
+);
+```
+
+or per toast.
+
+```dart
+AppToast.info(message: "Syncing…", haptic: false);
+```
+
+## behavior
+
+- **stacking**. up to `maxStack` (3) per position. newer toasts sit in front.
+  the ones behind peek out 12px, shrink 5% and darken 15% per level, like a card
+  stack. a fourth one drops the oldest.
+- **duplicates**. an identical toast at the same position doesn't stack. the
+  existing one shakes and its timer resets.
+- **dismiss**. tap, swipe in any direction, or wait for `duration`. a short drag
+  springs back and re-arms the timer.
+- **positions**. all four sides stack on their own, so a `top` and a `bottom`
+  toast can coexist.
+- **touch through**. the overlay only takes touches on an actual pill. the rest
+  of your ui stays interactive.
+- **keyboard**. bottom toasts lift above it automatically.
+
+## calling from build()
+
+safe. overlay insertion normally can't happen mid build, so AppToast checks the
+scheduler phase and defers to the next frame instead of throwing. same for
+`initState` and go_router `redirect` callbacks.
+
+toasts fired before the navigator exists, during a splash screen say, get queued
+and shown once it mounts. nothing is dropped silently.
+
+## notes
+
+- main isolate only. statics aren't shared across isolates, so a `compute()`
+  worker can't fire toasts.
+- hot reload and hot restart both work. the overlay re-hosts itself if your app
+  swaps its `MaterialApp`.
+- `AppToast.debugReset()` is there for tests.
+
+## example
+
+```dart
+class HomeView extends StatelessWidget {
+  const HomeView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () => AppToast.success(
+            message: "Changes saved",
+            description: "Your draft is safe",
+            animated: true,
+          ),
+          child: const Text("Save"),
+        ),
+      ),
+    );
+  }
+}
+```

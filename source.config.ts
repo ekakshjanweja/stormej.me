@@ -107,6 +107,28 @@ export const publications = defineDocs({
   },
 });
 
+const troveFrontmatterSchema = frontmatterSchema.extend({
+  subtitle: z.string().optional(),
+  date: z.string().optional(),
+  tech: z.array(z.string()).default([]),
+  github: z.string().optional(),
+  sourceFile: z.string().optional(),
+  lines: z.number().optional(),
+  hidden: z.boolean().optional(),
+  published: z.boolean().optional(),
+});
+
+export const trove = defineDocs({
+  dir: "content/trove",
+  docs: {
+    files: ["*.mdx"],
+    schema: troveFrontmatterSchema,
+  },
+  meta: {
+    files: ["*.json"],
+  },
+});
+
 export default defineConfig({
   mdxOptions: {
     remarkPlugins: [remarkMdxMermaid, remarkMdxFiles],

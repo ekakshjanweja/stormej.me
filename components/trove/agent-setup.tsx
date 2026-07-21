@@ -1,0 +1,83 @@
+"use client";
+
+import { useState } from "react";
+import { Check, Copy, FileText } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { track } from "@/lib/analytics";
+
+const SITE = "https://www.stormej.me";
+
+/**
+ * Hands the reader a prompt to paste into their coding agent. The prompt points
+ * at the entry's llms.txt rather than inlining the source, so the paste stays
+ * short and the agent fetches the current version.
+ */
+export function AgentSetup({
+  slug,
+  title,
+  sourceFile,
+}: {
+  slug: string;
+  title: string;
+  sourceFile?: string;
+}) {
+  const [copied, setCopied] = useState(false);
+  const docUrl = `${SITE}/trove/${slug}/llms.txt`;
+
+  // Deliberately thin. The llms.txt carries the actual instructions, so this
+  // only has to get the agent to fetch it.
+  const prompt = [
+    `fetch ${docUrl} and follow the instructions in it to integrate ${title} into this codebase.`,
+    "",
+    "that file contains the task, the setup steps, the constraints, and the",
+    "complete source. do not guess at any of it.",
+  ].join("\n");
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(prompt);
+    } catch {
+      const area = document.createElement("textarea");
+      area.value = prompt;
+      area.setAttribute("readonly", "");
+      area.style.position = "fixed";
+      area.style.opacity = "0";
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand("copy");
+      document.body.removeChild(area);
+    }
+    setCopied(true);
+    track("trove_agent_prompt_copied", { slug });
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <button
+        type="button"
+        onClick={copy}
+        className={cn(
+          "inline-flex items-center gap-2 rounded-md border border-border/60 px-3 py-1.5",
+          "text-[13px] font-medium text-foreground transition-colors hover:bg-muted/40",
+          "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
+        )}
+      >
+        {copied ? (
+          <Check className="size-3.5" aria-hidden />
+        ) : (
+          <Copy className="size-3.5" aria-hidden />
+        )}
+        {copied ? "copied, paste it in" : "copy prompt for your agent"}
+      </button>
+
+      <a
+        href={`/trove/${slug}/llms.txt`}
+        className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-[12px] font-light text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
+      >
+        <FileText className="size-3.5" aria-hidden />
+        llms.txt
+      </a>
+    </div>
+  );
+}

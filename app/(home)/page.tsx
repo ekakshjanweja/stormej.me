@@ -6,6 +6,7 @@ import Work from "./_components/work";
 import Stack from "./_components/stack";
 import { Contributions } from "./_components/contributions";
 import { PublicationsRow } from "./_components/publications-row";
+import { TroveRow } from "./_components/trove-row";
 import { buildProfilePageSchema, jsonLd, SITE_TAGLINE } from "@/lib/schema";
 
 export const metadata: Metadata = {
@@ -39,6 +40,7 @@ export default async function Home() {
         {/* <Projects /> */}
         <PublicationsRow />
         <BlogRow />
+        <TroveRow />
         <Contributions />
         <Stack />
       </div>

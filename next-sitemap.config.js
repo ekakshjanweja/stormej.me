@@ -11,12 +11,18 @@ module.exports = {
     if (path === "/") {
       priority = 1.0;
       changefreq = "weekly";
-    } else if (path === "/work" || path === "/projects" || path === "/blog") {
+    } else if (
+      path === "/work" ||
+      path === "/projects" ||
+      path === "/blog" ||
+      path === "/trove"
+    ) {
       priority = 0.9;
     } else if (
       path.startsWith("/work/") ||
       path.startsWith("/projects/") ||
-      path.startsWith("/blog/")
+      path.startsWith("/blog/") ||
+      path.startsWith("/trove/")
     ) {
       priority = 0.8;
     } else if (path === "/gear") {

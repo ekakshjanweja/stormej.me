@@ -120,7 +120,7 @@ export function buildBlogPostingSchema(post: BlogPostingInput): SchemaObject {
 }
 
 export interface CreativeWorkInput {
-  kind: "projects" | "work";
+  kind: "projects" | "work" | "trove";
   slug: string;
   title: string;
   description?: string;
