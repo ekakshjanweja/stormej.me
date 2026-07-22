@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
-import { Monitor, Play, Smartphone } from "lucide-react";
+import { Loader2, Monitor, Smartphone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { track } from "@/lib/analytics";
 
@@ -16,8 +16,9 @@ const LAYOUTS: { value: Layout; label: string; Icon: typeof Smartphone }[] = [
 /**
  * Embeds a Flutter web build of a trove entry.
  *
- * The iframe only mounts after a click so the page costs nothing until a
- * reader opts in — a Flutter bundle is a few MB plus the canvaskit fetch.
+ * The iframe mounts once the block scrolls near the viewport, so a reader who
+ * never reaches it never pays for the bundle, and one who does gets it running
+ * without having to ask.
  */
 export function FlutterDemo({
   src,
@@ -32,18 +33,42 @@ export function FlutterDemo({
   width?: number;
   className?: string;
 }) {
-  const [running, setRunning] = useState(false);
+  const [inView, setInView] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const [layout, setLayout] = useState<Layout>("mobile");
+  const containerRef = useRef<HTMLDivElement>(null);
   const { resolvedTheme } = useTheme();
   const theme = resolvedTheme === "dark" ? "dark" : "light";
 
-  const run = () => {
-    setRunning(true);
-    track("trove_demo_started", { demo: name });
-  };
+  useEffect(() => {
+    const node = containerRef.current;
+    if (!node) return;
+
+    // Older browsers just get the demo immediately rather than never.
+    if (typeof IntersectionObserver === "undefined") {
+      setInView(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        setInView(true);
+        track("trove_demo_started", { demo: name });
+        observer.disconnect();
+      },
+      // Start fetching just before it scrolls in so it is usually ready on
+      // arrival.
+      { rootMargin: "300px 0px" }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [name]);
 
   return (
     <div
+      ref={containerRef}
       className={cn(
         "my-4 overflow-hidden rounded-md border border-border/40",
         className
@@ -77,38 +102,45 @@ export function FlutterDemo({
         </div>
       </div>
 
-      {running ? (
-        <div className="flex justify-center bg-muted/20 p-4">
+      <div className="relative flex justify-center bg-muted/20 p-4">
+        {inView && (
           <iframe
             // Remount on theme change so the demo re-reads ?theme. Layout
             // changes only resize it, so flutter reflows without a reload.
             key={theme}
             src={`${src}?theme=${theme}`}
             title={`${name} interactive demo`}
-            loading="lazy"
-            style={{ height, maxWidth: layout === "mobile" ? width : undefined }}
-            className="block w-full rounded-md border border-border/40 bg-background"
+            onLoad={() => setLoaded(true)}
+            style={{
+              height,
+              maxWidth: layout === "mobile" ? width : undefined,
+            }}
+            className={cn(
+              "block w-full rounded-md border border-border/40 bg-background transition-opacity duration-150 ease-out motion-reduce:transition-none",
+              loaded ? "opacity-100" : "opacity-0"
+            )}
           />
-        </div>
-      ) : (
-        <div
-          style={{ height: height + 32 }}
-          className="flex flex-col items-center justify-center gap-3 bg-muted/20 px-6 text-center"
-        >
-          <button
-            type="button"
-            onClick={run}
-            className="inline-flex items-center gap-2 rounded-md border border-border/60 px-3 py-1.5 text-[13px] font-medium text-foreground transition-colors hover:bg-muted/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
+        )}
+
+        {!loaded && (
+          <div
+            style={{ height: inView ? undefined : height }}
+            className={cn(
+              "flex flex-col items-center justify-center gap-2 text-center",
+              inView && "absolute inset-0"
+            )}
+            role="status"
           >
-            <Play className="size-3.5" aria-hidden />
-            run the demo
-          </button>
-          <p className="max-w-[42ch] text-pretty text-[12px] font-light leading-[1.6] text-muted-foreground">
-            the real widget, compiled to flutter web. a few mb, so it loads only
-            when you ask.
-          </p>
-        </div>
-      )}
+            <Loader2
+              className="size-4 animate-spin text-muted-foreground"
+              aria-hidden
+            />
+            <p className="text-[12px] font-light text-muted-foreground">
+              starting the demo
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

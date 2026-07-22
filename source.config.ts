@@ -114,6 +114,7 @@ const troveFrontmatterSchema = frontmatterSchema.extend({
   github: z.string().optional(),
   sourceFile: z.string().optional(),
   lines: z.number().optional(),
+  demo: z.string().optional(),
   hidden: z.boolean().optional(),
   published: z.boolean().optional(),
 });

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { listTrove } from "@/lib/trove";
+import { TrovePreview } from "@/components/trove/trove-preview";
 
 const description = "flutter stuff i actually use. copy one file, ship.";
 
@@ -43,24 +44,26 @@ export default function Trove() {
       <ul className="flex flex-col gap-5">
         {items.map((item) => (
           <li key={item.slug}>
-            <Link
-              href={item.url}
-              className="group flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
-            >
-              <div className="flex flex-col gap-0.5 min-w-0">
-                <span className="squiggle-link-hover text-[14px] font-medium text-foreground sm:truncate">
-                  {item.title}
-                </span>
-                {(item.description ?? item.subtitle) && (
-                  <span className="text-[12px] font-light text-muted-foreground leading-snug sm:line-clamp-1">
-                    {item.description ?? item.subtitle}
+            <TrovePreview title={item.title} demo={item.demo} surface="trove">
+              <Link
+                href={item.url}
+                className="group flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
+              >
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  <span className="squiggle-link-hover text-[14px] font-medium text-foreground sm:truncate">
+                    {item.title}
                   </span>
-                )}
-              </div>
-              <span className="meta-tag shrink-0 whitespace-nowrap tabular-nums">
-                {item.sourceFile ?? item.tech.join(" · ")}
-              </span>
-            </Link>
+                  {(item.description ?? item.subtitle) && (
+                    <span className="text-[12px] font-light text-muted-foreground leading-snug sm:line-clamp-1">
+                      {item.description ?? item.subtitle}
+                    </span>
+                  )}
+                </div>
+                <span className="meta-tag shrink-0 whitespace-nowrap tabular-nums">
+                  {item.sourceFile ?? item.tech.join(" · ")}
+                </span>
+              </Link>
+            </TrovePreview>
           </li>
         ))}
       </ul>

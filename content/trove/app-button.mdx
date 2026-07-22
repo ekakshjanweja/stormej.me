@@ -1,0 +1,1102 @@
+---
+title: app button
+subtitle: one file button for flutter
+description: a button for flutter in one file. three types, three sizes, spring press feedback. no packages, no DI, no widget wrapping.
+date: "2026-07-22"
+tech:
+  - flutter
+  - dart
+sourceFile: lib/app_button.dart
+lines: 724
+demo: /trove/demo/app-button/index.html
+published: true
+---
+
+## tldr
+
+copy one file into your project, use it. no setup, no init call.
+
+`AppButton(text: "Continue", onPressed: _submit)`.
+
+three types, three sizes, loading and disabled states, leading/trailing icons.
+press feedback runs on a spring, so scale, fill, gradient and halo all land
+together.
+
+<FlutterDemo src="/trove/demo/app-button/index.html" name="app-button" />
+
+## install
+
+<Steps>
+
+<Step>
+
+### copy one file
+
+grab it and drop it in at `lib/app_button.dart`.
+
+<CopyFile name="app_button.dart" lines={724}>
+
+```dart
+// A self-contained, plug-and-play button. Drop this single file into any
+// Flutter project — no packages, no DI, no widget wrapping.
+//
+//   1. Use it anywhere:
+//        AppButton(text: "Continue", onPressed: _submit)
+//        AppButton(text: "Cancel", type: AppButtonType.secondary)
+//        AppButton(text: "Saving", isLoading: true, size: AppButtonSize.md)
+//
+//   2. Restyle once at startup — or never, the defaults stand on their own:
+//        AppButton.configure(light: AppButtonColors.light.copyWith(accent: myBlue));
+//
+//   3. Press feedback runs on a spring, not a curve. Scale, fill, gradient and
+//      halo are all driven by one animation so they land together.
+
+import "package:flutter/material.dart";
+import "package:flutter/physics.dart";
+
+// ---------------------------------------------------------------------------
+// Public enums
+// ---------------------------------------------------------------------------
+
+/// Visual weight of a button — sets fill, border, and press feedback.
+enum AppButtonType {
+  /// Accent-filled, gradient and halo. The one call to action on a screen.
+  primary,
+
+  /// Outlined and transparent. Secondary actions beside a primary.
+  secondary,
+
+  /// Bare text. Low-emphasis actions — dismiss, learn more, skip.
+  tertiary,
+}
+
+/// Size step — sets padding and text style.
+enum AppButtonSize {
+  /// Compact, for dense rows and inline actions.
+  sm,
+
+  /// The everyday size.
+  md,
+
+  /// Full-height, for primary actions at the bottom of a screen.
+  lg,
+}
+
+/// Interaction state a color token is resolved against.
+enum AppButtonState {
+  /// Enabled and untouched.
+  defaultState,
+
+  /// Non-interactive — disabled, or busy with [AppButton.isLoading].
+  disabled,
+}
+
+// ---------------------------------------------------------------------------
+// Theme
+// ---------------------------------------------------------------------------
+
+/// Color tokens for a button palette.
+///
+/// Use [light] and [dark] presets, or build your own and pass them to
+/// [AppButton.configure].
+@immutable
+class AppButtonColors {
+  /// Creates a button color palette.
+  const AppButtonColors({
+    required this.foreground,
+    required this.muted,
+    required this.surface,
+    required this.accent,
+    required this.accentForeground,
+    required this.accentStrong,
+    required this.accentGradient,
+    required this.border,
+    required this.disabled,
+  });
+
+  /// Label on secondary and tertiary buttons.
+  final Color foreground;
+
+  /// Label on a disabled button of any type.
+  final Color muted;
+
+  /// Pressed fill for the flat types, which have no resting background.
+  final Color surface;
+
+  /// Primary fill and the color of its halo.
+  final Color accent;
+
+  /// Label on a primary button.
+  final Color accentForeground;
+
+  /// Pressed end of the primary gradient — each stop darkens toward this.
+  final Color accentStrong;
+
+  /// Resting gradient across a primary fill. Two or more stops.
+  final List<Color> accentGradient;
+
+  /// Outline on a secondary button.
+  final Color border;
+
+  /// Fill on a disabled primary or secondary button.
+  final Color disabled;
+
+  /// Default palette for light mode.
+  static const AppButtonColors light = AppButtonColors(
+    foreground: Color(0xFF0F1113),
+    muted: Color(0xFF63666B),
+    surface: Color(0xFFEFEFEE),
+    accent: Color(0xFF1D4ED8),
+    accentForeground: Color(0xFFFFFFFF),
+    accentStrong: Color(0xFF1E40AF),
+    accentGradient: <Color>[Color(0xFF2563EB), Color(0xFF1D4ED8)],
+    border: Color(0xFFD8D8D6),
+    disabled: Color(0xFFC4C4C2),
+  );
+
+  /// Default palette for dark mode.
+  static const AppButtonColors dark = AppButtonColors(
+    foreground: Color(0xFFF4F6F2),
+    muted: Color(0xFF979BA3),
+    surface: Color(0xFF1D2025),
+    accent: Color(0xFF60A5FA),
+    accentForeground: Color(0xFF071018),
+    accentStrong: Color(0xFF93C5FD),
+    accentGradient: <Color>[Color(0xFF7DBBFF), Color(0xFF4C8FE8)],
+    border: Color(0xFF2A2E35),
+    disabled: Color(0xFF474B53),
+  );
+
+  /// Resting fill for [type] in [state], or null when the type has none.
+  Color? backgroundFor(AppButtonType type, AppButtonState state) {
+    if (state == AppButtonState.disabled) {
+      return switch (type) {
+        AppButtonType.primary || AppButtonType.secondary => disabled,
+        AppButtonType.tertiary => null,
+      };
+    }
+    return switch (type) {
+      AppButtonType.primary => accent,
+      AppButtonType.secondary || AppButtonType.tertiary => null,
+    };
+  }
+
+  /// Label color for [type] in [state].
+  Color foregroundFor(AppButtonType type, AppButtonState state) {
+    if (state == AppButtonState.disabled) return muted;
+    return switch (type) {
+      AppButtonType.primary => accentForeground,
+      AppButtonType.secondary || AppButtonType.tertiary => foreground,
+    };
+  }
+
+  /// Outline for [type] in [state], or null when the type has none.
+  Color? borderFor(AppButtonType type, AppButtonState state) {
+    return switch (type) {
+      AppButtonType.primary || AppButtonType.tertiary => null,
+      AppButtonType.secondary =>
+        state == AppButtonState.disabled ? disabled : border,
+    };
+  }
+
+  /// Returns a copy with the given fields replaced.
+  AppButtonColors copyWith({
+    Color? foreground,
+    Color? muted,
+    Color? surface,
+    Color? accent,
+    Color? accentForeground,
+    Color? accentStrong,
+    List<Color>? accentGradient,
+    Color? border,
+    Color? disabled,
+  }) {
+    return AppButtonColors(
+      foreground: foreground ?? this.foreground,
+      muted: muted ?? this.muted,
+      surface: surface ?? this.surface,
+      accent: accent ?? this.accent,
+      accentForeground: accentForeground ?? this.accentForeground,
+      accentStrong: accentStrong ?? this.accentStrong,
+      accentGradient: accentGradient ?? this.accentGradient,
+      border: border ?? this.border,
+      disabled: disabled ?? this.disabled,
+    );
+  }
+}
+
+/// Typography and metrics per [AppButtonSize].
+@immutable
+class AppButtonSizing {
+  /// Creates sizing settings.
+  const AppButtonSizing({
+    this.fontFamily,
+    this.sm = const TextStyle(
+      fontSize: 12,
+      height: 16 / 12,
+      fontWeight: FontWeight.w600,
+    ),
+    this.md = const TextStyle(
+      fontSize: 14,
+      height: 20 / 14,
+      fontWeight: FontWeight.w600,
+    ),
+    this.lg = const TextStyle(
+      fontSize: 14,
+      height: 20 / 14,
+      fontWeight: FontWeight.w600,
+    ),
+    this.smPadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    this.mdPadding = const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+    this.lgPadding = const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+    this.borderRadius = 18,
+    this.gap = 8,
+  });
+
+  static const Object _unset = Object();
+
+  /// Applied to every style unless a style names its own family.
+  ///
+  /// Defaults to the ambient font so a fresh project needs no asset setup.
+  final String? fontFamily;
+
+  /// Label style for [AppButtonSize.sm].
+  final TextStyle sm;
+
+  /// Label style for [AppButtonSize.md].
+  final TextStyle md;
+
+  /// Label style for [AppButtonSize.lg].
+  final TextStyle lg;
+
+  /// Padding for [AppButtonSize.sm].
+  final EdgeInsets smPadding;
+
+  /// Padding for [AppButtonSize.md].
+  final EdgeInsets mdPadding;
+
+  /// Padding for [AppButtonSize.lg].
+  final EdgeInsets lgPadding;
+
+  /// Corner radius of the button shape.
+  final double borderRadius;
+
+  /// Space between icon and label.
+  final double gap;
+
+  /// Resolves the label style for [size] with [color] and [fontFamily].
+  TextStyle textFor(AppButtonSize size, Color color) {
+    final TextStyle style = switch (size) {
+      AppButtonSize.sm => sm,
+      AppButtonSize.md => md,
+      AppButtonSize.lg => lg,
+    };
+    return style.copyWith(
+      color: color,
+      fontFamily: style.fontFamily ?? fontFamily,
+    );
+  }
+
+  /// Returns the padding for [size].
+  EdgeInsets paddingFor(AppButtonSize size) => switch (size) {
+    AppButtonSize.sm => smPadding,
+    AppButtonSize.md => mdPadding,
+    AppButtonSize.lg => lgPadding,
+  };
+
+  /// Returns a copy with the given fields replaced.
+  ///
+  /// Pass `fontFamily: null` explicitly to clear a previously set family.
+  AppButtonSizing copyWith({
+    Object? fontFamily = _unset,
+    TextStyle? sm,
+    TextStyle? md,
+    TextStyle? lg,
+    EdgeInsets? smPadding,
+    EdgeInsets? mdPadding,
+    EdgeInsets? lgPadding,
+    double? borderRadius,
+    double? gap,
+  }) {
+    return AppButtonSizing(
+      fontFamily: fontFamily == _unset
+          ? this.fontFamily
+          : fontFamily as String?,
+      sm: sm ?? this.sm,
+      md: md ?? this.md,
+      lg: lg ?? this.lg,
+      smPadding: smPadding ?? this.smPadding,
+      mdPadding: mdPadding ?? this.mdPadding,
+      lgPadding: lgPadding ?? this.lgPadding,
+      borderRadius: borderRadius ?? this.borderRadius,
+      gap: gap ?? this.gap,
+    );
+  }
+}
+
+/// Global button configuration — colors, sizing, and press feel.
+@immutable
+class AppButtonTheme {
+  /// Creates a button theme.
+  const AppButtonTheme({
+    this.light = AppButtonColors.light,
+    this.dark = AppButtonColors.dark,
+    this.sizing = const AppButtonSizing(),
+    this.pressScale = 0.03,
+    this.brightnessResolver,
+  }) : assert(
+         pressScale >= 0 && pressScale < 1,
+         "pressScale must be in [0, 1)",
+       );
+
+  static const Object _unset = Object();
+
+  /// Palette used when [brightnessOf] resolves to [Brightness.light].
+  final AppButtonColors light;
+
+  /// Palette used when [brightnessOf] resolves to [Brightness.dark].
+  final AppButtonColors dark;
+
+  /// Typography and metrics per size.
+  final AppButtonSizing sizing;
+
+  /// How far the button shrinks at full press — 0.03 is a 3% dip.
+  final double pressScale;
+
+  /// Escape hatch for apps that drive brightness off something other than the
+  /// ambient [Theme].
+  final Brightness Function(BuildContext context)? brightnessResolver;
+
+  /// Resolves the current brightness for [context].
+  Brightness brightnessOf(BuildContext context) =>
+      brightnessResolver?.call(context) ?? Theme.of(context).brightness;
+
+  /// Returns the color palette for [context]'s current brightness.
+  AppButtonColors colorsOf(BuildContext context) =>
+      brightnessOf(context) == Brightness.dark ? dark : light;
+
+  /// Returns a copy with the given fields replaced.
+  ///
+  /// Pass `brightnessResolver: null` explicitly to clear a custom resolver.
+  AppButtonTheme copyWith({
+    AppButtonColors? light,
+    AppButtonColors? dark,
+    AppButtonSizing? sizing,
+    double? pressScale,
+    Object? brightnessResolver = _unset,
+  }) {
+    return AppButtonTheme(
+      light: light ?? this.light,
+      dark: dark ?? this.dark,
+      sizing: sizing ?? this.sizing,
+      pressScale: pressScale ?? this.pressScale,
+      brightnessResolver: brightnessResolver == _unset
+          ? this.brightnessResolver
+          : brightnessResolver as Brightness Function(BuildContext context)?,
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Springs
+// ---------------------------------------------------------------------------
+
+/// A press is a physical event, so it settles on a spring rather than over a
+/// fixed duration. Approximates iOS's smooth interactive spring.
+abstract final class _AppButtonSprings {
+  /// Near-critical (zeta ~0.9) — quick, barely a wobble. A button that
+  /// visibly bounced under a fingertip would read as loose, not lively.
+  static const SpringDescription press = SpringDescription(
+    mass: 1,
+    stiffness: 480,
+    damping: 39,
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Button
+// ---------------------------------------------------------------------------
+
+/// A spring-animated button with three weights and three sizes.
+///
+/// Requires [text], [leadingIcon], or [trailingIcon]. Pass [onPressed] to
+/// enable it; a null callback, [isDisabled], or [isLoading] all render the
+/// disabled treatment and swallow taps.
+class AppButton extends StatefulWidget {
+  /// Creates a button.
+  const AppButton({
+    super.key,
+    this.text,
+    this.onPressed,
+    this.isLoading = false,
+    this.isDisabled = false,
+    this.backgroundColor,
+    this.foregroundColor,
+    this.disabledBackgroundColor,
+    this.borderColor,
+    this.borderRadius,
+    this.padding,
+    this.width,
+    this.height,
+    this.leadingIcon,
+    this.trailingIcon,
+    this.textStyle,
+    this.semanticLabel,
+    this.type = AppButtonType.primary,
+    this.size = AppButtonSize.lg,
+  }) : assert(
+         text != null || leadingIcon != null || trailingIcon != null,
+         "AppButton requires text or an icon.",
+       );
+
+  static AppButtonTheme _theme = const AppButtonTheme();
+
+  /// The active button theme.
+  static AppButtonTheme get theme => _theme;
+
+  /// Restyles every [AppButton] in the app. Safe to call more than once;
+  /// buttons already on screen pick the change up on their next build.
+  static void configure({
+    AppButtonColors? light,
+    AppButtonColors? dark,
+    AppButtonSizing? sizing,
+    double? pressScale,
+    Object? brightnessResolver = AppButtonTheme._unset,
+  }) {
+    _theme = _theme.copyWith(
+      light: light,
+      dark: dark,
+      sizing: sizing,
+      pressScale: pressScale,
+      brightnessResolver: brightnessResolver,
+    );
+  }
+
+  /// Resets the theme to defaults. For use in tests only.
+  @visibleForTesting
+  static void debugReset() => _theme = const AppButtonTheme();
+
+  /// Label text. Optional when an icon is supplied.
+  final String? text;
+
+  /// Tap handler. A null callback disables the button.
+  final VoidCallback? onPressed;
+
+  /// Swaps the content for a spinner and blocks taps.
+  final bool isLoading;
+
+  /// Renders the disabled treatment and blocks taps.
+  final bool isDisabled;
+
+  /// Overrides the resolved fill. Opts a primary out of gradient and halo,
+  /// since a gradient would silently paint over it.
+  final Color? backgroundColor;
+
+  /// Overrides the resolved label and icon color.
+  final Color? foregroundColor;
+
+  /// Overrides the resolved disabled fill.
+  final Color? disabledBackgroundColor;
+
+  /// Overrides the resolved outline.
+  final Color? borderColor;
+
+  /// Overrides [AppButtonSizing.borderRadius].
+  final double? borderRadius;
+
+  /// Overrides the padding for [size].
+  final EdgeInsets? padding;
+
+  /// Fixed width. Null hugs the content.
+  final double? width;
+
+  /// Fixed height. Null hugs the content.
+  final double? height;
+
+  /// Icon before the label.
+  final Widget? leadingIcon;
+
+  /// Icon after the label. Replaced by the spinner on a loading tertiary.
+  final Widget? trailingIcon;
+
+  /// Overrides the resolved label style. Color is still applied on top.
+  final TextStyle? textStyle;
+
+  /// Screen-reader label. Defaults to [text]; supply one for icon-only buttons.
+  final String? semanticLabel;
+
+  /// Visual weight.
+  final AppButtonType type;
+
+  /// Size step.
+  final AppButtonSize size;
+
+  @override
+  State<AppButton> createState() => _AppButtonState();
+}
+
+class _AppButtonState extends State<AppButton>
+    with SingleTickerProviderStateMixin {
+  /// 0 = at rest, 1 = fully pressed. One value drives every press-linked
+  /// property — scale, fill, gradient, halo — so they arrive together
+  /// instead of drifting apart on separate curves.
+  late final AnimationController _press = AnimationController.unbounded(
+    vsync: this,
+  )..value = 0;
+
+  bool _isPressed = false;
+
+  bool get _isDisabled =>
+      widget.isDisabled || widget.onPressed == null || widget.isLoading;
+
+  @override
+  void didUpdateWidget(AppButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Disabled mid-press: release rather than stay stranded in the pressed
+    // look, since the gesture callbacks that would have released it are gone.
+    if (_isDisabled) _setPressed(false);
+  }
+
+  @override
+  void dispose() {
+    _press.dispose();
+    super.dispose();
+  }
+
+  void _setPressed(bool value) {
+    if (_isPressed == value) return;
+    _isPressed = value;
+    _press.animateWith(
+      SpringSimulation(
+        _AppButtonSprings.press,
+        _press.value,
+        value ? 1 : 0,
+        0,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final AppButtonTheme theme = AppButton._theme;
+    final AppButtonColors colors = theme.colorsOf(context);
+    final AppButtonSizing sizing = theme.sizing;
+
+    final bool isDisabled = _isDisabled;
+    final AppButtonState state = isDisabled
+        ? AppButtonState.disabled
+        : AppButtonState.defaultState;
+
+    final Color fgColor =
+        widget.foregroundColor ?? colors.foregroundFor(widget.type, state);
+    final double borderRadius = widget.borderRadius ?? sizing.borderRadius;
+    final EdgeInsets padding = widget.padding ?? sizing.paddingFor(widget.size);
+    final TextStyle textStyle = widget.textStyle == null
+        ? sizing.textFor(widget.size, fgColor)
+        : widget.textStyle!.copyWith(color: fgColor);
+    final Color? borderColor =
+        widget.borderColor ?? colors.borderFor(widget.type, state);
+
+    // The accent treatment — gradient fill plus a matching halo — is reserved
+    // for an unstyled, enabled primary. A caller-supplied backgroundColor opts
+    // out of both, since a gradient would silently override it.
+    final bool usesAccent =
+        widget.type == AppButtonType.primary &&
+        widget.backgroundColor == null &&
+        !isDisabled;
+
+    final Color? restingBg = isDisabled
+        ? (widget.disabledBackgroundColor ??
+              colors.backgroundFor(widget.type, AppButtonState.disabled))
+        : (widget.backgroundColor ?? colors.backgroundFor(widget.type, state));
+
+    // Press feedback for the flat types is a fill shift: they pick up the
+    // surface tint they otherwise lack, so a tap reads without a background.
+    final Color? pressedBg = switch (widget.type) {
+      AppButtonType.primary => restingBg,
+      AppButtonType.secondary || AppButtonType.tertiary => colors.surface,
+    };
+
+    // A gradient can't cross-fade to a single pressed color the way a flat
+    // fill can, so darken each stop toward the strong accent instead. Keeps
+    // the press state legible without a second gradient token.
+    final List<Color> restingGradient = colors.accentGradient;
+    assert(
+      !usesAccent || restingGradient.length >= 2,
+      "accentGradient needs at least two stops",
+    );
+    final List<Color> pressedGradient = <Color>[
+      for (final Color stop in restingGradient)
+        Color.lerp(stop, colors.accentStrong, 0.5)!,
+    ];
+
+    final Widget content = Align(
+      widthFactor: widget.width == null ? 1 : null,
+      heightFactor: widget.height == null ? 1 : null,
+      child: _buildContent(fgColor, textStyle, sizing.gap),
+    );
+
+    return Semantics(
+      button: true,
+      enabled: !isDisabled,
+      label: widget.semanticLabel ?? widget.text,
+      child: GestureDetector(
+        onTap: isDisabled ? null : widget.onPressed,
+        onTapDown: isDisabled ? null : (_) => _setPressed(true),
+        onTapUp: isDisabled ? null : (_) => _setPressed(false),
+        onTapCancel: isDisabled ? null : () => _setPressed(false),
+        child: AnimatedBuilder(
+          animation: _press,
+          builder: (BuildContext context, Widget? child) {
+            final double t = _press.value;
+            // Scale rides any overshoot the spring produces. Colors clamp:
+            // a stop extrapolated past its endpoint is a different color,
+            // not a livelier one.
+            final double ct = t.clamp(0.0, 1.0);
+
+            return Transform.scale(
+              scale: 1 - theme.pressScale * t,
+              child: Container(
+                width: widget.width,
+                height: widget.height,
+                padding: padding,
+                decoration: ShapeDecoration(
+                  color: usesAccent ? null : Color.lerp(restingBg, pressedBg, ct),
+                  gradient: !usesAccent
+                      ? null
+                      : LinearGradient(
+                          colors: <Color>[
+                            for (int i = 0; i < restingGradient.length; i++)
+                              Color.lerp(
+                                restingGradient[i],
+                                pressedGradient[i],
+                                ct,
+                              )!,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                  // The accent halo dims on press so the button reads as
+                  // settling into the surface. Every other type has none.
+                  shadows: !usesAccent
+                      ? const <BoxShadow>[]
+                      : <BoxShadow>[
+                          BoxShadow(
+                            color: colors.accent.withValues(
+                              alpha: 0.35 * (1 - 0.6 * ct),
+                            ),
+                            blurRadius: 18 * (1 - 0.6 * ct),
+                          ),
+                        ],
+                  shape: RoundedSuperellipseBorder(
+                    borderRadius: BorderRadius.circular(borderRadius),
+                    side: borderColor == null
+                        ? BorderSide.none
+                        : BorderSide(color: borderColor),
+                  ),
+                ),
+                child: child,
+              ),
+            );
+          },
+          child: content,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent(Color fgColor, TextStyle textStyle, double gap) {
+    // Every type but tertiary swaps its whole content for the spinner —
+    // tertiary is bare text, so a swap would collapse the button's width.
+    if (widget.isLoading && widget.type != AppButtonType.tertiary) {
+      return _AppButtonSpinner(color: fgColor, size: 18);
+    }
+
+    final bool hasText = widget.text != null && widget.text!.isNotEmpty;
+    final List<Widget> children = <Widget>[];
+
+    void add(Widget child) {
+      if (children.isNotEmpty) children.add(SizedBox(width: gap));
+      children.add(child);
+    }
+
+    if (widget.leadingIcon != null) {
+      add(_themedIcon(widget.leadingIcon!, fgColor));
+    }
+    if (hasText) {
+      add(Text(widget.text!, style: textStyle));
+    }
+    if (widget.isLoading && widget.type == AppButtonType.tertiary) {
+      add(_AppButtonSpinner(color: fgColor, size: 16));
+    } else if (widget.trailingIcon != null) {
+      add(_themedIcon(widget.trailingIcon!, fgColor));
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: children,
+    );
+  }
+
+  Widget _themedIcon(Widget icon, Color color) =>
+      IconTheme(data: IconThemeData(color: color), child: icon);
+}
+
+class _AppButtonSpinner extends StatelessWidget {
+  const _AppButtonSpinner({required this.color, required this.size});
+
+  final Color color;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: size,
+      height: size,
+      child: CircularProgressIndicator(
+        strokeWidth: 2,
+        valueColor: AlwaysStoppedAnimation<Color>(color),
+      ),
+    );
+  }
+}
+```
+
+</CopyFile>
+
+it imports `material` and `physics` from the flutter sdk. nothing goes in
+`pubspec.yaml`.
+
+</Step>
+
+<Step>
+
+### use it
+
+there is no init call. the defaults stand on their own.
+
+```dart
+AppButton(text: "Continue", onPressed: _submit)
+```
+
+</Step>
+
+</Steps>
+
+## usage
+
+three types. one primary per screen, that's the point of it.
+
+```dart
+AppButton(text: "Continue", onPressed: _submit);
+AppButton(text: "Cancel", type: AppButtonType.secondary, onPressed: _close);
+AppButton(text: "Skip", type: AppButtonType.tertiary, onPressed: _skip);
+```
+
+three sizes. `lg` is the default, since most buttons in an app sit at the bottom
+of a screen.
+
+```dart
+AppButton(text: "Save", size: AppButtonSize.sm, onPressed: _save);
+AppButton(text: "Save", size: AppButtonSize.md, onPressed: _save);
+AppButton(text: "Save", size: AppButtonSize.lg, onPressed: _save);
+```
+
+loading swaps the content for a spinner and blocks taps. disabled does the same
+without the spinner.
+
+```dart
+AppButton(text: "Saving", isLoading: true, onPressed: _save);
+AppButton(text: "Save", isDisabled: true, onPressed: _save);
+AppButton(text: "Save", onPressed: null); // also disabled
+```
+
+icons on either side. text is optional if you pass one.
+
+```dart
+AppButton(
+  text: "Continue",
+  trailingIcon: const Icon(Icons.arrow_forward, size: 18),
+  onPressed: _next,
+);
+
+AppButton(
+  leadingIcon: const Icon(Icons.close, size: 18),
+  semanticLabel: "Close",
+  type: AppButtonType.tertiary,
+  onPressed: _close,
+);
+```
+
+stretch it across the screen.
+
+```dart
+AppButton(text: "Continue", width: double.infinity, onPressed: _submit);
+```
+
+## example
+
+```dart
+class CheckoutView extends StatefulWidget {
+  const CheckoutView({super.key});
+
+  @override
+  State<CheckoutView> createState() => _CheckoutViewState();
+}
+
+class _CheckoutViewState extends State<CheckoutView> {
+  bool _isPaying = false;
+
+  Future<void> _pay() async {
+    setState(() => _isPaying = true);
+    await context.read<Cart>().checkout();
+    if (mounted) setState(() => _isPaying = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: const CartList(),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              AppButton(
+                text: "Pay now",
+                width: double.infinity,
+                isLoading: _isPaying,
+                onPressed: _pay,
+              ),
+              const SizedBox(height: 8),
+              AppButton(
+                text: "Keep shopping",
+                type: AppButtonType.tertiary,
+                size: AppButtonSize.md,
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+## reference
+
+everything below is here when you need
+it. you can ship without reading any of it.
+
+<Accordions>
+  <Accordion title="parameters">
+
+  | parameter | type | default | notes |
+  |---|---|---|---|
+  | `text` | `String?` | `null` | required unless you pass an icon |
+  | `onPressed` | `VoidCallback?` | `null` | null disables the button |
+  | `type` | `AppButtonType` | `.primary` | `primary` / `secondary` / `tertiary` |
+  | `size` | `AppButtonSize` | `.lg` | `sm` / `md` / `lg`. sets padding and text style |
+  | `isLoading` | `bool` | `false` | spinner in place of the content, taps blocked |
+  | `isDisabled` | `bool` | `false` | disabled treatment, taps blocked |
+  | `leadingIcon` | `Widget?` | `null` | icon before the label |
+  | `trailingIcon` | `Widget?` | `null` | icon after the label. the spinner takes this slot on a loading tertiary |
+  | `width` | `double?` | `null` | null hugs the content |
+  | `height` | `double?` | `null` | null hugs the content |
+  | `padding` | `EdgeInsets?` | `null` | overrides the padding for `size` |
+  | `borderRadius` | `double?` | `null` | overrides the theme radius |
+  | `backgroundColor` | `Color?` | `null` | overrides the fill. opts a primary out of gradient and halo |
+  | `foregroundColor` | `Color?` | `null` | overrides label and icon color |
+  | `disabledBackgroundColor` | `Color?` | `null` | overrides the disabled fill |
+  | `borderColor` | `Color?` | `null` | overrides the outline |
+  | `textStyle` | `TextStyle?` | `null` | overrides the label style. color is still applied on top |
+  | `semanticLabel` | `String?` | `text` | pass one for icon only buttons |
+
+  </Accordion>
+  <Accordion title="theming and design tokens">
+
+  zero config gets you a palette that follows `Theme.of(context).brightness`
+  automatically. to change it, call `configure()` once at startup. every field is
+  optional.
+
+  ```dart
+  void main() {
+    AppButton.configure(
+      light: AppButtonColors.light.copyWith(accent: const Color(0xFF00A86B)),
+      sizing: const AppButtonSizing(fontFamily: "GeistSans", borderRadius: 12),
+      pressScale: 0.05,
+    );
+    runApp(const MyApp());
+  }
+  ```
+
+  `configure()` is safe to call more than once. buttons already on screen pick the
+  change up on their next build.
+
+  **colors**
+
+  `AppButtonColors` has nine tokens. `light` and `dark` presets ship with it, both
+  `copyWith` friendly.
+
+  | token | used for |
+  |---|---|
+  | `foreground` | label on secondary and tertiary |
+  | `muted` | label on any disabled button |
+  | `surface` | pressed fill for secondary and tertiary |
+  | `accent` | primary fill and the color of its halo |
+  | `accentForeground` | label on a primary |
+  | `accentStrong` | pressed end of the primary gradient |
+  | `accentGradient` | resting gradient across a primary fill. two or more stops |
+  | `border` | outline on a secondary |
+  | `disabled` | fill on a disabled primary or secondary |
+
+  ```dart
+  AppButton.configure(
+    light: const AppButtonColors(
+      foreground: Color(0xFF0F1113), muted: Color(0xFF63666B),
+      surface: Color(0xFFEFEFEE), accent: Color(0xFF1D4ED8),
+      accentForeground: Color(0xFFFFFFFF), accentStrong: Color(0xFF1E40AF),
+      accentGradient: <Color>[Color(0xFF2563EB), Color(0xFF1D4ED8)],
+      border: Color(0xFFD8D8D6), disabled: Color(0xFFC4C4C2),
+    ),
+    dark: AppButtonColors.dark,
+  );
+  ```
+
+  <Callout type="info">
+  `accentStrong` is not a fill of its own. each gradient stop lerps halfway toward
+  it on press, so a gradient darkens the way a flat color would. set it too close
+  to `accent` and the press stops reading.
+  </Callout>
+
+  **typography**
+
+  `AppButtonSizing` carries both the text styles and the metrics. `fontFamily`
+  defaults to `null`, which means the ambient font, so a fresh project needs no
+  font assets.
+
+  ```dart
+  AppButton.configure(
+    sizing: const AppButtonSizing(
+      fontFamily: "GeistSans",
+      sm: TextStyle(fontSize: 12, height: 16 / 12, fontWeight: FontWeight.w600),
+      md: TextStyle(fontSize: 14, height: 20 / 14, fontWeight: FontWeight.w600),
+      lg: TextStyle(fontSize: 14, height: 20 / 14, fontWeight: FontWeight.w600),
+      smPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      mdPadding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      lgPadding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      borderRadius: 18,
+      gap: 8,
+    ),
+  );
+  ```
+
+  a style that names its own `fontFamily` keeps it. the sizing level family is
+  only a fallback.
+
+  <Callout type="info">
+  `TextStyle.height` is a multiplier, not pixels. for 14px text on a 20px line,
+  write `20 / 14`.
+  </Callout>
+
+  **wiring a design system**
+
+  the presets exist so the file stays copy-pasteable into a bare project. once you
+  have real tokens, trade them in at `configure()` instead of letting the button
+  carry a second copy of your palette.
+
+  keep the mapping in one function and call that at startup. the button file stays
+  untouched, so you can drop a newer version in without re-applying edits.
+
+  ```dart
+  // app_button_setup.dart
+  void initAppButton() {
+    AppButton.configure(
+      light: _colors(AppColors.light()),
+      dark: _colors(AppColors.dark()),
+      sizing: _sizing(),
+    );
+  }
+
+  AppButtonColors _colors(AppColors c) => AppButtonColors(
+    foreground: c.foreground,
+    muted: c.muted,
+    surface: c.surface,
+    accent: c.accent,
+    accentForeground: c.inverse,
+    accentStrong: c.accentStrong,
+    accentGradient: <Color>[c.accent, c.accentStrong],
+    border: c.border,
+    disabled: c.disabled,
+  );
+
+  AppButtonSizing _sizing() {
+    final textTheme = AppTextTheme.fromColors(AppColors.light());
+
+    return AppButtonSizing(
+      fontFamily: AppFonts.sans,
+      sm: textTheme.bodySmMedium,
+      md: textTheme.bodyMdMedium,
+      lg: textTheme.bodyMdMedium,
+      borderRadius: AppBorderRadius.lg,
+    );
+  }
+  ```
+
+  the text styles only contribute metrics and family. the button re-colors the
+  label per type and state at paint time, so it doesn't matter which palette you
+  build them from. pick one and move on.
+
+  **other knobs**
+
+  ```dart
+  AppButton.configure(
+    pressScale: 0.03, // how far it shrinks at full press. 0.03 is a 3% dip
+    brightnessResolver: (context) => MyThemeController.of(context).brightness,
+  );
+  ```
+
+  pass `brightnessResolver: null` to clear a resolver you set earlier. same for
+  `fontFamily: null` on `AppButtonSizing.copyWith`.
+
+  you only need `brightnessResolver` if your app drives light/dark from something
+  other than the ambient `Theme`.
+
+  </Accordion>
+  <Accordion title="behavior and edge cases">
+
+  - **press**. one unbounded controller runs on a spring and drives scale, fill,
+    gradient and halo together. a curve per property would have them drift apart.
+  - **spring**. near critically damped, zeta around 0.9. quick, barely a wobble. a
+    button that visibly bounced under a fingertip reads as loose, not lively.
+  - **scale vs color**. scale rides any overshoot the spring produces. colors
+    clamp to `[0, 1]`, because a stop extrapolated past its endpoint is a
+    different color, not a livelier one.
+  - **primary**. gradient fill plus a matching halo. the halo dims on press so the
+    button reads as settling into the surface.
+  - **secondary and tertiary**. no resting background, so press feedback is a fill
+    shift instead. they pick up the `surface` tint they otherwise lack.
+  - **loading**. every type but tertiary swaps its whole content for the spinner.
+    tertiary is bare text, so a swap would collapse its width. it gets a spinner
+    in the trailing slot instead.
+  - **disabled mid press**. releases instead of staying stranded in the pressed
+    look, since the gesture callbacks that would have released it are gone.
+
+  </Accordion>
+  <Accordion title="notes and limitations">
+
+  - `backgroundColor` on a primary opts out of the gradient and the halo. a
+    gradient would silently paint over your color otherwise.
+  - the shape is a `RoundedSuperellipseBorder`, so corners are squircles. if your
+    flutter is old enough to not have it, swap in `RoundedRectangleBorder`. one
+    line, nothing else changes.
+  - `text` or an icon is required. the assert fires in debug if you pass neither.
+  - pass `semanticLabel` on icon only buttons. it defaults to `text`, which is
+    null there.
+  - `AppButton.debugReset()` is there for tests.
+
+  </Accordion>
+</Accordions>

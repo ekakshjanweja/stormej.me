@@ -10,6 +10,7 @@ export type TroveListItem = {
   sourceFile?: string;
   lines?: number;
   github?: string;
+  demo?: string;
   date?: string;
   formattedDate: string;
 };
@@ -39,6 +40,7 @@ export function listTrove(): TroveListItem[] {
         sourceFile?: string;
         lines?: number;
         github?: string;
+        demo?: string;
         date?: string;
       };
       const slug = page.slugs[0] ?? "";
@@ -52,6 +54,7 @@ export function listTrove(): TroveListItem[] {
         sourceFile: data.sourceFile,
         lines: data.lines,
         github: data.github,
+        demo: data.demo,
         date: data.date,
         formattedDate: fmt(data.date),
       };

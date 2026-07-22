@@ -8,6 +8,7 @@ tech:
   - dart
 sourceFile: lib/app_toast.dart
 lines: 1548
+demo: /trove/demo/app-toast/index.html
 published: true
 ---
 
@@ -1715,213 +1716,6 @@ AppToast.dismissAll();              // animated
 AppToast.dismissAll(animated: false); // immediate
 ```
 
-### parameters
-
-| parameter | type | default | notes |
-|---|---|---|---|
-| `message` | `String` | required | single line. never wraps or ellipsizes |
-| `description` | `String?` | `null` | optional second line in the muted color |
-| `event` | `AppToastEvent` | `.info` | `success` / `error` / `warning` / `info`. sets icon and accent |
-| `position` | `AppToastPosition?` | `.top` | `top` / `bottom` / `left` / `right`. each side stacks on its own |
-| `duration` | `Duration?` | `4s` | auto dismiss delay |
-| `animated` | `bool` | `false` | lands at ~90% width, holds, then collapses to hug the text |
-| `haptic` | `bool?` | `null` | `null` follows theme `enableHaptics`. `true`/`false` override per toast |
-
-## theming
-
-zero config gets you a palette that follows `Theme.of(context).brightness`
-automatically. to change it, call `init()` once at startup. every field is
-optional.
-
-```dart
-void main() {
-  AppToast.init(
-    navigatorKey: navigatorKey,
-    light: AppToastColors.light.copyWith(success: const Color(0xFF00A86B)),
-    typography: const AppToastTypography(fontFamily: "GeistSans"),
-    defaultPosition: AppToastPosition.bottom,
-    defaultDuration: const Duration(seconds: 3),
-  );
-  runApp(const MyApp());
-}
-```
-
-`init()` is safe to call more than once. it restyles toasts already on screen.
-
-### colors
-
-`AppToastColors` has eight tokens. `light` and `dark` presets ship with it, both
-`copyWith` friendly.
-
-| token | used for |
-|---|---|
-| `foreground` | message text, the depth scrim, light mode shadow |
-| `muted` | description text |
-| `elevated` | the pill surface |
-| `inverse` | the glyph on the accent chip |
-| `success` `error` `warning` `info` | accent chip per variant |
-
-```dart
-AppToast.init(
-  light: const AppToastColors(
-    foreground: Color(0xFF0F1113), muted: Color(0xFF63666B),
-    elevated: Color(0xFFFFFFFF), inverse: Color(0xFFFFFFFF),
-    success: Color(0xFF15803D), error: Color(0xFFC62828),
-    warning: Color(0xFFB27700), info: Color(0xFF007AFF),
-  ),
-  dark: AppToastColors.dark,
-);
-```
-
-### typography
-
-`fontFamily` defaults to `null`, which means the ambient font. so a fresh
-project needs no font assets. set it to match your app.
-
-```dart
-AppToast.init(
-  typography: const AppToastTypography(
-    fontFamily: "GeistSans",
-    message: TextStyle(fontSize: 14, height: 20 / 14, fontWeight: FontWeight.w500),
-    description: TextStyle(fontSize: 12, height: 16 / 12),
-  ),
-);
-```
-
-<Callout type="info">
-`TextStyle.height` is a multiplier, not pixels. for 14px text on a 20px line,
-write `20 / 14`.
-</Callout>
-
-### wiring a design system
-
-the presets exist so the file stays copy-pasteable into a bare project. once you
-have real tokens, trade them in at `init()` instead of letting the toast carry a
-second copy of your palette.
-
-keep the mapping in one function and call that everywhere you'd have called
-`init()`. the toast file stays untouched, so you can still drop a newer version
-in without re-applying edits.
-
-```dart
-// app_toast_setup.dart
-void initAppToast({required GlobalKey<NavigatorState> navigatorKey}) {
-  AppToast.init(
-    navigatorKey: navigatorKey,
-    light: _colors(AppColors.light()),
-    dark: _colors(AppColors.dark()),
-    typography: _typography(),
-  );
-}
-
-AppToastColors _colors(AppColors c) => AppToastColors(
-  foreground: c.foreground,
-  muted: c.muted,
-  elevated: c.elevated,
-  inverse: c.inverse,
-  success: c.success,
-  error: c.error,
-  warning: c.warning,
-  info: c.info,
-);
-
-AppToastTypography _typography() {
-  final textTheme = AppTextTheme.fromColors(AppColors.light());
-
-  return AppToastTypography(
-    fontFamily: AppFonts.sans,
-    message: textTheme.bodyMdMedium,
-    description: textTheme.bodySm,
-  );
-}
-```
-
-two things that trip people up:
-
-`inverse` is the glyph drawn *on* the accent chip, not a surface. it inverts
-against the chip, so it's white on light mode's dark green and near-black on
-dark mode's bright green. mapping it to your background token gives you an
-invisible checkmark.
-
-the typography styles only contribute metrics and family. the toast re-colors
-both per brightness at paint time, so it doesn't matter which palette you build
-them from — pick one and move on.
-
-### other knobs
-
-```dart
-AppToast.init(
-  maxStack: 3,      // live toasts per position before the oldest is evicted
-  elevation: 6,     // material elevation of the pill
-  brightnessResolver: (context) => MyThemeController.of(context).brightness,
-);
-```
-
-pass `brightnessResolver: null` to clear a resolver you set earlier. same for
-`fontFamily: null` on `AppToastTypography.copyWith`.
-
-you only need `brightnessResolver` if your app drives light/dark from something
-other than the ambient `Theme`.
-
-### haptics
-
-new toasts play haptic feedback by default. duplicates that shake an existing
-toast do not.
-
-| event | default haptic |
-|---|---|
-| `success` | light impact |
-| `error` | medium impact |
-| `warning` | light impact |
-| `info` | none |
-
-turn it off globally.
-
-```dart
-AppToast.init(
-  navigatorKey: navigatorKey,
-  enableHaptics: false,
-);
-```
-
-or per toast.
-
-```dart
-AppToast.info(message: "Syncing…", haptic: false);
-```
-
-## behavior
-
-- **stacking**. up to `maxStack` (3) per position. newer toasts sit in front.
-  the ones behind peek out 12px, shrink 5% and darken 15% per level, like a card
-  stack. a fourth one drops the oldest.
-- **duplicates**. an identical toast at the same position doesn't stack. the
-  existing one shakes and its timer resets.
-- **dismiss**. tap, swipe in any direction, or wait for `duration`. a short drag
-  springs back and re-arms the timer.
-- **positions**. all four sides stack on their own, so a `top` and a `bottom`
-  toast can coexist.
-- **touch through**. the overlay only takes touches on an actual pill. the rest
-  of your ui stays interactive.
-- **keyboard**. bottom toasts lift above it automatically.
-
-## calling from build()
-
-safe. overlay insertion normally can't happen mid build, so AppToast checks the
-scheduler phase and defers to the next frame instead of throwing. same for
-`initState` and go_router `redirect` callbacks.
-
-toasts fired before the navigator exists, during a splash screen say, get queued
-and shown once it mounts. nothing is dropped silently.
-
-## notes
-
-- main isolate only. statics aren't shared across isolates, so a `compute()`
-  worker can't fire toasts.
-- hot reload and hot restart both work. the overlay re-hosts itself if your app
-  swaps its `MaterialApp`.
-- `AppToast.debugReset()` is there for tests.
-
 ## example
 
 ```dart
@@ -1945,3 +1739,223 @@ class HomeView extends StatelessWidget {
   }
 }
 ```
+
+## reference
+
+everything below is here when you need
+it. you can ship without reading any of it.
+
+<Accordions>
+  <Accordion title="parameters">
+
+  | parameter | type | default | notes |
+  |---|---|---|---|
+  | `message` | `String` | required | single line. never wraps or ellipsizes |
+  | `description` | `String?` | `null` | optional second line in the muted color |
+  | `event` | `AppToastEvent` | `.info` | `success` / `error` / `warning` / `info`. sets icon and accent |
+  | `position` | `AppToastPosition?` | `.top` | `top` / `bottom` / `left` / `right`. each side stacks on its own |
+  | `duration` | `Duration?` | `4s` | auto dismiss delay |
+  | `animated` | `bool` | `false` | lands at ~90% width, holds, then collapses to hug the text |
+  | `haptic` | `bool?` | `null` | `null` follows theme `enableHaptics`. `true`/`false` override per toast |
+
+  </Accordion>
+  <Accordion title="theming and design tokens">
+
+  zero config gets you a palette that follows `Theme.of(context).brightness`
+  automatically. to change it, call `init()` once at startup. every field is
+  optional.
+
+  ```dart
+  void main() {
+    AppToast.init(
+      navigatorKey: navigatorKey,
+      light: AppToastColors.light.copyWith(success: const Color(0xFF00A86B)),
+      typography: const AppToastTypography(fontFamily: "GeistSans"),
+      defaultPosition: AppToastPosition.bottom,
+      defaultDuration: const Duration(seconds: 3),
+    );
+    runApp(const MyApp());
+  }
+  ```
+
+  `init()` is safe to call more than once. it restyles toasts already on screen.
+
+  **colors**
+
+  `AppToastColors` has eight tokens. `light` and `dark` presets ship with it, both
+  `copyWith` friendly.
+
+  | token | used for |
+  |---|---|
+  | `foreground` | message text, the depth scrim, light mode shadow |
+  | `muted` | description text |
+  | `elevated` | the pill surface |
+  | `inverse` | the glyph on the accent chip |
+  | `success` `error` `warning` `info` | accent chip per variant |
+
+  ```dart
+  AppToast.init(
+    light: const AppToastColors(
+      foreground: Color(0xFF0F1113), muted: Color(0xFF63666B),
+      elevated: Color(0xFFFFFFFF), inverse: Color(0xFFFFFFFF),
+      success: Color(0xFF15803D), error: Color(0xFFC62828),
+      warning: Color(0xFFB27700), info: Color(0xFF007AFF),
+    ),
+    dark: AppToastColors.dark,
+  );
+  ```
+
+  **typography**
+
+  `fontFamily` defaults to `null`, which means the ambient font. so a fresh
+  project needs no font assets. set it to match your app.
+
+  ```dart
+  AppToast.init(
+    typography: const AppToastTypography(
+      fontFamily: "GeistSans",
+      message: TextStyle(fontSize: 14, height: 20 / 14, fontWeight: FontWeight.w500),
+      description: TextStyle(fontSize: 12, height: 16 / 12),
+    ),
+  );
+  ```
+
+  <Callout type="info">
+  `TextStyle.height` is a multiplier, not pixels. for 14px text on a 20px line,
+  write `20 / 14`.
+  </Callout>
+
+  **wiring a design system**
+
+  the presets exist so the file stays copy-pasteable into a bare project. once you
+  have real tokens, trade them in at `init()` instead of letting the toast carry a
+  second copy of your palette.
+
+  keep the mapping in one function and call that everywhere you'd have called
+  `init()`. the toast file stays untouched, so you can still drop a newer version
+  in without re-applying edits.
+
+  ```dart
+  // app_toast_setup.dart
+  void initAppToast({required GlobalKey<NavigatorState> navigatorKey}) {
+    AppToast.init(
+      navigatorKey: navigatorKey,
+      light: _colors(AppColors.light()),
+      dark: _colors(AppColors.dark()),
+      typography: _typography(),
+    );
+  }
+
+  AppToastColors _colors(AppColors c) => AppToastColors(
+    foreground: c.foreground,
+    muted: c.muted,
+    elevated: c.elevated,
+    inverse: c.inverse,
+    success: c.success,
+    error: c.error,
+    warning: c.warning,
+    info: c.info,
+  );
+
+  AppToastTypography _typography() {
+    final textTheme = AppTextTheme.fromColors(AppColors.light());
+
+    return AppToastTypography(
+      fontFamily: AppFonts.sans,
+      message: textTheme.bodyMdMedium,
+      description: textTheme.bodySm,
+    );
+  }
+  ```
+
+  two things that trip people up:
+
+  `inverse` is the glyph drawn *on* the accent chip, not a surface. it inverts
+  against the chip, so it's white on light mode's dark green and near-black on
+  dark mode's bright green. mapping it to your background token gives you an
+  invisible checkmark.
+
+  the typography styles only contribute metrics and family. the toast re-colors
+  both per brightness at paint time, so it doesn't matter which palette you build
+  them from — pick one and move on.
+
+  **other knobs**
+
+  ```dart
+  AppToast.init(
+    maxStack: 3,      // live toasts per position before the oldest is evicted
+    elevation: 6,     // material elevation of the pill
+    brightnessResolver: (context) => MyThemeController.of(context).brightness,
+  );
+  ```
+
+  pass `brightnessResolver: null` to clear a resolver you set earlier. same for
+  `fontFamily: null` on `AppToastTypography.copyWith`.
+
+  you only need `brightnessResolver` if your app drives light/dark from something
+  other than the ambient `Theme`.
+
+  **haptics**
+
+  new toasts play haptic feedback by default. duplicates that shake an existing
+  toast do not.
+
+  | event | default haptic |
+  |---|---|
+  | `success` | light impact |
+  | `error` | medium impact |
+  | `warning` | light impact |
+  | `info` | none |
+
+  turn it off globally.
+
+  ```dart
+  AppToast.init(
+    navigatorKey: navigatorKey,
+    enableHaptics: false,
+  );
+  ```
+
+  or per toast.
+
+  ```dart
+  AppToast.info(message: "Syncing…", haptic: false);
+  ```
+
+  </Accordion>
+  <Accordion title="behavior and edge cases">
+
+  - **stacking**. up to `maxStack` (3) per position. newer toasts sit in front.
+    the ones behind peek out 12px, shrink 5% and darken 15% per level, like a card
+    stack. a fourth one drops the oldest.
+  - **duplicates**. an identical toast at the same position doesn't stack. the
+    existing one shakes and its timer resets.
+  - **dismiss**. tap, swipe in any direction, or wait for `duration`. a short drag
+    springs back and re-arms the timer.
+  - **positions**. all four sides stack on their own, so a `top` and a `bottom`
+    toast can coexist.
+  - **touch through**. the overlay only takes touches on an actual pill. the rest
+    of your ui stays interactive.
+  - **keyboard**. bottom toasts lift above it automatically.
+
+  </Accordion>
+  <Accordion title="calling from build()">
+
+  safe. overlay insertion normally can't happen mid build, so AppToast checks the
+  scheduler phase and defers to the next frame instead of throwing. same for
+  `initState` and go_router `redirect` callbacks.
+
+  toasts fired before the navigator exists, during a splash screen say, get queued
+  and shown once it mounts. nothing is dropped silently.
+
+  </Accordion>
+  <Accordion title="notes and limitations">
+
+  - main isolate only. statics aren't shared across isolates, so a `compute()`
+    worker can't fire toasts.
+  - hot reload and hot restart both work. the overlay re-hosts itself if your app
+    swaps its `MaterialApp`.
+  - `AppToast.debugReset()` is there for tests.
+
+  </Accordion>
+</Accordions>
