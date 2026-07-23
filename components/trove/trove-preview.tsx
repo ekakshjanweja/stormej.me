@@ -157,14 +157,16 @@ export function TrovePreview({
                     </div>
                   )}
                 </div>
-                <div className="flex h-9 min-w-0 items-center gap-2 border-t border-border/70 px-3">
+                <div className="flex h-9 min-w-0 items-center justify-between gap-2 border-t border-border/70 px-3">
                   <span
                     className="meta-tag block min-w-0 truncate normal-case tracking-[0.08em]"
                     title={title}
                   >
                     {title}
                   </span>
-                  <span className="meta-tag ml-auto shrink-0">live</span>
+                  <span className="meta-tag ml-auto shrink-0 normal-case tracking-[0.08em]">
+                    live
+                  </span>
                 </div>
               </div>
             </motion.div>
