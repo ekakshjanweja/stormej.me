@@ -127,39 +127,37 @@ export function TrovePreview({
               }}
             >
               <div className="flex min-w-0 flex-col overflow-hidden rounded-md border border-border bg-popover">
-                <div className="px-3 py-3">
-                  <div
-                    className="relative overflow-hidden rounded-[10px] border border-border/80 bg-background"
-                    style={{ height: stageHeightPx }}
-                  >
-                    <iframe
-                      // Remount on theme change so the demo re-reads ?theme.
-                      key={theme}
-                      src={`${demo}?theme=${theme}&preview=1`}
-                      title={`${title} preview`}
-                      onLoad={() => setLoaded(true)}
-                      // The loop is decorative, and a card that swallows the
-                      // pointer would fight the hover holding it open.
-                      tabIndex={-1}
-                      className={cn(
-                        "pointer-events-none block h-full w-full transition-opacity duration-150 ease-out motion-reduce:transition-none",
-                        loaded ? "opacity-100" : "opacity-0",
-                      )}
-                    />
-                    {!loaded && (
-                      <div
-                        className="absolute inset-0 flex items-center justify-center"
-                        role="status"
-                      >
-                        <Loader2
-                          className="size-4 animate-spin text-muted-foreground"
-                          aria-hidden
-                        />
-                      </div>
+                <div
+                  className="relative overflow-hidden bg-background"
+                  style={{ height: stageHeightPx }}
+                >
+                  <iframe
+                    // Remount on theme change so the demo re-reads ?theme.
+                    key={theme}
+                    src={`${demo}?theme=${theme}&preview=1`}
+                    title={`${title} preview`}
+                    onLoad={() => setLoaded(true)}
+                    // The loop is decorative, and a card that swallows the
+                    // pointer would fight the hover holding it open.
+                    tabIndex={-1}
+                    className={cn(
+                      "pointer-events-none block h-full w-full border-0 transition-opacity duration-150 ease-out motion-reduce:transition-none",
+                      loaded ? "opacity-100" : "opacity-0",
                     )}
-                  </div>
+                  />
+                  {!loaded && (
+                    <div
+                      className="absolute inset-0 flex items-center justify-center"
+                      role="status"
+                    >
+                      <Loader2
+                        className="size-4 animate-spin text-muted-foreground"
+                        aria-hidden
+                      />
+                    </div>
+                  )}
                 </div>
-                <div className="flex min-w-0 items-baseline gap-2 border-t border-border/70 px-3 py-1.5">
+                <div className="flex h-9 min-w-0 items-center gap-2 border-t border-border/70 px-3">
                   <span
                     className="meta-tag block min-w-0 truncate normal-case tracking-[0.08em]"
                     title={title}
