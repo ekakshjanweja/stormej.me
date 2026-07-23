@@ -7,7 +7,7 @@ tech:
   - flutter
   - dart
 sourceFile: lib/app_popup.dart
-lines: 479
+lines: 576
 demo: /trove/demo/app-popup/index.html
 published: true
 ---
@@ -33,7 +33,7 @@ color, light haptic on select.
 
 grab it and drop it in at `lib/app_popup.dart`.
 
-<CopyFile name="app_popup.dart" lines={479}>
+<CopyFile name="app_popup.dart" lines={576}>
 
 ```dart
 // A self-contained, plug-and-play popup menu. Drop this single file into any
@@ -129,22 +129,22 @@ class AppPopupColors {
 
   /// Default palette for light mode.
   static const AppPopupColors light = AppPopupColors(
-    foreground: Color(0xFF0F1113),
-    muted: Color(0xFF63666B),
-    card: Color(0xFFFFFFFF),
-    border: Color(0xFFD8D8D6),
-    divider: Color(0xFFE8E8E6),
-    error: Color(0xFFC62828),
+    foreground: Color(0xFF1C2229),
+    muted: Color(0xFF6C7278),
+    card: Color(0xFFF8FCFF),
+    border: Color(0xFFD8DFE6),
+    divider: Color(0xFFE6ECF2),
+    error: Color(0xFFDC2626),
   );
 
   /// Default palette for dark mode.
   static const AppPopupColors dark = AppPopupColors(
-    foreground: Color(0xFFF4F6F2),
-    muted: Color(0xFF979BA3),
-    card: Color(0xFF141619),
-    border: Color(0xFF2A2E35),
-    divider: Color(0xFF202329),
-    error: Color(0xFFFF5A52),
+    foreground: Color(0xFFDADEE3),
+    muted: Color(0xFF8B9095),
+    card: Color(0xFF12171B),
+    border: Color(0xFF353B42),
+    divider: Color(0xFF25292F),
+    error: Color(0xFFFF6467),
   );
 
   /// Label color for [item].
@@ -181,8 +181,8 @@ class AppPopupSizing {
   const AppPopupSizing({
     this.minWidth = 168,
     this.itemHeight = 44,
-    this.menuBorderRadius = 24,
-    this.triggerBorderRadius = 10,
+    this.menuBorderRadius = 28,
+    this.triggerBorderRadius = 24,
     this.itemPadding = const EdgeInsets.symmetric(horizontal: 16),
     this.elevation = 8,
     this.shadowAlphaLight = 0.12,
@@ -198,7 +198,8 @@ class AppPopupSizing {
   /// Corner radius of the menu shape.
   final double menuBorderRadius;
 
-  /// Corner radius of the trigger [InkWell].
+  /// Corner radius of the trigger — used for [RoundedSuperellipseBorder] so
+  /// the ink splash matches the control shape.
   final double triggerBorderRadius;
 
   /// Horizontal padding inside each row.
@@ -450,6 +451,7 @@ class AppPopup extends StatelessWidget {
         alpha: sizing.shadowAlphaFor(brightness),
       ),
       surfaceTintColor: Colors.transparent,
+      clipBehavior: Clip.antiAlias,
       shape: RoundedSuperellipseBorder(
         borderRadius: BorderRadius.circular(sizing.menuBorderRadius),
         side: BorderSide(color: colors.border),
@@ -462,15 +464,22 @@ class AppPopup extends StatelessWidget {
               thickness: 1,
               color: colors.divider,
             ),
-          PopupMenuItem<int>(
+          _AppPopupMenuItem(
             value: index,
             height: sizing.itemHeight,
             enabled: items[index].enabled,
             padding: sizing.itemPadding,
-            child: Text(
-              items[index].label,
-              style: theme.typography.resolveLabel(
-                colors.labelFor(items[index]),
+            label: items[index].label,
+            labelStyle: theme.typography.resolveLabel(
+              colors.labelFor(items[index]),
+            ),
+            splashColor: colors.foreground.withValues(alpha: 0.08),
+            highlightColor: colors.foreground.withValues(alpha: 0.04),
+            shape: RoundedSuperellipseBorder(
+              borderRadius: _itemBorderRadius(
+                index: index,
+                itemCount: items.length,
+                menuRadius: sizing.menuBorderRadius,
               ),
             ),
           ),
@@ -498,20 +507,108 @@ class AppPopup extends StatelessWidget {
     final AppPopupTheme theme = _theme;
     final AppPopupColors colors = theme.colorsOf(context);
     final double triggerRadius = theme.sizing.triggerBorderRadius;
+    final ShapeBorder triggerShape = RoundedSuperellipseBorder(
+      borderRadius: BorderRadius.circular(triggerRadius),
+    );
 
     return Builder(
       builder: (BuildContext menuContext) {
         return Material(
           color: Colors.transparent,
+          shape: triggerShape,
+          clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: () => _showMenu(menuContext),
-            borderRadius: BorderRadius.circular(triggerRadius),
+            customBorder: triggerShape,
             splashColor: colors.foreground.withValues(alpha: 0.08),
             highlightColor: colors.foreground.withValues(alpha: 0.04),
             child: child,
           ),
         );
       },
+    );
+  }
+}
+
+/// Matches the menu's [RoundedSuperellipseBorder] on the outer corners of the
+/// first and last rows so ink doesn't square off against a squircle edge.
+BorderRadius _itemBorderRadius({
+  required int index,
+  required int itemCount,
+  required double menuRadius,
+}) {
+  final bool isFirst = index == 0;
+  final bool isLast = index == itemCount - 1;
+  final Radius corner = Radius.circular(menuRadius);
+  return BorderRadius.only(
+    topLeft: isFirst ? corner : Radius.zero,
+    topRight: isFirst ? corner : Radius.zero,
+    bottomLeft: isLast ? corner : Radius.zero,
+    bottomRight: isLast ? corner : Radius.zero,
+  );
+}
+
+/// Menu row with a splash clipped to the same [RoundedSuperellipseBorder] as
+/// the menu surface (stock [PopupMenuItem] only supports circular radii).
+class _AppPopupMenuItem extends PopupMenuEntry<int> {
+  const _AppPopupMenuItem({
+    required this.value,
+    required this.label,
+    required this.height,
+    required this.enabled,
+    required this.padding,
+    required this.labelStyle,
+    required this.splashColor,
+    required this.highlightColor,
+    required this.shape,
+  });
+
+  final int value;
+  final String label;
+  @override
+  final double height;
+  final bool enabled;
+  final EdgeInsets padding;
+  final TextStyle labelStyle;
+  final Color splashColor;
+  final Color highlightColor;
+  final ShapeBorder shape;
+
+  @override
+  bool represents(int? value) => value == this.value;
+
+  @override
+  State<_AppPopupMenuItem> createState() => _AppPopupMenuItemState();
+}
+
+class _AppPopupMenuItemState extends State<_AppPopupMenuItem> {
+  @override
+  Widget build(BuildContext context) {
+    return MergeSemantics(
+      child: Semantics(
+        button: true,
+        enabled: widget.enabled,
+        child: Material(
+          type: MaterialType.transparency,
+          shape: widget.shape,
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            customBorder: widget.shape,
+            onTap: widget.enabled
+                ? () => Navigator.pop<int>(context, widget.value)
+                : null,
+            canRequestFocus: widget.enabled,
+            splashColor: widget.splashColor,
+            highlightColor: widget.highlightColor,
+            child: Container(
+              alignment: AlignmentDirectional.centerStart,
+              constraints: BoxConstraints(minHeight: widget.height),
+              padding: widget.padding,
+              child: Text(widget.label, style: widget.labelStyle),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

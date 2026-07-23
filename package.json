@@ -9,7 +9,9 @@
     "postbuild": "next-sitemap",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "fumadocs-mdx"
+    "postinstall": "fumadocs-mdx",
+    "sync:trove": "python3 scripts/sync-trove-sources.py",
+    "build:trove": "./scripts/build-trove-demo.sh"
   },
   "dependencies": {
     "@icons-pack/react-simple-icons": "^13.8.0",

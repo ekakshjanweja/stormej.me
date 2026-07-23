@@ -1,0 +1,317 @@
+---
+title: app progress bar
+subtitle: one file progress bar for flutter
+description: a progress bar for flutter in one file. solid accent fill, animated value changes. no packages, no DI, no widget wrapping.
+date: "2026-07-23"
+tech:
+  - flutter
+  - dart
+sourceFile: lib/app_progress_bar.dart
+lines: 217
+demo: /trove/demo/app-progress-bar/index.html
+published: true
+---
+
+## tldr
+
+copy one file into your project, use it. no setup, no init call.
+
+`AppProgressBar(value: 0.6)`.
+
+pill track with a solid accent fill. the fill animates as `value` changes.
+
+<FlutterDemo src="/trove/demo/app-progress-bar/index.html" name="app-progress-bar" />
+
+## install
+
+<Steps>
+
+<Step>
+
+### copy one file
+
+grab it and drop it in at `lib/app_progress_bar.dart`.
+
+<CopyFile name="app_progress_bar.dart" lines={217}>
+
+```dart
+// A self-contained, plug-and-play progress bar. Drop this single file into any
+// Flutter project — no packages, no DI, no widget wrapping.
+//
+//   1. Use it anywhere:
+//        AppProgressBar(value: 0.6)
+//        AppProgressBar(value: progress, height: 8)
+//
+//   2. Restyle once at startup — or never, the defaults stand on their own:
+//        AppProgressBar.configure(
+//          light: AppProgressBarColors.light.copyWith(fill: myAccent),
+//        );
+//
+//   3. The fill animates as [value] changes so progress reads as motion.
+
+import "package:flutter/material.dart";
+
+// ---------------------------------------------------------------------------
+// Theme
+// ---------------------------------------------------------------------------
+
+/// Color tokens for a progress bar palette.
+@immutable
+class AppProgressBarColors {
+  /// Creates a progress bar color palette.
+  const AppProgressBarColors({
+    required this.track,
+    required this.fill,
+  });
+
+  /// Inset track behind the fill.
+  final Color track;
+
+  /// Solid fill — same idea as stormej.me `bg-primary` on progress.
+  final Color fill;
+
+  /// Default palette for light mode.
+  static const AppProgressBarColors light = AppProgressBarColors(
+    track: Color(0xFFEAEFF5),
+    fill: Color(0xFF8000FF),
+  );
+
+  /// Default palette for dark mode.
+  static const AppProgressBarColors dark = AppProgressBarColors(
+    track: Color(0xFF1D2227),
+    fill: Color(0xFFD7F881),
+  );
+
+  /// Returns a copy with the given fields replaced.
+  AppProgressBarColors copyWith({
+    Color? track,
+    Color? fill,
+  }) {
+    return AppProgressBarColors(
+      track: track ?? this.track,
+      fill: fill ?? this.fill,
+    );
+  }
+}
+
+/// Metrics for the progress bar.
+@immutable
+class AppProgressBarSizing {
+  /// Creates sizing settings.
+  const AppProgressBarSizing({
+    this.height = 10,
+    this.borderRadius = 999,
+    this.duration = const Duration(milliseconds: 300),
+    this.curve = Curves.easeOutCubic,
+  });
+
+  /// Default bar height.
+  final double height;
+
+  /// Corner radius of track and fill.
+  final double borderRadius;
+
+  /// Animation duration when [AppProgressBar.value] changes.
+  final Duration duration;
+
+  /// Animation curve when the value changes.
+  final Curve curve;
+
+  /// Returns a copy with the given fields replaced.
+  AppProgressBarSizing copyWith({
+    double? height,
+    double? borderRadius,
+    Duration? duration,
+    Curve? curve,
+  }) {
+    return AppProgressBarSizing(
+      height: height ?? this.height,
+      borderRadius: borderRadius ?? this.borderRadius,
+      duration: duration ?? this.duration,
+      curve: curve ?? this.curve,
+    );
+  }
+}
+
+/// Global progress bar configuration.
+@immutable
+class AppProgressBarTheme {
+  /// Creates a progress bar theme.
+  const AppProgressBarTheme({
+    this.light = AppProgressBarColors.light,
+    this.dark = AppProgressBarColors.dark,
+    this.sizing = const AppProgressBarSizing(),
+    this.brightnessResolver,
+  });
+
+  static const Object _unset = Object();
+
+  final AppProgressBarColors light;
+  final AppProgressBarColors dark;
+  final AppProgressBarSizing sizing;
+  final Brightness Function(BuildContext context)? brightnessResolver;
+
+  Brightness brightnessOf(BuildContext context) =>
+      brightnessResolver?.call(context) ?? Theme.of(context).brightness;
+
+  AppProgressBarColors colorsOf(BuildContext context) =>
+      brightnessOf(context) == Brightness.dark ? dark : light;
+
+  AppProgressBarTheme copyWith({
+    AppProgressBarColors? light,
+    AppProgressBarColors? dark,
+    AppProgressBarSizing? sizing,
+    Object? brightnessResolver = _unset,
+  }) {
+    return AppProgressBarTheme(
+      light: light ?? this.light,
+      dark: dark ?? this.dark,
+      sizing: sizing ?? this.sizing,
+      brightnessResolver: brightnessResolver == _unset
+          ? this.brightnessResolver
+          : brightnessResolver as Brightness Function(BuildContext context)?,
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Progress bar
+// ---------------------------------------------------------------------------
+
+/// A solid accent progress bar on an inset track. Animates as [value] changes.
+class AppProgressBar extends StatelessWidget {
+  /// Creates a progress bar.
+  const AppProgressBar({
+    super.key,
+    required this.value,
+    this.height,
+  });
+
+  static AppProgressBarTheme _theme = const AppProgressBarTheme();
+
+  /// The active progress bar theme.
+  static AppProgressBarTheme get theme => _theme;
+
+  /// Restyles every [AppProgressBar] in the app.
+  static void configure({
+    AppProgressBarColors? light,
+    AppProgressBarColors? dark,
+    AppProgressBarSizing? sizing,
+    Object? brightnessResolver = AppProgressBarTheme._unset,
+  }) {
+    _theme = _theme.copyWith(
+      light: light,
+      dark: dark,
+      sizing: sizing,
+      brightnessResolver: brightnessResolver,
+    );
+  }
+
+  /// Resets the theme to defaults. For use in tests only.
+  @visibleForTesting
+  static void debugReset() => _theme = const AppProgressBarTheme();
+
+  /// Progress in the range 0..1. Values outside are clamped.
+  final double value;
+
+  /// Override height. Defaults to [AppProgressBarSizing.height].
+  final double? height;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppProgressBarTheme theme = _theme;
+    final AppProgressBarColors colors = theme.colorsOf(context);
+    final AppProgressBarSizing sizing = theme.sizing;
+    final double resolvedHeight = height ?? sizing.height;
+    final double clamped = value.isFinite ? value.clamp(0.0, 1.0) : 0.0;
+    final BorderRadius radius = BorderRadius.circular(sizing.borderRadius);
+
+    return ClipRRect(
+      borderRadius: radius,
+      child: SizedBox(
+        height: resolvedHeight,
+        child: Stack(
+          children: <Widget>[
+            Positioned.fill(child: ColoredBox(color: colors.track)),
+            LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                return AnimatedContainer(
+                  duration: sizing.duration,
+                  curve: sizing.curve,
+                  width: constraints.maxWidth * clamped,
+                  decoration: BoxDecoration(
+                    color: colors.fill,
+                    borderRadius: radius,
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+</CopyFile>
+
+it imports `material` from the flutter sdk. nothing goes in `pubspec.yaml`.
+
+</Step>
+
+<Step>
+
+### use it
+
+there is no init call. the defaults stand on their own.
+
+```dart
+AppProgressBar(value: uploadProgress)
+```
+
+</Step>
+
+</Steps>
+
+## usage
+
+bind to a 0..1 value.
+
+```dart
+AppProgressBar(value: controller.progress)
+```
+
+override height for dense rows.
+
+```dart
+AppProgressBar(value: 0.42, height: 6)
+```
+
+## reference
+
+<Accordions>
+  <Accordion title="parameters">
+
+  | parameter | type | default | notes |
+  |---|---|---|---|
+  | `value` | `double` | required | progress 0..1, clamped |
+  | `height` | `double?` | `null` | overrides theme height |
+
+  </Accordion>
+  <Accordion title="theming">
+
+  ```dart
+  AppProgressBar.configure(
+    light: AppProgressBarColors.light.copyWith(fill: myViolet),
+    sizing: const AppProgressBarSizing(height: 8),
+  );
+  ```
+
+  | token | used for |
+  |---|---|
+  | `track` | inset background |
+  | `fill` | solid progress color |
+
+  </Accordion>
+</Accordions>

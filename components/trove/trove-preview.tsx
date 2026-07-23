@@ -20,6 +20,18 @@ type TrovePreviewProps = {
 /** Matches the work hover card: same width, same stage-then-caption shape. */
 const CARD_WIDTH_PX = 280;
 const STAGE_HEIGHT_PX = 128;
+/** Popup menus need a little more vertical room so the preview doesn't clip. */
+const STAGE_HEIGHT_BY_DEMO: Record<string, number> = {
+  "app-popup": 152,
+  "app-text-field": 168,
+  "app-selectable-chip": 136,
+};
+
+function stageHeightForDemo(demo?: string) {
+  if (!demo) return STAGE_HEIGHT_PX;
+  const slug = demo.split("/").at(-2);
+  return (slug && STAGE_HEIGHT_BY_DEMO[slug]) ?? STAGE_HEIGHT_PX;
+}
 
 /**
  * Hover card that runs the real flutter demo, so a glance at the list is a
@@ -61,6 +73,8 @@ export function TrovePreview({
   }, []);
 
   if (!demo || !canHover) return <>{children}</>;
+
+  const stageHeightPx = stageHeightForDemo(demo);
 
   const onOpenChange = (open: boolean) => {
     setOpen(open);
@@ -113,10 +127,10 @@ export function TrovePreview({
               }}
             >
               <div className="flex min-w-0 flex-col overflow-hidden rounded-md border border-border bg-popover">
-                <div className="px-3 pt-3 pb-2">
+                <div className="px-3 py-3">
                   <div
                     className="relative overflow-hidden rounded-[10px] border border-border/80 bg-background"
-                    style={{ height: STAGE_HEIGHT_PX }}
+                    style={{ height: stageHeightPx }}
                   >
                     <iframe
                       // Remount on theme change so the demo re-reads ?theme.

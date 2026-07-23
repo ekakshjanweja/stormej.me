@@ -1,0 +1,426 @@
+---
+title: app selectable chip
+subtitle: one file chip for flutter
+description: a selectable chip for flutter in one file. pill shape, optional icon, selected wash. no packages, no DI, no widget wrapping.
+date: "2026-07-23"
+tech:
+  - flutter
+  - dart
+sourceFile: lib/app_selectable_chip.dart
+lines: 305
+demo: /trove/demo/app-selectable-chip/index.html
+published: true
+---
+
+## tldr
+
+copy one file into your project, use it. no setup, no init call.
+
+`AppSelectableChip(label: "kg", selected: true, onSelected: _pick)`.
+
+pill outline, accent wash when selected, optional leading icon.
+
+<FlutterDemo src="/trove/demo/app-selectable-chip/index.html" name="app-selectable-chip" />
+
+## install
+
+<Steps>
+
+<Step>
+
+### copy one file
+
+grab it and drop it in at `lib/app_selectable_chip.dart`.
+
+<CopyFile name="app_selectable_chip.dart" lines={305}>
+
+```dart
+// A self-contained, plug-and-play selectable chip. Drop this single file into
+// any Flutter project — no packages, no DI, no widget wrapping.
+//
+//   1. Use it anywhere:
+//        AppSelectableChip(label: "kg", selected: true, onSelected: _pick)
+//        AppSelectableChip(label: "lbs", selected: false, onSelected: _pick, icon: Icons.scale)
+//
+//   2. Restyle once at startup — or never, the defaults stand on their own:
+//        AppSelectableChip.configure(light: AppSelectableChipColors.light.copyWith(accent: myBlue));
+
+import "package:flutter/material.dart";
+
+// ---------------------------------------------------------------------------
+// Theme
+// ---------------------------------------------------------------------------
+
+/// Color tokens for a selectable chip palette.
+@immutable
+class AppSelectableChipColors {
+  /// Creates a selectable chip color palette.
+  const AppSelectableChipColors({
+    required this.foreground,
+    required this.surface,
+    required this.border,
+    required this.accent,
+    required this.accentStrong,
+    this.selectedFillAlpha = 0.18,
+  });
+
+  /// Label / icon when unselected.
+  final Color foreground;
+
+  /// Fill when unselected.
+  final Color surface;
+
+  /// Border when unselected.
+  final Color border;
+
+  /// Wash fill when selected.
+  final Color accent;
+
+  /// Label, icon, and border when selected.
+  final Color accentStrong;
+
+  /// Alpha applied to [accent] for the selected wash.
+  final double selectedFillAlpha;
+
+  /// Default palette for light mode.
+  static const AppSelectableChipColors light = AppSelectableChipColors(
+    foreground: Color(0xFF1C2229),
+    surface: Color(0xFFEAEFF5),
+    border: Color(0xFFD8DFE6),
+    accent: Color(0xFF8000FF),
+    accentStrong: Color(0xFF5C00B8),
+  );
+
+  /// Default palette for dark mode.
+  static const AppSelectableChipColors dark = AppSelectableChipColors(
+    foreground: Color(0xFFDADEE3),
+    surface: Color(0xFF1D2227),
+    border: Color(0xFF353B42),
+    accent: Color(0xFFD7F881),
+    accentStrong: Color(0xFFE8FFA8),
+  );
+
+  /// Returns a copy with the given fields replaced.
+  AppSelectableChipColors copyWith({
+    Color? foreground,
+    Color? surface,
+    Color? border,
+    Color? accent,
+    Color? accentStrong,
+    double? selectedFillAlpha,
+  }) {
+    return AppSelectableChipColors(
+      foreground: foreground ?? this.foreground,
+      surface: surface ?? this.surface,
+      border: border ?? this.border,
+      accent: accent ?? this.accent,
+      accentStrong: accentStrong ?? this.accentStrong,
+      selectedFillAlpha: selectedFillAlpha ?? this.selectedFillAlpha,
+    );
+  }
+}
+
+/// Metrics for the chip.
+@immutable
+class AppSelectableChipSizing {
+  /// Creates sizing settings.
+  const AppSelectableChipSizing({
+    this.iconSize = 16,
+    this.iconGap = 4,
+    this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    this.labelPadding = const EdgeInsets.symmetric(horizontal: 4),
+    this.borderRadius = 999,
+    this.selectedBorderWidth = 1,
+    this.borderWidth = 1,
+  });
+
+  final double iconSize;
+  final double iconGap;
+  final EdgeInsets padding;
+  final EdgeInsets labelPadding;
+  final double borderRadius;
+  final double selectedBorderWidth;
+  final double borderWidth;
+
+  /// Returns a copy with the given fields replaced.
+  AppSelectableChipSizing copyWith({
+    double? iconSize,
+    double? iconGap,
+    EdgeInsets? padding,
+    EdgeInsets? labelPadding,
+    double? borderRadius,
+    double? selectedBorderWidth,
+    double? borderWidth,
+  }) {
+    return AppSelectableChipSizing(
+      iconSize: iconSize ?? this.iconSize,
+      iconGap: iconGap ?? this.iconGap,
+      padding: padding ?? this.padding,
+      labelPadding: labelPadding ?? this.labelPadding,
+      borderRadius: borderRadius ?? this.borderRadius,
+      selectedBorderWidth: selectedBorderWidth ?? this.selectedBorderWidth,
+      borderWidth: borderWidth ?? this.borderWidth,
+    );
+  }
+}
+
+/// Typography for the chip label.
+@immutable
+class AppSelectableChipTypography {
+  /// Creates typography settings.
+  const AppSelectableChipTypography({
+    this.fontFamily,
+    this.label = const TextStyle(
+      fontSize: 12,
+      height: 16 / 12,
+      fontWeight: FontWeight.w500,
+    ),
+  });
+
+  static const Object _unset = Object();
+
+  final String? fontFamily;
+  final TextStyle label;
+
+  TextStyle resolve(Color color) {
+    return label.copyWith(
+      color: color,
+      fontFamily: label.fontFamily ?? fontFamily,
+    );
+  }
+
+  AppSelectableChipTypography copyWith({
+    Object? fontFamily = _unset,
+    TextStyle? label,
+  }) {
+    return AppSelectableChipTypography(
+      fontFamily: fontFamily == _unset
+          ? this.fontFamily
+          : fontFamily as String?,
+      label: label ?? this.label,
+    );
+  }
+}
+
+/// Global selectable chip configuration.
+@immutable
+class AppSelectableChipTheme {
+  /// Creates a selectable chip theme.
+  const AppSelectableChipTheme({
+    this.light = AppSelectableChipColors.light,
+    this.dark = AppSelectableChipColors.dark,
+    this.sizing = const AppSelectableChipSizing(),
+    this.typography = const AppSelectableChipTypography(),
+    this.brightnessResolver,
+  });
+
+  static const Object _unset = Object();
+
+  final AppSelectableChipColors light;
+  final AppSelectableChipColors dark;
+  final AppSelectableChipSizing sizing;
+  final AppSelectableChipTypography typography;
+  final Brightness Function(BuildContext context)? brightnessResolver;
+
+  Brightness brightnessOf(BuildContext context) =>
+      brightnessResolver?.call(context) ?? Theme.of(context).brightness;
+
+  AppSelectableChipColors colorsOf(BuildContext context) =>
+      brightnessOf(context) == Brightness.dark ? dark : light;
+
+  AppSelectableChipTheme copyWith({
+    AppSelectableChipColors? light,
+    AppSelectableChipColors? dark,
+    AppSelectableChipSizing? sizing,
+    AppSelectableChipTypography? typography,
+    Object? brightnessResolver = _unset,
+  }) {
+    return AppSelectableChipTheme(
+      light: light ?? this.light,
+      dark: dark ?? this.dark,
+      sizing: sizing ?? this.sizing,
+      typography: typography ?? this.typography,
+      brightnessResolver: brightnessResolver == _unset
+          ? this.brightnessResolver
+          : brightnessResolver as Brightness Function(BuildContext context)?,
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Chip
+// ---------------------------------------------------------------------------
+
+/// A pill-shaped single-select chip: accent wash when selected, neutral
+/// otherwise.
+class AppSelectableChip extends StatelessWidget {
+  /// Creates a selectable chip.
+  const AppSelectableChip({
+    super.key,
+    required this.label,
+    required this.selected,
+    required this.onSelected,
+    this.icon,
+  });
+
+  static AppSelectableChipTheme _theme = const AppSelectableChipTheme();
+
+  /// The active chip theme.
+  static AppSelectableChipTheme get theme => _theme;
+
+  /// Restyles every [AppSelectableChip] in the app.
+  static void configure({
+    AppSelectableChipColors? light,
+    AppSelectableChipColors? dark,
+    AppSelectableChipSizing? sizing,
+    AppSelectableChipTypography? typography,
+    Object? brightnessResolver = AppSelectableChipTheme._unset,
+  }) {
+    _theme = _theme.copyWith(
+      light: light,
+      dark: dark,
+      sizing: sizing,
+      typography: typography,
+      brightnessResolver: brightnessResolver,
+    );
+  }
+
+  /// Resets the theme to defaults. For use in tests only.
+  @visibleForTesting
+  static void debugReset() => _theme = const AppSelectableChipTheme();
+
+  /// Chip label.
+  final String label;
+
+  /// Whether this chip is the active selection.
+  final bool selected;
+
+  /// Called when the chip is tapped.
+  final VoidCallback onSelected;
+
+  /// Optional leading icon.
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppSelectableChipTheme theme = _theme;
+    final AppSelectableChipColors colors = theme.colorsOf(context);
+    final AppSelectableChipSizing sizing = theme.sizing;
+    final Color accent = colors.accentStrong;
+    final Color labelColor = selected ? accent : colors.foreground;
+
+    return ChoiceChip(
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          if (icon != null) ...<Widget>[
+            Icon(icon, size: sizing.iconSize, color: labelColor),
+            SizedBox(width: sizing.iconGap),
+          ],
+          Text(label),
+        ],
+      ),
+      selected: selected,
+      onSelected: (_) => onSelected(),
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      visualDensity: VisualDensity.compact,
+      padding: sizing.padding,
+      labelPadding: sizing.labelPadding,
+      selectedColor: colors.accent.withValues(alpha: colors.selectedFillAlpha),
+      backgroundColor: colors.surface,
+      side: BorderSide(
+        color: selected ? accent : colors.border,
+        width: selected ? sizing.selectedBorderWidth : sizing.borderWidth,
+      ),
+      labelStyle: theme.typography.resolve(labelColor),
+      showCheckmark: false,
+      shape: RoundedSuperellipseBorder(
+        borderRadius: BorderRadius.circular(sizing.borderRadius),
+      ),
+    );
+  }
+}
+```
+
+</CopyFile>
+
+it imports `material` from the flutter sdk. nothing goes in `pubspec.yaml`.
+
+</Step>
+
+<Step>
+
+### use it
+
+there is no init call. the defaults stand on their own.
+
+```dart
+AppSelectableChip(
+  label: "kg",
+  selected: unit == Unit.kg,
+  onSelected: () => setState(() => unit = Unit.kg),
+)
+```
+
+</Step>
+
+</Steps>
+
+## usage
+
+toggle a single option in a row.
+
+```dart
+Row(
+  children: <Widget>[
+    AppSelectableChip(
+      label: "kg",
+      selected: unit == Unit.kg,
+      onSelected: () => setState(() => unit = Unit.kg),
+    ),
+    const SizedBox(width: 8),
+    AppSelectableChip(
+      label: "lbs",
+      selected: unit == Unit.lbs,
+      onSelected: () => setState(() => unit = Unit.lbs),
+    ),
+  ],
+)
+```
+
+with an icon.
+
+```dart
+AppSelectableChip(
+  label: "Metric",
+  icon: Icons.straighten,
+  selected: useMetric,
+  onSelected: () => setState(() => useMetric = true),
+)
+```
+
+## reference
+
+<Accordions>
+  <Accordion title="parameters">
+
+  | parameter | type | default | notes |
+  |---|---|---|---|
+  | `label` | `String` | required | chip text |
+  | `selected` | `bool` | required | selected wash and border |
+  | `onSelected` | `VoidCallback` | required | called on tap |
+  | `icon` | `IconData?` | `null` | optional leading icon |
+  | `enabled` | `bool` | `true` | muted when false |
+
+  </Accordion>
+  <Accordion title="theming">
+
+  ```dart
+  AppSelectableChip.configure(
+    light: AppSelectableChipColors.light.copyWith(accent: myViolet),
+    sizing: const AppSelectableChipSizing(borderRadius: 999),
+  );
+  ```
+
+  </Accordion>
+</Accordions>

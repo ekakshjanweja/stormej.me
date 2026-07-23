@@ -7,7 +7,7 @@ tech:
   - flutter
   - dart
 sourceFile: lib/app_toast.dart
-lines: 1548
+lines: 1594
 demo: /trove/demo/app-toast/index.html
 published: true
 ---
@@ -32,7 +32,7 @@ and an optional expand then collapse width animation.
 
 grab it and drop it in at `lib/app_toast.dart`.
 
-<CopyFile name="app_toast.dart" lines={1593}>
+<CopyFile name="app_toast.dart" lines={1594}>
 
 ```dart
 // A self-contained, plug-and-play toast. Drop this single file into any Flutter
@@ -109,43 +109,17 @@ extension _AppToastPositionGeometry on AppToastPosition {
 
   EdgeInsets padding({required double keyboardInset}) => switch (this) {
     AppToastPosition.top => const EdgeInsets.fromLTRB(16, 16, 16, 0),
-    AppToastPosition.bottom => EdgeInsets.fromLTRB(
-      16,
-      0,
-      16,
-      16 + keyboardInset,
-    ),
+    AppToastPosition.bottom => EdgeInsets.fromLTRB(16, 0, 16, 16 + keyboardInset),
     AppToastPosition.left => const EdgeInsets.fromLTRB(16, 16, 0, 16),
     AppToastPosition.right => const EdgeInsets.fromLTRB(0, 16, 16, 16),
   };
 
-  ({bool top, bool bottom, bool left, bool right}) get safeArea =>
-      switch (this) {
-        AppToastPosition.top => (
-          top: true,
-          bottom: false,
-          left: true,
-          right: true,
-        ),
-        AppToastPosition.bottom => (
-          top: false,
-          bottom: true,
-          left: true,
-          right: true,
-        ),
-        AppToastPosition.left => (
-          top: true,
-          bottom: true,
-          left: true,
-          right: false,
-        ),
-        AppToastPosition.right => (
-          top: true,
-          bottom: true,
-          left: false,
-          right: true,
-        ),
-      };
+  ({bool top, bool bottom, bool left, bool right}) get safeArea => switch (this) {
+    AppToastPosition.top => (top: true, bottom: false, left: true, right: true),
+    AppToastPosition.bottom => (top: false, bottom: true, left: true, right: true),
+    AppToastPosition.left => (top: true, bottom: true, left: true, right: false),
+    AppToastPosition.right => (top: true, bottom: true, left: false, right: true),
+  };
 
   /// Rest offset from the entry spring and stack depth (excluding user drag).
   ///
@@ -178,6 +152,7 @@ class AppToastColors {
     required this.muted,
     required this.elevated,
     required this.inverse,
+    required this.border,
     required this.success,
     required this.error,
     required this.warning,
@@ -196,6 +171,9 @@ class AppToastColors {
   /// The glyph drawn on top of the accent chip.
   final Color inverse;
 
+  /// Hairline stroke around the pill.
+  final Color border;
+
   /// Accent for [AppToastEvent.success].
   final Color success;
 
@@ -210,26 +188,28 @@ class AppToastColors {
 
   /// Default palette for light mode.
   static const AppToastColors light = AppToastColors(
-    foreground: Color(0xFF0F1113),
-    muted: Color(0xFF63666B),
-    elevated: Color(0xFFFFFFFF),
-    inverse: Color(0xFFFFFFFF),
-    success: Color(0xFF15803D),
-    error: Color(0xFFC62828),
-    warning: Color(0xFFB27700),
-    info: Color(0xFF007AFF),
+    foreground: Color(0xFF1C2229),
+    muted: Color(0xFF6C7278),
+    elevated: Color(0xFFFDFFFF),
+    inverse: Color(0xFFFBFEFF),
+    border: Color(0xFFD8DFE6),
+    success: Color(0xFF3E8343),
+    error: Color(0xFFDC2626),
+    warning: Color(0xFFD0901E),
+    info: Color(0xFF8000FF),
   );
 
   /// Default palette for dark mode.
   static const AppToastColors dark = AppToastColors(
-    foreground: Color(0xFFF4F6F2),
-    muted: Color(0xFF979BA3),
-    elevated: Color(0xFF212429),
-    inverse: Color(0xFF0A0B0D),
-    success: Color(0xFF3DDC6B),
-    error: Color(0xFFFF5A52),
-    warning: Color(0xFFFFB740),
-    info: Color(0xFF3B9EFF),
+    foreground: Color(0xFFDADEE3),
+    muted: Color(0xFF8B9095),
+    elevated: Color(0xFF1A2026),
+    inverse: Color(0xFF0E1216),
+    border: Color(0xFF353B42),
+    success: Color(0xFF67BB6B),
+    error: Color(0xFFFF6467),
+    warning: Color(0xFFE1B75C),
+    info: Color(0xFFD7F881),
   );
 
   /// Returns the accent color for [event].
@@ -246,6 +226,7 @@ class AppToastColors {
     Color? muted,
     Color? elevated,
     Color? inverse,
+    Color? border,
     Color? success,
     Color? error,
     Color? warning,
@@ -256,6 +237,7 @@ class AppToastColors {
       muted: muted ?? this.muted,
       elevated: elevated ?? this.elevated,
       inverse: inverse ?? this.inverse,
+      border: border ?? this.border,
       success: success ?? this.success,
       error: error ?? this.error,
       warning: warning ?? this.warning,
@@ -296,10 +278,8 @@ class AppToastTypography {
   final TextStyle description;
 
   /// Resolves [message] with [color] and the configured [fontFamily].
-  TextStyle resolveMessage(Color color) => message.copyWith(
-    color: color,
-    fontFamily: message.fontFamily ?? fontFamily,
-  );
+  TextStyle resolveMessage(Color color) =>
+      message.copyWith(color: color, fontFamily: message.fontFamily ?? fontFamily);
 
   /// Resolves [description] with [color] and the configured [fontFamily].
   TextStyle resolveDescription(Color color) => description.copyWith(
@@ -316,9 +296,7 @@ class AppToastTypography {
     TextStyle? description,
   }) {
     return AppToastTypography(
-      fontFamily: fontFamily == _unset
-          ? this.fontFamily
-          : fontFamily as String?,
+      fontFamily: fontFamily == _unset ? this.fontFamily : fontFamily as String?,
       message: message ?? this.message,
       description: description ?? this.description,
     );
@@ -336,11 +314,13 @@ class AppToastTheme {
     this.defaultDuration = const Duration(seconds: 4),
     this.defaultPosition = AppToastPosition.top,
     this.maxStack = 3,
-    this.elevation = 6,
+    this.elevationLight = 2,
+    this.elevationDark = 6,
     this.enableHaptics = true,
     this.brightnessResolver,
-  }) : assert(maxStack >= 1, "maxStack must be at least 1"),
-       assert(elevation >= 0, "elevation must be non-negative");
+  })  : assert(maxStack >= 1, "maxStack must be at least 1"),
+        assert(elevationLight >= 0, "elevationLight must be non-negative"),
+        assert(elevationDark >= 0, "elevationDark must be non-negative");
 
   static const Object _unset = Object();
 
@@ -362,8 +342,12 @@ class AppToastTheme {
   /// Maximum live toasts per [AppToastPosition] before the oldest is evicted.
   final int maxStack;
 
-  /// Material elevation of the pill surface.
-  final double elevation;
+  /// Material elevation of the pill in light mode — kept soft so the hairline
+  /// border does most of the separation.
+  final double elevationLight;
+
+  /// Material elevation of the pill in dark mode.
+  final double elevationDark;
 
   /// Whether new toasts play haptic feedback by default.
   ///
@@ -383,6 +367,10 @@ class AppToastTheme {
   AppToastColors colorsOf(BuildContext context) =>
       brightnessOf(context) == Brightness.dark ? dark : light;
 
+  /// Elevation for [brightness].
+  double elevationFor(Brightness brightness) =>
+      brightness == Brightness.dark ? elevationDark : elevationLight;
+
   /// Returns a copy with the given fields replaced.
   ///
   /// Pass `brightnessResolver: null` explicitly to clear a custom resolver.
@@ -393,14 +381,19 @@ class AppToastTheme {
     Duration? defaultDuration,
     AppToastPosition? defaultPosition,
     int? maxStack,
-    double? elevation,
+    double? elevationLight,
+    double? elevationDark,
     bool? enableHaptics,
     Object? brightnessResolver = _unset,
   }) {
     assert(maxStack == null || maxStack >= 1, "maxStack must be at least 1");
     assert(
-      elevation == null || elevation >= 0,
-      "elevation must be non-negative",
+      elevationLight == null || elevationLight >= 0,
+      "elevationLight must be non-negative",
+    );
+    assert(
+      elevationDark == null || elevationDark >= 0,
+      "elevationDark must be non-negative",
     );
 
     return AppToastTheme(
@@ -410,7 +403,8 @@ class AppToastTheme {
       defaultDuration: defaultDuration ?? this.defaultDuration,
       defaultPosition: defaultPosition ?? this.defaultPosition,
       maxStack: maxStack ?? this.maxStack,
-      elevation: elevation ?? this.elevation,
+      elevationLight: elevationLight ?? this.elevationLight,
+      elevationDark: elevationDark ?? this.elevationDark,
       enableHaptics: enableHaptics ?? this.enableHaptics,
       brightnessResolver: brightnessResolver == _unset
           ? this.brightnessResolver
@@ -543,14 +537,19 @@ abstract final class AppToast {
     Duration? defaultDuration,
     AppToastPosition? defaultPosition,
     int? maxStack,
-    double? elevation,
+    double? elevationLight,
+    double? elevationDark,
     bool? enableHaptics,
     Object? brightnessResolver = AppToastTheme._unset,
   }) {
     assert(maxStack == null || maxStack >= 1, "maxStack must be at least 1");
     assert(
-      elevation == null || elevation >= 0,
-      "elevation must be non-negative",
+      elevationLight == null || elevationLight >= 0,
+      "elevationLight must be non-negative",
+    );
+    assert(
+      elevationDark == null || elevationDark >= 0,
+      "elevationDark must be non-negative",
     );
 
     _navigatorKey = navigatorKey;
@@ -562,7 +561,8 @@ abstract final class AppToast {
       defaultDuration: defaultDuration,
       defaultPosition: defaultPosition,
       maxStack: maxStack,
-      elevation: elevation,
+      elevationLight: elevationLight,
+      elevationDark: elevationDark,
       enableHaptics: enableHaptics,
       brightnessResolver: brightnessResolver,
     );
@@ -725,8 +725,7 @@ abstract final class AppToast {
 
     final SchedulerPhase phase = SchedulerBinding.instance.schedulerPhase;
     final bool safe =
-        phase == SchedulerPhase.idle ||
-        phase == SchedulerPhase.postFrameCallbacks;
+        phase == SchedulerPhase.idle || phase == SchedulerPhase.postFrameCallbacks;
 
     if (!safe) {
       SchedulerBinding.instance.addPostFrameCallback((_) => _dispatch(data));
@@ -863,10 +862,7 @@ abstract final class AppToast {
 
     _playHaptic(data);
 
-    final List<_AppToastEntry> atPosition = _aliveAt(
-      _toasts.value,
-      data.position,
-    );
+    final List<_AppToastEntry> atPosition = _aliveAt(_toasts.value, data.position);
     if (atPosition.length >= _theme.maxStack) {
       _dismissEntry(atPosition.first);
     }
@@ -918,8 +914,7 @@ abstract final class AppToast {
   }
 
   /// Re-emits the list so the stack deals depths again.
-  static void _refresh() =>
-      _toasts.value = List<_AppToastEntry>.of(_toasts.value);
+  static void _refresh() => _toasts.value = List<_AppToastEntry>.of(_toasts.value);
 }
 
 // ---------------------------------------------------------------------------
@@ -993,9 +988,7 @@ class _AppToastStack extends StatelessWidget {
             valueListenable: AppToast._toasts,
             builder: (BuildContext context, List<_AppToastEntry> entries, _) {
               final List<_AppToastEntry> atPosition = entries
-                  .where(
-                    (_AppToastEntry entry) => entry.data.position == position,
-                  )
+                  .where((_AppToastEntry entry) => entry.data.position == position)
                   .toList();
 
               if (atPosition.isEmpty) return const SizedBox.shrink();
@@ -1230,9 +1223,7 @@ class _AppToastPillState extends State<_AppToastPill>
 
     final double full = _fullWidthCache ?? _fullWidth(context);
     final double content = _contentWidth ?? full;
-    final double t = Curves.easeInOutCubic.transform(
-      _width.value.clamp(0.0, 1.0),
-    );
+    final double t = Curves.easeInOutCubic.transform(_width.value.clamp(0.0, 1.0));
     // Hand off to intrinsic sizing once collapsed so the pill hugs content.
     if (t >= 0.995) return null;
     return full + (content - full) * t;
@@ -1449,7 +1440,9 @@ class _AppToastPillState extends State<_AppToastPill>
               child: DecoratedBox(
                 position: DecorationPosition.foreground,
                 decoration: ShapeDecoration(
-                  shape: const StadiumBorder(),
+                  shape: RoundedSuperellipseBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
                   color: colors.foreground.withValues(
                     alpha: (depth * _shade).clamp(0.0, 0.5),
                   ),
@@ -1467,7 +1460,9 @@ class _AppToastPillState extends State<_AppToastPill>
                       data: _data,
                       colors: colors,
                       typography: AppToast._theme.typography,
-                      elevation: AppToast._theme.elevation,
+                      elevation: AppToast._theme.elevationFor(
+                        isDarkMode ? Brightness.dark : Brightness.light,
+                      ),
                       isDarkMode: isDarkMode,
                       collapseProgress: collapseProgress,
                     ),
@@ -1520,21 +1515,22 @@ class _AppToastPillBody extends StatelessWidget {
   static const double _gap = _AppToastPillState._gap;
 
   IconData get _icon => switch (data.event) {
-    AppToastEvent.success => Icons.check_circle_rounded,
-    AppToastEvent.error => Icons.error_rounded,
-    AppToastEvent.warning => Icons.warning_rounded,
-    AppToastEvent.info => Icons.info_rounded,
+    AppToastEvent.success => Icons.check_circle_outline_rounded,
+    AppToastEvent.error => Icons.error_outline_rounded,
+    AppToastEvent.warning => Icons.warning_amber_outlined,
+    AppToastEvent.info => Icons.info_outline_rounded,
   };
 
   Widget _iconChip() {
+    final Color accent = colors.accentFor(data.event);
     return Container(
       width: _iconSize,
       height: _iconSize,
       decoration: BoxDecoration(
-        color: colors.accentFor(data.event),
+        color: accent.withValues(alpha: 0.14),
         shape: BoxShape.circle,
       ),
-      child: Icon(_icon, size: 18, color: colors.inverse),
+      child: Icon(_icon, size: 18, color: accent),
     );
   }
 
@@ -1588,10 +1584,15 @@ class _AppToastPillBody extends StatelessWidget {
 
     return Material(
       color: colors.elevated,
-      shape: const StadiumBorder(),
+      shape: RoundedSuperellipseBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: BorderSide(color: colors.border),
+      ),
       clipBehavior: Clip.antiAlias,
       elevation: elevation,
-      shadowColor: isDarkMode ? Colors.black : colors.foreground,
+      shadowColor: isDarkMode
+          ? Colors.black
+          : colors.foreground.withValues(alpha: 0.08),
       child: Padding(
         padding: const EdgeInsetsDirectional.fromSTEB(
           _AppToastPillState._padSm,

@@ -1,0 +1,813 @@
+---
+title: app text field
+subtitle: one file text field for flutter
+description: a text field for flutter in one file. header, helper, error, inline mode. no packages, no DI, no widget wrapping.
+date: "2026-07-23"
+tech:
+  - flutter
+  - dart
+sourceFile: lib/app_text_field.dart
+lines: 680
+demo: /trove/demo/app-text-field/index.html
+published: true
+---
+
+## tldr
+
+copy one file into your project, use it. no setup, no init call.
+
+`AppTextField(header: "Email", hintText: "you@site.com", controller: c)`.
+
+superellipse outline, optional header and description, error state, compact and
+inline modes for dense layouts.
+
+<FlutterDemo src="/trove/demo/app-text-field/index.html" name="app-text-field" />
+
+## install
+
+<Steps>
+
+<Step>
+
+### copy one file
+
+grab it and drop it in at `lib/app_text_field.dart`.
+
+<CopyFile name="app_text_field.dart" lines={680}>
+
+```dart
+// A self-contained, plug-and-play text field. Drop this single file into any
+// Flutter project — no packages, no DI, no widget wrapping.
+//
+//   1. Use it anywhere:
+//        AppTextField(header: "Email", hintText: "you@site.com", controller: c)
+//        AppTextField(errorText: "Required", controller: c)
+//        AppTextField(inline: true, controller: c) // table / dense rows
+//
+//   2. Restyle once at startup — or never, the defaults stand on their own:
+//        AppTextField.configure(light: AppTextFieldColors.light.copyWith(accent: myBlue));
+
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+
+// ---------------------------------------------------------------------------
+// Public enums
+// ---------------------------------------------------------------------------
+
+/// Visual state a color token is resolved against.
+enum AppTextFieldState {
+  /// Idle, enabled field.
+  defaultState,
+
+  /// Focused bordered field.
+  focused,
+
+  /// Non-interactive.
+  disabled,
+
+  /// Showing [AppTextField.errorText].
+  error,
+
+  /// Borderless field embedded in a table row.
+  inline,
+
+  /// Focused inline field.
+  inlineFocused,
+}
+
+// ---------------------------------------------------------------------------
+// Theme
+// ---------------------------------------------------------------------------
+
+/// Color tokens for a text field palette.
+@immutable
+class AppTextFieldColors {
+  /// Creates a text field color palette.
+  const AppTextFieldColors({
+    required this.foreground,
+    required this.muted,
+    required this.surface,
+    required this.card,
+    required this.border,
+    required this.disabled,
+    required this.error,
+    required this.accentStrong,
+  });
+
+  /// Typed text and cursor.
+  final Color foreground;
+
+  /// Hint, header (idle), description.
+  final Color muted;
+
+  /// Fill on a bordered field.
+  final Color surface;
+
+  /// Fill when disabled.
+  final Color card;
+
+  /// Default border.
+  final Color border;
+
+  /// Disabled border and labels.
+  final Color disabled;
+
+  /// Error border, header, and helper.
+  final Color error;
+
+  /// Focused inline border.
+  final Color accentStrong;
+
+  /// Default palette for light mode.
+  static const AppTextFieldColors light = AppTextFieldColors(
+    foreground: Color(0xFF1C2229),
+    muted: Color(0xFF6C7278),
+    surface: Color(0xFFEAEFF5),
+    card: Color(0xFFF8FCFF),
+    border: Color(0xFFD8DFE6),
+    disabled: Color(0xFFB3B8BE),
+    error: Color(0xFFDC2626),
+    accentStrong: Color(0xFF5C00B8),
+  );
+
+  /// Default palette for dark mode.
+  static const AppTextFieldColors dark = AppTextFieldColors(
+    foreground: Color(0xFFDADEE3),
+    muted: Color(0xFF8B9095),
+    surface: Color(0xFF1D2227),
+    card: Color(0xFF12171B),
+    border: Color(0xFF353B42),
+    disabled: Color(0xFF484E54),
+    error: Color(0xFFFF6467),
+    accentStrong: Color(0xFFE8FFA8),
+  );
+
+  Color borderFor(AppTextFieldState state) => switch (state) {
+    AppTextFieldState.defaultState => border,
+    AppTextFieldState.focused => foreground,
+    AppTextFieldState.disabled => disabled,
+    AppTextFieldState.error => error,
+    AppTextFieldState.inline => Colors.transparent,
+    AppTextFieldState.inlineFocused => accentStrong,
+  };
+
+  Color backgroundFor(AppTextFieldState state) => switch (state) {
+    AppTextFieldState.defaultState ||
+    AppTextFieldState.focused ||
+    AppTextFieldState.error => surface,
+    AppTextFieldState.disabled => card,
+    AppTextFieldState.inline => Colors.transparent,
+    AppTextFieldState.inlineFocused => surface,
+  };
+
+  Color labelFor(AppTextFieldState state) => switch (state) {
+    AppTextFieldState.defaultState ||
+    AppTextFieldState.focused ||
+    AppTextFieldState.inline ||
+    AppTextFieldState.inlineFocused => muted,
+    AppTextFieldState.disabled => disabled,
+    AppTextFieldState.error => error,
+  };
+
+  Color descriptionFor(AppTextFieldState state) => labelFor(state);
+
+  Color textFor(AppTextFieldState state) => switch (state) {
+    AppTextFieldState.disabled => disabled,
+    _ => foreground,
+  };
+
+  /// Returns a copy with the given fields replaced.
+  AppTextFieldColors copyWith({
+    Color? foreground,
+    Color? muted,
+    Color? surface,
+    Color? card,
+    Color? border,
+    Color? disabled,
+    Color? error,
+    Color? accentStrong,
+  }) {
+    return AppTextFieldColors(
+      foreground: foreground ?? this.foreground,
+      muted: muted ?? this.muted,
+      surface: surface ?? this.surface,
+      card: card ?? this.card,
+      border: border ?? this.border,
+      disabled: disabled ?? this.disabled,
+      error: error ?? this.error,
+      accentStrong: accentStrong ?? this.accentStrong,
+    );
+  }
+}
+
+/// Metrics for the field chrome.
+@immutable
+class AppTextFieldSizing {
+  /// Creates sizing settings.
+  const AppTextFieldSizing({
+    this.borderRadius = 24,
+    this.inlineBorderRadius = 16,
+    this.headerGap = 6,
+    this.descriptionGap = 4,
+    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    this.compactPadding = const EdgeInsets.symmetric(
+      horizontal: 12,
+      vertical: 10,
+    ),
+    this.inlinePadding = const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+  });
+
+  /// Corner radius for bordered fields.
+  final double borderRadius;
+
+  /// Corner radius for inline fields.
+  final double inlineBorderRadius;
+
+  /// Space under the header.
+  final double headerGap;
+
+  /// Space under the field before the description.
+  final double descriptionGap;
+
+  /// Default content padding.
+  final EdgeInsets padding;
+
+  /// Padding when [AppTextField.compact] is true.
+  final EdgeInsets compactPadding;
+
+  /// Padding when [AppTextField.inline] is true.
+  final EdgeInsets inlinePadding;
+
+  /// Returns a copy with the given fields replaced.
+  AppTextFieldSizing copyWith({
+    double? borderRadius,
+    double? inlineBorderRadius,
+    double? headerGap,
+    double? descriptionGap,
+    EdgeInsets? padding,
+    EdgeInsets? compactPadding,
+    EdgeInsets? inlinePadding,
+  }) {
+    return AppTextFieldSizing(
+      borderRadius: borderRadius ?? this.borderRadius,
+      inlineBorderRadius: inlineBorderRadius ?? this.inlineBorderRadius,
+      headerGap: headerGap ?? this.headerGap,
+      descriptionGap: descriptionGap ?? this.descriptionGap,
+      padding: padding ?? this.padding,
+      compactPadding: compactPadding ?? this.compactPadding,
+      inlinePadding: inlinePadding ?? this.inlinePadding,
+    );
+  }
+}
+
+/// Typography for the field and its chrome.
+@immutable
+class AppTextFieldTypography {
+  /// Creates typography settings.
+  const AppTextFieldTypography({
+    this.fontFamily,
+    this.input = const TextStyle(
+      fontSize: 12,
+      height: 16 / 12,
+      fontWeight: FontWeight.w400,
+    ),
+    this.inlineInput = const TextStyle(
+      fontSize: 14,
+      height: 20 / 14,
+      fontWeight: FontWeight.w400,
+    ),
+    this.header = const TextStyle(
+      fontSize: 12,
+      height: 16 / 12,
+      fontWeight: FontWeight.w500,
+    ),
+    this.helper = const TextStyle(
+      fontSize: 11,
+      height: 14 / 11,
+      fontWeight: FontWeight.w400,
+    ),
+  });
+
+  static const Object _unset = Object();
+
+  /// Applied unless a style names its own family.
+  final String? fontFamily;
+
+  /// Input and hint on a bordered field.
+  final TextStyle input;
+
+  /// Input and hint on an inline field.
+  final TextStyle inlineInput;
+
+  /// Optional header above the field.
+  final TextStyle header;
+
+  /// Description / error under the field.
+  final TextStyle helper;
+
+  TextStyle resolve(TextStyle style, Color color) {
+    return style.copyWith(
+      color: color,
+      fontFamily: style.fontFamily ?? fontFamily,
+    );
+  }
+
+  /// Returns a copy with the given fields replaced.
+  AppTextFieldTypography copyWith({
+    Object? fontFamily = _unset,
+    TextStyle? input,
+    TextStyle? inlineInput,
+    TextStyle? header,
+    TextStyle? helper,
+  }) {
+    return AppTextFieldTypography(
+      fontFamily: fontFamily == _unset
+          ? this.fontFamily
+          : fontFamily as String?,
+      input: input ?? this.input,
+      inlineInput: inlineInput ?? this.inlineInput,
+      header: header ?? this.header,
+      helper: helper ?? this.helper,
+    );
+  }
+}
+
+/// Global text field configuration.
+@immutable
+class AppTextFieldTheme {
+  /// Creates a text field theme.
+  const AppTextFieldTheme({
+    this.light = AppTextFieldColors.light,
+    this.dark = AppTextFieldColors.dark,
+    this.sizing = const AppTextFieldSizing(),
+    this.typography = const AppTextFieldTypography(),
+    this.brightnessResolver,
+  });
+
+  static const Object _unset = Object();
+
+  final AppTextFieldColors light;
+  final AppTextFieldColors dark;
+  final AppTextFieldSizing sizing;
+  final AppTextFieldTypography typography;
+  final Brightness Function(BuildContext context)? brightnessResolver;
+
+  Brightness brightnessOf(BuildContext context) =>
+      brightnessResolver?.call(context) ?? Theme.of(context).brightness;
+
+  AppTextFieldColors colorsOf(BuildContext context) =>
+      brightnessOf(context) == Brightness.dark ? dark : light;
+
+  AppTextFieldTheme copyWith({
+    AppTextFieldColors? light,
+    AppTextFieldColors? dark,
+    AppTextFieldSizing? sizing,
+    AppTextFieldTypography? typography,
+    Object? brightnessResolver = _unset,
+  }) {
+    return AppTextFieldTheme(
+      light: light ?? this.light,
+      dark: dark ?? this.dark,
+      sizing: sizing ?? this.sizing,
+      typography: typography ?? this.typography,
+      brightnessResolver: brightnessResolver == _unset
+          ? this.brightnessResolver
+          : brightnessResolver as Brightness Function(BuildContext context)?,
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Text field
+// ---------------------------------------------------------------------------
+
+/// A themed text field with header, description, error, compact, and inline
+/// modes.
+class AppTextField extends StatefulWidget {
+  /// Creates a text field.
+  const AppTextField({
+    super.key,
+    this.controller,
+    this.hintText,
+    this.prefixText,
+    this.keyboardType,
+    this.obscureText = false,
+    this.enabled = true,
+    this.onChanged,
+    this.validator,
+    this.suffixIcon,
+    this.prefixIcon,
+    this.maxLines = 1,
+    this.textInputAction,
+    this.onSubmitted,
+    this.autofocus = false,
+    this.isExpanded = false,
+    this.header,
+    this.description,
+    this.errorText,
+    this.suffix,
+    this.prefix,
+    this.inputFormatters,
+    this.compact = false,
+    this.inline = false,
+  });
+
+  static AppTextFieldTheme _theme = const AppTextFieldTheme();
+
+  /// The active text field theme.
+  static AppTextFieldTheme get theme => _theme;
+
+  /// Restyles every [AppTextField] in the app.
+  static void configure({
+    AppTextFieldColors? light,
+    AppTextFieldColors? dark,
+    AppTextFieldSizing? sizing,
+    AppTextFieldTypography? typography,
+    Object? brightnessResolver = AppTextFieldTheme._unset,
+  }) {
+    _theme = _theme.copyWith(
+      light: light,
+      dark: dark,
+      sizing: sizing,
+      typography: typography,
+      brightnessResolver: brightnessResolver,
+    );
+  }
+
+  /// Resets the theme to defaults. For use in tests only.
+  @visibleForTesting
+  static void debugReset() => _theme = const AppTextFieldTheme();
+
+  final TextEditingController? controller;
+  final String? hintText;
+  final String? prefixText;
+  final TextInputType? keyboardType;
+  final bool obscureText;
+  final bool enabled;
+  final ValueChanged<String>? onChanged;
+  final String? Function(String?)? validator;
+  final Widget? suffixIcon;
+  final Widget? prefixIcon;
+  final int maxLines;
+  final TextInputAction? textInputAction;
+  final ValueChanged<String>? onSubmitted;
+  final bool autofocus;
+  final bool isExpanded;
+  final String? header;
+  final String? description;
+  final String? errorText;
+  final Widget? suffix;
+  final Widget? prefix;
+  final List<TextInputFormatter>? inputFormatters;
+  final bool compact;
+  final bool inline;
+
+  @override
+  State<AppTextField> createState() => _AppTextFieldState();
+}
+
+class _AppTextFieldState extends State<AppTextField> {
+  late final FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode()..addListener(_onFocusChanged);
+    widget.controller?.addListener(_onTextChanged);
+  }
+
+  @override
+  void didUpdateWidget(AppTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller?.removeListener(_onTextChanged);
+      widget.controller?.addListener(_onTextChanged);
+    }
+  }
+
+  @override
+  void dispose() {
+    _focusNode
+      ..removeListener(_onFocusChanged)
+      ..dispose();
+    widget.controller?.removeListener(_onTextChanged);
+    super.dispose();
+  }
+
+  void _onTextChanged() => setState(() {});
+
+  void _onFocusChanged() => setState(() {});
+
+  AppTextFieldState _effectiveState() {
+    if (!widget.enabled) return AppTextFieldState.disabled;
+    if ((widget.errorText ?? "").isNotEmpty) return AppTextFieldState.error;
+    if (widget.inline) {
+      return _focusNode.hasFocus
+          ? AppTextFieldState.inlineFocused
+          : AppTextFieldState.inline;
+    }
+    if (_focusNode.hasFocus) return AppTextFieldState.focused;
+    return AppTextFieldState.defaultState;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final AppTextFieldTheme theme = AppTextField._theme;
+    final AppTextFieldColors colors = theme.colorsOf(context);
+    final AppTextFieldSizing sizing = theme.sizing;
+    final AppTextFieldTypography typography = theme.typography;
+    final AppTextFieldState state = _effectiveState();
+    final bool isInline =
+        state == AppTextFieldState.inline ||
+        state == AppTextFieldState.inlineFocused;
+    final bool hasError = (widget.errorText ?? "").isNotEmpty;
+
+    final double radiusValue =
+        isInline ? sizing.inlineBorderRadius : sizing.borderRadius;
+    final BorderRadius radius = BorderRadius.circular(radiusValue);
+    final double borderWidth = state == AppTextFieldState.inlineFocused
+        ? 1.25
+        : 1.0;
+
+    final InputBorder border = _SuperellipseInputBorder(
+      borderRadius: radius,
+      borderSide: BorderSide(
+        color: colors.borderFor(state),
+        width: borderWidth,
+      ),
+    );
+    final InputBorder transparentBorder = _SuperellipseInputBorder(
+      borderRadius: radius,
+      borderSide: BorderSide.none,
+    );
+
+    final bool hasText = widget.controller?.text.trim().isNotEmpty ?? false;
+    final TextStyle inputStyle = typography.resolve(
+      isInline ? typography.inlineInput : typography.input,
+      colors.textFor(state),
+    );
+
+    final EdgeInsets contentPadding = isInline
+        ? sizing.inlinePadding
+        : widget.compact
+        ? sizing.compactPadding
+        : sizing.padding;
+
+    final Widget field = TextFormField(
+      focusNode: _focusNode,
+      cursorColor: colors.foreground,
+      controller: widget.controller,
+      keyboardType: widget.keyboardType,
+      obscureText: widget.obscureText,
+      enabled: widget.enabled,
+      onChanged: widget.onChanged,
+      validator: widget.validator,
+      maxLines: widget.isExpanded ? 5 : widget.maxLines,
+      textInputAction: widget.textInputAction,
+      onFieldSubmitted: widget.onSubmitted,
+      autofocus: widget.autofocus,
+      decoration: InputDecoration(
+        prefixText: widget.prefixText,
+        prefixStyle: typography.resolve(typography.header, colors.foreground),
+        prefixIcon: widget.prefixIcon,
+        suffixIcon: widget.suffixIcon,
+        hintText: widget.hintText,
+        suffix: widget.suffix,
+        prefix: hasText ? widget.prefix : null,
+        hintStyle: typography.resolve(
+          isInline ? typography.inlineInput : typography.input,
+          colors.muted,
+        ),
+        filled: !isInline || state == AppTextFieldState.inlineFocused,
+        fillColor: colors.backgroundFor(state),
+        border: isInline ? transparentBorder : border,
+        enabledBorder: isInline ? transparentBorder : border,
+        disabledBorder: _SuperellipseInputBorder(
+          borderRadius: radius,
+          borderSide: BorderSide(
+            color: colors.borderFor(AppTextFieldState.disabled),
+          ),
+        ),
+        focusedBorder: isInline
+            ? border
+            : _SuperellipseInputBorder(
+                borderRadius: radius,
+                borderSide: BorderSide(
+                  color: colors.borderFor(AppTextFieldState.focused),
+                ),
+              ),
+        errorBorder: _SuperellipseInputBorder(
+          borderRadius: radius,
+          borderSide: BorderSide(
+            color: colors.borderFor(AppTextFieldState.error),
+          ),
+        ),
+        focusedErrorBorder: _SuperellipseInputBorder(
+          borderRadius: radius,
+          borderSide: BorderSide(
+            color: colors.borderFor(AppTextFieldState.error),
+          ),
+        ),
+        errorText: hasError ? widget.errorText : null,
+        errorStyle: typography.resolve(typography.helper, colors.error),
+        isDense: isInline || widget.compact,
+        contentPadding: contentPadding,
+      ),
+      style: inputStyle,
+      textAlign: isInline ? TextAlign.center : TextAlign.start,
+      inputFormatters: widget.inputFormatters,
+    );
+
+    if ((widget.compact || widget.inline) &&
+        widget.header == null &&
+        (widget.description ?? "").isEmpty) {
+      return field;
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        if (widget.header != null) ...<Widget>[
+          Text(
+            widget.header!,
+            style: typography.resolve(
+              typography.header,
+              colors.labelFor(state),
+            ),
+          ),
+          SizedBox(height: sizing.headerGap),
+        ],
+        field,
+        if (!widget.compact) SizedBox(height: sizing.descriptionGap),
+        if (!hasError && (widget.description ?? "").isNotEmpty)
+          Text(
+            widget.description!,
+            style: typography.resolve(
+              typography.helper,
+              colors.descriptionFor(state),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// Outline that paints a [RoundedSuperellipseBorder] so fields match popup/
+/// button surfaces instead of circular [OutlineInputBorder] corners.
+class _SuperellipseInputBorder extends InputBorder {
+  const _SuperellipseInputBorder({
+    super.borderSide = BorderSide.none,
+    required this.borderRadius,
+  });
+
+  final BorderRadius borderRadius;
+
+  @override
+  bool get isOutline => true;
+
+  @override
+  EdgeInsetsGeometry get dimensions => EdgeInsets.all(borderSide.width);
+
+  @override
+  _SuperellipseInputBorder copyWith({
+    BorderSide? borderSide,
+    BorderRadius? borderRadius,
+  }) {
+    return _SuperellipseInputBorder(
+      borderSide: borderSide ?? this.borderSide,
+      borderRadius: borderRadius ?? this.borderRadius,
+    );
+  }
+
+  @override
+  ShapeBorder scale(double t) {
+    return _SuperellipseInputBorder(
+      borderSide: borderSide.scale(t),
+      borderRadius: borderRadius * t,
+    );
+  }
+
+  @override
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) {
+    return RoundedSuperellipseBorder(
+      borderRadius: borderRadius,
+    ).getInnerPath(rect.deflate(borderSide.width), textDirection: textDirection);
+  }
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
+    return RoundedSuperellipseBorder(
+      borderRadius: borderRadius,
+    ).getOuterPath(rect, textDirection: textDirection);
+  }
+
+  @override
+  void paint(
+    Canvas canvas,
+    Rect rect, {
+    double? gapStart,
+    double gapExtent = 0.0,
+    double gapPercentage = 0.0,
+    TextDirection? textDirection,
+  }) {
+    if (borderSide.style == BorderStyle.none) return;
+    final Paint paint = borderSide.toPaint();
+    final Path path = getOuterPath(rect, textDirection: textDirection);
+    canvas.drawPath(path, paint);
+  }
+}
+```
+
+</CopyFile>
+
+it imports `material` and `services` from the flutter sdk. nothing goes in
+`pubspec.yaml`.
+
+</Step>
+
+<Step>
+
+### use it
+
+there is no init call. the defaults stand on their own.
+
+```dart
+AppTextField(
+  header: "Email",
+  hintText: "you@site.com",
+  controller: emailController,
+)
+```
+
+</Step>
+
+</Steps>
+
+## usage
+
+standard field with header and helper.
+
+```dart
+AppTextField(
+  header: "Note title",
+  hintText: "Weekend haul",
+  description: "Shown on your public profile.",
+  controller: titleController,
+)
+```
+
+error state tints the border, header, and helper.
+
+```dart
+AppTextField(
+  header: "Email",
+  controller: emailController,
+  errorText: "Enter a valid email",
+)
+```
+
+inline mode drops the border for table rows.
+
+```dart
+AppTextField(
+  inline: true,
+  hintText: "0",
+  controller: repsController,
+  keyboardType: TextInputType.number,
+)
+```
+
+## reference
+
+<Accordions>
+  <Accordion title="parameters">
+
+  | parameter | type | default | notes |
+  |---|---|---|---|
+  | `controller` | `TextEditingController?` | `null` | optional external controller |
+  | `header` | `String?` | `null` | label above the field |
+  | `description` | `String?` | `null` | helper below the field |
+  | `errorText` | `String?` | `null` | error helper; tints border and header |
+  | `hintText` | `String?` | `null` | placeholder |
+  | `inline` | `bool` | `false` | borderless row style |
+  | `compact` | `bool` | `false` | tighter padding |
+  | `enabled` | `bool` | `true` | disabled treatment when false |
+  | `obscureText` | `bool` | `false` | password-style masking |
+  | `suffixIcon` | `Widget?` | `null` | trailing widget inside the field |
+  | `prefixIcon` | `Widget?` | `null` | leading widget inside the field |
+
+  </Accordion>
+  <Accordion title="theming">
+
+  call `configure()` once at startup to swap palettes, typography, and radii.
+
+  ```dart
+  AppTextField.configure(
+    light: AppTextFieldColors.light.copyWith(accentStrong: myViolet),
+    sizing: const AppTextFieldSizing(borderRadius: 24),
+    typography: const AppTextFieldTypography(fontFamily: "GeistSans"),
+  );
+  ```
+
+  </Accordion>
+</Accordions>

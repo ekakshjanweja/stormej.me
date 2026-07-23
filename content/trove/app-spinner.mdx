@@ -1,0 +1,416 @@
+---
+title: app spinner
+subtitle: one file spinner for flutter
+description: a loading spinner for flutter in one file. arc and cupertino styles. no packages, no DI, no widget wrapping.
+date: "2026-07-23"
+tech:
+  - flutter
+  - dart
+sourceFile: lib/app_spinner.dart
+lines: 312
+demo: /trove/demo/app-spinner/index.html
+published: true
+---
+
+## tldr
+
+copy one file into your project, use it. no setup, no init call.
+
+`AppSpinner()` or `AppSpinner(style: AppSpinnerStyle.cupertino)`.
+
+neutral arc spinner by default. cupertino style when you want platform chrome.
+
+<FlutterDemo src="/trove/demo/app-spinner/index.html" name="app-spinner" />
+
+## install
+
+<Steps>
+
+<Step>
+
+### copy one file
+
+grab it and drop it in at `lib/app_spinner.dart`.
+
+<CopyFile name="app_spinner.dart" lines={312}>
+
+```dart
+// A self-contained, plug-and-play spinner. Drop this single file into any
+// Flutter project — no packages, no DI, no widget wrapping.
+//
+//   1. Use it anywhere:
+//        AppSpinner()
+//        AppSpinner(style: AppSpinnerStyle.cupertino, size: 24)
+//        AppSpinner(color: Colors.white)
+//
+//   2. Restyle once at startup — or never, the defaults stand on their own:
+//        AppSpinner.configure(light: AppSpinnerColors.light.copyWith(foreground: myInk));
+//
+//   3. [AppSpinnerStyle.arc] draws a custom 270° arc. [AppSpinnerStyle.cupertino]
+//      uses CupertinoActivityIndicator.
+
+import "dart:math" as math;
+
+import "package:flutter/cupertino.dart";
+import "package:flutter/material.dart";
+
+// ---------------------------------------------------------------------------
+// Public enums
+// ---------------------------------------------------------------------------
+
+/// Visual style of the spinner.
+enum AppSpinnerStyle {
+  /// Custom rotating arc — neutral, no Material chrome.
+  arc,
+
+  /// Cupertino activity indicator.
+  cupertino,
+}
+
+// ---------------------------------------------------------------------------
+// Theme
+// ---------------------------------------------------------------------------
+
+/// Color tokens for a spinner palette.
+@immutable
+class AppSpinnerColors {
+  /// Creates a spinner color palette.
+  const AppSpinnerColors({required this.foreground});
+
+  /// Default stroke / indicator color when none is passed to [AppSpinner].
+  final Color foreground;
+
+  /// Default palette for light mode.
+  static const AppSpinnerColors light = AppSpinnerColors(
+    foreground: Color(0xFF1C2229),
+  );
+
+  /// Default palette for dark mode.
+  static const AppSpinnerColors dark = AppSpinnerColors(
+    foreground: Color(0xFFDADEE3),
+  );
+
+  /// Returns a copy with the given fields replaced.
+  AppSpinnerColors copyWith({Color? foreground}) {
+    return AppSpinnerColors(foreground: foreground ?? this.foreground);
+  }
+}
+
+/// Metrics for the spinner.
+@immutable
+class AppSpinnerSizing {
+  /// Creates sizing settings.
+  const AppSpinnerSizing({
+    this.size = 20,
+    this.strokeWidth = 2,
+    this.duration = const Duration(milliseconds: 1000),
+  });
+
+  /// Default diameter.
+  final double size;
+
+  /// Arc stroke width ([AppSpinnerStyle.arc] only).
+  final double strokeWidth;
+
+  /// One full rotation for the arc style.
+  final Duration duration;
+
+  /// Returns a copy with the given fields replaced.
+  AppSpinnerSizing copyWith({
+    double? size,
+    double? strokeWidth,
+    Duration? duration,
+  }) {
+    return AppSpinnerSizing(
+      size: size ?? this.size,
+      strokeWidth: strokeWidth ?? this.strokeWidth,
+      duration: duration ?? this.duration,
+    );
+  }
+}
+
+/// Global spinner configuration.
+@immutable
+class AppSpinnerTheme {
+  /// Creates a spinner theme.
+  const AppSpinnerTheme({
+    this.light = AppSpinnerColors.light,
+    this.dark = AppSpinnerColors.dark,
+    this.sizing = const AppSpinnerSizing(),
+    this.style = AppSpinnerStyle.arc,
+    this.brightnessResolver,
+  });
+
+  static const Object _unset = Object();
+
+  final AppSpinnerColors light;
+  final AppSpinnerColors dark;
+  final AppSpinnerSizing sizing;
+
+  /// Default style when [AppSpinner.style] is null.
+  final AppSpinnerStyle style;
+
+  final Brightness Function(BuildContext context)? brightnessResolver;
+
+  Brightness brightnessOf(BuildContext context) =>
+      brightnessResolver?.call(context) ?? Theme.of(context).brightness;
+
+  AppSpinnerColors colorsOf(BuildContext context) =>
+      brightnessOf(context) == Brightness.dark ? dark : light;
+
+  AppSpinnerTheme copyWith({
+    AppSpinnerColors? light,
+    AppSpinnerColors? dark,
+    AppSpinnerSizing? sizing,
+    AppSpinnerStyle? style,
+    Object? brightnessResolver = _unset,
+  }) {
+    return AppSpinnerTheme(
+      light: light ?? this.light,
+      dark: dark ?? this.dark,
+      sizing: sizing ?? this.sizing,
+      style: style ?? this.style,
+      brightnessResolver: brightnessResolver == _unset
+          ? this.brightnessResolver
+          : brightnessResolver as Brightness Function(BuildContext context)?,
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Spinner
+// ---------------------------------------------------------------------------
+
+/// A loading spinner with arc and Cupertino styles.
+class AppSpinner extends StatefulWidget {
+  /// Creates a spinner.
+  const AppSpinner({
+    super.key,
+    this.size,
+    this.strokeWidth,
+    this.color,
+    this.style,
+    this.semanticLabel = "Loading",
+  });
+
+  static AppSpinnerTheme _theme = const AppSpinnerTheme();
+
+  /// The active spinner theme.
+  static AppSpinnerTheme get theme => _theme;
+
+  /// Restyles every [AppSpinner] in the app.
+  static void configure({
+    AppSpinnerColors? light,
+    AppSpinnerColors? dark,
+    AppSpinnerSizing? sizing,
+    AppSpinnerStyle? style,
+    Object? brightnessResolver = AppSpinnerTheme._unset,
+  }) {
+    _theme = _theme.copyWith(
+      light: light,
+      dark: dark,
+      sizing: sizing,
+      style: style,
+      brightnessResolver: brightnessResolver,
+    );
+  }
+
+  /// Resets the theme to defaults. For use in tests only.
+  @visibleForTesting
+  static void debugReset() => _theme = const AppSpinnerTheme();
+
+  /// Diameter. Defaults to [AppSpinnerSizing.size].
+  final double? size;
+
+  /// Arc stroke. Defaults to [AppSpinnerSizing.strokeWidth].
+  final double? strokeWidth;
+
+  /// Override color. Defaults to the theme foreground.
+  final Color? color;
+
+  /// Override style. Defaults to [AppSpinnerTheme.style].
+  final AppSpinnerStyle? style;
+
+  /// Accessibility label.
+  final String semanticLabel;
+
+  @override
+  State<AppSpinner> createState() => _AppSpinnerState();
+}
+
+class _AppSpinnerState extends State<AppSpinner>
+    with SingleTickerProviderStateMixin {
+  AnimationController? _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _ensureController();
+  }
+
+  @override
+  void didUpdateWidget(AppSpinner oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _ensureController();
+  }
+
+  void _ensureController() {
+    final AppSpinnerStyle style = widget.style ?? AppSpinner._theme.style;
+    if (style == AppSpinnerStyle.arc) {
+      _controller ??= AnimationController(
+        vsync: this,
+        duration: AppSpinner._theme.sizing.duration,
+      )..repeat();
+    } else {
+      _controller?.dispose();
+      _controller = null;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final AppSpinnerTheme theme = AppSpinner._theme;
+    final AppSpinnerColors colors = theme.colorsOf(context);
+    final AppSpinnerSizing sizing = theme.sizing;
+    final AppSpinnerStyle style = widget.style ?? theme.style;
+    final double size = widget.size ?? sizing.size;
+    final Color color = widget.color ?? colors.foreground;
+
+    final Widget child = switch (style) {
+      AppSpinnerStyle.cupertino => CupertinoActivityIndicator(
+        radius: size / 2,
+        color: color,
+      ),
+      AppSpinnerStyle.arc => AnimatedBuilder(
+        animation: _controller!,
+        builder: (BuildContext context, Widget? child) {
+          return Transform.rotate(
+            angle: _controller!.value * 2 * math.pi,
+            child: child,
+          );
+        },
+        child: CustomPaint(
+          painter: _SpinnerPainter(
+            color: color,
+            strokeWidth: widget.strokeWidth ?? sizing.strokeWidth,
+          ),
+          size: Size.square(size),
+        ),
+      ),
+    };
+
+    return Semantics(
+      label: widget.semanticLabel,
+      child: SizedBox(width: size, height: size, child: child),
+    );
+  }
+}
+
+class _SpinnerPainter extends CustomPainter {
+  _SpinnerPainter({required this.color, required this.strokeWidth});
+
+  final Color color;
+  final double strokeWidth;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Paint paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    final double inset = strokeWidth / 2;
+    canvas.drawArc(
+      Rect.fromLTWH(
+        inset,
+        inset,
+        size.width - strokeWidth,
+        size.height - strokeWidth,
+      ),
+      0,
+      math.pi * 1.5,
+      false,
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_SpinnerPainter oldDelegate) {
+    return oldDelegate.color != color ||
+        oldDelegate.strokeWidth != strokeWidth;
+  }
+}
+```
+
+</CopyFile>
+
+it imports `material` and `cupertino` from the flutter sdk. nothing goes in
+`pubspec.yaml`.
+
+</Step>
+
+<Step>
+
+### use it
+
+there is no init call. the defaults stand on their own.
+
+```dart
+const AppSpinner()
+```
+
+</Step>
+
+</Steps>
+
+## usage
+
+default arc style.
+
+```dart
+const AppSpinner(size: 20)
+```
+
+cupertino style.
+
+```dart
+const AppSpinner(style: AppSpinnerStyle.cupertino, size: 24)
+```
+
+override color for buttons and overlays.
+
+```dart
+AppSpinner(color: Theme.of(context).colorScheme.onPrimary)
+```
+
+## reference
+
+<Accordions>
+  <Accordion title="parameters">
+
+  | parameter | type | default | notes |
+  |---|---|---|---|
+  | `style` | `AppSpinnerStyle?` | theme default | `arc` or `cupertino` |
+  | `size` | `double?` | `null` | diameter |
+  | `color` | `Color?` | `null` | stroke / indicator color |
+
+  </Accordion>
+  <Accordion title="theming">
+
+  ```dart
+  AppSpinner.configure(
+    style: AppSpinnerStyle.arc,
+    light: AppSpinnerColors.light.copyWith(foreground: myInk),
+    sizing: const AppSpinnerSizing(size: 22, strokeWidth: 2),
+  );
+  ```
+
+  </Accordion>
+</Accordions>

@@ -8,6 +8,10 @@
 #   ./scripts/build-trove-demo.sh app-button
 #   ./scripts/build-trove-demo.sh app-popup
 #   ./scripts/build-trove-demo.sh app-dialog
+#   ./scripts/build-trove-demo.sh app-text-field
+#   ./scripts/build-trove-demo.sh app-selectable-chip
+#   ./scripts/build-trove-demo.sh app-progress-bar
+#   ./scripts/build-trove-demo.sh app-spinner
 #   ./scripts/build-trove-demo.sh            # rebuilds every demo
 #
 # Set TROVE_DIR if the flutter repo lives somewhere else.
@@ -25,11 +29,24 @@ demo_target() {
     app-button) echo "lib/demo_app_button.dart" ;;
     app-popup) echo "lib/demo_app_popup.dart" ;;
     app-dialog) echo "lib/demo_app_dialog.dart" ;;
+    app-text-field) echo "lib/demo_app_text_field.dart" ;;
+    app-selectable-chip) echo "lib/demo_app_selectable_chip.dart" ;;
+    app-progress-bar) echo "lib/demo_app_progress_bar.dart" ;;
+    app-spinner) echo "lib/demo_app_spinner.dart" ;;
     *) return 1 ;;
   esac
 }
 
-ALL_DEMOS=(app-toast app-button app-popup app-dialog)
+ALL_DEMOS=(
+  app-toast
+  app-button
+  app-popup
+  app-dialog
+  app-text-field
+  app-selectable-chip
+  app-progress-bar
+  app-spinner
+)
 
 build_demo() {
   local slug="$1"

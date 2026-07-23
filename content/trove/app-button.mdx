@@ -7,7 +7,7 @@ tech:
   - flutter
   - dart
 sourceFile: lib/app_button.dart
-lines: 724
+lines: 676
 demo: /trove/demo/app-button/index.html
 published: true
 ---
@@ -19,8 +19,7 @@ copy one file into your project, use it. no setup, no init call.
 `AppButton(text: "Continue", onPressed: _submit)`.
 
 three types, three sizes, loading and disabled states, leading/trailing icons.
-press feedback runs on a spring, so scale, fill, gradient and halo all land
-together.
+press feedback runs on a spring, so scale and fill land together.
 
 <FlutterDemo src="/trove/demo/app-button/index.html" name="app-button" />
 
@@ -34,7 +33,7 @@ together.
 
 grab it and drop it in at `lib/app_button.dart`.
 
-<CopyFile name="app_button.dart" lines={724}>
+<CopyFile name="app_button.dart" lines={676}>
 
 ```dart
 // A self-contained, plug-and-play button. Drop this single file into any
@@ -48,8 +47,8 @@ grab it and drop it in at `lib/app_button.dart`.
 //   2. Restyle once at startup — or never, the defaults stand on their own:
 //        AppButton.configure(light: AppButtonColors.light.copyWith(accent: myBlue));
 //
-//   3. Press feedback runs on a spring, not a curve. Scale, fill, gradient and
-//      halo are all driven by one animation so they land together.
+//   3. Press feedback runs on a spring, not a curve. Scale and fill are
+//      driven by one animation so they land together.
 
 import "package:flutter/material.dart";
 import "package:flutter/physics.dart";
@@ -60,7 +59,7 @@ import "package:flutter/physics.dart";
 
 /// Visual weight of a button — sets fill, border, and press feedback.
 enum AppButtonType {
-  /// Accent-filled, gradient and halo. The one call to action on a screen.
+  /// Accent-filled solid. The one call to action on a screen.
   primary,
 
   /// Outlined and transparent. Secondary actions beside a primary.
@@ -109,7 +108,6 @@ class AppButtonColors {
     required this.accent,
     required this.accentForeground,
     required this.accentStrong,
-    required this.accentGradient,
     required this.border,
     required this.disabled,
   });
@@ -123,17 +121,14 @@ class AppButtonColors {
   /// Pressed fill for the flat types, which have no resting background.
   final Color surface;
 
-  /// Primary fill and the color of its halo.
+  /// Primary fill.
   final Color accent;
 
   /// Label on a primary button.
   final Color accentForeground;
 
-  /// Pressed end of the primary gradient — each stop darkens toward this.
+  /// Pressed primary fill.
   final Color accentStrong;
-
-  /// Resting gradient across a primary fill. Two or more stops.
-  final List<Color> accentGradient;
 
   /// Outline on a secondary button.
   final Color border;
@@ -143,28 +138,26 @@ class AppButtonColors {
 
   /// Default palette for light mode.
   static const AppButtonColors light = AppButtonColors(
-    foreground: Color(0xFF0F1113),
-    muted: Color(0xFF63666B),
-    surface: Color(0xFFEFEFEE),
-    accent: Color(0xFF1D4ED8),
+    foreground: Color(0xFF1C2229),
+    muted: Color(0xFF6C7278),
+    surface: Color(0xFFEAEFF5),
+    accent: Color(0xFF8000FF),
     accentForeground: Color(0xFFFFFFFF),
-    accentStrong: Color(0xFF1E40AF),
-    accentGradient: <Color>[Color(0xFF2563EB), Color(0xFF1D4ED8)],
-    border: Color(0xFFD8D8D6),
-    disabled: Color(0xFFC4C4C2),
+    accentStrong: Color(0xFF5C00B8),
+    border: Color(0xFFD8DFE6),
+    disabled: Color(0xFFB3B8BE),
   );
 
   /// Default palette for dark mode.
   static const AppButtonColors dark = AppButtonColors(
-    foreground: Color(0xFFF4F6F2),
-    muted: Color(0xFF979BA3),
-    surface: Color(0xFF1D2025),
-    accent: Color(0xFF60A5FA),
-    accentForeground: Color(0xFF071018),
-    accentStrong: Color(0xFF93C5FD),
-    accentGradient: <Color>[Color(0xFF7DBBFF), Color(0xFF4C8FE8)],
-    border: Color(0xFF2A2E35),
-    disabled: Color(0xFF474B53),
+    foreground: Color(0xFFDADEE3),
+    muted: Color(0xFF8B9095),
+    surface: Color(0xFF1D2227),
+    accent: Color(0xFFD7F881),
+    accentForeground: Color(0xFF0E1216),
+    accentStrong: Color(0xFFE8FFA8),
+    border: Color(0xFF353B42),
+    disabled: Color(0xFF484E54),
   );
 
   /// Resting fill for [type] in [state], or null when the type has none.
@@ -207,7 +200,6 @@ class AppButtonColors {
     Color? accent,
     Color? accentForeground,
     Color? accentStrong,
-    List<Color>? accentGradient,
     Color? border,
     Color? disabled,
   }) {
@@ -218,7 +210,6 @@ class AppButtonColors {
       accent: accent ?? this.accent,
       accentForeground: accentForeground ?? this.accentForeground,
       accentStrong: accentStrong ?? this.accentStrong,
-      accentGradient: accentGradient ?? this.accentGradient,
       border: border ?? this.border,
       disabled: disabled ?? this.disabled,
     );
@@ -234,22 +225,22 @@ class AppButtonSizing {
     this.sm = const TextStyle(
       fontSize: 12,
       height: 16 / 12,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w500,
     ),
     this.md = const TextStyle(
       fontSize: 14,
       height: 20 / 14,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w500,
     ),
     this.lg = const TextStyle(
       fontSize: 14,
       height: 20 / 14,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w500,
     ),
     this.smPadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     this.mdPadding = const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
     this.lgPadding = const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-    this.borderRadius = 18,
+    this.borderRadius = 24,
     this.gap = 8,
   });
 
@@ -488,8 +479,7 @@ class AppButton extends StatefulWidget {
   /// Renders the disabled treatment and blocks taps.
   final bool isDisabled;
 
-  /// Overrides the resolved fill. Opts a primary out of gradient and halo,
-  /// since a gradient would silently paint over it.
+  /// Overrides the resolved fill.
   final Color? backgroundColor;
 
   /// Overrides the resolved label and icon color.
@@ -537,9 +527,8 @@ class AppButton extends StatefulWidget {
 
 class _AppButtonState extends State<AppButton>
     with SingleTickerProviderStateMixin {
-  /// 0 = at rest, 1 = fully pressed. One value drives every press-linked
-  /// property — scale, fill, gradient, halo — so they arrive together
-  /// instead of drifting apart on separate curves.
+  /// 0 = at rest, 1 = fully pressed. One value drives scale and fill so they
+  /// arrive together instead of drifting apart on separate curves.
   late final AnimationController _press = AnimationController.unbounded(
     vsync: this,
   )..value = 0;
@@ -597,9 +586,8 @@ class _AppButtonState extends State<AppButton>
     final Color? borderColor =
         widget.borderColor ?? colors.borderFor(widget.type, state);
 
-    // The accent treatment — gradient fill plus a matching halo — is reserved
-    // for an unstyled, enabled primary. A caller-supplied backgroundColor opts
-    // out of both, since a gradient would silently override it.
+    // Solid accent fill for an unstyled, enabled primary — same idea as
+    // stormej.me `bg-primary` (no gradient, no glow).
     final bool usesAccent =
         widget.type == AppButtonType.primary &&
         widget.backgroundColor == null &&
@@ -608,27 +596,16 @@ class _AppButtonState extends State<AppButton>
     final Color? restingBg = isDisabled
         ? (widget.disabledBackgroundColor ??
               colors.backgroundFor(widget.type, AppButtonState.disabled))
-        : (widget.backgroundColor ?? colors.backgroundFor(widget.type, state));
+        : (widget.backgroundColor ??
+              (usesAccent
+                  ? colors.accent
+                  : colors.backgroundFor(widget.type, state)));
 
-    // Press feedback for the flat types is a fill shift: they pick up the
-    // surface tint they otherwise lack, so a tap reads without a background.
+    // Press: primary darkens toward accentStrong; flat types pick up surface.
     final Color? pressedBg = switch (widget.type) {
-      AppButtonType.primary => restingBg,
+      AppButtonType.primary => usesAccent ? colors.accentStrong : restingBg,
       AppButtonType.secondary || AppButtonType.tertiary => colors.surface,
     };
-
-    // A gradient can't cross-fade to a single pressed color the way a flat
-    // fill can, so darken each stop toward the strong accent instead. Keeps
-    // the press state legible without a second gradient token.
-    final List<Color> restingGradient = colors.accentGradient;
-    assert(
-      !usesAccent || restingGradient.length >= 2,
-      "accentGradient needs at least two stops",
-    );
-    final List<Color> pressedGradient = <Color>[
-      for (final Color stop in restingGradient)
-        Color.lerp(stop, colors.accentStrong, 0.5)!,
-    ];
 
     final Widget content = Align(
       widthFactor: widget.width == null ? 1 : null,
@@ -661,33 +638,7 @@ class _AppButtonState extends State<AppButton>
                 height: widget.height,
                 padding: padding,
                 decoration: ShapeDecoration(
-                  color: usesAccent ? null : Color.lerp(restingBg, pressedBg, ct),
-                  gradient: !usesAccent
-                      ? null
-                      : LinearGradient(
-                          colors: <Color>[
-                            for (int i = 0; i < restingGradient.length; i++)
-                              Color.lerp(
-                                restingGradient[i],
-                                pressedGradient[i],
-                                ct,
-                              )!,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                  // The accent halo dims on press so the button reads as
-                  // settling into the surface. Every other type has none.
-                  shadows: !usesAccent
-                      ? const <BoxShadow>[]
-                      : <BoxShadow>[
-                          BoxShadow(
-                            color: colors.accent.withValues(
-                              alpha: 0.35 * (1 - 0.6 * ct),
-                            ),
-                            blurRadius: 18 * (1 - 0.6 * ct),
-                          ),
-                        ],
+                  color: Color.lerp(restingBg, pressedBg, ct),
                   shape: RoundedSuperellipseBorder(
                     borderRadius: BorderRadius.circular(borderRadius),
                     side: borderColor == null
@@ -908,7 +859,7 @@ it. you can ship without reading any of it.
   | `height` | `double?` | `null` | null hugs the content |
   | `padding` | `EdgeInsets?` | `null` | overrides the padding for `size` |
   | `borderRadius` | `double?` | `null` | overrides the theme radius |
-  | `backgroundColor` | `Color?` | `null` | overrides the fill. opts a primary out of gradient and halo |
+  | `backgroundColor` | `Color?` | `null` | overrides the fill |
   | `foregroundColor` | `Color?` | `null` | overrides label and icon color |
   | `disabledBackgroundColor` | `Color?` | `null` | overrides the disabled fill |
   | `borderColor` | `Color?` | `null` | overrides the outline |
@@ -938,7 +889,7 @@ it. you can ship without reading any of it.
 
   **colors**
 
-  `AppButtonColors` has nine tokens. `light` and `dark` presets ship with it, both
+  `AppButtonColors` has eight tokens. `light` and `dark` presets ship with it, both
   `copyWith` friendly.
 
   | token | used for |
@@ -946,30 +897,27 @@ it. you can ship without reading any of it.
   | `foreground` | label on secondary and tertiary |
   | `muted` | label on any disabled button |
   | `surface` | pressed fill for secondary and tertiary |
-  | `accent` | primary fill and the color of its halo |
+  | `accent` | primary resting fill |
   | `accentForeground` | label on a primary |
-  | `accentStrong` | pressed end of the primary gradient |
-  | `accentGradient` | resting gradient across a primary fill. two or more stops |
+  | `accentStrong` | primary pressed fill |
   | `border` | outline on a secondary |
   | `disabled` | fill on a disabled primary or secondary |
 
   ```dart
   AppButton.configure(
     light: const AppButtonColors(
-      foreground: Color(0xFF0F1113), muted: Color(0xFF63666B),
-      surface: Color(0xFFEFEFEE), accent: Color(0xFF1D4ED8),
-      accentForeground: Color(0xFFFFFFFF), accentStrong: Color(0xFF1E40AF),
-      accentGradient: <Color>[Color(0xFF2563EB), Color(0xFF1D4ED8)],
-      border: Color(0xFFD8D8D6), disabled: Color(0xFFC4C4C2),
+      foreground: Color(0xFF1C2229), muted: Color(0xFF6C7278),
+      surface: Color(0xFFEAEFF5), accent: Color(0xFF8000FF),
+      accentForeground: Color(0xFFFFFFFF), accentStrong: Color(0xFF5C00B8),
+      border: Color(0xFFD8DFE6), disabled: Color(0xFFB3B8BE),
     ),
     dark: AppButtonColors.dark,
   );
   ```
 
   <Callout type="info">
-  `accentStrong` is not a fill of its own. each gradient stop lerps halfway toward
-  it on press, so a gradient darkens the way a flat color would. set it too close
-  to `accent` and the press stops reading.
+  `accentStrong` is the pressed primary fill. set it too close to `accent` and the
+  press stops reading.
   </Callout>
 
   **typography**
@@ -1028,7 +976,6 @@ it. you can ship without reading any of it.
     accent: c.accent,
     accentForeground: c.inverse,
     accentStrong: c.accentStrong,
-    accentGradient: <Color>[c.accent, c.accentStrong],
     border: c.border,
     disabled: c.disabled,
   );
@@ -1068,15 +1015,14 @@ it. you can ship without reading any of it.
   </Accordion>
   <Accordion title="behavior and edge cases">
 
-  - **press**. one unbounded controller runs on a spring and drives scale, fill,
-    gradient and halo together. a curve per property would have them drift apart.
+  - **press**. one unbounded controller runs on a spring and drives scale and fill
+    together. a curve per property would have them drift apart.
   - **spring**. near critically damped, zeta around 0.9. quick, barely a wobble. a
     button that visibly bounced under a fingertip reads as loose, not lively.
   - **scale vs color**. scale rides any overshoot the spring produces. colors
     clamp to `[0, 1]`, because a stop extrapolated past its endpoint is a
     different color, not a livelier one.
-  - **primary**. gradient fill plus a matching halo. the halo dims on press so the
-    button reads as settling into the surface.
+  - **primary**. solid accent fill. press darkens toward `accentStrong`.
   - **secondary and tertiary**. no resting background, so press feedback is a fill
     shift instead. they pick up the `surface` tint they otherwise lack.
   - **loading**. every type but tertiary swaps its whole content for the spinner.
@@ -1088,8 +1034,7 @@ it. you can ship without reading any of it.
   </Accordion>
   <Accordion title="notes and limitations">
 
-  - `backgroundColor` on a primary opts out of the gradient and the halo. a
-    gradient would silently paint over your color otherwise.
+  - `backgroundColor` overrides the computed fill for any type.
   - the shape is a `RoundedSuperellipseBorder`, so corners are squircles. if your
     flutter is old enough to not have it, swap in `RoundedRectangleBorder`. one
     line, nothing else changes.

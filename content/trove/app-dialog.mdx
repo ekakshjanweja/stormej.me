@@ -7,7 +7,7 @@ tech:
   - flutter
   - dart
 sourceFile: lib/app_dialog.dart
-lines: 655
+lines: 658
 demo: /trove/demo/app-dialog/index.html
 published: true
 ---
@@ -43,7 +43,7 @@ their result.
 
 grab it and drop it in at `lib/app_dialog.dart`.
 
-<CopyFile name="app_dialog.dart" lines={655}>
+<CopyFile name="app_dialog.dart" lines={658}>
 
 ```dart
 // A self-contained, plug-and-play dialog. Drop this single file into any
@@ -169,27 +169,27 @@ class AppDialogColors {
 
   /// Default palette for light mode.
   static const AppDialogColors light = AppDialogColors(
-    foreground: Color(0xFF0F1113),
-    muted: Color(0xFF63666B),
-    card: Color(0xFFFFFFFF),
-    border: Color(0xFFD8D8D6),
-    accent: Color(0xFF1D4ED8),
+    foreground: Color(0xFF1C2229),
+    muted: Color(0xFF6C7278),
+    card: Color(0xFFF8FCFF),
+    border: Color(0xFFD8DFE6),
+    accent: Color(0xFF8000FF),
     accentForeground: Color(0xFFFFFFFF),
-    error: Color(0xFFC62828),
+    error: Color(0xFFDC2626),
     errorForeground: Color(0xFFFFFFFF),
     barrier: Color(0x66000000),
   );
 
   /// Default palette for dark mode.
   static const AppDialogColors dark = AppDialogColors(
-    foreground: Color(0xFFF4F6F2),
-    muted: Color(0xFF979BA3),
-    card: Color(0xFF141619),
-    border: Color(0xFF2A2E35),
-    accent: Color(0xFF60A5FA),
-    accentForeground: Color(0xFF071018),
-    error: Color(0xFFFF5A52),
-    errorForeground: Color(0xFF071018),
+    foreground: Color(0xFFDADEE3),
+    muted: Color(0xFF8B9095),
+    card: Color(0xFF12171B),
+    border: Color(0xFF353B42),
+    accent: Color(0xFFD7F881),
+    accentForeground: Color(0xFF0E1216),
+    error: Color(0xFFFF6467),
+    errorForeground: Color(0xFF0E1216),
     barrier: Color(0x66000000),
   );
 
@@ -227,14 +227,14 @@ class AppDialogSizing {
     this.maxWidth = 640,
     this.insetPadding = const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
     this.padding = const EdgeInsets.all(24),
-    this.borderRadius = 24,
+    this.borderRadius = 28,
     this.iconSize = 28,
     this.iconGap = 16,
     this.titleGap = 8,
     this.actionsGap = 24,
     this.actionSpacing = 8,
-    this.actionHeight = 36,
-    this.actionRadius = 12,
+    this.actionHeight = 40,
+    this.actionRadius = 24,
     this.actionPadding = const EdgeInsets.symmetric(horizontal: 12),
     this.shadows = const <BoxShadow>[
       BoxShadow(
@@ -345,7 +345,7 @@ class AppDialogTypography {
     this.action = const TextStyle(
       fontSize: 12,
       height: 16 / 12,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w500,
     ),
   });
 
@@ -518,11 +518,13 @@ class AppDialog extends StatelessWidget {
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: sizing.maxWidth),
         child: DecoratedBox(
-          decoration: BoxDecoration(
+          decoration: ShapeDecoration(
             color: colors.card,
-            borderRadius: BorderRadius.circular(sizing.borderRadius),
-            border: Border.all(color: colors.border),
-            boxShadow: sizing.shadows,
+            shadows: sizing.shadows,
+            shape: RoundedSuperellipseBorder(
+              borderRadius: BorderRadius.circular(sizing.borderRadius),
+              side: BorderSide(color: colors.border),
+            ),
           ),
           child: Padding(
             padding: sizing.padding,
@@ -673,23 +675,24 @@ class _AppDialogActionButton extends StatelessWidget {
     final ({Color? background, Color foreground, Color? border}) resolved =
         _resolve();
     final BorderRadius radius = BorderRadius.circular(sizing.actionRadius);
+    final ShapeBorder shape = RoundedSuperellipseBorder(
+      borderRadius: radius,
+      side: resolved.border == null
+          ? BorderSide.none
+          : BorderSide(color: resolved.border!),
+    );
 
     return Material(
       color: resolved.background ?? Colors.transparent,
-      borderRadius: radius,
+      shape: shape,
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () => Navigator.of(context).pop(action.result),
-        borderRadius: radius,
+        customBorder: shape,
         child: Container(
           height: sizing.actionHeight,
           alignment: Alignment.center,
           padding: sizing.actionPadding,
-          decoration: BoxDecoration(
-            borderRadius: radius,
-            border: resolved.border == null
-                ? null
-                : Border.all(color: resolved.border!),
-          ),
           child: Text(
             action.text,
             style: typography.resolve(typography.action, resolved.foreground),
