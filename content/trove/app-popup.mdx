@@ -1,0 +1,707 @@
+---
+title: app popup
+subtitle: one file popup menu for flutter
+description: a popup menu for flutter in one file. anchored to a child, destructive and disabled rows, no packages, no DI, no widget wrapping.
+date: "2026-07-23"
+tech:
+  - flutter
+  - dart
+sourceFile: lib/app_popup.dart
+lines: 479
+demo: /trove/demo/app-popup/index.html
+published: true
+---
+
+## tldr
+
+copy one file into your project, use it. no setup, no init call.
+
+`AppPopup(items: [...], child: Icon(Icons.more_horiz))`.
+
+anchored to the child, dividers between rows, destructive labels in the error
+color, light haptic on select.
+
+<FlutterDemo src="/trove/demo/app-popup/index.html" name="app-popup" />
+
+## install
+
+<Steps>
+
+<Step>
+
+### copy one file
+
+grab it and drop it in at `lib/app_popup.dart`.
+
+<CopyFile name="app_popup.dart" lines={479}>
+
+```dart
+// A self-contained, plug-and-play popup menu. Drop this single file into any
+// Flutter project — no packages, no DI, no widget wrapping.
+//
+//   1. Use it anywhere:
+//        AppPopup(
+//          items: [
+//            AppPopupItem(label: "Replace", onSelected: _replace),
+//            AppPopupItem(
+//              label: "Remove",
+//              isDestructive: true,
+//              onSelected: _remove,
+//            ),
+//          ],
+//          child: const Icon(Icons.more_horiz),
+//        )
+//
+//   2. Restyle once at startup — or never, the defaults stand on their own:
+//        AppPopup.configure(light: AppPopupColors.light.copyWith(error: myRed));
+//
+//   3. Tap the child to open an anchored menu. Dividers between items, light
+//      haptic on select, destructive labels in the error color.
+
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+
+// ---------------------------------------------------------------------------
+// Items
+// ---------------------------------------------------------------------------
+
+/// A single action in an [AppPopup].
+@immutable
+class AppPopupItem {
+  /// Creates a popup menu item.
+  const AppPopupItem({
+    required this.label,
+    required this.onSelected,
+    this.isDestructive = false,
+    this.enabled = true,
+  });
+
+  /// Label shown in the menu row.
+  final String label;
+
+  /// Called after the menu closes when this item is chosen.
+  final VoidCallback onSelected;
+
+  /// Renders the label in the error color.
+  final bool isDestructive;
+
+  /// When false, the row is grayed out and not selectable.
+  final bool enabled;
+}
+
+// ---------------------------------------------------------------------------
+// Theme
+// ---------------------------------------------------------------------------
+
+/// Color tokens for a popup menu palette.
+///
+/// Use [light] and [dark] presets, or build your own and pass them to
+/// [AppPopup.configure].
+@immutable
+class AppPopupColors {
+  /// Creates a popup color palette.
+  const AppPopupColors({
+    required this.foreground,
+    required this.muted,
+    required this.card,
+    required this.border,
+    required this.divider,
+    required this.error,
+  });
+
+  /// Label on a normal, enabled item.
+  final Color foreground;
+
+  /// Label on a disabled item.
+  final Color muted;
+
+  /// Menu surface fill.
+  final Color card;
+
+  /// Stroke around the menu shape.
+  final Color border;
+
+  /// Hairline between items.
+  final Color divider;
+
+  /// Label on a destructive item.
+  final Color error;
+
+  /// Default palette for light mode.
+  static const AppPopupColors light = AppPopupColors(
+    foreground: Color(0xFF0F1113),
+    muted: Color(0xFF63666B),
+    card: Color(0xFFFFFFFF),
+    border: Color(0xFFD8D8D6),
+    divider: Color(0xFFE8E8E6),
+    error: Color(0xFFC62828),
+  );
+
+  /// Default palette for dark mode.
+  static const AppPopupColors dark = AppPopupColors(
+    foreground: Color(0xFFF4F6F2),
+    muted: Color(0xFF979BA3),
+    card: Color(0xFF141619),
+    border: Color(0xFF2A2E35),
+    divider: Color(0xFF202329),
+    error: Color(0xFFFF5A52),
+  );
+
+  /// Label color for [item].
+  Color labelFor(AppPopupItem item) {
+    if (!item.enabled) return muted;
+    if (item.isDestructive) return error;
+    return foreground;
+  }
+
+  /// Returns a copy with the given fields replaced.
+  AppPopupColors copyWith({
+    Color? foreground,
+    Color? muted,
+    Color? card,
+    Color? border,
+    Color? divider,
+    Color? error,
+  }) {
+    return AppPopupColors(
+      foreground: foreground ?? this.foreground,
+      muted: muted ?? this.muted,
+      card: card ?? this.card,
+      border: border ?? this.border,
+      divider: divider ?? this.divider,
+      error: error ?? this.error,
+    );
+  }
+}
+
+/// Metrics for the menu surface and rows.
+@immutable
+class AppPopupSizing {
+  /// Creates sizing settings.
+  const AppPopupSizing({
+    this.minWidth = 168,
+    this.itemHeight = 44,
+    this.menuBorderRadius = 24,
+    this.triggerBorderRadius = 10,
+    this.itemPadding = const EdgeInsets.symmetric(horizontal: 16),
+    this.elevation = 8,
+    this.shadowAlphaLight = 0.12,
+    this.shadowAlphaDark = 0.35,
+  });
+
+  /// Minimum width of the menu panel.
+  final double minWidth;
+
+  /// Fixed height of each action row.
+  final double itemHeight;
+
+  /// Corner radius of the menu shape.
+  final double menuBorderRadius;
+
+  /// Corner radius of the trigger [InkWell].
+  final double triggerBorderRadius;
+
+  /// Horizontal padding inside each row.
+  final EdgeInsets itemPadding;
+
+  /// Material elevation of the menu.
+  final double elevation;
+
+  /// Shadow opacity in light mode.
+  final double shadowAlphaLight;
+
+  /// Shadow opacity in dark mode.
+  final double shadowAlphaDark;
+
+  /// Shadow alpha for [brightness].
+  double shadowAlphaFor(Brightness brightness) =>
+      brightness == Brightness.dark ? shadowAlphaDark : shadowAlphaLight;
+
+  /// Returns a copy with the given fields replaced.
+  AppPopupSizing copyWith({
+    double? minWidth,
+    double? itemHeight,
+    double? menuBorderRadius,
+    double? triggerBorderRadius,
+    EdgeInsets? itemPadding,
+    double? elevation,
+    double? shadowAlphaLight,
+    double? shadowAlphaDark,
+  }) {
+    return AppPopupSizing(
+      minWidth: minWidth ?? this.minWidth,
+      itemHeight: itemHeight ?? this.itemHeight,
+      menuBorderRadius: menuBorderRadius ?? this.menuBorderRadius,
+      triggerBorderRadius: triggerBorderRadius ?? this.triggerBorderRadius,
+      itemPadding: itemPadding ?? this.itemPadding,
+      elevation: elevation ?? this.elevation,
+      shadowAlphaLight: shadowAlphaLight ?? this.shadowAlphaLight,
+      shadowAlphaDark: shadowAlphaDark ?? this.shadowAlphaDark,
+    );
+  }
+}
+
+/// Label typography for popup rows.
+@immutable
+class AppPopupTypography {
+  /// Creates typography settings.
+  const AppPopupTypography({
+    this.fontFamily,
+    this.label = const TextStyle(
+      fontSize: 12,
+      height: 16 / 12,
+      fontWeight: FontWeight.w500,
+    ),
+  });
+
+  static const Object _unset = Object();
+
+  /// Applied unless [label] names its own family.
+  ///
+  /// Defaults to the ambient font so a fresh project needs no asset setup.
+  final String? fontFamily;
+
+  /// Style for every item label. Color is applied per item.
+  final TextStyle label;
+
+  /// Resolves the label style with [color] and [fontFamily].
+  TextStyle resolveLabel(Color color) {
+    return label.copyWith(
+      color: color,
+      fontFamily: label.fontFamily ?? fontFamily,
+    );
+  }
+
+  /// Returns a copy with the given fields replaced.
+  ///
+  /// Pass `fontFamily: null` explicitly to clear a previously set family.
+  AppPopupTypography copyWith({
+    Object? fontFamily = _unset,
+    TextStyle? label,
+  }) {
+    return AppPopupTypography(
+      fontFamily: fontFamily == _unset
+          ? this.fontFamily
+          : fontFamily as String?,
+      label: label ?? this.label,
+    );
+  }
+}
+
+/// Global popup configuration — colors, sizing, typography, haptics.
+@immutable
+class AppPopupTheme {
+  /// Creates a popup theme.
+  const AppPopupTheme({
+    this.light = AppPopupColors.light,
+    this.dark = AppPopupColors.dark,
+    this.sizing = const AppPopupSizing(),
+    this.typography = const AppPopupTypography(),
+    this.enableHaptics = true,
+    this.brightnessResolver,
+  });
+
+  static const Object _unset = Object();
+
+  /// Palette used when [brightnessOf] resolves to [Brightness.light].
+  final AppPopupColors light;
+
+  /// Palette used when [brightnessOf] resolves to [Brightness.dark].
+  final AppPopupColors dark;
+
+  /// Menu metrics.
+  final AppPopupSizing sizing;
+
+  /// Label typography.
+  final AppPopupTypography typography;
+
+  /// Whether selecting an item fires a light impact haptic.
+  final bool enableHaptics;
+
+  /// Escape hatch for apps that drive brightness off something other than the
+  /// ambient [Theme].
+  final Brightness Function(BuildContext context)? brightnessResolver;
+
+  /// Resolves the current brightness for [context].
+  Brightness brightnessOf(BuildContext context) =>
+      brightnessResolver?.call(context) ?? Theme.of(context).brightness;
+
+  /// Returns the color palette for [context]'s current brightness.
+  AppPopupColors colorsOf(BuildContext context) =>
+      brightnessOf(context) == Brightness.dark ? dark : light;
+
+  /// Returns a copy with the given fields replaced.
+  ///
+  /// Pass `brightnessResolver: null` explicitly to clear a custom resolver.
+  AppPopupTheme copyWith({
+    AppPopupColors? light,
+    AppPopupColors? dark,
+    AppPopupSizing? sizing,
+    AppPopupTypography? typography,
+    bool? enableHaptics,
+    Object? brightnessResolver = _unset,
+  }) {
+    return AppPopupTheme(
+      light: light ?? this.light,
+      dark: dark ?? this.dark,
+      sizing: sizing ?? this.sizing,
+      typography: typography ?? this.typography,
+      enableHaptics: enableHaptics ?? this.enableHaptics,
+      brightnessResolver: brightnessResolver == _unset
+          ? this.brightnessResolver
+          : brightnessResolver as Brightness Function(BuildContext context)?,
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Popup
+// ---------------------------------------------------------------------------
+
+/// A design-system popup menu anchored to [child].
+///
+/// Tap the child to open. Pass [items] with optional destructive and disabled
+/// rows. Restyle globally with [configure]; defaults stand on their own.
+class AppPopup extends StatelessWidget {
+  /// Creates a popup menu trigger.
+  const AppPopup({
+    super.key,
+    required this.child,
+    required this.items,
+    this.offset = const Offset(0, 4),
+    this.minWidth,
+  });
+
+  static AppPopupTheme _theme = const AppPopupTheme();
+
+  /// The active popup theme.
+  static AppPopupTheme get theme => _theme;
+
+  /// Restyles every [AppPopup] in the app. Safe to call more than once;
+  /// menus already on screen pick the change up on their next open.
+  static void configure({
+    AppPopupColors? light,
+    AppPopupColors? dark,
+    AppPopupSizing? sizing,
+    AppPopupTypography? typography,
+    bool? enableHaptics,
+    Object? brightnessResolver = AppPopupTheme._unset,
+  }) {
+    _theme = _theme.copyWith(
+      light: light,
+      dark: dark,
+      sizing: sizing,
+      typography: typography,
+      enableHaptics: enableHaptics,
+      brightnessResolver: brightnessResolver,
+    );
+  }
+
+  /// Resets the theme to defaults. For use in tests only.
+  @visibleForTesting
+  static void debugReset() => _theme = const AppPopupTheme();
+
+  /// Trigger widget. Tapping it opens the menu.
+  final Widget child;
+
+  /// Actions shown in the menu. Empty list is a no-op on tap.
+  final List<AppPopupItem> items;
+
+  /// Extra offset below the trigger when positioning the menu.
+  final Offset offset;
+
+  /// Overrides [AppPopupSizing.minWidth] for this instance.
+  final double? minWidth;
+
+  Future<void> _showMenu(BuildContext context) async {
+    if (items.isEmpty) {
+      return;
+    }
+
+    final RenderBox renderBox = context.findRenderObject()! as RenderBox;
+    final RenderBox overlay =
+        Overlay.of(context).context.findRenderObject()! as RenderBox;
+    final Offset topLeft = renderBox.localToGlobal(
+      Offset.zero,
+      ancestor: overlay,
+    );
+    final Size size = renderBox.size;
+
+    final RelativeRect position = RelativeRect.fromLTRB(
+      topLeft.dx,
+      topLeft.dy + size.height + offset.dy,
+      overlay.size.width - topLeft.dx - size.width,
+      overlay.size.height - topLeft.dy - size.height - offset.dy,
+    );
+
+    final AppPopupTheme theme = _theme;
+    final Brightness brightness = theme.brightnessOf(context);
+    final AppPopupColors colors = theme.colorsOf(context);
+    final AppPopupSizing sizing = theme.sizing;
+    final double resolvedMinWidth = minWidth ?? sizing.minWidth;
+
+    final int? selectedIndex = await showMenu<int>(
+      context: context,
+      position: position,
+      constraints: BoxConstraints(minWidth: resolvedMinWidth),
+      color: colors.card,
+      elevation: sizing.elevation,
+      shadowColor: Colors.black.withValues(
+        alpha: sizing.shadowAlphaFor(brightness),
+      ),
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedSuperellipseBorder(
+        borderRadius: BorderRadius.circular(sizing.menuBorderRadius),
+        side: BorderSide(color: colors.border),
+      ),
+      items: <PopupMenuEntry<int>>[
+        for (var index = 0; index < items.length; index++) ...<PopupMenuEntry<int>>[
+          if (index > 0)
+            PopupMenuDivider(
+              height: 1,
+              thickness: 1,
+              color: colors.divider,
+            ),
+          PopupMenuItem<int>(
+            value: index,
+            height: sizing.itemHeight,
+            enabled: items[index].enabled,
+            padding: sizing.itemPadding,
+            child: Text(
+              items[index].label,
+              style: theme.typography.resolveLabel(
+                colors.labelFor(items[index]),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+
+    if (selectedIndex == null || selectedIndex >= items.length) {
+      return;
+    }
+
+    final AppPopupItem item = items[selectedIndex];
+    if (!item.enabled) {
+      return;
+    }
+
+    if (theme.enableHaptics) {
+      HapticFeedback.lightImpact();
+    }
+    item.onSelected();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final AppPopupTheme theme = _theme;
+    final AppPopupColors colors = theme.colorsOf(context);
+    final double triggerRadius = theme.sizing.triggerBorderRadius;
+
+    return Builder(
+      builder: (BuildContext menuContext) {
+        return Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => _showMenu(menuContext),
+            borderRadius: BorderRadius.circular(triggerRadius),
+            splashColor: colors.foreground.withValues(alpha: 0.08),
+            highlightColor: colors.foreground.withValues(alpha: 0.04),
+            child: child,
+          ),
+        );
+      },
+    );
+  }
+}
+```
+
+</CopyFile>
+
+it imports `material` and `services` from the flutter sdk. nothing goes in
+`pubspec.yaml`.
+
+</Step>
+
+<Step>
+
+### use it
+
+there is no init call. the defaults stand on their own.
+
+```dart
+AppPopup(
+  items: [
+    AppPopupItem(label: "Replace", onSelected: _replace),
+    AppPopupItem(
+      label: "Remove",
+      isDestructive: true,
+      onSelected: _remove,
+    ),
+  ],
+  child: const Icon(Icons.more_horiz),
+)
+```
+
+</Step>
+
+</Steps>
+
+## usage
+
+wrap any trigger. the menu opens on tap, anchored just below the child.
+
+```dart
+AppPopup(
+  items: [
+    AppPopupItem(label: "Replace exercise", onSelected: onReplace),
+    AppPopupItem(
+      label: "Remove exercise",
+      isDestructive: true,
+      onSelected: onRemove,
+    ),
+  ],
+  child: Padding(
+    padding: const EdgeInsets.all(8),
+    child: Icon(Icons.more_horiz_rounded, color: muted),
+  ),
+)
+```
+
+disable a row without removing it from the list.
+
+```dart
+AppPopupItem(
+  label: "Move up",
+  enabled: canMoveUp,
+  onSelected: onMoveUp,
+)
+```
+
+nudge the menu with `offset`, or set a wider panel with `minWidth`.
+
+```dart
+AppPopup(
+  offset: const Offset(0, 8),
+  minWidth: 200,
+  items: items,
+  child: child,
+)
+```
+
+## example
+
+```dart
+class ExerciseRow extends StatelessWidget {
+  const ExerciseRow({
+    super.key,
+    required this.title,
+    required this.onReplace,
+    required this.onRemove,
+  });
+
+  final String title;
+  final VoidCallback onReplace;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        Expanded(child: Text(title)),
+        AppPopup(
+          items: <AppPopupItem>[
+            AppPopupItem(label: "Replace", onSelected: onReplace),
+            AppPopupItem(
+              label: "Remove",
+              isDestructive: true,
+              onSelected: onRemove,
+            ),
+          ],
+          child: const Padding(
+            padding: EdgeInsets.all(8),
+            child: Icon(Icons.more_horiz_rounded),
+          ),
+        ),
+      ],
+    );
+  }
+}
+```
+
+## reference
+
+everything below is here when you need
+it. you can ship without reading any of it.
+
+<Accordions>
+  <Accordion title="parameters">
+
+  | parameter | type | default | notes |
+  |---|---|---|---|
+  | `child` | `Widget` | required | trigger. tapping it opens the menu |
+  | `items` | `List<AppPopupItem>` | required | empty list is a no-op on tap |
+  | `offset` | `Offset` | `(0, 4)` | extra gap below the trigger |
+  | `minWidth` | `double?` | `null` | overrides the theme min width |
+
+  **AppPopupItem**
+
+  | parameter | type | default | notes |
+  |---|---|---|---|
+  | `label` | `String` | required | row text |
+  | `onSelected` | `VoidCallback` | required | called after the menu closes |
+  | `isDestructive` | `bool` | `false` | label uses the error color |
+  | `enabled` | `bool` | `true` | grayed out and not selectable when false |
+
+  </Accordion>
+  <Accordion title="theming and design tokens">
+
+  zero config gets you a palette that follows `Theme.of(context).brightness`
+  automatically. to change it, call `configure()` once at startup. every field is
+  optional.
+
+  ```dart
+  void main() {
+    AppPopup.configure(
+      light: AppPopupColors.light.copyWith(error: const Color(0xFFB91C1C)),
+      sizing: const AppPopupSizing(menuBorderRadius: 16, minWidth: 180),
+      typography: const AppPopupTypography(fontFamily: "GeistSans"),
+      enableHaptics: false,
+    );
+    runApp(const MyApp());
+  }
+  ```
+
+  `configure()` is safe to call more than once. menus already on screen pick the
+  change up on their next open.
+
+  **colors**
+
+  `AppPopupColors` has six tokens. `light` and `dark` presets ship with it, both
+  `copyWith` friendly.
+
+  | token | used for |
+  |---|---|
+  | `foreground` | label on a normal enabled item |
+  | `muted` | label on a disabled item |
+  | `card` | menu surface fill |
+  | `border` | stroke around the menu shape |
+  | `divider` | hairline between items |
+  | `error` | label on a destructive item |
+
+  **sizing**
+
+  | token | default | used for |
+  |---|---|---|
+  | `minWidth` | `168` | minimum menu width |
+  | `itemHeight` | `44` | fixed row height |
+  | `menuBorderRadius` | `24` | menu corner radius |
+  | `triggerBorderRadius` | `10` | ink well on the child |
+  | `itemPadding` | `h: 16` | row padding |
+  | `elevation` | `8` | material elevation |
+  | `shadowAlphaLight` | `0.12` | shadow opacity in light mode |
+  | `shadowAlphaDark` | `0.35` | shadow opacity in dark mode |
+
+  </Accordion>
+</Accordions>

@@ -1,0 +1,882 @@
+---
+title: app dialog
+subtitle: one file dialog for flutter
+description: a dialog for flutter in one file. title, message, icon, action row. no packages, no DI, no widget wrapping.
+date: "2026-07-23"
+tech:
+  - flutter
+  - dart
+sourceFile: lib/app_dialog.dart
+lines: 655
+demo: /trove/demo/app-dialog/index.html
+published: true
+---
+
+## tldr
+
+copy one file into your project, call `showAppDialog`. no setup, no init call.
+
+```dart
+final ok = await showAppDialog<bool>(
+  context: context,
+  title: "Delete workout?",
+  message: "This removes it from your history.",
+  actions: [
+    AppDialogAction(text: "Cancel", type: AppDialogActionType.secondary, result: false),
+    AppDialogAction(text: "Delete", isDestructive: true, result: true),
+  ],
+);
+```
+
+card surface, optional icon + message, equal-width action row. actions pop with
+their result.
+
+<FlutterDemo src="/trove/demo/app-dialog/index.html" name="app-dialog" />
+
+## install
+
+<Steps>
+
+<Step>
+
+### copy one file
+
+grab it and drop it in at `lib/app_dialog.dart`.
+
+<CopyFile name="app_dialog.dart" lines={655}>
+
+```dart
+// A self-contained, plug-and-play dialog. Drop this single file into any
+// Flutter project — no packages, no DI, no widget wrapping.
+//
+//   1. Call it:
+//        final ok = await showAppDialog<bool>(
+//          context: context,
+//          title: "Delete workout?",
+//          message: "This removes it from your history.",
+//          actions: [
+//            AppDialogAction(text: "Cancel", type: AppDialogActionType.secondary, result: false),
+//            AppDialogAction(text: "Delete", isDestructive: true, result: true),
+//          ],
+//        );
+//
+//   2. Restyle once at startup — or never, the defaults stand on their own:
+//        AppDialog.configure(light: AppDialogColors.light.copyWith(accent: myBlue));
+//
+//   3. Card surface, title + optional message/icon, equal-width action row.
+//      Actions pop with their result via Navigator.
+
+import "package:flutter/material.dart";
+
+// ---------------------------------------------------------------------------
+// Public enums
+// ---------------------------------------------------------------------------
+
+/// Visual weight of a dialog action — mirrors the button system.
+enum AppDialogActionType {
+  /// Accent-filled. The affirming action.
+  primary,
+
+  /// Outlined. Cancel / dismiss beside a primary.
+  secondary,
+
+  /// Bare text. Lowest emphasis.
+  tertiary,
+}
+
+// ---------------------------------------------------------------------------
+// Actions
+// ---------------------------------------------------------------------------
+
+/// A single button in an [AppDialog] / [showAppDialog] call.
+@immutable
+class AppDialogAction<T> {
+  /// Creates a dialog action.
+  const AppDialogAction({
+    required this.text,
+    required this.result,
+    this.type = AppDialogActionType.primary,
+    this.isDestructive = false,
+    this.backgroundColor,
+    this.foregroundColor,
+  });
+
+  /// Label on the action button.
+  final String text;
+
+  /// Value returned from [showAppDialog] when this action is pressed.
+  final T result;
+
+  /// Visual weight of the button.
+  final AppDialogActionType type;
+
+  /// Uses the error fill (primary) or error label (secondary/tertiary).
+  final bool isDestructive;
+
+  /// Overrides the resolved fill.
+  final Color? backgroundColor;
+
+  /// Overrides the resolved label color.
+  final Color? foregroundColor;
+}
+
+// ---------------------------------------------------------------------------
+// Theme
+// ---------------------------------------------------------------------------
+
+/// Color tokens for a dialog palette.
+@immutable
+class AppDialogColors {
+  /// Creates a dialog color palette.
+  const AppDialogColors({
+    required this.foreground,
+    required this.muted,
+    required this.card,
+    required this.border,
+    required this.accent,
+    required this.accentForeground,
+    required this.error,
+    required this.errorForeground,
+    required this.barrier,
+  });
+
+  /// Title and primary secondary/tertiary labels.
+  final Color foreground;
+
+  /// Message body.
+  final Color muted;
+
+  /// Dialog surface fill.
+  final Color card;
+
+  /// Stroke around the card and secondary buttons.
+  final Color border;
+
+  /// Primary action fill.
+  final Color accent;
+
+  /// Label on a primary action.
+  final Color accentForeground;
+
+  /// Destructive primary fill / destructive label.
+  final Color error;
+
+  /// Label on a destructive primary action.
+  final Color errorForeground;
+
+  /// Scrim behind the dialog.
+  final Color barrier;
+
+  /// Default palette for light mode.
+  static const AppDialogColors light = AppDialogColors(
+    foreground: Color(0xFF0F1113),
+    muted: Color(0xFF63666B),
+    card: Color(0xFFFFFFFF),
+    border: Color(0xFFD8D8D6),
+    accent: Color(0xFF1D4ED8),
+    accentForeground: Color(0xFFFFFFFF),
+    error: Color(0xFFC62828),
+    errorForeground: Color(0xFFFFFFFF),
+    barrier: Color(0x66000000),
+  );
+
+  /// Default palette for dark mode.
+  static const AppDialogColors dark = AppDialogColors(
+    foreground: Color(0xFFF4F6F2),
+    muted: Color(0xFF979BA3),
+    card: Color(0xFF141619),
+    border: Color(0xFF2A2E35),
+    accent: Color(0xFF60A5FA),
+    accentForeground: Color(0xFF071018),
+    error: Color(0xFFFF5A52),
+    errorForeground: Color(0xFF071018),
+    barrier: Color(0x66000000),
+  );
+
+  /// Returns a copy with the given fields replaced.
+  AppDialogColors copyWith({
+    Color? foreground,
+    Color? muted,
+    Color? card,
+    Color? border,
+    Color? accent,
+    Color? accentForeground,
+    Color? error,
+    Color? errorForeground,
+    Color? barrier,
+  }) {
+    return AppDialogColors(
+      foreground: foreground ?? this.foreground,
+      muted: muted ?? this.muted,
+      card: card ?? this.card,
+      border: border ?? this.border,
+      accent: accent ?? this.accent,
+      accentForeground: accentForeground ?? this.accentForeground,
+      error: error ?? this.error,
+      errorForeground: errorForeground ?? this.errorForeground,
+      barrier: barrier ?? this.barrier,
+    );
+  }
+}
+
+/// Metrics and typography for the dialog card.
+@immutable
+class AppDialogSizing {
+  /// Creates sizing settings.
+  const AppDialogSizing({
+    this.maxWidth = 640,
+    this.insetPadding = const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+    this.padding = const EdgeInsets.all(24),
+    this.borderRadius = 24,
+    this.iconSize = 28,
+    this.iconGap = 16,
+    this.titleGap = 8,
+    this.actionsGap = 24,
+    this.actionSpacing = 8,
+    this.actionHeight = 36,
+    this.actionRadius = 12,
+    this.actionPadding = const EdgeInsets.symmetric(horizontal: 12),
+    this.shadows = const <BoxShadow>[
+      BoxShadow(
+        offset: Offset(0, 10),
+        blurRadius: 15,
+        spreadRadius: -3,
+        color: Color.fromRGBO(0, 0, 0, 0.1),
+      ),
+      BoxShadow(
+        offset: Offset(0, 4),
+        blurRadius: 6,
+        spreadRadius: -2,
+        color: Color.fromRGBO(0, 0, 0, 0.05),
+      ),
+    ],
+  });
+
+  /// Max width of the dialog card.
+  final double maxWidth;
+
+  /// Padding between the dialog and the screen edges.
+  final EdgeInsets insetPadding;
+
+  /// Inner padding of the card.
+  final EdgeInsets padding;
+
+  /// Corner radius of the card.
+  final double borderRadius;
+
+  /// Leading icon size.
+  final double iconSize;
+
+  /// Space under the icon.
+  final double iconGap;
+
+  /// Space under the title before the message.
+  final double titleGap;
+
+  /// Space above the action row.
+  final double actionsGap;
+
+  /// Gap between action buttons.
+  final double actionSpacing;
+
+  /// Height of each action button.
+  final double actionHeight;
+
+  /// Corner radius of action buttons.
+  final double actionRadius;
+
+  /// Horizontal padding inside an action.
+  final EdgeInsets actionPadding;
+
+  /// Drop shadow under the card.
+  final List<BoxShadow> shadows;
+
+  /// Returns a copy with the given fields replaced.
+  AppDialogSizing copyWith({
+    double? maxWidth,
+    EdgeInsets? insetPadding,
+    EdgeInsets? padding,
+    double? borderRadius,
+    double? iconSize,
+    double? iconGap,
+    double? titleGap,
+    double? actionsGap,
+    double? actionSpacing,
+    double? actionHeight,
+    double? actionRadius,
+    EdgeInsets? actionPadding,
+    List<BoxShadow>? shadows,
+  }) {
+    return AppDialogSizing(
+      maxWidth: maxWidth ?? this.maxWidth,
+      insetPadding: insetPadding ?? this.insetPadding,
+      padding: padding ?? this.padding,
+      borderRadius: borderRadius ?? this.borderRadius,
+      iconSize: iconSize ?? this.iconSize,
+      iconGap: iconGap ?? this.iconGap,
+      titleGap: titleGap ?? this.titleGap,
+      actionsGap: actionsGap ?? this.actionsGap,
+      actionSpacing: actionSpacing ?? this.actionSpacing,
+      actionHeight: actionHeight ?? this.actionHeight,
+      actionRadius: actionRadius ?? this.actionRadius,
+      actionPadding: actionPadding ?? this.actionPadding,
+      shadows: shadows ?? this.shadows,
+    );
+  }
+}
+
+/// Label typography for the dialog.
+@immutable
+class AppDialogTypography {
+  /// Creates typography settings.
+  const AppDialogTypography({
+    this.fontFamily,
+    this.title = const TextStyle(
+      fontSize: 18,
+      height: 24 / 18,
+      fontWeight: FontWeight.w700,
+      letterSpacing: -0.2,
+    ),
+    this.message = const TextStyle(
+      fontSize: 14,
+      height: 20 / 14,
+      fontWeight: FontWeight.w400,
+    ),
+    this.action = const TextStyle(
+      fontSize: 12,
+      height: 16 / 12,
+      fontWeight: FontWeight.w600,
+    ),
+  });
+
+  static const Object _unset = Object();
+
+  /// Applied unless a style names its own family.
+  final String? fontFamily;
+
+  /// Dialog title.
+  final TextStyle title;
+
+  /// Optional body message.
+  final TextStyle message;
+
+  /// Action button labels.
+  final TextStyle action;
+
+  /// Resolves [style] with [color] and [fontFamily].
+  TextStyle resolve(TextStyle style, Color color) {
+    return style.copyWith(
+      color: color,
+      fontFamily: style.fontFamily ?? fontFamily,
+    );
+  }
+
+  /// Returns a copy with the given fields replaced.
+  AppDialogTypography copyWith({
+    Object? fontFamily = _unset,
+    TextStyle? title,
+    TextStyle? message,
+    TextStyle? action,
+  }) {
+    return AppDialogTypography(
+      fontFamily: fontFamily == _unset
+          ? this.fontFamily
+          : fontFamily as String?,
+      title: title ?? this.title,
+      message: message ?? this.message,
+      action: action ?? this.action,
+    );
+  }
+}
+
+/// Global dialog configuration.
+@immutable
+class AppDialogTheme {
+  /// Creates a dialog theme.
+  const AppDialogTheme({
+    this.light = AppDialogColors.light,
+    this.dark = AppDialogColors.dark,
+    this.sizing = const AppDialogSizing(),
+    this.typography = const AppDialogTypography(),
+    this.brightnessResolver,
+  });
+
+  static const Object _unset = Object();
+
+  /// Palette used when [brightnessOf] resolves to [Brightness.light].
+  final AppDialogColors light;
+
+  /// Palette used when [brightnessOf] resolves to [Brightness.dark].
+  final AppDialogColors dark;
+
+  /// Metrics.
+  final AppDialogSizing sizing;
+
+  /// Typography.
+  final AppDialogTypography typography;
+
+  /// Escape hatch for apps that drive brightness off something other than the
+  /// ambient [Theme].
+  final Brightness Function(BuildContext context)? brightnessResolver;
+
+  /// Resolves the current brightness for [context].
+  Brightness brightnessOf(BuildContext context) =>
+      brightnessResolver?.call(context) ?? Theme.of(context).brightness;
+
+  /// Returns the color palette for [context]'s current brightness.
+  AppDialogColors colorsOf(BuildContext context) =>
+      brightnessOf(context) == Brightness.dark ? dark : light;
+
+  /// Returns a copy with the given fields replaced.
+  AppDialogTheme copyWith({
+    AppDialogColors? light,
+    AppDialogColors? dark,
+    AppDialogSizing? sizing,
+    AppDialogTypography? typography,
+    Object? brightnessResolver = _unset,
+  }) {
+    return AppDialogTheme(
+      light: light ?? this.light,
+      dark: dark ?? this.dark,
+      sizing: sizing ?? this.sizing,
+      typography: typography ?? this.typography,
+      brightnessResolver: brightnessResolver == _unset
+          ? this.brightnessResolver
+          : brightnessResolver as Brightness Function(BuildContext context)?,
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Dialog
+// ---------------------------------------------------------------------------
+
+/// Design-system dialog card. Prefer [showAppDialog] for the usual path.
+class AppDialog extends StatelessWidget {
+  /// Creates a dialog card.
+  const AppDialog({
+    super.key,
+    required this.title,
+    this.message,
+    this.icon,
+    this.iconColor,
+    required this.actions,
+  });
+
+  static AppDialogTheme _theme = const AppDialogTheme();
+
+  /// The active dialog theme.
+  static AppDialogTheme get theme => _theme;
+
+  /// Restyles every dialog in the app. Safe to call more than once.
+  static void configure({
+    AppDialogColors? light,
+    AppDialogColors? dark,
+    AppDialogSizing? sizing,
+    AppDialogTypography? typography,
+    Object? brightnessResolver = AppDialogTheme._unset,
+  }) {
+    _theme = _theme.copyWith(
+      light: light,
+      dark: dark,
+      sizing: sizing,
+      typography: typography,
+      brightnessResolver: brightnessResolver,
+    );
+  }
+
+  /// Resets the theme to defaults. For use in tests only.
+  @visibleForTesting
+  static void debugReset() => _theme = const AppDialogTheme();
+
+  /// Headline.
+  final String title;
+
+  /// Optional supporting copy.
+  final String? message;
+
+  /// Optional leading icon above the title.
+  final IconData? icon;
+
+  /// Overrides the icon color (defaults to [AppDialogColors.foreground]).
+  final Color? iconColor;
+
+  /// Action buttons along the bottom. Equal width in a row.
+  final List<AppDialogAction<Object?>> actions;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppDialogTheme theme = _theme;
+    final AppDialogColors colors = theme.colorsOf(context);
+    final AppDialogSizing sizing = theme.sizing;
+    final AppDialogTypography typography = theme.typography;
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      insetPadding: sizing.insetPadding,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: sizing.maxWidth),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: colors.card,
+            borderRadius: BorderRadius.circular(sizing.borderRadius),
+            border: Border.all(color: colors.border),
+            boxShadow: sizing.shadows,
+          ),
+          child: Padding(
+            padding: sizing.padding,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                if (icon != null) ...<Widget>[
+                  Icon(
+                    icon,
+                    color: iconColor ?? colors.foreground,
+                    size: sizing.iconSize,
+                  ),
+                  SizedBox(height: sizing.iconGap),
+                ],
+                Text(
+                  title,
+                  style: typography.resolve(typography.title, colors.foreground),
+                ),
+                if (message != null) ...<Widget>[
+                  SizedBox(height: sizing.titleGap),
+                  Text(
+                    message!,
+                    style: typography.resolve(typography.message, colors.muted),
+                  ),
+                ],
+                SizedBox(height: sizing.actionsGap),
+                Row(
+                  children: <Widget>[
+                    for (final (int index, AppDialogAction<Object?> action)
+                        in actions.indexed) ...<Widget>[
+                      if (index > 0) SizedBox(width: sizing.actionSpacing),
+                      Expanded(
+                        child: _AppDialogActionButton(
+                          action: action,
+                          colors: colors,
+                          sizing: sizing,
+                          typography: typography,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Shows an [AppDialog] and returns the selected action's [AppDialogAction.result].
+Future<T?> showAppDialog<T>({
+  required BuildContext context,
+  required String title,
+  String? message,
+  IconData? icon,
+  Color? iconColor,
+  required List<AppDialogAction<T>> actions,
+  bool barrierDismissible = true,
+}) {
+  final AppDialogColors colors = AppDialog.theme.colorsOf(context);
+
+  return showDialog<T>(
+    context: context,
+    barrierDismissible: barrierDismissible,
+    barrierColor: colors.barrier,
+    builder: (BuildContext context) {
+      return AppDialog(
+        title: title,
+        message: message,
+        icon: icon,
+        iconColor: iconColor,
+        actions: actions.cast<AppDialogAction<Object?>>(),
+      );
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Action button
+// ---------------------------------------------------------------------------
+
+class _AppDialogActionButton extends StatelessWidget {
+  const _AppDialogActionButton({
+    required this.action,
+    required this.colors,
+    required this.sizing,
+    required this.typography,
+  });
+
+  final AppDialogAction<Object?> action;
+  final AppDialogColors colors;
+  final AppDialogSizing sizing;
+  final AppDialogTypography typography;
+
+  ({Color? background, Color foreground, Color? border}) _resolve() {
+    if (action.backgroundColor != null || action.foregroundColor != null) {
+      return (
+        background: action.backgroundColor,
+        foreground: action.foregroundColor ?? colors.accentForeground,
+        border: null,
+      );
+    }
+
+    if (action.isDestructive) {
+      return switch (action.type) {
+        AppDialogActionType.primary => (
+          background: colors.error,
+          foreground: colors.errorForeground,
+          border: null,
+        ),
+        AppDialogActionType.secondary => (
+          background: null,
+          foreground: colors.error,
+          border: colors.border,
+        ),
+        AppDialogActionType.tertiary => (
+          background: null,
+          foreground: colors.error,
+          border: null,
+        ),
+      };
+    }
+
+    return switch (action.type) {
+      AppDialogActionType.primary => (
+        background: colors.accent,
+        foreground: colors.accentForeground,
+        border: null,
+      ),
+      AppDialogActionType.secondary => (
+        background: null,
+        foreground: colors.foreground,
+        border: colors.border,
+      ),
+      AppDialogActionType.tertiary => (
+        background: null,
+        foreground: colors.foreground,
+        border: null,
+      ),
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ({Color? background, Color foreground, Color? border}) resolved =
+        _resolve();
+    final BorderRadius radius = BorderRadius.circular(sizing.actionRadius);
+
+    return Material(
+      color: resolved.background ?? Colors.transparent,
+      borderRadius: radius,
+      child: InkWell(
+        onTap: () => Navigator.of(context).pop(action.result),
+        borderRadius: radius,
+        child: Container(
+          height: sizing.actionHeight,
+          alignment: Alignment.center,
+          padding: sizing.actionPadding,
+          decoration: BoxDecoration(
+            borderRadius: radius,
+            border: resolved.border == null
+                ? null
+                : Border.all(color: resolved.border!),
+          ),
+          child: Text(
+            action.text,
+            style: typography.resolve(typography.action, resolved.foreground),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+</CopyFile>
+
+it imports `material` from the flutter sdk. nothing goes in `pubspec.yaml`.
+
+</Step>
+
+<Step>
+
+### use it
+
+there is no init call. the defaults stand on their own.
+
+```dart
+await showAppDialog<bool>(
+  context: context,
+  title: "Sign out?",
+  actions: [
+    AppDialogAction(text: "Cancel", type: AppDialogActionType.secondary, result: false),
+    AppDialogAction(text: "Sign out", result: true),
+  ],
+);
+```
+
+</Step>
+
+</Steps>
+
+## usage
+
+confirm / cancel is the usual shape. secondary on the left, primary on the right.
+
+```dart
+final shouldDelete = await showAppDialog<bool>(
+  context: context,
+  title: "Delete workout?",
+  message: "This will remove this workout from your history.",
+  icon: Icons.delete_outline_rounded,
+  iconColor: Theme.of(context).colorScheme.error,
+  actions: [
+    AppDialogAction(
+      text: "Cancel",
+      type: AppDialogActionType.secondary,
+      result: false,
+    ),
+    AppDialogAction(
+      text: "Delete",
+      isDestructive: true,
+      result: true,
+    ),
+  ],
+);
+
+if (shouldDelete == true) {
+  await deleteWorkout();
+}
+```
+
+`isDestructive` paints the primary action in the error color. override fills
+directly when you need something else.
+
+```dart
+AppDialogAction(
+  text: "Delete",
+  backgroundColor: const Color(0xFFC62828),
+  foregroundColor: Colors.white,
+  result: true,
+)
+```
+
+skip the message or the icon when the title is enough.
+
+```dart
+await showAppDialog<bool>(
+  context: context,
+  title: "Discard changes?",
+  actions: [
+    AppDialogAction(text: "Keep editing", type: AppDialogActionType.secondary, result: false),
+    AppDialogAction(text: "Discard", isDestructive: true, result: true),
+  ],
+);
+```
+
+barrier tap dismisses by default and returns `null`. pass
+`barrierDismissible: false` to require an action.
+
+## example
+
+```dart
+Future<void> confirmSignOut(BuildContext context) async {
+  final confirmed = await showAppDialog<bool>(
+    context: context,
+    title: "Sign out?",
+    message: "This clears data on this device and returns you to sign in.",
+    icon: Icons.logout_rounded,
+    actions: const <AppDialogAction<bool>>[
+      AppDialogAction(
+        text: "Cancel",
+        type: AppDialogActionType.secondary,
+        result: false,
+      ),
+      AppDialogAction(
+        text: "Sign out",
+        result: true,
+      ),
+    ],
+  );
+
+  if (confirmed == true && context.mounted) {
+    await auth.signOut();
+  }
+}
+```
+
+## reference
+
+everything below is here when you need
+it. you can ship without reading any of it.
+
+<Accordions>
+  <Accordion title="parameters">
+
+  **showAppDialog**
+
+  | parameter | type | default | notes |
+  |---|---|---|---|
+  | `context` | `BuildContext` | required | used for the route and theme |
+  | `title` | `String` | required | headline |
+  | `message` | `String?` | `null` | supporting copy under the title |
+  | `icon` | `IconData?` | `null` | leading icon above the title |
+  | `iconColor` | `Color?` | foreground | override for the icon |
+  | `actions` | `List<AppDialogAction<T>>` | required | equal-width row at the bottom |
+  | `barrierDismissible` | `bool` | `true` | barrier tap returns `null` |
+
+  **AppDialogAction**
+
+  | parameter | type | default | notes |
+  |---|---|---|---|
+  | `text` | `String` | required | button label |
+  | `result` | `T` | required | value returned when pressed |
+  | `type` | `AppDialogActionType` | `.primary` | `primary` / `secondary` / `tertiary` |
+  | `isDestructive` | `bool` | `false` | error treatment |
+  | `backgroundColor` | `Color?` | `null` | overrides the fill |
+  | `foregroundColor` | `Color?` | `null` | overrides the label |
+
+  </Accordion>
+  <Accordion title="theming and design tokens">
+
+  zero config gets you a palette that follows `Theme.of(context).brightness`
+  automatically. to change it, call `configure()` once at startup.
+
+  ```dart
+  void main() {
+    AppDialog.configure(
+      light: AppDialogColors.light.copyWith(accent: const Color(0xFF00A86B)),
+      sizing: const AppDialogSizing(borderRadius: 16),
+      typography: const AppDialogTypography(fontFamily: "GeistSans"),
+    );
+    runApp(const MyApp());
+  }
+  ```
+
+  **colors**
+
+  | token | used for |
+  |---|---|
+  | `foreground` | title, secondary/tertiary labels |
+  | `muted` | message body |
+  | `card` | dialog surface |
+  | `border` | card stroke, secondary outline |
+  | `accent` | primary fill |
+  | `accentForeground` | label on primary |
+  | `error` | destructive fill / label |
+  | `errorForeground` | label on destructive primary |
+  | `barrier` | scrim behind the dialog |
+
+  </Accordion>
+</Accordions>
