@@ -46,12 +46,12 @@ export function FlutterDemo({
   const [inView, setInView] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [manualLayout, setManualLayout] = useState<Layout | null>(null);
-  const viewportLayout = useSyncExternalStore(
+  const viewportLayout = useSyncExternalStore<Layout>(
     subscribeToViewportLayout,
     layoutForViewport,
-    () => "mobile",
+    (): Layout => "mobile",
   );
-  const layout = manualLayout ?? viewportLayout;
+  const layout: Layout = manualLayout ?? viewportLayout;
   const containerRef = useRef<HTMLDivElement>(null);
   const { resolvedTheme } = useTheme();
   const theme = resolvedTheme === "dark" ? "dark" : "light";
