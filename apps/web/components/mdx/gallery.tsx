@@ -42,10 +42,13 @@ export function Gallery({
 
 	return (
 		<div className={cn("my-8 grid grid-cols-1 gap-4", colsClass, className)}>
-			{items.map((raw, i) => {
+			{items.map((raw) => {
 				const { src, alt, caption } = normalize(raw);
 				return (
-					<figure className="space-y-2" key={i}>
+					<figure
+						className="space-y-2"
+						key={typeof src === "string" ? src : alt}
+					>
 						<div className="overflow-hidden rounded-xl border border-border/40 bg-muted/[0.12]">
 							{typeof src === "string" ? (
 								<Image

@@ -14,7 +14,11 @@ import type {
 	WorkLogoAsset,
 } from "@/lib/types/types";
 import { cn } from "@/lib/utils";
-import { isPairedScreenshots, isVideoAsset } from "@/lib/work-image";
+import {
+	isPairedScreenshots,
+	isVideoAsset,
+	workImageStableKey,
+} from "@/lib/work-image";
 
 interface WorkPreviewProps {
 	children: ReactNode;
@@ -45,6 +49,13 @@ function previewCardWidthPx(mockup?: ScreenshotMockupKind) {
 }
 
 /** Capped at phone-strip width so long titles cannot widen the hover card (flex min-width:auto). */
+
+/** Slot keys for the hover preview: the asset when there is one, a fixed
+ * placeholder token otherwise. The list is a fixed three and never reorders. */
+function slotKey(src: WorkImageAsset | null, index: number) {
+	return src === null ? `placeholder-${index}` : workImageStableKey(src, index);
+}
+
 function previewCardShellStyle(px: number): CSSProperties {
 	return {
 		maxWidth: `min(${px}px, calc(100vw - 1.5rem))`,
@@ -117,7 +128,7 @@ export function WorkPreview({
 											gradient={
 												PLACEHOLDER_GRADIENTS[i % PLACEHOLDER_GRADIENTS.length]
 											}
-											key={i}
+											key={slotKey(src, i)}
 											logo={logo}
 											screenshotMockup={screenshotMockup}
 											src={src}

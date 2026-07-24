@@ -36,8 +36,8 @@ export default function LoopedSubtitle() {
 					initial: { opacity: 0, y: 10 },
 				}}
 			>
-				{items.map((item, index) => (
-					<div key={index}>
+				{items.map((item) => (
+					<div key={item.label}>
 						{HighlightedText(item.label, item.link, item.altText)}
 					</div>
 				))}

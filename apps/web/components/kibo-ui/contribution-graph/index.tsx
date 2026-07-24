@@ -236,6 +236,10 @@ export type ContributionGraphProps = HTMLAttributes<HTMLDivElement> & {
 	className?: string;
 };
 
+/** [0, 1, ... maxLevel] — used as legend keys, so the values must be stable. */
+const LEVELS = (maxLevel: number) =>
+	Array.from({ length: maxLevel + 1 }, (_, level) => level);
+
 export const ContributionGraph = ({
 	data,
 	blockMargin = 4,
@@ -407,7 +411,7 @@ export const ContributionGraphCalendar = ({
 						}
 
 						return (
-							<Fragment key={`${weekIndex}-${dayIndex}`}>
+							<Fragment key={activity.date}>
 								{children({ activity, dayIndex, weekIndex })}
 							</Fragment>
 						);
@@ -484,11 +488,11 @@ export const ContributionGraphLegend = ({
 			<span className="mr-1 text-muted-foreground">
 				{labels.legend?.less || "Less"}
 			</span>
-			{new Array(maxLevel + 1).fill(undefined).map((_, level) =>
+			{LEVELS(maxLevel).map((level) =>
 				children ? (
-					<Fragment key={level}>{children({ level })}</Fragment>
+					<Fragment key={`level-${level}`}>{children({ level })}</Fragment>
 				) : (
-					<svg height={blockSize} key={level} width={blockSize}>
+					<svg height={blockSize} key={`level-${level}`} width={blockSize}>
 						<title>{`${level} contributions`}</title>
 						<rect
 							className={cn(

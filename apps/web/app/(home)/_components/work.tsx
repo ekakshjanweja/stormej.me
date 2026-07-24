@@ -18,7 +18,11 @@ import {
 	listWork,
 	listWorkForHome,
 } from "@/lib/work";
-import { isPairedScreenshots, isVideoAsset } from "@/lib/work-image";
+import {
+	isPairedScreenshots,
+	isVideoAsset,
+	workImageStableKey,
+} from "@/lib/work-image";
 
 const PLACEHOLDER_GRADIENTS = [
 	"from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-800",
@@ -139,6 +143,12 @@ function HomeWorkItem({
 	);
 }
 
+/** Slot keys for the hover preview: the asset when there is one, a fixed
+ * placeholder token otherwise. The list is a fixed three and never reorders. */
+function slotKey(src: WorkImageAsset | null, index: number) {
+	return src === null ? `placeholder-${index}` : workImageStableKey(src, index);
+}
+
 function HomeWorkPreview({
 	title,
 	href,
@@ -176,7 +186,7 @@ function HomeWorkPreview({
 					{slots.map((src, i) => (
 						<HomePreviewPhone
 							gradient={PLACEHOLDER_GRADIENTS[i % PLACEHOLDER_GRADIENTS.length]}
-							key={i}
+							key={slotKey(src, i)}
 							logo={logo}
 							screenshotMockup={screenshotMockup}
 							src={src}

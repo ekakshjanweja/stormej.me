@@ -107,7 +107,7 @@ export function StoreLinks({
 					className={storeIconLink}
 					data-placement="top"
 					href={item.href}
-					key={`app-${i}`}
+					key={`app-${item.href}`}
 					ref={(node) => {
 						iconRefs.current[i] = node;
 					}}
@@ -126,7 +126,7 @@ export function StoreLinks({
 					className={storeIconLink}
 					data-placement="top"
 					href={item.href}
-					key={`play-${i}`}
+					key={`play-${item.href}`}
 					ref={(node) => {
 						iconRefs.current[appStoreItems.length + i] = node;
 					}}

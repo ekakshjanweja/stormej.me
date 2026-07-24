@@ -19,8 +19,8 @@ export function Outcomes({
 		>
 			<span className="meta-tag mb-6 block">{label}</span>
 			<dl className="grid grid-cols-1 gap-x-8 gap-y-7 sm:grid-cols-3">
-				{items.map((o, i) => (
-					<div className="space-y-2" key={i}>
+				{items.map((o) => (
+					<div className="space-y-2" key={o.metric}>
 						<dd className="headline text-[clamp(20px,1.8vw,24px)] leading-[1.15]">
 							{o.href ? (
 								<Link

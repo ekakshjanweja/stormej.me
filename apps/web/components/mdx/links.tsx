@@ -5,7 +5,13 @@ interface LinkItem {
 	label: string;
 }
 
-export function Links({ title, items }: { title?: string; items?: LinkItem[] }) {
+export function Links({
+	title,
+	items,
+}: {
+	title?: string;
+	items?: LinkItem[];
+}) {
 	if (!items || items.length === 0) {
 		return null;
 	}
@@ -13,11 +19,11 @@ export function Links({ title, items }: { title?: string; items?: LinkItem[] }) 
 		<section className="my-6 space-y-3">
 			{title && <h3 className="headline text-[18px]">{title}</h3>}
 			<div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px]">
-				{items.map((item, i) => (
+				{items.map((item) => (
 					<a
 						className="hover-dim inline-flex items-center gap-1 text-foreground"
 						href={item.href}
-						key={i}
+						key={item.href}
 						rel="noopener noreferrer"
 						target="_blank"
 					>
