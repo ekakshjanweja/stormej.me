@@ -1,8 +1,8 @@
-const fs = require("node:fs");
+import fs from "node:fs";
 // Not `path`, which is the name transform() below gives its route argument.
-const nodePath = require("node:path");
+import nodePath from "node:path";
 
-// This config is commonjs and runs outside the bundler, so it cannot import
+// This config runs outside the bundler, so it cannot import
 // lib/trove-config.ts. Read the flag as text instead. Anything other than a
 // literal `= true` counts as off, so a disabled section can never be
 // advertised in the sitemap while its pages 404.
@@ -14,7 +14,7 @@ const troveEnabled = /TROVE_ENABLED:\s*boolean\s*=\s*true/.test(
 );
 
 /** @type {import('next-sitemap').IConfig} */
-module.exports = {
+export default {
 	changefreq: "weekly",
 	exclude: ["/api/*", "/og", "/og/*", "/llms.txt"],
 	generateRobotsTxt: false,
