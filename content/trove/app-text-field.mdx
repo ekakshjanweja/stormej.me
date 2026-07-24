@@ -624,7 +624,10 @@ class _AppTextFieldState extends State<AppTextField> {
       return field;
     }
 
+    // Shrink-wrap: a max-sized Column fills any parent (e.g. a centered
+    // preview stage) and the field looks stuck to the top.
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         if (widget.header != null) ...<Widget>[

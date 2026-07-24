@@ -23,7 +23,7 @@ const STAGE_HEIGHT_PX = 128;
 /** Popup menus need a little more vertical room so the preview doesn't clip. */
 const STAGE_HEIGHT_BY_DEMO: Record<string, number> = {
   "app-popup": 152,
-  "app-text-field": 168,
+  "app-text-field": 180,
   "app-selectable-chip": 136,
 };
 

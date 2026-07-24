@@ -10,8 +10,10 @@ type Layout = "mobile" | "desktop";
 
 /** Logical viewport sizes the flutter embed should reflow at. */
 const DEVICE_FRAMES = {
-  mobile: { width: 390, height: 844, label: "iphone layout", Icon: Smartphone },
-  desktop: { width: 1280, height: 800, label: "mac layout", Icon: Monitor },
+  // Shorter than a full phone/desktop chrome so the playground stage + controls
+  // read as one composition instead of a lonely widget in empty canvas.
+  mobile: { width: 390, height: 620, label: "iphone layout", Icon: Smartphone },
+  desktop: { width: 720, height: 560, label: "mac layout", Icon: Monitor },
 } as const satisfies Record<
   Layout,
   { width: number; height: number; label: string; Icon: typeof Smartphone }
