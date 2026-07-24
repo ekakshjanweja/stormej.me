@@ -5,7 +5,7 @@ export function Outcomes({
 	sectionId = "outcomes",
 	label = "outcomes",
 }: {
-	items: { metric: string; label: string; href?: string }[];
+	items?: { metric: string; label: string; href?: string }[];
 	sectionId?: string;
 	label?: string;
 }) {

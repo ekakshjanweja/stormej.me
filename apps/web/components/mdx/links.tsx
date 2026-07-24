@@ -5,7 +5,7 @@ interface LinkItem {
 	label: string;
 }
 
-export function Links({ title, items }: { title?: string; items: LinkItem[] }) {
+export function Links({ title, items }: { title?: string; items?: LinkItem[] }) {
 	if (!items || items.length === 0) {
 		return null;
 	}

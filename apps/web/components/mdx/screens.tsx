@@ -8,7 +8,7 @@ export function Screens({
 	appendix = true,
 	sectionId,
 }: {
-	images: WorkImageAsset[];
+	images?: WorkImageAsset[];
 	title?: string;
 	mockup?: ScreenshotMockupKind;
 	appendix?: boolean;

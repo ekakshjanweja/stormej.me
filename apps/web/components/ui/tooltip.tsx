@@ -1,5 +1,6 @@
 "use client";
 
+// biome-ignore lint/performance/noNamespaceImport: shadcn ships these primitives namespaced; keeping it aligned with upstream
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import type { ComponentPropsWithoutRef, ElementRef } from "react";
 import { forwardRef } from "react";

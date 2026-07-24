@@ -25,7 +25,7 @@ export function Gallery({
 	columns = 2,
 	className,
 }: {
-	items: GalleryItem[];
+	items?: GalleryItem[];
 	columns?: 2 | 3 | 4;
 	className?: string;
 }) {

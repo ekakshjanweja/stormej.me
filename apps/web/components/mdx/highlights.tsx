@@ -4,7 +4,7 @@ export function Highlights({
 	bullet = "•",
 }: {
 	title?: string;
-	items: string[];
+	items?: string[];
 	bullet?: string;
 }) {
 	if (!items || items.length === 0) {

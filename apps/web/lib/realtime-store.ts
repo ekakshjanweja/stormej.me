@@ -1,22 +1,5 @@
-// Types and helper functions for real-time features
-// Types are now shared between frontend and backend
-
-// Re-export all types from shared package
-export type {
-	ClientEvent,
-	CursorAnchor,
-	CursorMessage,
-	CursorPosition,
-	Message,
-	RealtimeEvent,
-} from "@stormej/shared/types/realtime";
-
-// Re-export schemas for potential client-side validation
-export {
-	cursorPositionSchema,
-	messageSchema,
-	realtimeEventSchema,
-} from "@stormej/shared/types/realtime";
+// Helper functions for real-time features. The types they describe live in
+// @stormej/shared so the worker and the site cannot drift.
 
 // Generate random identity
 const adjectives = [

@@ -1,11 +1,12 @@
+// biome-ignore-all lint/suspicious/noUnnecessaryConditions: biome reports the switch cases below as unreachable; they are not (see the biome module-resolver panic this repo triggers)
 import { REALTIME_CONSTANTS } from "@stormej/shared/constants";
 import {
 	type CursorPosition,
 	clientEventSchema,
-	type Env,
 	type Message,
 	type RealtimeEvent,
-} from "./types";
+} from "@stormej/shared/types/realtime";
+import type { Env } from "./types";
 
 const {
 	INACTIVITY_TIMEOUT_MS,

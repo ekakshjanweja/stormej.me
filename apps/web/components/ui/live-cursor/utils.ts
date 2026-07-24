@@ -1,5 +1,5 @@
 import { REALTIME_CONSTANTS } from "@stormej/shared/constants";
-import type { CursorAnchor } from "@/lib/realtime-store";
+import type { CursorAnchor } from "@stormej/shared/types/realtime";
 
 const { MESSAGE_EXPIRY_MS } = REALTIME_CONSTANTS;
 

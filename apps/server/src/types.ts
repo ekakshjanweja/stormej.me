@@ -1,22 +1,4 @@
-// Re-export all types from shared package
-export type {
-	ClientEvent,
-	CursorAnchor,
-	CursorMessage,
-	CursorPosition,
-	Message,
-	RealtimeEvent,
-} from "@stormej/shared/types/realtime";
-
-// Re-export schemas for validation
-export {
-	clientEventSchema,
-	cursorPositionSchema,
-	messageSchema,
-	realtimeEventSchema,
-} from "@stormej/shared/types/realtime";
-
-// Backend-specific types
+// Backend-specific bindings. Shared realtime types live in @stormej/shared.
 export interface Env {
 	ALLOW_SIGNUP?: string;
 	BETTER_AUTH_SECRET: string;

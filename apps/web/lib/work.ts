@@ -105,8 +105,8 @@ export function listWork(): WorkListItem[] {
 export function listWorkForHome(): WorkListItem[] {
 	const all = listWork();
 	const bySlug = new Map(all.map((w) => [w.slug, w]));
-	const homeSlugs = workMetaTyped.home?.filter(Boolean);
-	if (homeSlugs && homeSlugs.length > 0) {
+	const homeSlugs = (workMetaTyped.home ?? []).filter(Boolean);
+	if (homeSlugs.length > 0) {
 		return homeSlugs
 			.map((slug) => bySlug.get(slug))
 			.filter((w): w is WorkListItem => w !== undefined);

@@ -11,7 +11,7 @@ export function ChapterNav({
 	sticky = false,
 	className,
 }: {
-	items: ChapterNavItem[];
+	items?: ChapterNavItem[];
 	label?: string;
 	sticky?: boolean;
 	className?: string;

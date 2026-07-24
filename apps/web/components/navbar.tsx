@@ -1,3 +1,4 @@
+// biome-ignore-all lint/suspicious/noUnnecessaryConditions: biome reports the switch cases below as unreachable; they are not
 "use client";
 
 import { X as CloseIcon, Menu } from "lucide-react";

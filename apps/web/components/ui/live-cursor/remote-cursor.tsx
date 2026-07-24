@@ -9,7 +9,7 @@ import {
   CursorMessage,
 } from "@/components/kibo-ui/cursor";
 import { getContrastColor, getActiveMessages } from "./utils";
-import type { CursorPosition } from "@/lib/realtime-store";
+import type { CursorPosition } from "@stormej/shared/types/realtime";
 
 interface RemoteCursorProps {
   cursor: CursorPosition & { resolvedPos: { x: number; y: number } };

@@ -1,4 +1,5 @@
 import { createDb } from "@stormej/db";
+// biome-ignore lint/performance/noNamespaceImport: the drizzle adapter takes the schema as a single object
 import * as schema from "@stormej/db/schema/auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";

@@ -1,5 +1,6 @@
 "use client";
 
+// biome-ignore lint/performance/noNamespaceImport: shadcn ships these primitives namespaced; keeping it aligned with upstream
 import * as HoverCardPrimitive from "@radix-ui/react-hover-card";
 import {
 	AnimatePresence,

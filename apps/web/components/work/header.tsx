@@ -110,7 +110,7 @@ export function WorkDefaultHeader({
 					</p>
 				)}
 
-				{fm.tech && fm.tech.length > 0 && (
+				{fm.tech.length > 0 && (
 					<p className="meta-tag">{fm.tech.join(" · ")}</p>
 				)}
 			</header>

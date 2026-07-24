@@ -45,4 +45,5 @@ app.all("/", (c) => {
 });
 
 export default app;
+// biome-ignore lint/performance/noBarrelFile: workerd resolves the durable object class off the entry module
 export { RealtimeRoom } from "./durable-objects";

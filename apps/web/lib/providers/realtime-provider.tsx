@@ -1,6 +1,12 @@
+// biome-ignore-all lint/suspicious/noUnnecessaryConditions: biome reports the switch cases below as unreachable; they are not
 "use client";
 
 import { REALTIME_CONSTANTS } from "@stormej/shared/constants";
+import type {
+	CursorAnchor,
+	CursorPosition,
+	RealtimeEvent,
+} from "@stormej/shared/types/realtime";
 import { usePathname } from "next/navigation";
 import {
 	createContext,
@@ -13,12 +19,9 @@ import {
 } from "react";
 import { LiveCursors } from "@/components/ui/live-cursor/live-cursors";
 import {
-	type CursorAnchor,
-	type CursorPosition,
 	generateRandomColor,
 	generateRandomName,
 	generateUserId,
-	type RealtimeEvent,
 } from "@/lib/realtime-store";
 
 const {
