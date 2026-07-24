@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { GithubDark } from "@/components/ui/svgs/githubDark";
-import { GithubLight } from "@/components/ui/svgs/githubLight";
+import { GithubDark } from "@/components/ui/svgs/github-dark";
+import { GithubLight } from "@/components/ui/svgs/github-light";
 import { Linkedin } from "@/components/ui/svgs/linkedin";
 import { X } from "@/components/ui/svgs/x";
 import { track } from "@/lib/analytics";

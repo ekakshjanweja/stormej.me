@@ -122,5 +122,5 @@ export function generateRandomColor(): string {
 }
 
 export function generateUserId(): string {
-	return `user_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+	return `user_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 }

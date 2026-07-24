@@ -10,6 +10,7 @@ import {
 	Trash2,
 } from "lucide-react";
 import {
+	type ChangeEvent,
 	type FormEvent,
 	useCallback,
 	useEffect,
@@ -27,9 +28,11 @@ interface AdminFile {
 	uploaded: string;
 }
 
+const TRAILING_SLASH = /\/$/;
+
 const getWorkerUrl = () => {
 	if (process.env.NEXT_PUBLIC_WORKER_URL) {
-		return process.env.NEXT_PUBLIC_WORKER_URL.replace(/\/$/, "");
+		return process.env.NEXT_PUBLIC_WORKER_URL.replace(TRAILING_SLASH, "");
 	}
 
 	if (process.env.NODE_ENV === "development") {
@@ -113,6 +116,137 @@ const readError = async (response: Response) => {
 	}
 };
 
+interface VaultFileRowProps {
+	file: AdminFile;
+	isResume: boolean;
+	onDelete: (key: string) => Promise<void>;
+	onFailure: (message: string) => void;
+	onRename: (key: string) => Promise<void>;
+	onRenameKeyChange: (key: string, value: string) => void;
+	onUpload: (
+		key: string,
+		file: File,
+		onProgress: (progress: number) => void
+	) => Promise<void>;
+	renameKey: string;
+}
+
+function VaultFileRow({
+	file,
+	isResume,
+	renameKey,
+	onDelete,
+	onFailure,
+	onRename,
+	onRenameKeyChange,
+	onUpload,
+}: VaultFileRowProps) {
+	const remove = useCallback(() => {
+		onDelete(file.key).catch((err: Error) => onFailure(err.message));
+	}, [file.key, onDelete, onFailure]);
+
+	const rename = useCallback(() => {
+		onRename(file.key).catch((err: Error) => onFailure(err.message));
+	}, [file.key, onFailure, onRename]);
+
+	const onKeyInput = useCallback(
+		(event: ChangeEvent<HTMLInputElement>) =>
+			onRenameKeyChange(file.key, event.target.value),
+		[file.key, onRenameKeyChange]
+	);
+
+	const replace = useCallback(
+		(selectedFile: File, onProgress: (progress: number) => void) =>
+			onUpload(file.key, selectedFile, onProgress),
+		[file.key, onUpload]
+	);
+
+	return (
+		<li
+			className="group/file border-border/60 border-t py-5 first:border-t-0 first:pt-0 last:pb-0"
+			key={file.key}
+		>
+			<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+				<div className="min-w-0 flex-1">
+					<div className="flex flex-wrap items-center gap-2">
+						<FileText className="size-4 shrink-0 text-muted-foreground" />
+						<span className="break-all font-mono text-[13px] text-foreground">
+							{file.key}
+						</span>
+						{isResume && (
+							<span className="rounded-full border border-border/60 bg-muted/40 px-2 py-0.5 font-mono text-[10px] text-muted-foreground uppercase tracking-[0.12em]">
+								resume
+							</span>
+						)}
+					</div>
+					<p className="meta-tag mt-2 normal-case">
+						{formatBytes(file.size)} · uploaded{" "}
+						{new Date(file.uploaded).toLocaleString()}
+					</p>
+				</div>
+
+				<div className="flex shrink-0 flex-wrap items-center gap-2">
+					<a
+						className="group inline-flex items-center gap-1.5 rounded-full border border-border/40 bg-background px-3 py-1.5 text-[12px] transition-all duration-200 hover:-translate-y-0.5 hover:border-foreground/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
+						href={file.publicUrl}
+						rel="noreferrer"
+						target="_blank"
+					>
+						<span className="tabular-nums">open</span>
+						<ArrowUpRight
+							aria-hidden
+							className="size-3 shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-foreground"
+						/>
+					</a>
+					<button
+						className="inline-flex items-center gap-1.5 rounded-full border border-destructive/30 bg-background px-3 py-1.5 text-[12px] text-destructive transition-all duration-200 hover:-translate-y-0.5 hover:border-destructive/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-destructive/20 focus-visible:ring-offset-2"
+						onClick={remove}
+						type="button"
+					>
+						<Trash2 aria-hidden className="size-3 shrink-0" />
+						<span>delete</span>
+					</button>
+				</div>
+			</div>
+
+			<div className="mt-4 flex flex-col gap-2 sm:flex-row">
+				<input
+					className={`${inputClassName} min-w-0 flex-1 py-2 font-mono text-sm`}
+					onChange={onKeyInput}
+					value={renameKey}
+				/>
+				<button
+					className="inline-flex items-center justify-center gap-1.5 rounded-full border border-border/40 bg-background px-4 py-2 text-[12px] transition-all duration-200 hover:-translate-y-0.5 hover:border-foreground/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
+					onClick={rename}
+					type="button"
+				>
+					<Pencil aria-hidden className="size-3 shrink-0" />
+					<span>rename</span>
+				</button>
+			</div>
+
+			<details className="group/replace mt-4">
+				<summary className="meta-tag inline-flex cursor-pointer items-center gap-1.5 normal-case hover:text-foreground">
+					<span className="transition-transform group-open/replace:rotate-45">
+						<Plus className="size-3" />
+					</span>
+					replace this file
+				</summary>
+				<div className="mt-4">
+					<VaultFileUpload
+						compact
+						description={`drop a new file to overwrite ${file.key}.`}
+						onUpload={replace}
+						successMessage={`${file.key} swapped.`}
+						targetKey={file.key}
+						uploadButtonLabel="replace"
+					/>
+				</div>
+			</details>
+		</li>
+	);
+}
+
 export default function VaultPage() {
 	const workerUrl = useMemo(getWorkerUrl, []);
 	const { data: session, isPending: isSessionPending } = useSession();
@@ -130,15 +264,15 @@ export default function VaultPage() {
 	const sortedFiles = [...files].sort((a, b) => a.key.localeCompare(b.key));
 	const currentResume = files.find((file) => file.key === resumeKey);
 
-	const setMessage = (message: string) => {
+	const setMessage = useCallback((message: string) => {
 		setStatus(message);
 		setError(null);
-	};
+	}, []);
 
-	const setFailure = (message: string) => {
+	const setFailure = useCallback((message: string) => {
 		setError(message);
 		setStatus(null);
-	};
+	}, []);
 
 	const fetchFiles = useCallback(async () => {
 		const response = await fetch("/admin/files", {
@@ -165,108 +299,152 @@ export default function VaultPage() {
 		});
 	}, []);
 
+	const refresh = useCallback(() => {
+		fetchFiles().catch((listError: Error) => setFailure(listError.message));
+	}, [fetchFiles, setFailure]);
+
 	// the session survives reloads, so the listing has to load without a login
 	useEffect(() => {
 		if (!session) {
 			return;
 		}
 
-		fetchFiles().catch((listError: Error) => setFailure(listError.message));
-	}, [session, fetchFiles, setFailure]);
+		refresh();
+	}, [session, refresh]);
 
-	const login = async (event: FormEvent<HTMLFormElement>) => {
-		event.preventDefault();
-		setIsLoading(true);
-		setError(null);
-		setStatus(null);
+	const login = useCallback(
+		async (event: FormEvent<HTMLFormElement>) => {
+			event.preventDefault();
+			setIsLoading(true);
+			setError(null);
+			setStatus(null);
 
-		const { error: signInError } = await signIn.email({ email, password });
+			const { error: signInError } = await signIn.email({ email, password });
 
-		setIsLoading(false);
+			setIsLoading(false);
 
-		if (signInError) {
-			setFailure("wrong credentials. respectfully leave.");
-			return;
-		}
+			if (signInError) {
+				setFailure("wrong credentials. respectfully leave.");
+				return;
+			}
 
-		setMessage("welcome to the abyss.");
-	};
+			setMessage("welcome to the abyss.");
+		},
+		[email, password, setFailure, setMessage]
+	);
 
-	const logout = async () => {
+	const logout = useCallback(async () => {
 		await signOut();
 		setFiles([]);
 		setMessage("sealed behind you.");
-	};
+	}, [setMessage]);
 
-	const uploadFile = async (
-		key: string,
-		file: File,
-		onProgress: (progress: number) => void
-	) => {
-		const normalizedKey = normalizeKey(key);
+	const signOutClicked = useCallback(() => {
+		logout().catch((logoutError: Error) => setFailure(logoutError.message));
+	}, [logout, setFailure]);
 
-		if (!isValidKey(normalizedKey)) {
-			throw new Error("file key must be a single filename with an extension.");
-		}
+	const uploadFile = useCallback(
+		async (key: string, file: File, onProgress: (progress: number) => void) => {
+			const normalizedKey = normalizeKey(key);
 
-		await uploadWithProgress(
-			`/admin/files/${encodeURIComponent(normalizedKey)}`,
-			file,
-			onProgress
-		);
-		setMessage(`uploaded ${normalizedKey}.`);
-		await fetchFiles();
-	};
-
-	const renameFile = async (currentKey: string) => {
-		const nextKey = normalizeKey(renameKeys[currentKey] ?? currentKey);
-
-		if (!isValidKey(nextKey)) {
-			setFailure("new key must be a single filename with an extension.");
-			return;
-		}
-
-		const response = await fetch(
-			`/admin/files/${encodeURIComponent(currentKey)}`,
-			{
-				body: JSON.stringify({ key: nextKey }),
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				method: "PATCH",
+			if (!isValidKey(normalizedKey)) {
+				throw new Error(
+					"file key must be a single filename with an extension."
+				);
 			}
-		);
 
-		if (!response.ok) {
-			setFailure(await readError(response));
-			return;
-		}
+			await uploadWithProgress(
+				`/admin/files/${encodeURIComponent(normalizedKey)}`,
+				file,
+				onProgress
+			);
+			setMessage(`uploaded ${normalizedKey}.`);
+			await fetchFiles();
+		},
+		[fetchFiles, setMessage]
+	);
 
-		setMessage(
-			currentKey === nextKey ? "nothing changed." : `renamed to ${nextKey}.`
-		);
-		await fetchFiles();
-	};
+	const uploadNewFile = useCallback(
+		(file: File, onProgress: (progress: number) => void) =>
+			uploadFile(newFileKey, file, onProgress),
+		[newFileKey, uploadFile]
+	);
 
-	const deleteFile = async (key: string) => {
-		if (!window.confirm(`delete ${key}?`)) {
-			return;
-		}
+	const renameFile = useCallback(
+		async (currentKey: string) => {
+			const nextKey = normalizeKey(renameKeys[currentKey] ?? currentKey);
 
-		const response = await fetch(`/admin/files/${encodeURIComponent(key)}`, {
-			credentials: "include",
-			method: "DELETE",
-		});
+			if (!isValidKey(nextKey)) {
+				setFailure("new key must be a single filename with an extension.");
+				return;
+			}
 
-		if (!response.ok) {
-			setFailure(await readError(response));
-			return;
-		}
+			const response = await fetch(
+				`/admin/files/${encodeURIComponent(currentKey)}`,
+				{
+					body: JSON.stringify({ key: nextKey }),
+					credentials: "include",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					method: "PATCH",
+				}
+			);
 
-		setMessage(`deleted ${key}.`);
-		await fetchFiles();
-	};
+			if (!response.ok) {
+				setFailure(await readError(response));
+				return;
+			}
+
+			setMessage(
+				currentKey === nextKey ? "nothing changed." : `renamed to ${nextKey}.`
+			);
+			await fetchFiles();
+		},
+		[fetchFiles, renameKeys, setFailure, setMessage]
+	);
+
+	const deleteFile = useCallback(
+		async (key: string) => {
+			// biome-ignore lint/suspicious/noAlert: a destructive single-admin action; a modal would be ceremony
+			if (!window.confirm(`delete ${key}?`)) {
+				return;
+			}
+
+			const response = await fetch(`/admin/files/${encodeURIComponent(key)}`, {
+				credentials: "include",
+				method: "DELETE",
+			});
+
+			if (!response.ok) {
+				setFailure(await readError(response));
+				return;
+			}
+
+			setMessage(`deleted ${key}.`);
+			await fetchFiles();
+		},
+		[fetchFiles, setFailure, setMessage]
+	);
+
+	const onEmailChange = useCallback(
+		(event: ChangeEvent<HTMLInputElement>) => setEmail(event.target.value),
+		[]
+	);
+
+	const onPasswordChange = useCallback(
+		(event: ChangeEvent<HTMLInputElement>) => setPassword(event.target.value),
+		[]
+	);
+
+	const onNewFileKeyChange = useCallback(
+		(event: ChangeEvent<HTMLInputElement>) => setNewFileKey(event.target.value),
+		[]
+	);
+
+	const onRenameKeyChange = useCallback((key: string, value: string) => {
+		setRenameKeys((current) => ({ ...current, [key]: value }));
+	}, []);
 
 	if (isSessionPending) {
 		return (
@@ -308,7 +486,7 @@ export default function VaultPage() {
 							<input
 								autoComplete="username"
 								className={inputClassName}
-								onChange={(event) => setEmail(event.target.value)}
+								onChange={onEmailChange}
 								placeholder="who goes there"
 								type="email"
 								value={email}
@@ -319,7 +497,7 @@ export default function VaultPage() {
 							<input
 								autoComplete="current-password"
 								className={inputClassName}
-								onChange={(event) => setPassword(event.target.value)}
+								onChange={onPasswordChange}
 								placeholder="the secret word"
 								type="password"
 								value={password}
@@ -367,11 +545,7 @@ export default function VaultPage() {
 					<p className="meta-tag normal-case tracking-[0.08em]">admins only.</p>
 					<button
 						className="meta-tag hover-dim inline-flex items-center gap-1.5 rounded normal-case focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
-						onClick={() => {
-							logout().catch((logoutError: Error) =>
-								setFailure(logoutError.message)
-							);
-						}}
+						onClick={signOutClicked}
 						type="button"
 					>
 						<LogOut className="size-3" />
@@ -385,7 +559,7 @@ export default function VaultPage() {
 					<h2 className="section-label">canonical resume</h2>
 					<button
 						className="meta-tag hover-dim inline-flex items-center gap-1.5 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
-						onClick={() => fetchFiles().catch((err) => setFailure(err.message))}
+						onClick={refresh}
 						type="button"
 					>
 						<RefreshCcw className="size-3" />
@@ -443,16 +617,14 @@ export default function VaultPage() {
 						<span className="meta-tag normal-case">file key</span>
 						<input
 							className={`${inputClassName} font-mono text-sm`}
-							onChange={(event) => setNewFileKey(event.target.value)}
+							onChange={onNewFileKeyChange}
 							placeholder="resume.pdf"
 							value={newFileKey}
 						/>
 					</label>
 					<VaultFileUpload
 						description="pdfs and images. one filename like resume.pdf or sunset.jpg."
-						onUpload={(file, onProgress) =>
-							uploadFile(newFileKey, file, onProgress)
-						}
+						onUpload={uploadNewFile}
 						successMessage="filed away."
 						targetKey={normalizeKey(newFileKey) || "new-file"}
 						uploadButtonLabel="upload to vault"
@@ -472,103 +644,17 @@ export default function VaultPage() {
 				) : (
 					<ul className="flex flex-col">
 						{sortedFiles.map((file) => (
-							<li
-								className="group/file border-border/60 border-t py-5 first:border-t-0 first:pt-0 last:pb-0"
+							<VaultFileRow
+								file={file}
+								isResume={file.key === resumeKey}
 								key={file.key}
-							>
-								<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-									<div className="min-w-0 flex-1">
-										<div className="flex flex-wrap items-center gap-2">
-											<FileText className="size-4 shrink-0 text-muted-foreground" />
-											<span className="break-all font-mono text-[13px] text-foreground">
-												{file.key}
-											</span>
-											{file.key === resumeKey && (
-												<span className="rounded-full border border-border/60 bg-muted/40 px-2 py-0.5 font-mono text-[10px] text-muted-foreground uppercase tracking-[0.12em]">
-													resume
-												</span>
-											)}
-										</div>
-										<p className="meta-tag mt-2 normal-case">
-											{formatBytes(file.size)} · uploaded{" "}
-											{new Date(file.uploaded).toLocaleString()}
-										</p>
-									</div>
-
-									<div className="flex shrink-0 flex-wrap items-center gap-2">
-										<a
-											className="group inline-flex items-center gap-1.5 rounded-full border border-border/40 bg-background px-3 py-1.5 text-[12px] transition-all duration-200 hover:-translate-y-0.5 hover:border-foreground/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
-											href={file.publicUrl}
-											rel="noreferrer"
-											target="_blank"
-										>
-											<span className="tabular-nums">open</span>
-											<ArrowUpRight
-												aria-hidden
-												className="size-3 shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-foreground"
-											/>
-										</a>
-										<button
-											className="inline-flex items-center gap-1.5 rounded-full border border-destructive/30 bg-background px-3 py-1.5 text-[12px] text-destructive transition-all duration-200 hover:-translate-y-0.5 hover:border-destructive/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-destructive/20 focus-visible:ring-offset-2"
-											onClick={() =>
-												deleteFile(file.key).catch((err) =>
-													setFailure(err.message)
-												)
-											}
-											type="button"
-										>
-											<Trash2 aria-hidden className="size-3 shrink-0" />
-											<span>delete</span>
-										</button>
-									</div>
-								</div>
-
-								<div className="mt-4 flex flex-col gap-2 sm:flex-row">
-									<input
-										className={`${inputClassName} min-w-0 flex-1 py-2 font-mono text-sm`}
-										onChange={(event) =>
-											setRenameKeys((current) => ({
-												...current,
-												[file.key]: event.target.value,
-											}))
-										}
-										value={renameKeys[file.key] ?? file.key}
-									/>
-									<button
-										className="inline-flex items-center justify-center gap-1.5 rounded-full border border-border/40 bg-background px-4 py-2 text-[12px] transition-all duration-200 hover:-translate-y-0.5 hover:border-foreground/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
-										onClick={() =>
-											renameFile(file.key).catch((err) =>
-												setFailure(err.message)
-											)
-										}
-										type="button"
-									>
-										<Pencil aria-hidden className="size-3 shrink-0" />
-										<span>rename</span>
-									</button>
-								</div>
-
-								<details className="group/replace mt-4">
-									<summary className="meta-tag inline-flex cursor-pointer items-center gap-1.5 normal-case hover:text-foreground">
-										<span className="transition-transform group-open/replace:rotate-45">
-											<Plus className="size-3" />
-										</span>
-										replace this file
-									</summary>
-									<div className="mt-4">
-										<VaultFileUpload
-											compact
-											description={`drop a new file to overwrite ${file.key}.`}
-											onUpload={(selectedFile, onProgress) =>
-												uploadFile(file.key, selectedFile, onProgress)
-											}
-											successMessage={`${file.key} swapped.`}
-											targetKey={file.key}
-											uploadButtonLabel="replace"
-										/>
-									</div>
-								</details>
-							</li>
+								onDelete={deleteFile}
+								onFailure={setFailure}
+								onRename={renameFile}
+								onRenameKeyChange={onRenameKeyChange}
+								onUpload={uploadFile}
+								renameKey={renameKeys[file.key] ?? file.key}
+							/>
 						))}
 					</ul>
 				)}

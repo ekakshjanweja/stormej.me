@@ -20,7 +20,7 @@ interface UserCursorProps {
 }
 
 export const UserCursor = memo(
-	forwardRef<HTMLDivElement, UserCursorProps>(function UserCursor(
+	forwardRef<HTMLDivElement, UserCursorProps>(function UserCursorInner(
 		{ color, name, messages, isChatMode, currentMessage, position },
 		ref
 	) {

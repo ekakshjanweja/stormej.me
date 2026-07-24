@@ -414,7 +414,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 				RECONNECT_INITIAL_MS * 2 ** retryCountRef.current,
 				RECONNECT_MAX_MS
 			);
-			retryCountRef.current++;
+			retryCountRef.current += 1;
 			console.log(
 				`WebSocket disconnected, reconnecting in ${delay}ms (attempt ${retryCountRef.current})`
 			);

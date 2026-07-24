@@ -6,6 +6,9 @@ import type { WorkLogoAsset } from "@/lib/types/types";
 import { cn } from "@/lib/utils";
 import { isPairedScreenshots } from "@/lib/work-image";
 
+/** Colour channels are bucketed into 8 bands so near-identical pixels group. */
+const BUCKET_SIZE = 32;
+
 interface Props {
 	alt?: string;
 	boxClassName?: string;
@@ -68,7 +71,7 @@ export function LogoTile({
 					if (lum > 240 || lum < 15) {
 						continue;
 					}
-					const key = `${r >> 5}-${g >> 5}-${b >> 5}`;
+					const key = `${Math.floor(r / BUCKET_SIZE)}-${Math.floor(g / BUCKET_SIZE)}-${Math.floor(b / BUCKET_SIZE)}`;
 					const cur = buckets.get(key) ?? { b: 0, g: 0, n: 0, r: 0, score: 0 };
 					cur.r += r;
 					cur.g += g;

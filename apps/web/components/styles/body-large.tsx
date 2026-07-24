@@ -7,9 +7,7 @@ export default function BodyLarge({
 }) {
 	return (
 		<p
-			className={
-				className + "font-light text-base text-foreground leading-6 opacity-85"
-			}
+			className={`${className}font-light text-base text-foreground leading-6 opacity-85`}
 		>
 			{text}
 		</p>

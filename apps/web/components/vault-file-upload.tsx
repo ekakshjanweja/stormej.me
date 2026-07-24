@@ -10,7 +10,7 @@ import {
 	X,
 } from "lucide-react";
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Progress } from "@/components/ui/progress";
 
@@ -38,6 +38,22 @@ const isPdf = (file: File) =>
 
 const isImage = (file: File) =>
 	file.type.startsWith("image/") || IMAGE_EXTENSION.test(file.name);
+
+function PreviewIcon({
+	status,
+	isImage: image,
+}: {
+	status: UploadStatus;
+	isImage: boolean;
+}) {
+	if (status === "uploading") {
+		return <Loader2 className="size-4 animate-spin text-muted-foreground" />;
+	}
+	if (image) {
+		return <ImageIcon className="size-4 text-muted-foreground" />;
+	}
+	return <FileText className="size-4 text-muted-foreground" />;
+}
 
 const formatBytes = (bytes: number) => {
 	if (bytes === 0) {
@@ -84,7 +100,7 @@ export function VaultFileUpload({
 		return () => URL.revokeObjectURL(objectUrl);
 	}, [selectedFile]);
 
-	const chooseFile = (file?: File) => {
+	const chooseFile = useCallback((file?: File) => {
 		if (!file) {
 			return;
 		}
@@ -99,9 +115,9 @@ export function VaultFileUpload({
 		setProgress(0);
 		setStatus("ready");
 		setError(null);
-	};
+	}, []);
 
-	const uploadFile = async () => {
+	const uploadFile = useCallback(async () => {
 		if (!selectedFile) {
 			setError("pick a file first.");
 			setStatus("error");
@@ -121,9 +137,9 @@ export function VaultFileUpload({
 				uploadError instanceof Error ? uploadError.message : "upload failed."
 			);
 		}
-	};
+	}, [onUpload, selectedFile]);
 
-	const clearSelection = () => {
+	const clearSelection = useCallback(() => {
 		setSelectedFile(null);
 		setProgress(0);
 		setStatus("ready");
@@ -131,51 +147,56 @@ export function VaultFileUpload({
 		if (filePickerRef.current) {
 			filePickerRef.current.value = "";
 		}
-	};
+	}, []);
 
-	const onFileInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		chooseFile(event.target.files?.[0]);
-	};
+	const onFileInputChange = useCallback(
+		(event: React.ChangeEvent<HTMLInputElement>) => {
+			chooseFile(event.target.files?.[0]);
+		},
+		[chooseFile]
+	);
 
-	const onDragOver = (event: React.DragEvent) => {
+	const onDragOver = useCallback((event: React.DragEvent) => {
 		event.preventDefault();
 		setIsDragging(true);
-	};
+	}, []);
 
-	const onDragLeave = (event: React.DragEvent) => {
+	const onDragLeave = useCallback((event: React.DragEvent) => {
 		event.preventDefault();
 		setIsDragging(false);
-	};
+	}, []);
 
-	const onDropFiles = (event: React.DragEvent) => {
-		event.preventDefault();
-		setIsDragging(false);
-		chooseFile(event.dataTransfer.files?.[0]);
-	};
+	const onDropFiles = useCallback(
+		(event: React.DragEvent) => {
+			event.preventDefault();
+			setIsDragging(false);
+			chooseFile(event.dataTransfer.files?.[0]);
+		},
+		[chooseFile]
+	);
+
+	const openFilePicker = useCallback(() => filePickerRef.current?.click(), []);
+
+	const runUpload = useCallback(() => {
+		uploadFile();
+	}, [uploadFile]);
 
 	const selectedIsImage = selectedFile ? isImage(selectedFile) : false;
 	const selectedIsPdf = selectedFile ? isPdf(selectedFile) : false;
 
 	return (
 		<div className="flex w-full flex-col gap-4">
-			<div
-				className={`group flex w-full cursor-pointer flex-col items-start gap-2 rounded-md border border-dashed bg-background px-4 text-[13px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 ${
+			<button
+				className={`group flex w-full cursor-pointer flex-col items-start gap-2 rounded-md border border-dashed bg-background px-4 text-left text-[13px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 ${
 					isDragging
 						? "border-foreground/60 bg-muted/40"
 						: "border-border/60 hover:border-foreground/30 hover:bg-muted/20"
 				} ${compact ? "min-h-24 py-4" : "min-h-32 py-5"}`}
-				onClick={() => filePickerRef.current?.click()}
+				onClick={openFilePicker}
 				onDragLeave={onDragLeave}
 				onDragOver={onDragOver}
 				onDrop={onDropFiles}
-				onKeyDown={(event) => {
-					if (event.key === "Enter" || event.key === " ") {
-						event.preventDefault();
-						filePickerRef.current?.click();
-					}
-				}}
-				role="button"
-				tabIndex={0}
+				type="button"
 			>
 				<div className="flex items-center gap-2 text-foreground">
 					<Upload aria-hidden className="size-4 text-muted-foreground" />
@@ -198,19 +219,13 @@ export function VaultFileUpload({
 				<span className="meta-tag normal-case tracking-[0.06em]">
 					{description ?? "pdfs and images."}
 				</span>
-			</div>
+			</button>
 
 			{selectedFile && (
 				<div className="flex flex-col gap-3 pt-1">
 					<div className="flex items-center gap-3">
 						<div className="grid size-9 shrink-0 place-content-center rounded-md border border-border/60 bg-muted/30">
-							{status === "uploading" ? (
-								<Loader2 className="size-4 animate-spin text-muted-foreground" />
-							) : selectedIsImage ? (
-								<ImageIcon className="size-4 text-muted-foreground" />
-							) : (
-								<FileText className="size-4 text-muted-foreground" />
-							)}
+							<PreviewIcon isImage={selectedIsImage} status={status} />
 						</div>
 						<div className="flex min-w-0 flex-1 flex-col">
 							<div className="flex items-center justify-between gap-2">
@@ -244,7 +259,8 @@ export function VaultFileUpload({
 
 					{!compact && previewUrl && selectedIsImage && (
 						<div className="overflow-hidden rounded-md border border-border/60 bg-muted/20">
-							{/* eslint-disable-next-line @next/next/no-img-element */}
+							{/* biome-ignore lint/performance/noImgElement: blob: object URL for a locally picked file, nothing for next/image to optimise */}
+							{/* biome-ignore lint/correctness/useImageSize: the preview is fluid and the file dimensions are unknown */}
 							<img
 								alt="selected file preview"
 								className="max-h-80 w-full object-contain"
@@ -277,7 +293,7 @@ export function VaultFileUpload({
 					<button
 						className="group/btn mt-1 inline-flex w-fit items-center gap-2 rounded-full bg-foreground px-4 py-2 text-[13px] text-background shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-sm"
 						disabled={disabled || status === "uploading"}
-						onClick={uploadFile}
+						onClick={runUpload}
 						type="button"
 					>
 						<span className="tabular-nums">

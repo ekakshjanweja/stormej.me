@@ -172,7 +172,7 @@ export default async function Page({ params }: PageProps) {
 				<div className="mb-10 overflow-hidden rounded-lg">
 					<YouTubeVideo
 						title={fm.title}
-						videoId={extractYouTubeVideoId(fm.youtube)!}
+						videoId={extractYouTubeVideoId(fm.youtube)}
 					/>
 				</div>
 			)}
@@ -191,7 +191,7 @@ export default async function Page({ params }: PageProps) {
 const YOUTUBE_URL =
 	/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
 
-function extractYouTubeVideoId(url: string): string | null {
+function extractYouTubeVideoId(url: string): string {
 	const match = url.match(YOUTUBE_URL);
 	return match ? match[1] : "dQw4w9WgXcQ";
 }

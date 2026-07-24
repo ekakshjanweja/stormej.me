@@ -3,7 +3,7 @@ import { Bun } from "@/components/ui/svgs/bun";
 import { Dart } from "@/components/ui/svgs/dart";
 import { Flutter } from "@/components/ui/svgs/flutter";
 import { Hono } from "@/components/ui/svgs/hono";
-import { NextjsIconDark as Nextjs } from "@/components/ui/svgs/nextjsIconDark";
+import { NextjsIconDark as Nextjs } from "@/components/ui/svgs/nextjs-icon-dark";
 import { Tailwindcss } from "@/components/ui/svgs/tailwindcss";
 import { Typescript } from "@/components/ui/svgs/typescript";
 import {

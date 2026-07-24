@@ -47,7 +47,7 @@ export function TextScramble({
 			let scrambled = "";
 			const progress = step / steps;
 
-			for (let i = 0; i < text.length; i++) {
+			for (let i = 0; i < text.length; i += 1) {
 				if (text[i] === " ") {
 					scrambled += " ";
 					continue;
@@ -62,7 +62,7 @@ export function TextScramble({
 			}
 
 			setDisplayText(scrambled);
-			step++;
+			step += 1;
 
 			if (step > steps) {
 				clearInterval(interval);

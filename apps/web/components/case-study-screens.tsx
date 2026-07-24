@@ -2,7 +2,7 @@
 
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Iphone17Pro } from "@/components/ui/iphone-17-pro";
 import type { ScreenshotMockupKind, WorkImageAsset } from "@/lib/types/types";
 import { cn } from "@/lib/utils";
@@ -121,6 +121,18 @@ export function CaseStudyScreens({
 }) {
 	const [openIndex, setOpenIndex] = useState<number | null>(null);
 	const count = images.length;
+	const openAsset = openIndex === null ? undefined : images[openIndex];
+
+	const closeLightbox = useCallback(() => setOpenIndex(null), []);
+	const showNext = useCallback(
+		() =>
+			setOpenIndex((i) => (i !== null && i < images.length - 1 ? i + 1 : i)),
+		[images.length]
+	);
+	const showPrev = useCallback(
+		() => setOpenIndex((i) => (i !== null && i > 0 ? i - 1 : i)),
+		[]
+	);
 
 	useEffect(() => {
 		if (openIndex === null) {
@@ -182,7 +194,7 @@ export function CaseStudyScreens({
 								<ScreenCard
 									asset={asset}
 									index={i}
-									onOpen={() => setOpenIndex(i)}
+									onOpen={setOpenIndex}
 									priority={i === 0}
 									screenshotMockup={screenshotMockup}
 									title={title}
@@ -193,15 +205,13 @@ export function CaseStudyScreens({
 				</div>
 			</section>
 
-			{openIndex !== null && (
+			{openIndex !== null && openAsset !== undefined && (
 				<Lightbox
-					asset={images[openIndex]!}
+					asset={openAsset}
 					index={openIndex}
-					onClose={() => setOpenIndex(null)}
-					onNext={() =>
-						openIndex < images.length - 1 && setOpenIndex(openIndex + 1)
-					}
-					onPrev={() => openIndex > 0 && setOpenIndex(openIndex - 1)}
+					onClose={closeLightbox}
+					onNext={showNext}
+					onPrev={showPrev}
 					screenshotMockup={screenshotMockup}
 					title={title}
 					total={images.length}
@@ -224,8 +234,9 @@ function ScreenCard({
 	index: number;
 	priority?: boolean;
 	screenshotMockup?: ScreenshotMockupKind;
-	onOpen: () => void;
+	onOpen: (index: number) => void;
 }) {
+	const open = useCallback(() => onOpen(index), [onOpen, index]);
 	const video = isVideoAsset(asset) && typeof asset === "string";
 	const useIphone17 = !video && screenshotMockup === "iphone-17-pro";
 	const label = `${title}, screen ${index + 1}`;
@@ -240,7 +251,7 @@ function ScreenCard({
 					: "rounded-xl border border-border/50 bg-background/80 p-2.5 shadow-sm hover:z-[1] hover:border-foreground/20 hover:shadow-md",
 				"focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 			)}
-			onClick={onOpen}
+			onClick={open}
 			type="button"
 		>
 			{video ? (
