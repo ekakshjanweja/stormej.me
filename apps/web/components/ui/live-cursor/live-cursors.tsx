@@ -196,6 +196,18 @@ export function LiveCursors() {
 	);
 	const shouldHideCursor = !isTouchDevice && hasOthersOnSamePath;
 
+	const enterChatMode = useCallback(() => setIsChatMode(true), []);
+	const exitChatMode = useCallback(() => {
+		setIsChatMode(false);
+		setCurrentMessage("");
+	}, []);
+	const sendCurrentMessage = useCallback(() => {
+		const text = currentMessage.trim();
+		if (text) {
+			addMessage(text);
+		}
+	}, [currentMessage, addMessage]);
+
 	if (!user) {
 		return null;
 	}
@@ -234,7 +246,7 @@ export function LiveCursors() {
 
 			{/* Mobile chat button */}
 			{isTouchDevice && !isChatMode && hasOthersOnSamePath && (
-				<MobileChatButton onClick={() => setIsChatMode(true)} />
+				<MobileChatButton onClick={enterChatMode} />
 			)}
 
 			{/* Mobile chat modal */}
@@ -243,14 +255,9 @@ export function LiveCursors() {
 					currentMessage={currentMessage}
 					hasOthersOnSamePath={hasOthersOnSamePath}
 					messages={activeUserMessages}
-					onClose={() => {
-						setIsChatMode(false);
-						setCurrentMessage("");
-					}}
+					onClose={exitChatMode}
 					onMessageChange={setCurrentMessage}
-					onSend={() =>
-						currentMessage.trim() && addMessage(currentMessage.trim())
-					}
+					onSend={sendCurrentMessage}
 					ref={inputRef}
 					userColor={user.color}
 				/>

@@ -428,10 +428,10 @@ function Lightbox({
 					"relative z-[1] flex max-h-[min(88vh,860px)] w-full flex-col items-center",
 					useIphone17 ? "max-w-[min(100%,340px)]" : "max-w-[min(100%,420px)]"
 				)}
-				onClick={(e) => e.stopPropagation()}
 			>
 				{video ? (
 					<div className="relative aspect-[9/19] w-full overflow-hidden rounded-2xl border border-border/60 bg-background shadow-2xl ring-1 ring-black/10 dark:ring-white/10">
+						{/* biome-ignore lint/a11y/useMediaCaption: silent ui screen recording, there is no speech to caption */}
 						<video
 							className="absolute inset-0 h-full w-full object-contain"
 							controls

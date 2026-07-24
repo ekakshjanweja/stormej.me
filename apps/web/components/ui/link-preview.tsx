@@ -99,7 +99,7 @@ export const LinkPreview = ({
 
 			<HoverCardPrimitive.Root
 				closeDelay={120}
-				onOpenChange={(open) => setOpen(open)}
+				onOpenChange={setOpen}
 				openDelay={120}
 			>
 				<HoverCardPrimitive.Trigger

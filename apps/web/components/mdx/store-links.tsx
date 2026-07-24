@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { AppStore } from "@/components/ui/app-store";
 import { PlayStore } from "@/components/ui/play-store";
 import { cn } from "@/lib/utils";
@@ -36,6 +36,22 @@ export function StoreLinks({
 	const playStoreItems = toStoreLinks(playStore);
 
 	const iconRefs = useRef<Array<HTMLAnchorElement | null>>([]);
+	const refSetters = useRef<Array<(node: HTMLAnchorElement | null) => void>>(
+		[]
+	);
+
+	// one stable ref callback per slot, so the <a>s don't get a new one each render
+	const setIconRef = useCallback((index: number) => {
+		const existing = refSetters.current[index];
+		if (existing) {
+			return existing;
+		}
+		const setter = (node: HTMLAnchorElement | null) => {
+			iconRefs.current[index] = node;
+		};
+		refSetters.current[index] = setter;
+		return setter;
+	}, []);
 
 	useEffect(() => {
 		const tooltipOffset = 8;
@@ -107,9 +123,7 @@ export function StoreLinks({
 					data-placement="top"
 					href={item.href}
 					key={`app-${item.href}`}
-					ref={(node) => {
-						iconRefs.current[i] = node;
-					}}
+					ref={setIconRef(i)}
 					rel="noopener noreferrer"
 					target="_blank"
 				>
@@ -126,9 +140,7 @@ export function StoreLinks({
 					data-placement="top"
 					href={item.href}
 					key={`play-${item.href}`}
-					ref={(node) => {
-						iconRefs.current[appStoreItems.length + i] = node;
-					}}
+					ref={setIconRef(appStoreItems.length + i)}
 					rel="noopener noreferrer"
 					target="_blank"
 				>

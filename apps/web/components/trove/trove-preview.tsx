@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { useTheme } from "next-themes";
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { track } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 
@@ -64,6 +64,7 @@ export function TrovePreview({
 }: TrovePreviewProps) {
 	const [isOpen, setOpen] = useState(false);
 	const [loaded, setLoaded] = useState(false);
+	const onIframeLoad = useCallback(() => setLoaded(true), []);
 	const { resolvedTheme } = useTheme();
 	const theme = resolvedTheme === "dark" ? "dark" : "light";
 
@@ -76,23 +77,26 @@ export function TrovePreview({
 		);
 	}, []);
 
+	const onOpenChange = useCallback(
+		(nextOpen: boolean) => {
+			setOpen(nextOpen);
+			if (!nextOpen) {
+				setLoaded(false);
+				return;
+			}
+			if (demo && !warmed.has(demo)) {
+				warmed.add(demo);
+				track("trove_demo_started", { demo: title, surface });
+			}
+		},
+		[demo, title, surface]
+	);
+
 	if (!(demo && canHover)) {
 		return <>{children}</>;
 	}
 
 	const stageHeightPx = stageHeightForDemo(demo);
-
-	const onOpenChange = (open: boolean) => {
-		setOpen(open);
-		if (!open) {
-			setLoaded(false);
-			return;
-		}
-		if (!warmed.has(demo)) {
-			warmed.add(demo);
-			track("trove_demo_started", { demo: title, surface });
-		}
-	};
 
 	return (
 		<HoverCardPrimitive.Root
@@ -137,6 +141,7 @@ export function TrovePreview({
 									className="relative overflow-hidden bg-background"
 									style={{ height: stageHeightPx }}
 								>
+									{/* biome-ignore lint/a11y/noNoninteractiveElementInteractions: onLoad is a lifecycle event, not a user interaction */}
 									<iframe
 										className={cn(
 											"pointer-events-none block h-full w-full border-0 transition-opacity duration-150 ease-out motion-reduce:transition-none",
@@ -144,7 +149,7 @@ export function TrovePreview({
 										)}
 										// Remount on theme change so the demo re-reads ?theme.
 										key={theme}
-										onLoad={() => setLoaded(true)}
+										onLoad={onIframeLoad}
 										src={`${demo}?theme=${theme}&preview=1`}
 										// The loop is decorative, and a card that swallows the
 										// pointer would fight the hover holding it open.

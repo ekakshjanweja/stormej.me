@@ -2,7 +2,13 @@
 
 import { Loader2, Monitor, Smartphone } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import {
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+	useSyncExternalStore,
+} from "react";
 import { track } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 
@@ -36,6 +42,37 @@ function subscribeToViewportLayout(onStoreChange: () => void) {
  * never reaches it never pays for the bundle, and one who does gets it running
  * without having to ask.
  */
+function LayoutButton({
+	isActive,
+	onSelect,
+	value,
+}: {
+	isActive: boolean;
+	onSelect: (value: Layout) => void;
+	value: Layout;
+}) {
+	const { label, Icon } = DEVICE_FRAMES[value];
+	const onClick = useCallback(() => onSelect(value), [onSelect, value]);
+
+	return (
+		<button
+			aria-label={label}
+			aria-pressed={isActive}
+			className={cn(
+				"inline-flex items-center justify-center px-2 py-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-inset",
+				isActive
+					? "bg-muted/60 text-foreground"
+					: "text-muted-foreground hover:text-foreground"
+			)}
+			onClick={onClick}
+			title={label}
+			type="button"
+		>
+			<Icon aria-hidden className="size-3.5" />
+		</button>
+	);
+}
+
 export function FlutterDemo({
 	src,
 	name,
@@ -48,6 +85,7 @@ export function FlutterDemo({
 	const [inView, setInView] = useState(false);
 	const [loaded, setLoaded] = useState(false);
 	const [manualLayout, setManualLayout] = useState<Layout | null>(null);
+	const onIframeLoad = useCallback(() => setLoaded(true), []);
 	const viewportLayout = useSyncExternalStore<Layout>(
 		subscribeToViewportLayout,
 		layoutForViewport,
@@ -105,27 +143,14 @@ export function FlutterDemo({
 					</span>
 
 					<div className="ml-auto inline-flex shrink-0 overflow-hidden rounded-md border border-border/60">
-						{(Object.keys(DEVICE_FRAMES) as Layout[]).map((value) => {
-							const { label, Icon } = DEVICE_FRAMES[value];
-							return (
-								<button
-									aria-label={label}
-									aria-pressed={layout === value}
-									className={cn(
-										"inline-flex items-center justify-center px-2 py-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-inset",
-										layout === value
-											? "bg-muted/60 text-foreground"
-											: "text-muted-foreground hover:text-foreground"
-									)}
-									key={value}
-									onClick={() => setManualLayout(value)}
-									title={label}
-									type="button"
-								>
-									<Icon aria-hidden className="size-3.5" />
-								</button>
-							);
-						})}
+						{(Object.keys(DEVICE_FRAMES) as Layout[]).map((value) => (
+							<LayoutButton
+								isActive={layout === value}
+								key={value}
+								onSelect={setManualLayout}
+								value={value}
+							/>
+						))}
 					</div>
 				</div>
 
@@ -134,6 +159,7 @@ export function FlutterDemo({
 					style={{ aspectRatio: `${frame.width} / ${frame.height}` }}
 				>
 					{inView && (
+						// biome-ignore lint/a11y/noNoninteractiveElementInteractions: onLoad is a lifecycle event, not a user interaction
 						<iframe
 							className={cn(
 								"absolute inset-0 block h-full w-full border-0 bg-background transition-opacity duration-150 ease-out motion-reduce:transition-none",
@@ -142,7 +168,7 @@ export function FlutterDemo({
 							// Remount on theme change so the demo re-reads ?theme. Layout
 							// changes only resize it, so flutter reflows without a reload.
 							key={theme}
-							onLoad={() => setLoaded(true)}
+							onLoad={onIframeLoad}
 							src={`${src}?theme=${theme}`}
 							title={`${name} interactive demo`}
 						/>
