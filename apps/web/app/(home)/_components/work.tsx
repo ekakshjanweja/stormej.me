@@ -207,6 +207,112 @@ function HomeWorkPreview({
 	);
 }
 
+function PhoneSlotMedia({
+	src,
+	title,
+	useIphone17,
+}: {
+	src: WorkImageAsset;
+	title: string;
+	useIphone17: boolean;
+}) {
+	if (typeof src === "string" && isVideoAsset(src)) {
+		return (
+			<video
+				autoPlay
+				className="absolute inset-0 h-full w-full object-cover"
+				loop
+				muted
+				playsInline
+				preload="metadata"
+				src={src}
+			/>
+		);
+	}
+
+	if (useIphone17) {
+		if (isPairedScreenshots(src)) {
+			return (
+				<>
+					<Iphone17Pro
+						className="dark:hidden"
+						height={148}
+						src={src.light}
+						width={74}
+					/>
+					<Iphone17Pro
+						className="hidden dark:block"
+						height={148}
+						src={src.dark}
+						width={74}
+					/>
+				</>
+			);
+		}
+		if (typeof src === "string") {
+			return <Iphone17Pro height={148} src={src} width={74} />;
+		}
+		return null;
+	}
+
+	if (isPairedScreenshots(src)) {
+		return (
+			<>
+				<Image
+					alt={`${title} screenshot (light)`}
+					className="object-cover dark:hidden"
+					fill
+					sizes="80px"
+					src={src.light}
+				/>
+				<Image
+					alt={`${title} screenshot (dark)`}
+					className="hidden object-cover dark:block"
+					fill
+					sizes="80px"
+					src={src.dark}
+				/>
+			</>
+		);
+	}
+
+	return (
+		<Image
+			alt={`${title} screenshot`}
+			className="object-cover"
+			fill
+			sizes="80px"
+			src={src}
+		/>
+	);
+}
+
+function PhoneSlotLogo({ logo }: { logo: WorkLogoAsset }) {
+	if (isPairedScreenshots(logo)) {
+		return (
+			<>
+				<Image
+					alt=""
+					className="object-contain dark:hidden"
+					fill
+					sizes="24px"
+					src={logo.light}
+				/>
+				<Image
+					alt=""
+					className="hidden object-contain dark:block"
+					fill
+					sizes="24px"
+					src={logo.dark}
+				/>
+			</>
+		);
+	}
+	return (
+		<Image alt="" className="object-contain" fill sizes="24px" src={logo} />
+	);
+}
+
 function HomePreviewPhone({
 	src,
 	logo,
@@ -235,92 +341,13 @@ function HomePreviewPhone({
 			)}
 		>
 			{src ? (
-				typeof src === "string" && isVideoAsset(src) ? (
-					<video
-						autoPlay
-						className="absolute inset-0 h-full w-full object-cover"
-						loop
-						muted
-						playsInline
-						preload="metadata"
-						src={src}
-					/>
-				) : useIphone17 ? (
-					isPairedScreenshots(src) ? (
-						<>
-							<Iphone17Pro
-								className="dark:hidden"
-								height={148}
-								src={src.light}
-								width={74}
-							/>
-							<Iphone17Pro
-								className="hidden dark:block"
-								height={148}
-								src={src.dark}
-								width={74}
-							/>
-						</>
-					) : typeof src === "string" ? (
-						<Iphone17Pro height={148} src={src} width={74} />
-					) : null
-				) : isPairedScreenshots(src) ? (
-					<>
-						<Image
-							alt={`${title} screenshot (light)`}
-							className="object-cover dark:hidden"
-							fill
-							sizes="80px"
-							src={src.light}
-						/>
-						<Image
-							alt={`${title} screenshot (dark)`}
-							className="hidden object-cover dark:block"
-							fill
-							sizes="80px"
-							src={src.dark}
-						/>
-					</>
-				) : (
-					<Image
-						alt={`${title} screenshot`}
-						className="object-cover"
-						fill
-						sizes="80px"
-						src={src}
-					/>
-				)
+				<PhoneSlotMedia src={src} title={title} useIphone17={useIphone17} />
 			) : (
 				<div className={cn("absolute inset-0 bg-gradient-to-br", gradient)}>
 					<div className="absolute top-2 left-1/2 h-1 w-6 -translate-x-1/2 rounded-full bg-foreground/20" />
 					{logo && (
 						<span className="absolute top-1/2 left-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 opacity-50">
-							{isPairedScreenshots(logo) ? (
-								<>
-									<Image
-										alt=""
-										className="object-contain dark:hidden"
-										fill
-										sizes="24px"
-										src={logo.light}
-									/>
-									<Image
-										alt=""
-										className="hidden object-contain dark:block"
-										fill
-										sizes="24px"
-										src={logo.dark}
-									/>
-								</>
-							) : (
-								<Image
-									alt=""
-									className="object-contain"
-									fill
-									sizes="24px"
-									src={logo}
-								/>
-							)}
+							<PhoneSlotLogo logo={logo} />
 						</span>
 					)}
 				</div>

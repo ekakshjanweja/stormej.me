@@ -7,6 +7,12 @@ import { cn } from "@/lib/utils";
 
 type CopyState = "idle" | "copied" | "failed";
 
+const COPY_LABEL = {
+	copied: "copied",
+	failed: "failed",
+	idle: "copy",
+} as const;
+
 export function CopyFile({
 	name,
 	lines,
@@ -81,11 +87,7 @@ export function CopyFile({
 					) : (
 						<Copy aria-hidden className="size-3.5" />
 					)}
-					{state === "copied"
-						? "copied"
-						: state === "failed"
-							? "failed"
-							: "copy"}
+					{COPY_LABEL[state]}
 				</button>
 			</div>
 

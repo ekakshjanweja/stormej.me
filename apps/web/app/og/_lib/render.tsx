@@ -7,6 +7,17 @@ export type OgVariant = "editorial" | "dark" | "mono" | "minimal";
 const FONT_SRC = /src: url\((.+?)\) format\('(opentype|truetype)'\)/;
 const OWN_NAME = /^ekaksh\s+janweja$/i;
 
+/** Headline type shrinks in two steps so long titles still fit the card. */
+function headlineFontSize(headline: string) {
+	if (headline.length > 50) {
+		return 76;
+	}
+	if (headline.length > 28) {
+		return 96;
+	}
+	return 120;
+}
+
 const KIND_LABEL: Record<OgKind, string | null> = {
 	blog: "writing",
 	gear: "gear",
@@ -170,8 +181,7 @@ async function renderEditorial(opts: RenderOgOptions) {
 						color: fgColor,
 						display: "flex",
 						fontFamily: "Instrument Serif",
-						fontSize:
-							headline.length > 50 ? 76 : headline.length > 28 ? 96 : 120,
+						fontSize: headlineFontSize(headline),
 						fontStyle: "italic",
 						letterSpacing: "-0.02em",
 						lineHeight: 1.05,
@@ -306,8 +316,7 @@ async function renderDark(opts: RenderOgOptions) {
 						color: fgColor,
 						display: "flex",
 						fontFamily: "Instrument Serif",
-						fontSize:
-							headline.length > 50 ? 76 : headline.length > 28 ? 96 : 120,
+						fontSize: headlineFontSize(headline),
 						fontStyle: "italic",
 						letterSpacing: "-0.02em",
 						lineHeight: 1.05,

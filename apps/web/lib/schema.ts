@@ -135,12 +135,12 @@ export function buildCreativeWorkSchema(
 	input: CreativeWorkInput
 ): SchemaObject {
 	const url = `${SITE}/${input.kind}/${input.slug}`;
-	const toIso = (d?: string | Date) =>
-		d
-			? d instanceof Date
-				? d.toISOString()
-				: new Date(d).toISOString()
-			: undefined;
+	const toIso = (d?: string | Date) => {
+		if (!d) {
+			return;
+		}
+		return d instanceof Date ? d.toISOString() : new Date(d).toISOString();
+	};
 	const schema: SchemaObject = {
 		"@context": "https://schema.org",
 		"@type": "CreativeWork",
