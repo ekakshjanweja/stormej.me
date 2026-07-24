@@ -1,44 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# stormej.me
 
-## Getting Started
+a bun workspace laid out the way [better-t-stack](https://better-t-stack.dev) generates
+`next + hono + workers + better-auth + drizzle/d1`, with turborepo, biome and ultracite on top.
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+apps/
+  web/      next.js site (fumadocs mdx content, deployed to vercel)
+  server/   hono worker (r2 uploads, realtime durable object, better-auth) on cloudflare
+packages/
+  auth/     better-auth instance over drizzle
+  db/       drizzle schema + d1 client, migrations in src/migrations
+  shared/   types and constants the site and the worker both use
+  config/   shared tsconfig base
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## getting started
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+bun install
+cp apps/web/.env.example apps/web/.env
+cp apps/server/.dev.vars.example apps/server/.dev.vars   # then set BETTER_AUTH_SECRET
 
-## Blog posts
+bun run db:migrate       # apply migrations to the local d1
+bun run dev              # next on :3000, wrangler on :8787
+```
 
-Posts live as MDX files under `content/`. Each file uses YAML front matter (`title`, `date`, `description`, optional `published`).
+`bun run dev:web` and `bun run dev:server` start one side on its own.
 
-- **`published`** (optional): omit or `true` to list the post on `/blog` and the homepage blog section. Set to `false` to **unpublish** (hidden from those lists; the post remains reachable at `/blog/[slug]` if you share the link).
+## commands
 
-Listing logic: [`lib/blog.ts`](lib/blog.ts) (`listBlogs()`), backed by Fumadocs MDX (`content/`).
+| command                   | what it does                                     |
+| ------------------------- | ------------------------------------------------ |
+| `bun run build`           | next build + next-sitemap                        |
+| `bun run check-types`     | tsc across every workspace                       |
+| `bun run check` / `fix`   | ultracite (biome) lint + format                  |
+| `bun run db:generate`     | drizzle-kit generate after a schema change       |
+| `bun run db:migrate`      | apply migrations to the local d1                 |
+| `bun run db:migrate:remote` | apply migrations to the remote d1              |
+| `bun run deploy:server`   | `wrangler deploy` from apps/server               |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## the vault
 
-## Learn More
+`/vault` is a single-admin file manager over r2. auth is better-auth on the worker, mounted at
+`/api/auth`, which next rewrites to so the session cookie stays first party. signup is closed
+unless `ALLOW_SIGNUP=true` is set on the worker — set it once to seed the admin account, then
+remove it.
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+curl -X POST http://localhost:8787/api/auth/sign-up/email \
+  -H "Content-Type: application/json" \
+  -d '{"email":"you@example.com","password":"...","name":"you"}'
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## deploying
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+the site builds on vercel from the root `vercel.json` (`apps/web` as the service root). the worker
+ships with `wrangler deploy` from `apps/server`; it is not managed by alchemy, so `wrangler.jsonc`
+is the source of truth for the r2 bucket, the d1 database and the durable object.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+worker secrets go in with `wrangler secret put BETTER_AUTH_SECRET`.

@@ -1,0 +1,39 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "stormej",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-12-07",
+  "compatibility_flags": ["nodejs_compat"],
+  "r2_buckets": [
+    {
+      "binding": "STORAGE_BUCKET",
+      "bucket_name": "stormej-storage",
+    },
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "stormej-db",
+      "database_id": "28961a0f-1080-497b-a36b-44b37fb20670",
+      "migrations_dir": "../../packages/db/src/migrations",
+    },
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "REALTIME_ROOM",
+        "class_name": "RealtimeRoom",
+      },
+    ],
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["RealtimeRoom"],
+    },
+  ],
+  "vars": {
+    "BETTER_AUTH_URL": "http://localhost:3000",
+    "CORS_ORIGIN": "http://localhost:3000,http://localhost:8787",
+  },
+}

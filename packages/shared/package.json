@@ -1,0 +1,21 @@
+{
+  "name": "@stormej/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./constants.ts",
+    "./constants": "./constants.ts",
+    "./types/*": "./types/*.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@stormej/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "extends": "@stormej/config/tsconfig.base.json",
+  "include": ["**/*.ts"]
+}
