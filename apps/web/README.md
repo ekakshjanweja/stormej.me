@@ -1,44 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# web
 
-## Getting Started
+the next.js site. run it from the repo root with `bun run dev` (or `bun run dev:web` for just this
+app) so the workspace packages resolve.
 
-First, run the development server:
+## content
+
+everything under `content/` is fumadocs mdx, wired up in [`source.config.ts`](source.config.ts):
+
+| directory              | surface         | listing logic                            |
+| ---------------------- | --------------- | ---------------------------------------- |
+| `content/blogs`        | `/blog`         | [`lib/blog.ts`](lib/blog.ts)             |
+| `content/work`         | `/work`         | [`lib/work.ts`](lib/work.ts)             |
+| `content/projects`     | `/projects`     | [`lib/projects.ts`](lib/projects.ts)     |
+| `content/publications` | `/publications` | [`lib/publication.ts`](lib/publication.ts) |
+| `content/trove`        | `/trove`        | [`lib/trove.ts`](lib/trove.ts)           |
+
+each file uses yaml front matter (`title`, `date`, `description`, optional `published`).
+
+- **`published`** (optional): omit or `true` to list the post on `/blog` and the homepage blog
+  section. set to `false` to **unpublish** — hidden from those lists, but the post is still
+  reachable at `/blog/[slug]` if you share the link.
+
+## trove demos
+
+`/trove/<slug>` embeds a flutter web build served from `public/trove/`. rebuild one after changing
+its source:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun run build:trove app-toast   # or with no argument to rebuild every demo
+bun run sync:trove              # pull the dart sources back into content/
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+set `TROVE_DIR` if the flutter repo isn't at `~/dev/experiments/trove`. the whole section can be
+switched off in [`lib/trove-config.ts`](lib/trove-config.ts); the sitemap reads that same flag so a
+disabled section is never advertised.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## the worker
 
-## Blog posts
-
-Posts live as MDX files under `content/`. Each file uses YAML front matter (`title`, `date`, `description`, optional `published`).
-
-- **`published`** (optional): omit or `true` to list the post on `/blog` and the homepage blog section. Set to `false` to **unpublish** (hidden from those lists; the post remains reachable at `/blog/[slug]` if you share the link).
-
-Listing logic: [`lib/blog.ts`](lib/blog.ts) (`listBlogs()`), backed by Fumadocs MDX (`content/`).
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`/files/*`, `/admin/*` and `/api/auth/*` are rewritten to the hono worker in
+[`next.config.mjs`](next.config.mjs). point `NEXT_PUBLIC_WORKER_URL` at it; it defaults to
+`http://localhost:8787` in development.

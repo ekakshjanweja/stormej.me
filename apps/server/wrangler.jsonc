@@ -14,8 +14,7 @@
     {
       "binding": "DB",
       "database_name": "stormej-db",
-      // replace with the id printed by `bunx wrangler d1 create stormej-db`
-      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "database_id": "28961a0f-1080-497b-a36b-44b37fb20670",
       "migrations_dir": "../../packages/db/src/migrations",
     },
   ],
