@@ -16,6 +16,13 @@ const storeIconLink =
 const hoverLabel =
 	"pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-md border border-border/70 bg-popover px-2 py-1 text-[10px] font-medium leading-none tracking-wide text-foreground opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none motion-reduce:group-hover:opacity-100 motion-reduce:group-focus-visible:opacity-100 group-data-[placement=bottom]:top-[calc(100%+8px)] group-data-[placement=bottom]:bottom-auto";
 
+function toStoreLinks(value?: StoreLink | StoreLink[]): StoreLink[] {
+	if (!value) {
+		return [];
+	}
+	return Array.isArray(value) ? value : [value];
+}
+
 export function StoreLinks({
 	appStore,
 	playStore,
@@ -25,20 +32,8 @@ export function StoreLinks({
 	playStore?: StoreLink | StoreLink[];
 	className?: string;
 }) {
-	const appStoreItems = appStore
-		? Array.isArray(appStore)
-			? appStore
-			: [appStore]
-		: [];
-	const playStoreItems = playStore
-		? Array.isArray(playStore)
-			? playStore
-			: [playStore]
-		: [];
-
-	if (appStoreItems.length === 0 && playStoreItems.length === 0) {
-		return null;
-	}
+	const appStoreItems = toStoreLinks(appStore);
+	const playStoreItems = toStoreLinks(playStore);
 
 	const iconRefs = useRef<Array<HTMLAnchorElement | null>>([]);
 
@@ -53,9 +48,9 @@ export function StoreLinks({
 			const safeTop = navHeight + tooltipOffset;
 			const needed = tooltipHeight + tooltipOffset;
 
-			iconRefs.current.forEach((el) => {
+			for (const el of iconRefs.current) {
 				if (!el) {
-					return;
+					continue;
 				}
 				const rect = el.getBoundingClientRect();
 				const spaceAbove = rect.top - safeTop;
@@ -71,7 +66,7 @@ export function StoreLinks({
 				}
 
 				el.dataset.placement = placement;
-			});
+			}
 		};
 
 		const scheduleUpdate = () => {
@@ -93,6 +88,10 @@ export function StoreLinks({
 			window.removeEventListener("scroll", scheduleUpdate);
 		};
 	}, []);
+
+	if (appStoreItems.length === 0 && playStoreItems.length === 0) {
+		return null;
+	}
 
 	return (
 		<div

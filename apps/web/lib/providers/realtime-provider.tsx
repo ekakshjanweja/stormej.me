@@ -305,7 +305,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 			}
 
 			// Flush pending messages
-			pendingMessagesRef.current.forEach((message) => {
+			for (const message of pendingMessagesRef.current) {
 				ws.send(
 					JSON.stringify({
 						payload: {
@@ -319,7 +319,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 						type: "message",
 					})
 				);
-			});
+			}
 			pendingMessagesRef.current = [];
 		};
 
@@ -378,6 +378,8 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 						break;
 					case "pong":
 						// Server acknowledged our ping, connection is healthy
+						break;
+					default:
 						break;
 				}
 			} catch (error) {

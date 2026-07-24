@@ -52,6 +52,7 @@ export default function Work() {
 						<span
 							aria-label={totalExpAria}
 							className="meta-tag normal-case tracking-[0.06em]"
+							role="note"
 						>
 							({totalExp})
 						</span>

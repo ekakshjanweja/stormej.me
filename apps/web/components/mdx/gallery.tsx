@@ -20,6 +20,12 @@ function normalize(item: GalleryItem) {
 	return { alt: "", caption: undefined, src: item };
 }
 
+const COLUMN_CLASS: Record<number, string> = {
+	2: "sm:grid-cols-2",
+	3: "sm:grid-cols-2 md:grid-cols-3",
+	4: "sm:grid-cols-2 md:grid-cols-4",
+};
+
 export function Gallery({
 	items,
 	columns = 2,
@@ -33,12 +39,7 @@ export function Gallery({
 		return null;
 	}
 
-	const colsClass =
-		columns === 4
-			? "sm:grid-cols-2 md:grid-cols-4"
-			: columns === 3
-				? "sm:grid-cols-2 md:grid-cols-3"
-				: "sm:grid-cols-2";
+	const colsClass = COLUMN_CLASS[columns] ?? COLUMN_CLASS[2];
 
 	return (
 		<div className={cn("my-8 grid grid-cols-1 gap-4", colsClass, className)}>

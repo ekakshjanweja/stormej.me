@@ -44,9 +44,9 @@ export const getGithubContributions = unstable_cache(
 			};
 		}
 
-		const latestYear = Object.keys(data.total)
+		const [latestYear] = Object.keys(data.total)
 			.map(Number)
-			.sort((a, b) => b - a)[0];
+			.sort((a, b) => b - a);
 
 		const fallbackYear = latestYear ?? currentYear - 1;
 		const fallbackContributions = selectYear(

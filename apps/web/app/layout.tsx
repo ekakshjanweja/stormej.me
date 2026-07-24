@@ -140,6 +140,7 @@ export default function RootLayout({
 				suppressHydrationWarning
 			>
 				<script
+					// biome-ignore lint/security/noDangerouslySetInnerHtml: json-ld is serialised by jsonLd(); next has no other way to emit structured data
 					dangerouslySetInnerHTML={{ __html: jsonLd(buildWebSiteSchema()) }}
 					type="application/ld+json"
 				/>

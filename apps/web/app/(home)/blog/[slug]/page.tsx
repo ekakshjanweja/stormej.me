@@ -93,6 +93,7 @@ export default async function Page({ params }: PageProps) {
 	return (
 		<main>
 			<script
+				// biome-ignore lint/security/noDangerouslySetInnerHtml: json-ld is serialised by jsonLd(); next has no other way to emit structured data
 				dangerouslySetInnerHTML={{ __html: jsonLd(schemas) }}
 				type="application/ld+json"
 			/>

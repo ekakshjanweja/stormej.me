@@ -8,6 +8,16 @@ const FONT_SRC = /src: url\((.+?)\) format\('(opentype|truetype)'\)/;
 const OWN_NAME = /^ekaksh\s+janweja$/i;
 
 /** Headline type shrinks in two steps so long titles still fit the card. */
+function headlineFontSizeSans(headline: string) {
+	if (headline.length > 50) {
+		return 48;
+	}
+	if (headline.length > 28) {
+		return 60;
+	}
+	return 80;
+}
+
 function headlineFontSize(headline: string) {
 	if (headline.length > 50) {
 		return 76;
@@ -481,8 +491,7 @@ async function renderMono(opts: RenderOgOptions) {
 					style={{
 						color: fgColor,
 						display: "flex",
-						fontSize:
-							headline.length > 50 ? 48 : headline.length > 28 ? 60 : 80,
+						fontSize: headlineFontSizeSans(headline),
 						fontWeight: 700,
 						letterSpacing: "-0.02em",
 						lineHeight: 1.15,

@@ -174,7 +174,7 @@ export class RealtimeRoom implements DurableObject {
 				return; // Silently drop invalid messages
 			}
 
-			const data = parseResult.data;
+			const { data } = parseResult;
 
 			switch (data.type) {
 				case "cursor": {
@@ -243,6 +243,8 @@ export class RealtimeRoom implements DurableObject {
 					}
 					break;
 				}
+				default:
+					break;
 			}
 		} catch (e) {
 			console.error("[RealtimeRoom] Error parsing message:", e);

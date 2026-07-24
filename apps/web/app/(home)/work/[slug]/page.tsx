@@ -86,7 +86,9 @@ export default async function Page({ params }: PageProps) {
 	const firstChapterId = chapters[0]?.id;
 
 	const chapterIndexById = new Map<string, number>();
-	chapters.forEach((c, i) => chapterIndexById.set(c.id, i));
+	for (const [i, c] of chapters.entries()) {
+		chapterIndexById.set(c.id, i);
+	}
 
 	const ChapterWithIndex = (props: {
 		id: string;
@@ -138,6 +140,7 @@ export default async function Page({ params }: PageProps) {
 	return (
 		<main>
 			<script
+				// biome-ignore lint/security/noDangerouslySetInnerHtml: json-ld is serialised by jsonLd(); next has no other way to emit structured data
 				dangerouslySetInnerHTML={{ __html: jsonLd(schemas) }}
 				type="application/ld+json"
 			/>

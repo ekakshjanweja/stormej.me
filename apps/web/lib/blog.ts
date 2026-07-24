@@ -22,7 +22,7 @@ const fmt = (d?: string) => {
 
 export function listBlogs(): BlogListItem[] {
 	const pages = source.getPages().filter((p) => {
-		const published = (p.data as { published?: boolean }).published;
+		const { published } = p.data as { published?: boolean };
 		return published !== false;
 	});
 

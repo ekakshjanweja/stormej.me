@@ -221,6 +221,61 @@ export function CaseStudyScreens({
 	);
 }
 
+function ScreenCardMedia({
+	asset,
+	label,
+	priority,
+	useIphone17,
+	video,
+}: {
+	asset: WorkImageAsset;
+	label: string;
+	priority?: boolean;
+	useIphone17: boolean;
+	video: boolean;
+}) {
+	if (video) {
+		return (
+			<div
+				aria-hidden
+				className="relative aspect-[9/19] w-full overflow-hidden rounded-lg border border-border/40 bg-muted/30 shadow-inner"
+			>
+				<div className="absolute top-2 left-1/2 z-[1] h-1 w-8 -translate-x-1/2 rounded-full bg-foreground/[0.1]" />
+				{/* biome-ignore lint/a11y/useMediaCaption: silent ui screen recording, no speech to caption */}
+				<video
+					autoPlay
+					className="absolute inset-0 z-0 h-full w-full object-cover"
+					loop
+					muted
+					playsInline
+					preload="metadata"
+					src={asset as string}
+				/>
+			</div>
+		);
+	}
+
+	if (useIphone17) {
+		return <IphoneMockupScreens asset={asset} />;
+	}
+
+	return (
+		<div
+			aria-hidden
+			className="relative aspect-[9/19] w-full overflow-hidden rounded-lg border border-border/40 bg-muted/30 shadow-inner"
+		>
+			<div className="absolute top-2 left-1/2 z-[1] h-1 w-8 -translate-x-1/2 rounded-full bg-foreground/[0.1]" />
+			<ThemedScreenshot
+				alt={label}
+				asset={asset}
+				fit="cover"
+				priority={priority}
+				sizes="(min-width: 640px) 22vw, 78vw"
+			/>
+		</div>
+	);
+}
+
 function ScreenCard({
 	asset,
 	title,
@@ -254,45 +309,50 @@ function ScreenCard({
 			onClick={open}
 			type="button"
 		>
-			{video ? (
-				<div
-					aria-hidden
-					className="relative aspect-[9/19] w-full overflow-hidden rounded-lg border border-border/40 bg-muted/30 shadow-inner"
-				>
-					<div className="absolute top-2 left-1/2 z-[1] h-1 w-8 -translate-x-1/2 rounded-full bg-foreground/[0.1]" />
-					<video
-						autoPlay
-						className="absolute inset-0 z-0 h-full w-full object-cover"
-						loop
-						muted
-						playsInline
-						preload="metadata"
-						src={asset}
-					/>
-				</div>
-			) : useIphone17 ? (
-				<IphoneMockupScreens asset={asset} />
-			) : (
-				<div
-					aria-hidden
-					className="relative aspect-[9/19] w-full overflow-hidden rounded-lg border border-border/40 bg-muted/30 shadow-inner"
-				>
-					<div className="absolute top-2 left-1/2 z-[1] h-1 w-8 -translate-x-1/2 rounded-full bg-foreground/[0.1]" />
-					<ThemedScreenshot
-						alt={label}
-						asset={asset}
-						fit="cover"
-						priority={priority}
-						sizes="(min-width: 640px) 22vw, 78vw"
-					/>
-				</div>
-			)}
+			<ScreenCardMedia
+				asset={asset}
+				label={label}
+				priority={priority}
+				useIphone17={useIphone17}
+				video={video}
+			/>
 			<span className="mt-2.5 flex items-center justify-between gap-2 px-0.5 font-normal text-[10px] text-muted-foreground uppercase tracking-[0.16em]">
 				<span className="tabular-nums">
 					{video ? "clip" : "screen"} · {index + 1}
 				</span>
 			</span>
 		</button>
+	);
+}
+
+function LightboxStill({
+	alt,
+	asset,
+	useIphone17,
+}: {
+	alt: string;
+	asset: WorkImageAsset;
+	useIphone17: boolean;
+}) {
+	if (useIphone17) {
+		return (
+			<IphoneMockupScreens
+				asset={asset}
+				className="max-w-[min(100%,300px)] sm:max-w-[min(100%,320px)]"
+			/>
+		);
+	}
+
+	return (
+		<div className="relative aspect-[9/19] w-full overflow-hidden rounded-2xl border border-border/60 bg-background shadow-2xl ring-1 ring-black/10 dark:ring-white/10">
+			<ThemedScreenshot
+				alt={alt}
+				asset={asset}
+				fit="contain"
+				priority
+				sizes="(min-width: 640px) 420px, 100vw"
+			/>
+		</div>
 	);
 }
 
@@ -380,21 +440,12 @@ function Lightbox({
 							src={asset}
 						/>
 					</div>
-				) : useIphone17 ? (
-					<IphoneMockupScreens
-						asset={asset}
-						className="max-w-[min(100%,300px)] sm:max-w-[min(100%,320px)]"
-					/>
 				) : (
-					<div className="relative aspect-[9/19] w-full overflow-hidden rounded-2xl border border-border/60 bg-background shadow-2xl ring-1 ring-black/10 dark:ring-white/10">
-						<ThemedScreenshot
-							alt={`${title}, full size ${index + 1}`}
-							asset={asset}
-							fit="contain"
-							priority
-							sizes="(min-width: 640px) 420px, 100vw"
-						/>
-					</div>
+					<LightboxStill
+						alt={`${title}, full size ${index + 1}`}
+						asset={asset}
+						useIphone17={useIphone17}
+					/>
 				)}
 				{total > 1 && (
 					<p className="meta-tag mt-4 tabular-nums">

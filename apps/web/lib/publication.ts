@@ -48,7 +48,7 @@ export const resolvePaperUrl = (data: {
 
 export function listPublications(): PublicationListItem[] {
 	const pages = publicationsSource.getPages().filter((p) => {
-		const published = (p.data as { published?: boolean }).published;
+		const { published } = p.data as { published?: boolean };
 		return published !== false;
 	});
 

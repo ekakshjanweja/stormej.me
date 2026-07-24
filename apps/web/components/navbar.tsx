@@ -133,6 +133,8 @@ export function Navbar() {
 					case "r":
 						window.open(resume, "_blank");
 						break;
+					default:
+						break;
 				}
 			}
 		};
