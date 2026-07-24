@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 export function Mermaid({ chart }: { chart: string }) {
 	const id = useId().replace(/:/g, "");
@@ -32,6 +32,12 @@ export function Mermaid({ chart }: { chart: string }) {
 		};
 	}, [chart, resolvedTheme, id]);
 
+	const bindContainer = useCallback((container: HTMLDivElement | null) => {
+		if (container) {
+			bindRef.current?.(container);
+		}
+	}, []);
+
 	if (!svg) {
 		return null;
 	}
@@ -39,12 +45,9 @@ export function Mermaid({ chart }: { chart: string }) {
 	return (
 		<div
 			className="mermaid-diagram my-6 flex justify-center overflow-x-auto text-foreground [&_svg]:h-auto [&_svg]:max-w-full"
+			// biome-ignore lint/security/noDangerouslySetInnerHtml: mermaid renders the svg itself; there is no react tree to mount
 			dangerouslySetInnerHTML={{ __html: svg }}
-			ref={(container) => {
-				if (container) {
-					bindRef.current?.(container);
-				}
-			}}
+			ref={bindContainer}
 		/>
 	);
 }

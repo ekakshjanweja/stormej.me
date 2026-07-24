@@ -23,6 +23,7 @@ export function WebsitePreview({ url, title }: WebsitePreviewProps) {
 							aria-label="Fullscreen preview"
 							className="rounded-lg bg-muted/50 p-2 transition-colors duration-200 hover:bg-muted"
 							onClick={() => setIsFullscreen(true)}
+							type="button"
 						>
 							<Maximize2 className="h-4 w-4 text-muted-foreground" />
 						</button>
@@ -67,6 +68,7 @@ export function WebsitePreview({ url, title }: WebsitePreviewProps) {
 							aria-label="Close fullscreen"
 							className="rounded-lg bg-muted p-2 transition-colors duration-200 hover:bg-muted/80"
 							onClick={() => setIsFullscreen(false)}
+							type="button"
 						>
 							<X className="h-5 w-5 text-foreground" />
 						</button>

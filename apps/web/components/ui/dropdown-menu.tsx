@@ -2,8 +2,12 @@
 
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { Check, ChevronRight, Circle } from "lucide-react";
+import type {
+	ComponentPropsWithoutRef,
+	ElementRef,
+	HTMLAttributes,
+} from "react";
 import { forwardRef } from "react";
-import type { ComponentPropsWithoutRef, ElementRef, HTMLAttributes } from "react";
 
 import { cn } from "@/lib/utils";
 

@@ -12,6 +12,11 @@ const CAL_URL = "https://cal.com/ekaksh-janweja-pfvauh";
 const actionLinkClass =
 	"meta-tag hover-dim inline-flex items-center gap-1.5 rounded py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 sm:py-0";
 
+const trackCal = () =>
+	track("cta_clicked", { location: "hero", target: "cal" });
+const trackResume = () =>
+	track("cta_clicked", { location: "hero", target: "resume" });
+
 export default function Hero() {
 	return (
 		<section aria-labelledby="hero-heading" data-cursor-anchor="hero">
@@ -45,9 +50,7 @@ export default function Hero() {
 					<Link
 						className={actionLinkClass}
 						href={CAL_URL}
-						onClick={() =>
-							track("cta_clicked", { location: "hero", target: "cal" })
-						}
+						onClick={trackCal}
 						rel="noopener noreferrer"
 						target="_blank"
 					>
@@ -57,9 +60,7 @@ export default function Hero() {
 					<Link
 						className={actionLinkClass}
 						href={resume}
-						onClick={() =>
-							track("cta_clicked", { location: "hero", target: "resume" })
-						}
+						onClick={trackResume}
 						rel="noopener noreferrer"
 						target="_blank"
 					>

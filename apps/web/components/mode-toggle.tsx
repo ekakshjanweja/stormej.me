@@ -1,7 +1,7 @@
 "use client";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { track } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +12,15 @@ export function ModeToggle() {
 	useEffect(() => {
 		setMounted(true);
 	}, []);
+
+	const toggleTheme = useCallback(() => {
+		if (!mounted) {
+			return;
+		}
+		const next = resolvedTheme === "dark" ? "light" : "dark";
+		track("theme_toggled", { source: "button", to: next });
+		setTheme(next);
+	}, [mounted, resolvedTheme, setTheme]);
 
 	return (
 		<button
@@ -30,13 +39,8 @@ export function ModeToggle() {
 				"text-muted-foreground hover:border-border/20 hover:bg-accent/10 hover:text-foreground"
 			)}
 			disabled={!mounted}
-			onClick={() => {
-				if (mounted) {
-					const next = resolvedTheme === "dark" ? "light" : "dark";
-					track("theme_toggled", { source: "button", to: next });
-					setTheme(next);
-				}
-			}}
+			onClick={toggleTheme}
+			type="button"
 		>
 			{mounted ? (
 				<>

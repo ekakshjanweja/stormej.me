@@ -37,8 +37,7 @@ const isPdf = (file: File) =>
 	file.type === "application/pdf" || PDF_EXTENSION.test(file.name);
 
 const isImage = (file: File) =>
-	file.type.startsWith("image/") ||
-	IMAGE_EXTENSION.test(file.name);
+	file.type.startsWith("image/") || IMAGE_EXTENSION.test(file.name);
 
 const formatBytes = (bytes: number) => {
 	if (bytes === 0) {

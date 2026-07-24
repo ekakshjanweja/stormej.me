@@ -10,8 +10,8 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { encode } from "qss";
-import { useEffect, useState } from "react";
 import type { MouseEvent, ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 type LinkPreviewProps = {

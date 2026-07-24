@@ -27,8 +27,8 @@
       "!**/.source",
       "!**/convex/_generated",
       "!**/public/trove",
-      "!**/public/**",
-      "!**/.source/**"
+      "!**/public",
+      "!**/.source"
     ]
   },
   "formatter": {
@@ -54,11 +54,7 @@
           "level": "warn",
           "fix": "safe",
           "options": {
-            "functions": [
-              "clsx",
-              "cva",
-              "cn"
-            ]
+            "functions": ["clsx", "cva", "cn"]
           }
         }
       },
@@ -86,8 +82,5 @@
       "tailwindDirectives": true
     }
   },
-  "extends": [
-    "ultracite/biome/core",
-    "ultracite/biome/next"
-  ]
+  "extends": ["ultracite/biome/core", "ultracite/biome/next"]
 }

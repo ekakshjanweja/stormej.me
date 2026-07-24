@@ -32,6 +32,7 @@ export function ImageModal({
 						e.stopPropagation();
 						onClose();
 					}}
+					type="button"
 				>
 					<svg
 						className="h-6 w-6"

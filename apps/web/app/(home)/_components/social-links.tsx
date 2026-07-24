@@ -8,6 +8,11 @@ import { X } from "@/components/ui/svgs/x";
 import { track } from "@/lib/analytics";
 import { github, linkedin, xDotCom } from "@/lib/constants/links";
 
+const trackGithub = () => track("social_link_clicked", { platform: "github" });
+const trackX = () => track("social_link_clicked", { platform: "x" });
+const trackLinkedin = () =>
+	track("social_link_clicked", { platform: "linkedin" });
+
 export default function SocialLinks() {
 	return (
 		<div className="flex items-center gap-5">
@@ -15,7 +20,7 @@ export default function SocialLinks() {
 				aria-label="GitHub"
 				className="hover-dim rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
 				href={github}
-				onClick={() => track("social_link_clicked", { platform: "github" })}
+				onClick={trackGithub}
 				rel="noopener noreferrer"
 				target="_blank"
 			>
@@ -26,7 +31,7 @@ export default function SocialLinks() {
 				aria-label="X (Twitter)"
 				className="hover-dim rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
 				href={xDotCom}
-				onClick={() => track("social_link_clicked", { platform: "x" })}
+				onClick={trackX}
 				rel="noopener noreferrer"
 				target="_blank"
 			>
@@ -36,7 +41,7 @@ export default function SocialLinks() {
 				aria-label="LinkedIn"
 				className="hover-dim rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
 				href={linkedin}
-				onClick={() => track("social_link_clicked", { platform: "linkedin" })}
+				onClick={trackLinkedin}
 				rel="noopener noreferrer"
 				target="_blank"
 			>

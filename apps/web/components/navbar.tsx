@@ -194,6 +194,7 @@ export function Navbar() {
 						className="hover-dim -mr-2 rounded p-2 text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
 						id="mobile-menu-button"
 						onClick={toggleMobileMenu}
+						type="button"
 					>
 						{isMobileMenuOpen ? (
 							<CloseIcon className="h-5 w-5" />
@@ -214,6 +215,7 @@ export function Navbar() {
 							aria-label="Close mobile menu"
 							className="hover-dim p-2 text-foreground"
 							onClick={closeMobileMenu}
+							type="button"
 						>
 							<CloseIcon className="h-5 w-5" />
 						</button>

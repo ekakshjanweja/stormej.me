@@ -4,8 +4,8 @@ import * as HoverCardPrimitive from "@radix-ui/react-hover-card";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
+import { useState } from "react";
 import { Iphone17Pro } from "@/components/ui/iphone-17-pro";
 import type {
 	ScreenshotMockupKind,
