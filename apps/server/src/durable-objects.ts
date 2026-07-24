@@ -133,6 +133,7 @@ export class RealtimeRoom implements DurableObject {
 				return new Response("Expected WebSocket", { status: 426 });
 			}
 
+			// biome-ignore lint/correctness/noUndeclaredVariables: workerd global, declared in worker-configuration.d.ts
 			const pair = new WebSocketPair();
 			const [client, server] = Object.values(pair);
 

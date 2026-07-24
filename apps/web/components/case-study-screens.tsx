@@ -241,7 +241,6 @@ function ScreenCardMedia({
 				className="relative aspect-[9/19] w-full overflow-hidden rounded-lg border border-border/40 bg-muted/30 shadow-inner"
 			>
 				<div className="absolute top-2 left-1/2 z-[1] h-1 w-8 -translate-x-1/2 rounded-full bg-foreground/[0.1]" />
-				{/* biome-ignore lint/a11y/useMediaCaption: silent ui screen recording, no speech to caption */}
 				<video
 					autoPlay
 					className="absolute inset-0 z-0 h-full w-full object-cover"

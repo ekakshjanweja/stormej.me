@@ -5,7 +5,7 @@ import { X as CloseIcon, Menu } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { track } from "@/lib/analytics";
 import { resume } from "@/lib/constants/links";
@@ -19,23 +19,115 @@ const navItems = [
 	...(TROVE_ENABLED ? [{ href: "/trove", label: "trove" }] : []),
 ];
 
+/** Single-key shortcuts. A key missing here is simply not a shortcut. */
+const SHORTCUT_ACTIONS: Record<string, string> = {
+	b: "navigate_blog",
+	g: "navigate_gear",
+	h: "navigate_home",
+	p: "navigate_projects",
+	r: "open_resume",
+	t: "toggle_theme",
+	w: "navigate_work",
+	// no shortcut to a section that isn't there
+	...(TROVE_ENABLED ? { v: "navigate_trove" } : {}),
+};
+
+const SHORTCUT_PATHS: Record<string, string> = {
+	b: "/blog",
+	g: "/gear",
+	h: "/",
+	p: "/projects",
+	w: "/work",
+	...(TROVE_ENABLED ? { v: "/trove" } : {}),
+};
+
+type NavItem = (typeof navItems)[number];
+
+function DesktopNavLink({
+	item,
+	isActive,
+}: {
+	item: NavItem;
+	isActive: boolean;
+}) {
+	const onClick = useCallback(
+		() =>
+			track("nav_link_clicked", {
+				href: item.href,
+				label: item.label,
+				surface: "desktop",
+			}),
+		[item.href, item.label]
+	);
+
+	return (
+		<Link
+			aria-current={isActive ? "page" : undefined}
+			className={cn(
+				"font-normal text-[15px] text-foreground transition-opacity duration-150",
+				isActive ? "opacity-100" : "opacity-60 hover:opacity-100",
+				"rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
+			)}
+			href={item.href}
+			onClick={onClick}
+		>
+			{item.label}
+		</Link>
+	);
+}
+
+function MobileNavLink({
+	item,
+	isActive,
+	onNavigate,
+}: {
+	item: NavItem;
+	isActive: boolean;
+	onNavigate: () => void;
+}) {
+	const onClick = useCallback(() => {
+		track("nav_link_clicked", {
+			href: item.href,
+			label: item.label,
+			surface: "mobile",
+		});
+		onNavigate();
+	}, [item.href, item.label, onNavigate]);
+
+	return (
+		<Link
+			aria-current={isActive ? "page" : undefined}
+			className={cn(
+				"font-normal text-base text-foreground transition-opacity duration-150",
+				isActive ? "opacity-100" : "opacity-60 hover:opacity-100"
+			)}
+			href={item.href}
+			onClick={onClick}
+		>
+			{item.label}
+		</Link>
+	);
+}
+
 export function Navbar() {
 	const pathname = usePathname();
 	const router = useRouter();
 	const { setTheme } = useTheme();
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-	const toggleMobileMenu = () => {
+	const toggleMobileMenu = useCallback(() => {
 		setIsMobileMenuOpen((prev) => {
 			track("mobile_menu_toggled", { open: !prev });
 			return !prev;
 		});
-	};
-	const closeMobileMenu = () => setIsMobileMenuOpen(false);
+	}, []);
+	const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), []);
 
+	// navigating away closes the menu
+	// biome-ignore lint/correctness/useExhaustiveDependencies: pathname is the trigger, not a value the effect reads
 	useEffect(() => {
 		closeMobileMenu();
-	}, [closeMobileMenu]);
+	}, [pathname, closeMobileMenu]);
 
 	useEffect(() => {
 		document.body.style.overflow = isMobileMenuOpen ? "hidden" : "unset";
@@ -64,6 +156,27 @@ export function Navbar() {
 		return () => document.removeEventListener("mousedown", handleClickOutside);
 	}, [isMobileMenuOpen, closeMobileMenu]);
 
+	const runShortcut = useCallback(
+		(key: string) => {
+			const path = SHORTCUT_PATHS[key];
+			if (path) {
+				router.push(path);
+				return;
+			}
+			if (key === "t") {
+				const isDark = document.documentElement.classList.contains("dark");
+				const next = isDark ? "light" : "dark";
+				track("theme_toggled", { source: "keyboard", to: next });
+				setTheme(next);
+				return;
+			}
+			if (key === "r") {
+				window.open(resume, "_blank");
+			}
+		},
+		[router, setTheme]
+	);
+
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
 			if (event.key === "Escape" && isMobileMenuOpen) {
@@ -74,73 +187,25 @@ export function Navbar() {
 				return;
 			}
 			if (
-				!(
-					isMobileMenuOpen ||
-					event.ctrlKey ||
-					event.altKey ||
-					event.shiftKey ||
-					event.metaKey
-				)
+				isMobileMenuOpen ||
+				event.ctrlKey ||
+				event.altKey ||
+				event.shiftKey ||
+				event.metaKey
 			) {
-				const key = event.key.toLowerCase();
-				const shortcutMap: Record<string, string> = {
-					b: "navigate_blog",
-					g: "navigate_gear",
-					h: "navigate_home",
-					p: "navigate_projects",
-					w: "navigate_work",
-					// No shortcut to a section that isn't there. The `v` case below is
-					// unreachable without this entry, since an unmapped key returns.
-					...(TROVE_ENABLED ? { v: "navigate_trove" } : {}),
-					r: "open_resume",
-					t: "toggle_theme",
-				};
-				const action = shortcutMap[key];
-				if (!action) {
-					return;
-				}
-				track("keyboard_shortcut_used", { action, key });
-				switch (key) {
-					case "h":
-						router.push("/");
-						break;
-					case "w":
-						router.push("/work");
-						break;
-					case "p":
-						router.push("/projects");
-						break;
-					case "b":
-						router.push("/blog");
-						break;
-					case "g":
-						router.push("/gear");
-						break;
-					case "v":
-						router.push("/trove");
-						break;
-					case "t": {
-						const currentTheme = document.documentElement.classList.contains(
-							"dark"
-						)
-							? "dark"
-							: "light";
-						const next = currentTheme === "dark" ? "light" : "dark";
-						track("theme_toggled", { source: "keyboard", to: next });
-						setTheme(next);
-						break;
-					}
-					case "r":
-						window.open(resume, "_blank");
-						break;
-					default:
-						break;
-				}
+				return;
 			}
+			const key = event.key.toLowerCase();
+			const action = SHORTCUT_ACTIONS[key];
+			if (!action) {
+				return;
+			}
+			track("keyboard_shortcut_used", { action, key });
+			runShortcut(key);
 		};
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [router, setTheme, isMobileMenuOpen, pathname, closeMobileMenu]);
+	}, [isMobileMenuOpen, pathname, closeMobileMenu, runShortcut]);
 
 	return (
 		<>
@@ -163,30 +228,13 @@ export function Navbar() {
 				</Link>
 
 				<div className="hidden items-center gap-8 md:flex">
-					{navItems.map((item) => {
-						const isActive = pathname === item.href;
-						return (
-							<Link
-								aria-current={isActive ? "page" : undefined}
-								className={cn(
-									"font-normal text-[15px] text-foreground transition-opacity duration-150",
-									isActive ? "opacity-100" : "opacity-60 hover:opacity-100",
-									"rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
-								)}
-								href={item.href}
-								key={item.href}
-								onClick={() =>
-									track("nav_link_clicked", {
-										href: item.href,
-										label: item.label,
-										surface: "desktop",
-									})
-								}
-							>
-								{item.label}
-							</Link>
-						);
-					})}
+					{navItems.map((item) => (
+						<DesktopNavLink
+							isActive={pathname === item.href}
+							item={item}
+							key={item.href}
+						/>
+					))}
 					<ModeToggle />
 				</div>
 
@@ -224,30 +272,14 @@ export function Navbar() {
 						</button>
 					</div>
 					<div className="mx-auto flex max-w-sm flex-col gap-5 p-6 pt-4">
-						{navItems.map((item) => {
-							const isActive = pathname === item.href;
-							return (
-								<Link
-									aria-current={isActive ? "page" : undefined}
-									className={cn(
-										"font-normal text-base text-foreground transition-opacity duration-150",
-										isActive ? "opacity-100" : "opacity-60 hover:opacity-100"
-									)}
-									href={item.href}
-									key={item.href}
-									onClick={() => {
-										track("nav_link_clicked", {
-											href: item.href,
-											label: item.label,
-											surface: "mobile",
-										});
-										closeMobileMenu();
-									}}
-								>
-									{item.label}
-								</Link>
-							);
-						})}
+						{navItems.map((item) => (
+							<MobileNavLink
+								isActive={pathname === item.href}
+								item={item}
+								key={item.href}
+								onNavigate={closeMobileMenu}
+							/>
+						))}
 					</div>
 				</div>
 			)}

@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, Copy, FileText } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { track } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 
@@ -12,15 +12,7 @@ const SITE = "https://www.stormej.me";
  * at the entry's llms.txt rather than inlining the source, so the paste stays
  * short and the agent fetches the current version.
  */
-export function AgentSetup({
-	slug,
-	title,
-	sourceFile,
-}: {
-	slug: string;
-	title: string;
-	sourceFile?: string;
-}) {
+export function AgentSetup({ slug, title }: { slug: string; title: string }) {
 	const [copied, setCopied] = useState(false);
 	const docUrl = `${SITE}/trove/${slug}/llms.txt`;
 
@@ -33,7 +25,7 @@ export function AgentSetup({
 		"complete source. do not guess at any of it.",
 	].join("\n");
 
-	const copy = async () => {
+	const copy = useCallback(async () => {
 		try {
 			await navigator.clipboard.writeText(prompt);
 		} catch {
@@ -50,7 +42,11 @@ export function AgentSetup({
 		setCopied(true);
 		track("trove_agent_prompt_copied", { slug });
 		setTimeout(() => setCopied(false), 2000);
-	};
+	}, [prompt, slug]);
+
+	const runCopy = useCallback(() => {
+		copy();
+	}, [copy]);
 
 	return (
 		<div className="flex flex-wrap items-center gap-2">
@@ -60,7 +56,7 @@ export function AgentSetup({
 					"font-medium text-[13px] text-foreground transition-colors hover:bg-muted/40",
 					"focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
 				)}
-				onClick={copy}
+				onClick={runCopy}
 				type="button"
 			>
 				{copied ? (

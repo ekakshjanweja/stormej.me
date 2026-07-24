@@ -8,6 +8,16 @@ const FONT_SRC = /src: url\((.+?)\) format\('(opentype|truetype)'\)/;
 const OWN_NAME = /^ekaksh\s+janweja$/i;
 
 /** Headline type shrinks in two steps so long titles still fit the card. */
+function headlineFontSizeDisplay(headline: string) {
+	if (headline.length > 50) {
+		return 84;
+	}
+	if (headline.length > 28) {
+		return 108;
+	}
+	return 140;
+}
+
 function headlineFontSizeSans(headline: string) {
 	if (headline.length > 50) {
 		return 48;
@@ -633,8 +643,7 @@ async function renderMinimal(opts: RenderOgOptions) {
 						color: fgColor,
 						display: "flex",
 						fontFamily: "Instrument Serif",
-						fontSize:
-							headline.length > 50 ? 84 : headline.length > 28 ? 108 : 140,
+						fontSize: headlineFontSizeDisplay(headline),
 						fontStyle: "italic",
 						letterSpacing: "-0.025em",
 						lineHeight: 1.0,

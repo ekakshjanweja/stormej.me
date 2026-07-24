@@ -123,11 +123,7 @@ export default async function Page({ params }: PageProps) {
 						{data.description}
 					</p>
 				)}
-				<AgentSetup
-					slug={slug}
-					sourceFile={data.sourceFile}
-					title={data.title}
-				/>
+				<AgentSetup slug={slug} title={data.title} />
 			</header>
 
 			<article className="prose-fuma">
