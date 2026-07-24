@@ -23,28 +23,28 @@ import {
 } from "react";
 import { cn } from "@/lib/utils";
 
-export type Activity = {
-	date: string;
+export interface Activity {
 	count: number;
+	date: string;
 	level: number;
-};
+}
 
 type Week = Array<Activity | undefined>;
 
-export type Labels = {
-	months?: string[];
-	weekdays?: string[];
-	totalCount?: string;
+export interface Labels {
 	legend?: {
 		less?: string;
 		more?: string;
 	};
-};
+	months?: string[];
+	totalCount?: string;
+	weekdays?: string[];
+}
 
-type MonthLabel = {
-	weekIndex: number;
+interface MonthLabel {
 	label: string;
-};
+	weekIndex: number;
+}
 
 const DEFAULT_MONTH_LABELS = [
 	"Jan",
@@ -71,22 +71,22 @@ const DEFAULT_LABELS: Labels = {
 	weekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
 };
 
-type ContributionGraphContextType = {
-	data: Activity[];
-	weeks: Week[];
+interface ContributionGraphContextType {
 	blockMargin: number;
 	blockRadius: number;
 	blockSize: number;
+	data: Activity[];
 	fontSize: number;
-	labels: Labels;
+	height: number;
 	labelHeight: number;
+	labels: Labels;
 	maxLevel: number;
 	totalCount: number;
 	weekStart: WeekDay;
-	year: number;
+	weeks: Week[];
 	width: number;
-	height: number;
-};
+	year: number;
+}
 
 const ContributionGraphContext =
 	createContext<ContributionGraphContextType | null>(null);

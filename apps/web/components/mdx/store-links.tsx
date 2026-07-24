@@ -5,10 +5,10 @@ import { AppStore } from "@/components/ui/app-store";
 import { PlayStore } from "@/components/ui/play-store";
 import { cn } from "@/lib/utils";
 
-type StoreLink = {
+interface StoreLink {
 	href: string;
 	label?: string;
-};
+}
 
 const storeIconLink =
 	"group relative inline-flex h-9 w-9 shrink-0 items-center justify-center overflow-visible bg-background transition duration-150 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded-md";
@@ -92,7 +92,7 @@ export function StoreLinks({
 			window.removeEventListener("resize", scheduleUpdate);
 			window.removeEventListener("scroll", scheduleUpdate);
 		};
-	}, [appStoreItems.length, playStoreItems.length]);
+	}, []);
 
 	return (
 		<div

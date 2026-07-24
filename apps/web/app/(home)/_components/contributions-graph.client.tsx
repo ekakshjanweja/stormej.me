@@ -18,11 +18,11 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
-type ContributionsGraphClientProps = {
+interface ContributionsGraphClientProps {
 	data: Activity[];
 	total: number;
 	year: number;
-};
+}
 
 export const ContributionsGraphClient = ({
 	data,

@@ -1,20 +1,20 @@
 import { publicationsSource } from "@/lib/source";
 
-export type PublicationListItem = {
-	slug: string;
-	paperUrl: string;
-	title: string;
-	description?: string;
-	authors: string[];
-	venue?: string;
-	date?: string;
-	formattedDate: string;
-	year?: string;
+export interface PublicationListItem {
 	arxivId?: string;
 	arxivUrl?: string;
-	pdfUrl?: string;
+	authors: string[];
+	date?: string;
+	description?: string;
 	doi?: string;
-};
+	formattedDate: string;
+	paperUrl: string;
+	pdfUrl?: string;
+	slug: string;
+	title: string;
+	venue?: string;
+	year?: string;
+}
 
 const fmt = (d?: string) => {
 	if (!d) {

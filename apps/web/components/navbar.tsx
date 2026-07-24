@@ -34,7 +34,7 @@ export function Navbar() {
 
 	useEffect(() => {
 		closeMobileMenu();
-	}, [pathname]);
+	}, [closeMobileMenu]);
 
 	useEffect(() => {
 		document.body.style.overflow = isMobileMenuOpen ? "hidden" : "unset";
@@ -61,7 +61,7 @@ export function Navbar() {
 		};
 		document.addEventListener("mousedown", handleClickOutside);
 		return () => document.removeEventListener("mousedown", handleClickOutside);
-	}, [isMobileMenuOpen]);
+	}, [isMobileMenuOpen, closeMobileMenu]);
 
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
@@ -137,7 +137,7 @@ export function Navbar() {
 		};
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [router, setTheme, isMobileMenuOpen, pathname]);
+	}, [router, setTheme, isMobileMenuOpen, pathname, closeMobileMenu]);
 
 	return (
 		<>

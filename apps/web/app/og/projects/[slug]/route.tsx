@@ -23,7 +23,7 @@ export async function GET(request: Request, context: RouteContext) {
 	});
 }
 
-export async function generateStaticParams() {
+export function generateStaticParams() {
 	return projectsSource.generateParams().map(({ slug }) => ({
 		slug: slug?.[0] ?? "",
 	}));

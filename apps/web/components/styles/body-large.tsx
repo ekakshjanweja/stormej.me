@@ -6,15 +6,12 @@ export default function BodyLarge({
 	className?: string;
 }) {
 	return (
-		<>
-			<p
-				className={
-					className +
-					"font-light text-base text-foreground leading-6 opacity-85"
-				}
-			>
-				{text}
-			</p>
-		</>
+		<p
+			className={
+				className + "font-light text-base text-foreground leading-6 opacity-85"
+			}
+		>
+			{text}
+		</p>
 	);
 }

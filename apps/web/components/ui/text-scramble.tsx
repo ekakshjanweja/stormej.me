@@ -34,7 +34,7 @@ export function TextScramble({
 	const [isAnimating, setIsAnimating] = useState(false);
 	const text = children;
 
-	const scramble = useCallback(async () => {
+	const scramble = useCallback(() => {
 		if (isAnimating) {
 			return;
 		}
@@ -82,7 +82,7 @@ export function TextScramble({
 			scramble();
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[trigger]
+		[trigger, scramble]
 	);
 
 	return (

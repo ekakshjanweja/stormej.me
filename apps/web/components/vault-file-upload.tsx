@@ -16,27 +16,29 @@ import { Progress } from "@/components/ui/progress";
 
 type UploadStatus = "ready" | "uploading" | "completed" | "error";
 
-type VaultFileUploadProps = {
-	disabled?: boolean;
-	targetKey: string;
-	description?: string;
-	uploadButtonLabel?: string;
-	successMessage?: string;
+interface VaultFileUploadProps {
 	compact?: boolean;
+	description?: string;
+	disabled?: boolean;
 	onUpload: (
 		file: File,
 		onProgress: (progress: number) => void
 	) => Promise<void>;
-};
+	successMessage?: string;
+	targetKey: string;
+	uploadButtonLabel?: string;
+}
 
 const ACCEPTED_TYPES = "application/pdf,image/*";
+const PDF_EXTENSION = /\.pdf$/i;
+const IMAGE_EXTENSION = /\.(png|jpe?g|gif|webp|avif|svg)$/i;
 
 const isPdf = (file: File) =>
-	file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+	file.type === "application/pdf" || PDF_EXTENSION.test(file.name);
 
 const isImage = (file: File) =>
 	file.type.startsWith("image/") ||
-	/\.(png|jpe?g|gif|webp|avif|svg)$/i.test(file.name);
+	IMAGE_EXTENSION.test(file.name);
 
 const formatBytes = (bytes: number) => {
 	if (bytes === 0) {

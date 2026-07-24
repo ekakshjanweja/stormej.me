@@ -13,6 +13,7 @@ export function PlayStore({ size = 140, ...props }: PlayStoreProps) {
 			xmlns="http://www.w3.org/2000/svg"
 			{...props}
 		>
+			<title>Google Play</title>
 			<linearGradient
 				gradientUnits="userSpaceOnUse"
 				id="playStoreGreen"

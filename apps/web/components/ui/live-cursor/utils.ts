@@ -25,7 +25,7 @@ export function getContrastColor(hexColor: string): string {
 	const g = Number.parseInt(hex.substring(2, 4), 16);
 	const b = Number.parseInt(hex.substring(4, 6), 16);
 
-	if (isNaN(r) || isNaN(g) || isNaN(b)) {
+	if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) {
 		return "#ffffff";
 	}
 

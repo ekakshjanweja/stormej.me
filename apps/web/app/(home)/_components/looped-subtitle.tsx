@@ -24,26 +24,24 @@ const items = [
 
 export default function LoopedSubtitle() {
 	return (
-		<>
-			<div className="flex flex-col items-start justify-start md:flex-row md:items-center md:justify-start md:space-x-4">
-				<p className="opacity-80">{"i am obsessed with"}</p>
-				<TextLoop
-					className="font-semibold text-base text-foreground leading-6"
-					interval={3.5}
-					transition={{ duration: 0.3 }}
-					variants={{
-						animate: { opacity: 1, y: 0 },
-						exit: { opacity: 0, y: -10 },
-						initial: { opacity: 0, y: 10 },
-					}}
-				>
-					{items.map((item, index) => (
-						<div key={index}>
-							{HighlightedText(item.label, item.link, item.altText)}
-						</div>
-					))}
-				</TextLoop>
-			</div>
-		</>
+		<div className="flex flex-col items-start justify-start md:flex-row md:items-center md:justify-start md:space-x-4">
+			<p className="opacity-80">{"i am obsessed with"}</p>
+			<TextLoop
+				className="font-semibold text-base text-foreground leading-6"
+				interval={3.5}
+				transition={{ duration: 0.3 }}
+				variants={{
+					animate: { opacity: 1, y: 0 },
+					exit: { opacity: 0, y: -10 },
+					initial: { opacity: 0, y: 10 },
+				}}
+			>
+				{items.map((item, index) => (
+					<div key={index}>
+						{HighlightedText(item.label, item.link, item.altText)}
+					</div>
+				))}
+			</TextLoop>
+		</div>
 	);
 }

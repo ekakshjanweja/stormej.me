@@ -4,7 +4,8 @@ import * as HoverCardPrimitive from "@radix-ui/react-hover-card";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import * as React from "react";
+import { useState } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { Iphone17Pro } from "@/components/ui/iphone-17-pro";
 import type {
 	ScreenshotMockupKind,
@@ -14,15 +15,15 @@ import type {
 import { cn } from "@/lib/utils";
 import { isPairedScreenshots, isVideoAsset } from "@/lib/work-image";
 
-type WorkPreviewProps = {
-	children: React.ReactNode;
-	title: string;
-	href: string;
-	logo?: WorkLogoAsset;
-	images?: WorkImageAsset[];
-	screenshotMockup?: ScreenshotMockupKind;
+interface WorkPreviewProps {
+	children: ReactNode;
 	className?: string;
-};
+	href: string;
+	images?: WorkImageAsset[];
+	logo?: WorkLogoAsset;
+	screenshotMockup?: ScreenshotMockupKind;
+	title: string;
+}
 
 const PLACEHOLDER_GRADIENTS = [
 	"from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-800",
@@ -43,7 +44,7 @@ function previewCardWidthPx(mockup?: ScreenshotMockupKind) {
 }
 
 /** Capped at phone-strip width so long titles cannot widen the hover card (flex min-width:auto). */
-function previewCardShellStyle(px: number): React.CSSProperties {
+function previewCardShellStyle(px: number): CSSProperties {
 	return {
 		maxWidth: `min(${px}px, calc(100vw - 1.5rem))`,
 		minWidth: 0,
@@ -60,7 +61,7 @@ export function WorkPreview({
 	screenshotMockup,
 	className,
 }: WorkPreviewProps) {
-	const [isOpen, setOpen] = React.useState(false);
+	const [isOpen, setOpen] = useState(false);
 	const slots =
 		images && images.length > 0 ? images.slice(0, 3) : [null, null, null];
 	const cardPx = previewCardWidthPx(screenshotMockup);

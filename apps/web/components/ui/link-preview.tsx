@@ -10,11 +10,12 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { encode } from "qss";
-import * as React from "react";
+import { useEffect, useState } from "react";
+import type { MouseEvent, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 type LinkPreviewProps = {
-	children: React.ReactNode;
+	children: ReactNode;
 	url: string;
 	className?: string;
 	onClick?: () => void;
@@ -26,9 +27,11 @@ type LinkPreviewProps = {
 	| { isStatic?: false; imageSrc?: never }
 );
 
+const WWW_PREFIX = /^www\./;
+
 function getHostname(url: string) {
 	try {
-		return new URL(url).hostname.replace(/^www\./, "");
+		return new URL(url).hostname.replace(WWW_PREFIX, "");
 	} catch {
 		return url;
 	}
@@ -61,17 +64,17 @@ export const LinkPreview = ({
 
 	const hostname = getHostname(url);
 
-	const [isOpen, setOpen] = React.useState(false);
-	const [isMounted, setIsMounted] = React.useState(false);
+	const [isOpen, setOpen] = useState(false);
+	const [isMounted, setIsMounted] = useState(false);
 
-	React.useEffect(() => {
+	useEffect(() => {
 		setIsMounted(true);
 	}, []);
 
 	const x = useMotionValue(0);
 	const translateX = useSpring(x, { damping: 24, mass: 0.6, stiffness: 200 });
 
-	const handleMouseMove = (event: React.MouseEvent<HTMLAnchorElement>) => {
+	const handleMouseMove = (event: MouseEvent<HTMLAnchorElement>) => {
 		const targetRect = event.currentTarget.getBoundingClientRect();
 		const eventOffsetX = event.clientX - targetRect.left;
 		const offsetFromCenter = (eventOffsetX - targetRect.width / 2) / 4;

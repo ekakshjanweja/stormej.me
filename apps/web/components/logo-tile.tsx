@@ -6,14 +6,14 @@ import type { WorkLogoAsset } from "@/lib/types/types";
 import { cn } from "@/lib/utils";
 import { isPairedScreenshots } from "@/lib/work-image";
 
-type Props = {
-	src: WorkLogoAsset;
+interface Props {
 	alt?: string;
-	size?: number;
 	boxClassName?: string;
-	imagePadClassName?: string;
 	className?: string;
-};
+	imagePadClassName?: string;
+	size?: number;
+	src: WorkLogoAsset;
+}
 
 export function LogoTile({
 	src,

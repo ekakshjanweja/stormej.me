@@ -39,6 +39,7 @@ export function ImageModal({
 						stroke="currentColor"
 						viewBox="0 0 24 24"
 					>
+						<title>Close</title>
 						<path
 							d="M6 18L18 6M6 6l12 12"
 							strokeLinecap="round"

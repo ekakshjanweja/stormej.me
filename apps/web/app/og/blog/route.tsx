@@ -3,7 +3,7 @@ import { parseVariant } from "../_lib/variant";
 
 export const runtime = "edge";
 
-export async function GET(request: Request) {
+export function GET(request: Request) {
 	const { searchParams } = new URL(request.url);
 	return renderOg({
 		kind: "blog",

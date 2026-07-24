@@ -1,13 +1,13 @@
 import { unstable_cache } from "next/cache";
 
-type ContributionsResponse = {
+interface ContributionsResponse {
 	contributions: {
 		date: string;
 		count: number;
 		level: number;
 	}[];
 	total: Record<string, number>;
-};
+}
 
 const GITHUB_USERNAME =
 	process.env.NEXT_PUBLIC_GITHUB_USERNAME ?? "ekakshjanweja";

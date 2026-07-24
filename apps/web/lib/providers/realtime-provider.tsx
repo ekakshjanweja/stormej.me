@@ -425,7 +425,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 			isConnectingRef.current = false;
 			ws.close();
 		};
-	}, [user, getWsUrl, cleanup]);
+	}, [user, getWsUrl]);
 
 	// Connect to WebSocket
 	useEffect(() => {

@@ -188,9 +188,10 @@ export default async function Page({ params }: PageProps) {
 	);
 }
 
+const YOUTUBE_URL =
+	/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+
 function extractYouTubeVideoId(url: string): string | null {
-	const youtubeUrlRegex =
-		/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-	const match = url.match(youtubeUrlRegex);
+	const match = url.match(YOUTUBE_URL);
 	return match ? match[1] : "dQw4w9WgXcQ";
 }

@@ -3,16 +3,16 @@ import * as schema from "@stormej/db/schema/auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 
-export type AuthEnv = {
-	DB: D1Database;
+export interface AuthEnv {
+	/** set to "true" only while seeding the first user, then remove it */
+	ALLOW_SIGNUP?: string;
 	BETTER_AUTH_SECRET: string;
 	/** origin the browser sees, e.g. https://www.stormej.me */
 	BETTER_AUTH_URL: string;
 	/** comma separated list of origins allowed to call the auth endpoints */
 	CORS_ORIGIN?: string;
-	/** set to "true" only while seeding the first user, then remove it */
-	ALLOW_SIGNUP?: string;
-};
+	DB: D1Database;
+}
 
 const parseOrigins = (value?: string) =>
 	value

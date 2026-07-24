@@ -4,18 +4,19 @@ import * as HoverCardPrimitive from "@radix-ui/react-hover-card";
 import { AnimatePresence, motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { useTheme } from "next-themes";
-import * as React from "react";
+import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import { track } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 
-type TrovePreviewProps = {
-	children: React.ReactNode;
-	title: string;
+interface TrovePreviewProps {
+	children: ReactNode;
+	className?: string;
 	/** Path to the flutter web build, e.g. /trove/demo/app-toast/index.html. */
 	demo?: string;
 	surface: string;
-	className?: string;
-};
+	title: string;
+}
 
 /** Matches the work hover card: same width, same stage-then-caption shape. */
 const CARD_WIDTH_PX = 280;
@@ -60,15 +61,15 @@ export function TrovePreview({
 	surface,
 	className,
 }: TrovePreviewProps) {
-	const [isOpen, setOpen] = React.useState(false);
-	const [loaded, setLoaded] = React.useState(false);
+	const [isOpen, setOpen] = useState(false);
+	const [loaded, setLoaded] = useState(false);
 	const { resolvedTheme } = useTheme();
 	const theme = resolvedTheme === "dark" ? "dark" : "light";
 
 	// Touch devices have no hover, and would pay the bundle for a card they
 	// cannot see.
-	const [canHover, setCanHover] = React.useState(false);
-	React.useEffect(() => {
+	const [canHover, setCanHover] = useState(false);
+	useEffect(() => {
 		setCanHover(
 			window.matchMedia("(hover: hover) and (pointer: fine)").matches
 		);

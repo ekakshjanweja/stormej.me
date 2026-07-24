@@ -8,14 +8,14 @@ import {
 import { Children, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
-type TextLoopProps = {
+interface TextLoopProps {
 	children: React.ReactNode[];
 	className?: string;
 	interval?: number;
+	onIndexChange?: (index: number) => void;
 	transition?: Transition;
 	variants?: Variants;
-	onIndexChange?: (index: number) => void;
-};
+}
 
 export function TextLoop({
 	children,

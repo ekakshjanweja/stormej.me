@@ -2,7 +2,7 @@
 
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import Image from "next/image";
-import * as React from "react";
+import { useEffect, useState } from "react";
 import { Iphone17Pro } from "@/components/ui/iphone-17-pro";
 import type { ScreenshotMockupKind, WorkImageAsset } from "@/lib/types/types";
 import { cn } from "@/lib/utils";
@@ -119,10 +119,10 @@ export function CaseStudyScreens({
 	/** After main copy: top rule, spacing, tighter vertical rhythm for an “appendix” gallery. */
 	appendix?: boolean;
 }) {
-	const [openIndex, setOpenIndex] = React.useState<number | null>(null);
+	const [openIndex, setOpenIndex] = useState<number | null>(null);
 	const count = images.length;
 
-	React.useEffect(() => {
+	useEffect(() => {
 		if (openIndex === null) {
 			return;
 		}

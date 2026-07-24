@@ -1,6 +1,9 @@
 import { ArrowUpRight } from "lucide-react";
 
-type LinkItem = { label: string; href: string };
+interface LinkItem {
+	href: string;
+	label: string;
+}
 
 export function Links({ title, items }: { title?: string; items: LinkItem[] }) {
 	if (!items || items.length === 0) {

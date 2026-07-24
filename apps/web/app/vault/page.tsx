@@ -20,12 +20,12 @@ import { Button } from "@/components/ui/button";
 import { VaultFileUpload } from "@/components/vault-file-upload";
 import { signIn, signOut, useSession } from "@/lib/auth-client";
 
-type AdminFile = {
+interface AdminFile {
 	key: string;
+	publicUrl: string;
 	size: number;
 	uploaded: string;
-	publicUrl: string;
-};
+}
 
 const getWorkerUrl = () => {
 	if (process.env.NEXT_PUBLIC_WORKER_URL) {
@@ -39,13 +39,15 @@ const getWorkerUrl = () => {
 	return "https://www.stormej.me";
 };
 
+const FILE_EXTENSION = /\.[a-z0-9]+$/i;
+
 const normalizeKey = (key: string) => key.trim();
 
 const isValidKey = (key: string) =>
 	key.length > 0 &&
 	!key.includes("/") &&
 	!key.includes("..") &&
-	/\.[a-z0-9]+$/i.test(key);
+	FILE_EXTENSION.test(key);
 
 const formatBytes = (bytes: number) => {
 	if (bytes === 0) {
@@ -170,7 +172,7 @@ export default function VaultPage() {
 		}
 
 		fetchFiles().catch((listError: Error) => setFailure(listError.message));
-	}, [session, fetchFiles]);
+	}, [session, fetchFiles, setFailure]);
 
 	const login = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();

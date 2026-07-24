@@ -31,7 +31,7 @@ export async function GET(request: Request, context: RouteContext) {
 	return renderOg({ kind: "work", meta, title: fm.title, variant });
 }
 
-export async function generateStaticParams() {
+export function generateStaticParams() {
 	return workSource.generateParams().map(({ slug }) => ({
 		slug: slug?.[0] ?? "",
 	}));

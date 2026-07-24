@@ -2,6 +2,7 @@ import type { SVGProps } from "react";
 
 const Dart = (props: SVGProps<SVGSVGElement>) => (
 	<svg {...props} preserveAspectRatio="xMidYMid" viewBox="0 0 256 256">
+		<title>Dart</title>
 		<defs>
 			<radialGradient
 				cx="50%"

@@ -10,17 +10,17 @@ interface PageProps {
 	params: Promise<{ slug: string }>;
 }
 
-type PublicationData = {
-	title: string;
-	description?: string;
-	authors?: string[];
-	venue?: string;
-	date?: string;
+interface PublicationData {
 	arxivId?: string;
 	arxivUrl?: string;
-	pdfUrl?: string;
+	authors?: string[];
+	date?: string;
+	description?: string;
 	doi?: string;
-};
+	pdfUrl?: string;
+	title: string;
+	venue?: string;
+}
 
 const resolveArxivUrl = (arxivId?: string, arxivUrl?: string) => {
 	if (arxivUrl) {

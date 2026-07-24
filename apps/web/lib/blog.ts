@@ -1,13 +1,13 @@
 import { source } from "@/lib/source";
 
-export type BlogListItem = {
-	slug: string;
-	url: string;
-	title: string;
-	description?: string;
+export interface BlogListItem {
 	date?: string;
+	description?: string;
 	formattedDate: string;
-};
+	slug: string;
+	title: string;
+	url: string;
+}
 
 const fmt = (d?: string) => {
 	if (!d) {

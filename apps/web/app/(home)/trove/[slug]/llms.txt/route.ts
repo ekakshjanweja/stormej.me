@@ -10,17 +10,20 @@ const SITE = "https://www.stormej.me";
 const COMPONENT_TAG =
 	/^\s*<\/?(FlutterDemo|CopyFile|Steps|Step|Callout|Accordions|Accordion|Cards|Card)\b[^>]*\/?>\s*$/;
 
+const FRONTMATTER = /^---\n[\s\S]*?\n---\n/;
+const BLANK_LINES = /\n{3,}/g;
+
 function toPlainMarkdown(raw: string) {
-	const withoutFrontmatter = raw.replace(/^---\n[\s\S]*?\n---\n/, "");
+	const withoutFrontmatter = raw.replace(FRONTMATTER, "");
 	return withoutFrontmatter
 		.split("\n")
 		.filter((line) => !COMPONENT_TAG.test(line))
 		.join("\n")
-		.replace(/\n{3,}/g, "\n\n")
+		.replace(BLANK_LINES, "\n\n")
 		.trim();
 }
 
-export async function generateStaticParams() {
+export function generateStaticParams() {
 	return troveSource
 		.generateParams()
 		.map(({ slug }) => ({ slug: slug?.[0] ?? "" }))

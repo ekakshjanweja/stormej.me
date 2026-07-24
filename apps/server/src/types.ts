@@ -17,12 +17,12 @@ export {
 } from "@stormej/shared/types/realtime";
 
 // Backend-specific types
-export type Env = {
-	REALTIME_ROOM: DurableObjectNamespace;
-	STORAGE_BUCKET: R2Bucket;
-	DB: D1Database;
+export interface Env {
+	ALLOW_SIGNUP?: string;
 	BETTER_AUTH_SECRET: string;
 	BETTER_AUTH_URL: string;
 	CORS_ORIGIN?: string;
-	ALLOW_SIGNUP?: string;
-};
+	DB: D1Database;
+	REALTIME_ROOM: DurableObjectNamespace;
+	STORAGE_BUCKET: R2Bucket;
+}

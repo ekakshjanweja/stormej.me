@@ -4,12 +4,12 @@ import { StoreLinks } from "@/components/mdx/store-links";
 import { LinkPreview } from "@/components/ui/link-preview";
 import type { WorkFrontmatter } from "@/lib/work";
 
-type HeaderProps = {
-	fm: WorkFrontmatter;
-	startDate: Date;
+interface HeaderProps {
 	endDate?: Date;
+	fm: WorkFrontmatter;
 	formatRange: (start: Date, end?: Date | null) => string;
-};
+	startDate: Date;
+}
 
 function StickyTitleRow({ fm }: { fm: WorkFrontmatter }) {
 	if (!(fm.website || fm.appStore || fm.playStore || fm.logo || fm.title)) {

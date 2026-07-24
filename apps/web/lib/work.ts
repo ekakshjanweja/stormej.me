@@ -6,14 +6,14 @@ import type {
 	WorkLogoAsset,
 } from "@/lib/types/types";
 
-type WorkMetaJson = {
-	title?: string;
-	pages?: string[];
+interface WorkMetaJson {
 	/** Optional: exact slugs shown on the home work strip (order preserved). Falls back to first `homeCount` of {@link listWork} when omitted. */
 	home?: string[];
 	/** How many work rows on home when `home` is omitted (first N after `pages` sort). */
 	homeCount?: number;
-};
+	pages?: string[];
+	title?: string;
+}
 
 const workMetaTyped = workMeta as WorkMetaJson;
 
@@ -31,39 +31,42 @@ function sortKeyForWorkSlug(slug: string) {
 	return workOrderIndex.get(slug) ?? Number.POSITIVE_INFINITY;
 }
 
-export type WorkChapterNav = { id: string; label: string };
+export interface WorkChapterNav {
+	id: string;
+	label: string;
+}
 
-export type WorkFrontmatter = {
-	title: string;
-	subtitle?: string;
-	description?: string;
-	role: string;
-	startDate: Date;
-	endDate?: Date;
-	website?: string;
+export interface WorkFrontmatter {
 	appStore?: string;
-	playStore?: string;
-	tech: string[];
-	logo?: WorkLogoAsset;
-	images?: WorkImageAsset[];
-	screenshotMockup?: ScreenshotMockupKind;
 	challenge?: string;
 	chapters?: WorkChapterNav[];
-	published?: boolean;
-};
-
-export type WorkListItem = {
-	slug: string;
-	url: string;
-	title: string;
 	description?: string;
-	role: string;
-	startDate: Date;
 	endDate?: Date;
-	logo?: WorkLogoAsset;
 	images?: WorkImageAsset[];
+	logo?: WorkLogoAsset;
+	playStore?: string;
+	published?: boolean;
+	role: string;
 	screenshotMockup?: ScreenshotMockupKind;
-};
+	startDate: Date;
+	subtitle?: string;
+	tech: string[];
+	title: string;
+	website?: string;
+}
+
+export interface WorkListItem {
+	description?: string;
+	endDate?: Date;
+	images?: WorkImageAsset[];
+	logo?: WorkLogoAsset;
+	role: string;
+	screenshotMockup?: ScreenshotMockupKind;
+	slug: string;
+	startDate: Date;
+	title: string;
+	url: string;
+}
 
 export function listWork(): WorkListItem[] {
 	const pages = workSource.getPages().filter((p) => {
@@ -106,7 +109,7 @@ export function listWorkForHome(): WorkListItem[] {
 	if (homeSlugs && homeSlugs.length > 0) {
 		return homeSlugs
 			.map((slug) => bySlug.get(slug))
-			.filter((w): w is WorkListItem => w != null);
+			.filter((w): w is WorkListItem => w !== undefined);
 	}
 	return all.slice(0, workHomeCount());
 }
@@ -142,7 +145,7 @@ export function totalWorkExperienceMergedMs(
 
 	const merged: { start: number; end: number }[] = [];
 	for (const iv of intervals) {
-		const last = merged[merged.length - 1];
+		const last = merged.at(-1);
 		if (!last) {
 			merged.push({ end: iv.end, start: iv.start });
 			continue;

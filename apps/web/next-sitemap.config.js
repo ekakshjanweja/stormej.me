@@ -20,7 +20,8 @@ module.exports = {
 	generateRobotsTxt: false,
 	priority: 0.7,
 	siteUrl: process.env.SITE_URL || "https://www.stormej.me",
-	transform: async (config, path) => {
+	// biome-ignore lint/suspicious/useAwait: next-sitemap types transform as async
+	transform: async (_config, path) => {
 		if (!troveEnabled && (path === "/trove" || path.startsWith("/trove/"))) {
 			return null;
 		}

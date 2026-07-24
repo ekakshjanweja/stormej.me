@@ -15,9 +15,9 @@ const {
 } = REALTIME_CONSTANTS;
 
 export class RealtimeRoom implements DurableObject {
-	private state: DurableObjectState;
-	private cursors: Map<string, CursorPosition> = new Map();
-	private lastActivity: Map<string, number> = new Map();
+	private readonly state: DurableObjectState;
+	private readonly cursors: Map<string, CursorPosition> = new Map();
+	private readonly lastActivity: Map<string, number> = new Map();
 	private messages: Message[] = [];
 	private alarmScheduled = false;
 
@@ -81,7 +81,7 @@ export class RealtimeRoom implements DurableObject {
 				if (meta?.userId === userId) {
 					try {
 						ws.close(1000, "Inactive for 30 minutes");
-					} catch (e) {
+					} catch {
 						// Ignore close errors
 					}
 				}
@@ -158,6 +158,7 @@ export class RealtimeRoom implements DurableObject {
 		return new Response("Not found", { status: 404 });
 	}
 
+	// biome-ignore lint/suspicious/useAwait: workerd calls these hooks with the documented Promise<void> signature
 	async webSocketMessage(ws: WebSocket, message: string | ArrayBuffer) {
 		try {
 			const rawData = JSON.parse(message as string);
@@ -247,6 +248,7 @@ export class RealtimeRoom implements DurableObject {
 		}
 	}
 
+	// biome-ignore lint/suspicious/useAwait: workerd calls these hooks with the documented Promise<void> signature
 	async webSocketClose(ws: WebSocket, _code: number, _reason: string) {
 		const meta = ws.deserializeAttachment() as { userId: string } | null;
 		const userId = meta?.userId;
@@ -258,7 +260,8 @@ export class RealtimeRoom implements DurableObject {
 		}
 	}
 
-	async webSocketError(ws: WebSocket, error: unknown) {
+	// biome-ignore lint/suspicious/useAwait: workerd calls these hooks with the documented Promise<void> signature
+	async webSocketError(_ws: WebSocket, error: unknown) {
 		console.error("[RealtimeRoom] WebSocket error:", error);
 	}
 
@@ -272,7 +275,7 @@ export class RealtimeRoom implements DurableObject {
 			}
 			try {
 				ws.send(data);
-			} catch (e) {
+			} catch {
 				// Ignore send errors
 			}
 		}

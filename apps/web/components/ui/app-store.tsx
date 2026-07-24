@@ -14,6 +14,7 @@ export function AppStore({ size, ...props }: AppStoreProps) {
 			xmlns="http://www.w3.org/2000/svg"
 			{...props}
 		>
+			<title>App Store</title>
 			<defs>
 				<linearGradient
 					id="appStoreGradient"

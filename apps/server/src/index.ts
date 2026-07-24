@@ -32,13 +32,13 @@ app.on(["GET", "POST"], "/api/auth/*", (c) =>
 
 app.route("/", uploadRoutes);
 
-app.all("/ws", async (c) => {
+app.all("/ws", (c) => {
 	const id = c.env.REALTIME_ROOM.idFromName("global");
 	const room = c.env.REALTIME_ROOM.get(id);
 	return room.fetch(c.req.raw);
 });
 
-app.all("/", async (c) => {
+app.all("/", (c) => {
 	const id = c.env.REALTIME_ROOM.idFromName("global");
 	const room = c.env.REALTIME_ROOM.get(id);
 	return room.fetch(c.req.raw);

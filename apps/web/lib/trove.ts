@@ -1,20 +1,20 @@
 import { troveSource } from "@/lib/source";
 import { isTroveSlugEnabled, TROVE_ENABLED } from "@/lib/trove-config";
 
-export type TroveListItem = {
-	slug: string;
-	url: string;
-	title: string;
+export interface TroveListItem {
+	date?: string;
+	demo?: string;
 	description?: string;
+	formattedDate: string;
+	github?: string;
+	lines?: number;
+	slug: string;
+	sourceFile?: string;
 	subtitle?: string;
 	tech: string[];
-	sourceFile?: string;
-	lines?: number;
-	github?: string;
-	demo?: string;
-	date?: string;
-	formattedDate: string;
-};
+	title: string;
+	url: string;
+}
 
 const fmt = (d?: string) => {
 	if (!d) {

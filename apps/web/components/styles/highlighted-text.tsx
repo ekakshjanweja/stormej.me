@@ -8,18 +8,16 @@ export const HighlightedText = (
 ) => {
 	return (
 		<div
-			className={
-				className + "flex items-center justify-center space-x-4 text-highlight"
-			}
+			className={`${className}flex items-center justify-center space-x-4 text-highlight`}
 		>
-			{link == null ? (
+			{link === undefined ? (
 				<p>{label}</p>
 			) : (
 				<div className="group relative">
 					<Link
 						className="relative z-10 transition-all duration-300 hover:text-highlight"
 						href={link}
-						target={link == "/gear" ? "_parent" : "_blank"}
+						target={link === "/gear" ? "_parent" : "_blank"}
 					>
 						<p>{label}</p>
 					</Link>

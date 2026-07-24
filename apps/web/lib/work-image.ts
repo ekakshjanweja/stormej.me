@@ -6,9 +6,11 @@ export function workImageStableKey(asset: WorkImageAsset, index: number) {
 		: `${asset.light}|${asset.dark}|${index}`;
 }
 
+const VIDEO_EXTENSION = /\.(mp4|webm|mov)$/i;
+
 export function isVideoAsset(asset: WorkImageAsset) {
 	const path = typeof asset === "string" ? asset : asset.light;
-	return /\.(mp4|webm|mov)$/i.test(path);
+	return VIDEO_EXTENSION.test(path);
 }
 
 export function isPairedScreenshots(asset: WorkImageAsset): asset is {

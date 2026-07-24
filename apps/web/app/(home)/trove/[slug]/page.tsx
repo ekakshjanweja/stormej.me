@@ -17,15 +17,15 @@ interface PageProps {
 	params: Promise<{ slug: string }>;
 }
 
-type TroveData = {
-	title: string;
+interface TroveData {
+	date?: string;
 	description?: string;
+	github?: string;
+	sourceFile?: string;
 	subtitle?: string;
 	tech?: string[];
-	sourceFile?: string;
-	github?: string;
-	date?: string;
-};
+	title: string;
+}
 
 export async function generateStaticParams() {
 	return troveSource

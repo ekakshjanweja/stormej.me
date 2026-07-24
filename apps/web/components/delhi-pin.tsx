@@ -33,10 +33,7 @@ export function DelhiPin() {
 		<TooltipProvider delayDuration={120}>
 			<Tooltip>
 				<TooltipTrigger asChild>
-					<span
-						className="group inline-flex cursor-default items-center gap-1 rounded-sm transition-colors hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
-						tabIndex={0}
-					>
+					<span className="group inline-flex cursor-default items-center gap-1 rounded-sm transition-colors hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2">
 						<MapPin
 							aria-hidden
 							className="h-3 w-3 transition-transform duration-300 group-hover:-translate-y-0.5"

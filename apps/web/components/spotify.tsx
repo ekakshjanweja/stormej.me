@@ -18,7 +18,7 @@ const SpotifyNowPlaying = () => {
 				const response = await fetch("/api/spotify");
 				const data = await response.json();
 
-				if (data && data.isPlaying) {
+				if (data?.isPlaying) {
 					setTrack({
 						albumArt: data.albumImageUrl,
 						artist: data.artist,

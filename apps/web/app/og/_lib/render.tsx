@@ -4,6 +4,9 @@ import { SITE_TAGLINE } from "@/lib/schema";
 export type OgKind = "home" | "blog" | "projects" | "gear" | "work" | "trove";
 export type OgVariant = "editorial" | "dark" | "mono" | "minimal";
 
+const FONT_SRC = /src: url\((.+?)\) format\('(opentype|truetype)'\)/;
+const OWN_NAME = /^ekaksh\s+janweja$/i;
+
 const KIND_LABEL: Record<OgKind, string | null> = {
 	blog: "writing",
 	gear: "gear",
@@ -22,9 +25,7 @@ async function loadGoogleFont(
 	const axis = italic ? ":ital,wght@1," : ":wght@";
 	const url = `https://fonts.googleapis.com/css2?family=${family}${axis}${weight}&text=${encodeURIComponent(text)}`;
 	const css = await (await fetch(url)).text();
-	const resource = css.match(
-		/src: url\((.+?)\) format\('(opentype|truetype)'\)/
-	);
+	const resource = css.match(FONT_SRC);
 	if (!resource) {
 		throw new Error(`failed to resolve font URL for ${family}`);
 	}
@@ -60,7 +61,7 @@ function compute({ kind, title, meta }: RenderOgOptions): Computed {
 	const headline = (title?.trim() || "ekaksh janweja") as string;
 	const kicker = KIND_LABEL[kind];
 	let metaText = meta?.trim() || null;
-	const headlineIsName = /^ekaksh\s+janweja$/i.test(headline);
+	const headlineIsName = OWN_NAME.test(headline);
 	if (kind === "home" && headlineIsName && !metaText) {
 		metaText = SITE_TAGLINE;
 	}
@@ -68,7 +69,7 @@ function compute({ kind, title, meta }: RenderOgOptions): Computed {
 	return { byline, headline, kicker, metaText };
 }
 
-export async function renderOg(opts: RenderOgOptions) {
+export function renderOg(opts: RenderOgOptions) {
 	const variant = opts.variant ?? "editorial";
 	switch (variant) {
 		case "dark":
@@ -77,7 +78,6 @@ export async function renderOg(opts: RenderOgOptions) {
 			return renderMono(opts);
 		case "minimal":
 			return renderMinimal(opts);
-		case "editorial":
 		default:
 			return renderEditorial(opts);
 	}

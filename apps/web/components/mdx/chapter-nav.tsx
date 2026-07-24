@@ -1,6 +1,9 @@
 import { cn } from "@/lib/utils";
 
-type ChapterNavItem = { id: string; label: string };
+interface ChapterNavItem {
+	id: string;
+	label: string;
+}
 
 export function ChapterNav({
 	items,

@@ -3,6 +3,8 @@ import { requireSession } from "../../middleware/require-session";
 import type { Env } from "../../types";
 
 const RESUME_KEY = "resume.pdf";
+const FILE_EXTENSION = /\.[a-z0-9]+$/i;
+const FILES_PREFIX = /^\/files\//;
 const DEFAULT_CONTENT_TYPE = "application/octet-stream";
 
 export const uploadRoutes = new Hono<{ Bindings: Env }>();
@@ -31,13 +33,13 @@ const sanitizeKey = (rawKey: string) => {
 	return decodedKey.length > 0 &&
 		!decodedKey.includes("/") &&
 		!decodedKey.includes("..") &&
-		/\.[a-z0-9]+$/i.test(decodedKey)
+		FILE_EXTENSION.test(decodedKey)
 		? decodedKey
 		: null;
 };
 
 const getFileKey = (path: string) =>
-	sanitizeKey(path.replace(/^\/files\//, ""));
+	sanitizeKey(path.replace(FILES_PREFIX, ""));
 
 const getFileUrl = (origin: string, key: string) =>
 	`${origin}/files/${encodeURIComponent(key)}`;

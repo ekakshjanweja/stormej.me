@@ -2,6 +2,7 @@ import type { SVGProps } from "react";
 
 const Flutter = (props: SVGProps<SVGSVGElement>) => (
 	<svg {...props} preserveAspectRatio="xMidYMid" viewBox="0 0 256 317">
+		<title>Flutter</title>
 		<defs>
 			<linearGradient id="a" x1="4%" x2="75.9%" y1="27%" y2="52.9%">
 				<stop offset="0%" />

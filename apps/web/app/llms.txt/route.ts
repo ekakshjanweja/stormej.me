@@ -14,7 +14,7 @@ function formatRange(start: Date, end?: Date | null) {
 	return `${fmt(start)} to ${end ? fmt(end) : "present"}`;
 }
 
-export async function GET() {
+export function GET() {
 	const work = listWork();
 	const projects = listProjects().filter((p) => !p.hidden);
 	const blogs = listBlogs();

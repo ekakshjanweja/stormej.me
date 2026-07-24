@@ -10,29 +10,29 @@ function sortKeyForSlug(slug: string) {
 	return projectOrderIndex.get(slug) ?? Number.POSITIVE_INFINITY;
 }
 
-export type ProjectFrontmatter = {
-	title: string;
-	subtitle?: string;
+export interface ProjectFrontmatter {
 	description?: string;
-	tech: string[];
-	website?: string;
 	github?: string;
-	youtube?: string;
+	hidden?: boolean;
 	images?: string[];
 	inlineGallery?: boolean;
-	hidden?: boolean;
 	published?: boolean;
-};
-
-export type ProjectListItem = {
-	slug: string;
-	url: string;
-	title: string;
 	subtitle?: string;
-	description?: string;
+	tech: string[];
+	title: string;
 	website?: string;
+	youtube?: string;
+}
+
+export interface ProjectListItem {
+	description?: string;
 	hidden?: boolean;
-};
+	slug: string;
+	subtitle?: string;
+	title: string;
+	url: string;
+	website?: string;
+}
 
 export function listProjects(): ProjectListItem[] {
 	const pages = projectsSource.getPages().filter((p) => {

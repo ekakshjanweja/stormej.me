@@ -10,11 +10,11 @@ import type { PublicationListItem } from "@/lib/publication";
 const rowClassName =
 	"group flex flex-col gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded";
 
-type PublicationListItemRowProps = {
+interface PublicationListItemRowProps {
+	location?: PublicationClickLocation;
 	pub: PublicationListItem;
 	showDescription?: boolean;
-	location?: PublicationClickLocation;
-};
+}
 
 export function PublicationListItemRow({
 	pub,

@@ -24,7 +24,7 @@ export async function GET(request: Request, context: RouteContext) {
 	return renderOg({ kind: "blog", meta: formattedDate, title, variant });
 }
 
-export async function generateStaticParams() {
+export function generateStaticParams() {
 	return source.generateParams().map(({ slug }) => ({
 		slug: slug?.[0] ?? "",
 	}));
