@@ -1,3 +1,15 @@
+const fs = require("node:fs");
+// Not `path`, which is the name transform() below gives its route argument.
+const nodePath = require("node:path");
+
+// This config is commonjs and runs outside the bundler, so it cannot import
+// lib/trove-config.ts. Read the flag as text instead. Anything other than a
+// literal `= true` counts as off, so a disabled section can never be
+// advertised in the sitemap while its pages 404.
+const troveEnabled = /TROVE_ENABLED:\s*boolean\s*=\s*true/.test(
+  fs.readFileSync(nodePath.join(__dirname, "lib", "trove-config.ts"), "utf-8")
+);
+
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
   siteUrl: process.env.SITE_URL || "https://www.stormej.me",
@@ -6,6 +18,10 @@ module.exports = {
   changefreq: "weekly",
   priority: 0.7,
   transform: async (config, path) => {
+    if (!troveEnabled && (path === "/trove" || path.startsWith("/trove/"))) {
+      return null;
+    }
+
     let priority = 0.7;
     let changefreq = "weekly";
     if (path === "/") {

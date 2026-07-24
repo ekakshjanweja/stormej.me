@@ -2,6 +2,7 @@ import { listBlogs } from "@/lib/blog";
 import { listProjects } from "@/lib/projects";
 import { listWork } from "@/lib/work";
 import { listTrove } from "@/lib/trove";
+import { TROVE_ENABLED } from "@/lib/trove-config";
 
 const SITE = "https://www.stormej.me";
 
@@ -71,25 +72,33 @@ export async function GET() {
   }
   lines.push("");
 
-  lines.push("## trove");
-  lines.push("> flutter stuff i actually use. copy one file, ship.");
-  lines.push(
-    "> each entry has a plain text version at <url>/llms.txt with the full source inlined."
-  );
-  for (const t of trove) {
-    const desc = t.description ?? t.subtitle ?? "";
-    const src = t.sourceFile ? ` [${t.sourceFile}]` : "";
-    lines.push(`- [${t.title}](${SITE}${t.url})${src}${desc ? `: ${desc}` : ""}`);
-    lines.push(`  full source: ${SITE}${t.url}/llms.txt`);
+  if (trove.length > 0) {
+    lines.push("## trove");
+    lines.push("> flutter stuff i actually use. copy one file, ship.");
+    lines.push(
+      "> each entry has a plain text version at <url>/llms.txt with the full source inlined."
+    );
+    for (const t of trove) {
+      const desc = t.description ?? t.subtitle ?? "";
+      const src = t.sourceFile ? ` [${t.sourceFile}]` : "";
+      lines.push(
+        `- [${t.title}](${SITE}${t.url})${src}${desc ? `: ${desc}` : ""}`
+      );
+      lines.push(`  full source: ${SITE}${t.url}/llms.txt`);
+    }
+    lines.push("");
   }
-  lines.push("");
 
   lines.push("## pages");
   lines.push(`- [home](${SITE}/): bio, recent work, recent writing`);
   lines.push(`- [work](${SITE}/work): roles and case studies`);
   lines.push(`- [projects](${SITE}/projects): side projects and experiments`);
   lines.push(`- [blog](${SITE}/blog): writing on mobile development`);
-  lines.push(`- [trove](${SITE}/trove): flutter code you can copy into a project`);
+  if (TROVE_ENABLED) {
+    lines.push(
+      `- [trove](${SITE}/trove): flutter code you can copy into a project`
+    );
+  }
   lines.push(`- [gear](${SITE}/gear): hardware setup`);
   lines.push("");
 

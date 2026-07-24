@@ -11,6 +11,7 @@ import {
   buildBreadcrumbSchema,
   jsonLd,
 } from "@/lib/schema";
+import { isTroveSlugEnabled } from "@/lib/trove-config";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -27,9 +28,10 @@ type TroveData = {
 };
 
 export async function generateStaticParams() {
-  return troveSource.generateParams().map(({ slug }) => ({
-    slug: slug?.[0] ?? "",
-  }));
+  return troveSource
+    .generateParams()
+    .map(({ slug }) => ({ slug: slug?.[0] ?? "" }))
+    .filter(({ slug }) => isTroveSlugEnabled(slug));
 }
 
 export async function generateMetadata({
@@ -37,7 +39,7 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const page = troveSource.getPage([slug]);
-  if (!page) notFound();
+  if (!page || !isTroveSlugEnabled(slug)) notFound();
 
   const { title, description } = page.data as TroveData;
 
@@ -66,7 +68,7 @@ export async function generateMetadata({
 export default async function Page({ params }: PageProps) {
   const { slug } = await params;
   const page = troveSource.getPage([slug]);
-  if (!page) notFound();
+  if (!page || !isTroveSlugEnabled(slug)) notFound();
 
   const MDX = page.data.body;
   const data = page.data as TroveData;

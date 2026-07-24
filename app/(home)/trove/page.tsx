@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { listTrove } from "@/lib/trove";
+import { TROVE_ENABLED } from "@/lib/trove-config";
 import { TrovePreview } from "@/components/trove/trove-preview";
 
 const description = "flutter stuff i actually use. copy one file, ship.";
@@ -31,6 +33,8 @@ export const metadata: Metadata = {
 };
 
 export default function Trove() {
+  if (!TROVE_ENABLED) notFound();
+
   const items = listTrove();
 
   return (

@@ -1,4 +1,5 @@
 import { troveSource } from "@/lib/source";
+import { TROVE_ENABLED, isTroveSlugEnabled } from "@/lib/trove-config";
 
 export type TroveListItem = {
   slug: string;
@@ -25,9 +26,12 @@ const fmt = (d?: string) => {
 };
 
 export function listTrove(): TroveListItem[] {
+  if (!TROVE_ENABLED) return [];
+
   const pages = troveSource.getPages().filter((p) => {
     const data = p.data as { published?: boolean; hidden?: boolean };
-    return data.published !== false && data.hidden !== true;
+    if (data.published === false || data.hidden === true) return false;
+    return isTroveSlugEnabled(p.slugs[0] ?? "");
   });
 
   return pages

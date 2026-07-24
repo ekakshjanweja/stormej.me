@@ -9,12 +9,13 @@ import { cn } from "@/lib/utils";
 import { Menu, X as CloseIcon } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { track } from "@/lib/analytics";
+import { TROVE_ENABLED } from "@/lib/trove-config";
 
 const navItems = [
   { href: "/work", label: "work" },
   { href: "/projects", label: "projects" },
   { href: "/blog", label: "blog" },
-  { href: "/trove", label: "trove" },
+  ...(TROVE_ENABLED ? [{ href: "/trove", label: "trove" }] : []),
 ];
 
 export function Navbar() {
@@ -85,7 +86,9 @@ export function Navbar() {
           p: "navigate_projects",
           b: "navigate_blog",
           g: "navigate_gear",
-          v: "navigate_trove",
+          // No shortcut to a section that isn't there. The `v` case below is
+          // unreachable without this entry, since an unmapped key returns.
+          ...(TROVE_ENABLED ? { v: "navigate_trove" } : {}),
           t: "toggle_theme",
           r: "open_resume",
         };

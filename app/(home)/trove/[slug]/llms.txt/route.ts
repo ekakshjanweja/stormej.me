@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { troveSource } from "@/lib/source";
+import { isTroveSlugEnabled } from "@/lib/trove-config";
 
 const SITE = "https://www.stormej.me";
 
@@ -20,9 +21,10 @@ function toPlainMarkdown(raw: string) {
 }
 
 export async function generateStaticParams() {
-  return troveSource.generateParams().map(({ slug }) => ({
-    slug: slug?.[0] ?? "",
-  }));
+  return troveSource
+    .generateParams()
+    .map(({ slug }) => ({ slug: slug?.[0] ?? "" }))
+    .filter(({ slug }) => isTroveSlugEnabled(slug));
 }
 
 export async function GET(
@@ -31,7 +33,8 @@ export async function GET(
 ) {
   const { slug } = await context.params;
   const page = troveSource.getPage([slug]);
-  if (!page) return new Response("not found", { status: 404 });
+  if (!page || !isTroveSlugEnabled(slug))
+    return new Response("not found", { status: 404 });
 
   const data = page.data as {
     title: string;
