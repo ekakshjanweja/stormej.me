@@ -1,7 +1,7 @@
 "use client";
 
 import { ExternalLink, Maximize2, X } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 interface WebsitePreviewProps {
 	title: string;
@@ -10,6 +10,8 @@ interface WebsitePreviewProps {
 
 export function WebsitePreview({ url, title }: WebsitePreviewProps) {
 	const [isFullscreen, setIsFullscreen] = useState(false);
+	const enterFullscreen = useCallback(() => setIsFullscreen(true), []);
+	const exitFullscreen = useCallback(() => setIsFullscreen(false), []);
 
 	return (
 		<>
@@ -22,7 +24,7 @@ export function WebsitePreview({ url, title }: WebsitePreviewProps) {
 						<button
 							aria-label="Fullscreen preview"
 							className="rounded-lg bg-muted/50 p-2 transition-colors duration-200 hover:bg-muted"
-							onClick={() => setIsFullscreen(true)}
+							onClick={enterFullscreen}
 							type="button"
 						>
 							<Maximize2 className="h-4 w-4 text-muted-foreground" />
@@ -67,7 +69,7 @@ export function WebsitePreview({ url, title }: WebsitePreviewProps) {
 						<button
 							aria-label="Close fullscreen"
 							className="rounded-lg bg-muted p-2 transition-colors duration-200 hover:bg-muted/80"
-							onClick={() => setIsFullscreen(false)}
+							onClick={exitFullscreen}
 							type="button"
 						>
 							<X className="h-5 w-5 text-foreground" />

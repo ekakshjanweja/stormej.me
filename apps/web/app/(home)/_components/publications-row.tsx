@@ -5,6 +5,13 @@ import { track } from "@/lib/analytics";
 import { listPublications } from "@/lib/publication";
 import { PublicationListItemRow } from "./publication-list-item";
 
+const trackViewAll = () =>
+	track("nav_link_clicked", {
+		href: "/publications",
+		label: "view all",
+		surface: "home_publications",
+	});
+
 const HOME_LIMIT = 2;
 
 export const PublicationsRow = () => {
@@ -21,13 +28,7 @@ export const PublicationsRow = () => {
 					<Link
 						className="meta-tag hover-dim rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
 						href="/publications"
-						onClick={() =>
-							track("nav_link_clicked", {
-								href: "/publications",
-								label: "view all",
-								surface: "home_publications",
-							})
-						}
+						onClick={trackViewAll}
 					>
 						view all
 					</Link>

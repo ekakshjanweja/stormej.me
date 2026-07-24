@@ -20,18 +20,18 @@ export function ImageModal({
 	}
 
 	return (
-		<div
-			className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm"
-			onClick={onClose}
-		>
+		<div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm">
+			<button
+				aria-label="Close image"
+				className="absolute inset-0 h-full w-full cursor-default"
+				onClick={onClose}
+				type="button"
+			/>
 			<div className="relative flex h-full w-full items-center justify-center p-4">
 				{/* Close Button */}
 				<button
 					className="absolute top-4 right-4 z-10 rounded-full bg-black/50 p-2 text-white transition-colors duration-200 hover:bg-black/70"
-					onClick={(e) => {
-						e.stopPropagation();
-						onClose();
-					}}
+					onClick={onClose}
 					type="button"
 				>
 					<svg

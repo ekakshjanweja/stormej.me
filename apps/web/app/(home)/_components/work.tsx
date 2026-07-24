@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { LogoTile } from "@/components/logo-tile";
 import { Iphone17Pro } from "@/components/ui/iphone-17-pro";
 import { track } from "@/lib/analytics";
@@ -83,24 +83,33 @@ function HomeWorkItem({
 	const [isFocused, setIsFocused] = useState(false);
 	const showPreview = isHovered || isFocused;
 
+	const onMouseEnter = useCallback(() => setIsHovered(true), []);
+	const onMouseLeave = useCallback(() => setIsHovered(false), []);
+	const onFocus = useCallback(() => setIsFocused(true), []);
+	const onBlur = useCallback(() => setIsFocused(false), []);
+	const onClick = useCallback(
+		() =>
+			track("content_card_clicked", {
+				kind: "work",
+				slug: item.slug,
+				title: item.title,
+			}),
+		[item.slug, item.title]
+	);
+
 	return (
+		// biome-ignore lint/a11y/noNoninteractiveElementInteractions: hover only reveals the preview; the link inside carries the same state via focus
 		<li
 			className="group/work relative py-4 first:pt-0 last:pb-0 focus-within:z-50 hover:z-50"
-			onMouseEnter={() => setIsHovered(true)}
-			onMouseLeave={() => setIsHovered(false)}
+			onMouseEnter={onMouseEnter}
+			onMouseLeave={onMouseLeave}
 		>
 			<Link
 				className="group flex items-center gap-4 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
 				href={`/work/${item.slug}`}
-				onBlur={() => setIsFocused(false)}
-				onClick={() =>
-					track("content_card_clicked", {
-						kind: "work",
-						slug: item.slug,
-						title: item.title,
-					})
-				}
-				onFocus={() => setIsFocused(true)}
+				onBlur={onBlur}
+				onClick={onClick}
+				onFocus={onFocus}
 			>
 				{item.logo ? (
 					<LogoTile boxClassName="h-9 w-9" src={item.logo} />
