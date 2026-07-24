@@ -1,0 +1,3 @@
+{
+  "extends": "@stormej/config/tsconfig.base.json"
+}

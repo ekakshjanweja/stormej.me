@@ -10,102 +10,102 @@ import { z } from "zod";
 // ============================================================================
 
 export const messageSchema = z.object({
-  id: z.string(),
-  userId: z.string(),
-  name: z.string(),
-  text: z.string().max(500),
-  color: z.string(),
-  timestamp: z.number(),
+	color: z.string(),
+	id: z.string(),
+	name: z.string(),
+	text: z.string().max(500),
+	timestamp: z.number(),
+	userId: z.string(),
 });
 
 export const cursorMessageSchema = z.object({
-  text: z.string(),
-  timestamp: z.number(),
+	text: z.string(),
+	timestamp: z.number(),
 });
 
 export const cursorAnchorSchema = z.object({
-  selector: z.string(),
-  relativeX: z.number(),
-  relativeY: z.number(),
+	relativeX: z.number(),
+	relativeY: z.number(),
+	selector: z.string(),
 });
 
 export const cursorPositionSchema = z.object({
-  userId: z.string(),
-  name: z.string(),
-  color: z.string(),
-  // Anchor can be null, undefined, or a valid anchor object
-  anchor: cursorAnchorSchema.nullable().optional(),
-  // Note: percentX/percentY can be slightly outside 0-1 when cursor is near viewport edges
-  percentX: z.number(),
-  percentY: z.number(),
-  scrollX: z.number(),
-  scrollY: z.number(),
-  lastUpdate: z.number(),
-  // currentTyping can be null, undefined, or a string
-  currentTyping: z.string().max(100).nullable().optional(),
-  messages: z.array(cursorMessageSchema),
-  path: z.string(),
+	// Anchor can be null, undefined, or a valid anchor object
+	anchor: cursorAnchorSchema.nullable().optional(),
+	color: z.string(),
+	// currentTyping can be null, undefined, or a string
+	currentTyping: z.string().max(100).nullable().optional(),
+	lastUpdate: z.number(),
+	messages: z.array(cursorMessageSchema),
+	name: z.string(),
+	path: z.string(),
+	// Note: percentX/percentY can be slightly outside 0-1 when cursor is near viewport edges
+	percentX: z.number(),
+	percentY: z.number(),
+	scrollX: z.number(),
+	scrollY: z.number(),
+	userId: z.string(),
 });
 
 // Event schemas
 export const cursorEventSchema = z.object({
-  type: z.literal("cursor"),
-  payload: cursorPositionSchema,
+	payload: cursorPositionSchema,
+	type: z.literal("cursor"),
 });
 
 export const messageEventSchema = z.object({
-  type: z.literal("message"),
-  payload: messageSchema,
+	payload: messageSchema,
+	type: z.literal("message"),
 });
 
 export const userJoinEventSchema = z.object({
-  type: z.literal("user_join"),
-  payload: z.object({
-    userId: z.string(),
-    name: z.string(),
-    color: z.string(),
-  }),
+	payload: z.object({
+		color: z.string(),
+		name: z.string(),
+		userId: z.string(),
+	}),
+	type: z.literal("user_join"),
 });
 
 export const userLeaveEventSchema = z.object({
-  type: z.literal("user_leave"),
-  payload: z.object({
-    userId: z.string(),
-  }),
+	payload: z.object({
+		userId: z.string(),
+	}),
+	type: z.literal("user_leave"),
 });
 
 export const initEventSchema = z.object({
-  type: z.literal("init"),
-  payload: z.object({
-    messages: z.array(messageSchema),
-    cursors: z.array(cursorPositionSchema),
-  }),
+	payload: z.object({
+		cursors: z.array(cursorPositionSchema),
+		messages: z.array(messageSchema),
+	}),
+	type: z.literal("init"),
 });
 
 export const pingEventSchema = z.object({
-  type: z.literal("ping"),
+	type: z.literal("ping"),
 });
 
 export const pongEventSchema = z.object({
-  type: z.literal("pong"),
+	type: z.literal("pong"),
 });
 
 export const realtimeEventSchema = z.discriminatedUnion("type", [
-  cursorEventSchema,
-  messageEventSchema,
-  userJoinEventSchema,
-  userLeaveEventSchema,
-  initEventSchema,
-  pongEventSchema,
+	cursorEventSchema,
+	messageEventSchema,
+	userJoinEventSchema,
+	userLeaveEventSchema,
+	initEventSchema,
+	pongEventSchema,
 ]);
 
 // Client-to-server events (subset that clients can send)
 export const clientEventSchema = z.discriminatedUnion("type", [
-  cursorEventSchema,
-  messageEventSchema,
-  userJoinEventSchema,
-  userLeaveEventSchema,
-  pingEventSchema,
+	cursorEventSchema,
+	messageEventSchema,
+	userJoinEventSchema,
+	userLeaveEventSchema,
+	pingEventSchema,
 ]);
 
 // ============================================================================

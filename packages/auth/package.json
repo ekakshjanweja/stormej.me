@@ -1,0 +1,22 @@
+{
+  "name": "@stormej/auth",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@stormej/db": "workspace:*",
+    "better-auth": "catalog:"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "catalog:",
+    "@stormej/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

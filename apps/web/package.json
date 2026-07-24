@@ -1,5 +1,5 @@
 {
-  "name": "stormej.me",
+  "name": "web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,7 +8,7 @@
     "build": "next build",
     "postbuild": "next-sitemap",
     "start": "next start",
-    "lint": "next lint",
+    "check-types": "tsc --noEmit",
     "postinstall": "fumadocs-mdx",
     "sync:trove": "python3 scripts/sync-trove-sources.py",
     "build:trove": "./scripts/build-trove-demo.sh"
@@ -24,8 +24,10 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@radix-ui/react-use-controllable-state": "^1.2.2",
+    "@stormej/shared": "workspace:*",
     "@tabler/icons-react": "^3.35.0",
     "@types/mdx": "^2.0.13",
+    "better-auth": "catalog:",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
@@ -41,32 +43,24 @@
     "next-themes": "^0.4.6",
     "posthog-js": "^1.302.2",
     "posthog-node": "^5.17.2",
-    "prettier": "^3.5.3",
     "qss": "^3.0.0",
     "react": "^19.2.6",
     "react-dom": "19.2.6",
     "react-icons": "^5.5.0",
     "tailwind-merge": "^3.3.0",
     "tailwindcss-animate": "^1.0.7",
-    "zod": "^4.4.3"
+    "zod": "catalog:"
   },
   "devDependencies": {
+    "@stormej/config": "workspace:*",
     "@tailwindcss/postcss": "^4.2.4",
     "@types/node": "^22.15.29",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.5",
     "baseline-browser-mapping": "^2.10.12",
-    "eslint": "^9.28.0",
-    "eslint-config-next": "^16.0.7",
     "postcss": "^8.5.4",
     "shadcn": "^3.5.0",
     "tailwindcss": "^4.2.4",
-    "typescript": "^5.8.3"
-  },
-  "engines": {
-    "node": "22.x"
-  },
-  "trustedDependencies": [
-    "@tailwindcss/oxide"
-  ]
+    "typescript": "catalog:"
+  }
 }

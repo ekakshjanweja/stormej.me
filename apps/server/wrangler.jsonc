@@ -10,6 +10,15 @@
       "bucket_name": "stormej-storage",
     },
   ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "stormej-db",
+      // replace with the id printed by `bunx wrangler d1 create stormej-db`
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "migrations_dir": "../../packages/db/src/migrations",
+    },
+  ],
   "durable_objects": {
     "bindings": [
       {
@@ -24,4 +33,8 @@
       "new_sqlite_classes": ["RealtimeRoom"],
     },
   ],
+  "vars": {
+    "BETTER_AUTH_URL": "http://localhost:3000",
+    "CORS_ORIGIN": "http://localhost:3000,http://localhost:8787",
+  },
 }

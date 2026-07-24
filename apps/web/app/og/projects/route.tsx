@@ -4,11 +4,11 @@ import { parseVariant } from "../_lib/variant";
 export const runtime = "edge";
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  return renderOg({
-    kind: "projects",
-    title: searchParams.get("title"),
-    meta: searchParams.get("meta"),
-    variant: parseVariant(searchParams.get("v")),
-  });
+	const { searchParams } = new URL(request.url);
+	return renderOg({
+		kind: "projects",
+		meta: searchParams.get("meta"),
+		title: searchParams.get("title"),
+		variant: parseVariant(searchParams.get("v")),
+	});
 }

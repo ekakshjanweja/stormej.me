@@ -20,7 +20,7 @@
     ],
     "paths": {
       "@/*": ["./*"],
-      "@shared/*": ["./shared/*"],
+      "@stormej/shared/*": ["../../packages/shared/*"],
       "collections/*": ["./.source/*"]
     }
   },
@@ -29,8 +29,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "scripts/generate-sitemap.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "backend"]
+  "exclude": ["node_modules"]
 }

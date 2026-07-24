@@ -1,17 +1,27 @@
 {
-  "name": "backend",
+  "name": "server",
   "type": "module",
+  "main": "src/index.ts",
   "scripts": {
-    "dev": "bunx wrangler dev",
-    "deploy": "bunx wrangler deploy --minify",
-    "cf-typegen": "bunx wrangler types --env-interface CloudflareBindings"
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --minify",
+    "check-types": "tsc --noEmit",
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "db:migrate": "wrangler d1 migrations apply stormej-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply stormej-db --remote"
   },
   "dependencies": {
-    "hono": "^4.10.7",
-    "zod": "^3.23.8"
+    "@stormej/auth": "workspace:*",
+    "@stormej/db": "workspace:*",
+    "@stormej/shared": "workspace:*",
+    "better-auth": "catalog:",
+    "hono": "^4.10.7"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "catalog:",
+    "@stormej/config": "workspace:*",
     "bun-types": "^1.3.4",
+    "typescript": "catalog:",
     "wrangler": "^4.53.0"
   }
 }

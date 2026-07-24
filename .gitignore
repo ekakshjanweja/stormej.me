@@ -1,9 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-.env
-
 # dependencies
-/node_modules
+node_modules
 /.pnp
 .pnp.*
 .yarn/*
@@ -12,18 +10,33 @@
 !.yarn/releases
 !.yarn/versions
 
+# lock files
+bun.lock
+bun.lockb
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
 # testing
 /coverage
 
 # next.js
-/.next/
+.next/
 /out/
 
 # fumadocs generated source
-/.source/
+.source/
+
+# turborepo
+.turbo
+
+# cloudflare
+.wrangler
+.dev.vars*
 
 # production
 /build
+dist
 
 # misc
 .DS_Store
@@ -35,7 +48,9 @@ yarn-debug.log*
 yarn-error.log*
 
 # env files (can opt-in for committing if needed)
+.env
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -43,10 +58,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# Lock files
-*lock*
-!components/footer-clock.tsx
-
-# Environment
-.env

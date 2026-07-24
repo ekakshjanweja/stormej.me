@@ -1,7 +1,7 @@
 export const resume = "/files/resume.pdf";
 
 export const valorant =
-  "https://tracker.gg/valorant/profile/riot/STORMEJ%232020/overview";
+	"https://tracker.gg/valorant/profile/riot/STORMEJ%232020/overview";
 
 export const hyprDotFiles = "https://github.com/ekakshjanweja/hypr_dotfiles";
 
@@ -22,32 +22,32 @@ export const zuai = "https://www.zuai.co/";
 //Merlin
 
 export const merlinPlayStore =
-  "https://play.google.com/store/apps/details?id=com.foyer.merlin&hl=en_IN";
+	"https://play.google.com/store/apps/details?id=com.foyer.merlin&hl=en_IN";
 export const merlinAppStore =
-  "https://apps.apple.com/us/app/merlin-ai-ask-chat-write/id6453692447";
+	"https://apps.apple.com/us/app/merlin-ai-ask-chat-write/id6453692447";
 export const wallflowerPlayStore =
-  "https://play.google.com/store/apps/details?id=com.foyer.wallflower";
+	"https://play.google.com/store/apps/details?id=com.foyer.wallflower";
 export const wallflowerAppStore =
-  "https://apps.apple.com/in/app/wallflower-ai-image-generator/id6670315498";
+	"https://apps.apple.com/in/app/wallflower-ai-image-generator/id6670315498";
 
 //Tbb
 
 export const takeASipPlayStore =
-  "https://play.google.com/store/apps/details?id=app.takeasip";
+	"https://play.google.com/store/apps/details?id=app.takeasip";
 export const iWontForgetPlayStore =
-  "https://play.google.com/store/apps/details?id=app.iwontforget";
+	"https://play.google.com/store/apps/details?id=app.iwontforget";
 
 //ZuAi
 
 export const zuAppPlayStore =
-  "https://play.google.com/store/apps/details?id=in.zupay.app&hl=en";
+	"https://play.google.com/store/apps/details?id=in.zupay.app&hl=en";
 
 //Project links
 
 export const browserAutomationAgent =
-  "https://www.youtube.com/watch?v=2xEgXGYzQgw";
+	"https://www.youtube.com/watch?v=2xEgXGYzQgw";
 export const browserUseTsGithub =
-  "https://github.com/kunal00000/browser-use-ts";
+	"https://github.com/kunal00000/browser-use-ts";
 
 export const renovatio = "https://renovatio-design.vercel.app/";
 export const renovatioGithub = "https://github.com/ekakshjanweja/renovatio";
@@ -58,16 +58,16 @@ export const fluxYoutube = "https://youtu.be/6HJoyJrVJ-0?si=vTbvFu_5m-z86rXI";
 
 export const stormejIsLive = "https://live.stormej.me";
 export const stormejIsLiveGithub =
-  "https://github.com/ekakshjanweja/stormej-live";
+	"https://github.com/ekakshjanweja/stormej-live";
 export const stormejIsLiveYoutube =
-  "https://www.youtube.com/watch?v=RAcWnMxSdTo";
+	"https://www.youtube.com/watch?v=RAcWnMxSdTo";
 
 export const dtuSocial = "https://www.youtube.com/watch?v=uPrSzoiw8Ms";
 
 export const oldPortfolio = "https://flutter.stormej.me";
 
 export const oldPortfolioGithub =
-  "https://github.com/ekakshjanweja/Portfolio-Website";
+	"https://github.com/ekakshjanweja/Portfolio-Website";
 
 //Profile
 

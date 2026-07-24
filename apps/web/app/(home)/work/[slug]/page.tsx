@@ -1,182 +1,184 @@
-import { workSource } from "@/lib/source";
-import { getWork, type WorkFrontmatter } from "@/lib/work";
-import { notFound } from "next/navigation";
-import Link from "next/link";
-import {
-  WorkCaseStudyHeader,
-  WorkDefaultHeader,
-} from "@/components/work/header";
 import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { ContentViewTracker } from "@/components/analytics/content-view-tracker";
+import { getMDXComponents } from "@/components/mdx";
 import { Chapter } from "@/components/mdx/chapter";
-import { Screens } from "@/components/mdx/screens";
 import { Figure } from "@/components/mdx/figure";
 import { Gallery } from "@/components/mdx/gallery";
-import { getMDXComponents } from "@/components/mdx";
-import { ContentViewTracker } from "@/components/analytics/content-view-tracker";
+import { Screens } from "@/components/mdx/screens";
 import {
-  buildBreadcrumbSchema,
-  buildCreativeWorkSchema,
-  jsonLd,
+	WorkCaseStudyHeader,
+	WorkDefaultHeader,
+} from "@/components/work/header";
+import {
+	buildBreadcrumbSchema,
+	buildCreativeWorkSchema,
+	jsonLd,
 } from "@/lib/schema";
+import { workSource } from "@/lib/source";
+import { getWork, type WorkFrontmatter } from "@/lib/work";
 
 function formatRange(start: Date, end?: Date | null) {
-  const fmt = (d: Date) =>
-    d
-      .toLocaleString("default", { month: "short", year: "numeric" })
-      .toLowerCase();
-  return `${fmt(start)} to ${end ? fmt(end) : "present"}`;
+	const fmt = (d: Date) =>
+		d
+			.toLocaleString("default", { month: "short", year: "numeric" })
+			.toLowerCase();
+	return `${fmt(start)} to ${end ? fmt(end) : "present"}`;
 }
 
 interface PageProps {
-  params: Promise<{ slug: string }>;
+	params: Promise<{ slug: string }>;
 }
 
 export async function generateStaticParams() {
-  return workSource.generateParams().map(({ slug }) => ({
-    slug: slug?.[0] ?? "",
-  }));
+	return workSource.generateParams().map(({ slug }) => ({
+		slug: slug?.[0] ?? "",
+	}));
 }
 
 export async function generateMetadata({
-  params,
+	params,
 }: PageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const page = getWork(slug);
-  if (!page) notFound();
-  const fm = page.data as WorkFrontmatter;
+	const { slug } = await params;
+	const page = getWork(slug);
+	if (!page) {
+		notFound();
+	}
+	const fm = page.data as WorkFrontmatter;
 
-  const canonical = `/work/${slug}`;
-  const ogImage = `/og/work/${slug}`;
+	const canonical = `/work/${slug}`;
+	const ogImage = `/og/work/${slug}`;
 
-  return {
-    title: fm.title,
-    description: fm.description,
-    alternates: { canonical },
-    openGraph: {
-      title: fm.title,
-      description: fm.description,
-      url: canonical,
-      type: "article",
-      images: [
-        { url: ogImage, width: 1200, height: 630, alt: fm.title },
-      ],
-    },
-    twitter: {
-      title: fm.title,
-      description: fm.description,
-      images: [ogImage],
-    },
-  };
+	return {
+		alternates: { canonical },
+		description: fm.description,
+		openGraph: {
+			description: fm.description,
+			images: [{ alt: fm.title, height: 630, url: ogImage, width: 1200 }],
+			title: fm.title,
+			type: "article",
+			url: canonical,
+		},
+		title: fm.title,
+		twitter: {
+			description: fm.description,
+			images: [ogImage],
+			title: fm.title,
+		},
+	};
 }
 
 export default async function Page({ params }: PageProps) {
-  const { slug } = await params;
-  const page = getWork(slug);
-  if (!page) notFound();
+	const { slug } = await params;
+	const page = getWork(slug);
+	if (!page) {
+		notFound();
+	}
 
-  const fm = page.data as WorkFrontmatter;
-  const startDate = new Date(fm.startDate);
-  const endDate = fm.endDate ? new Date(fm.endDate) : undefined;
-  const hasCaseStudy = !!(fm.chapters && fm.chapters.length > 0);
-  const MDX = page.data.body;
+	const fm = page.data as WorkFrontmatter;
+	const startDate = new Date(fm.startDate);
+	const endDate = fm.endDate ? new Date(fm.endDate) : undefined;
+	const hasCaseStudy = !!(fm.chapters && fm.chapters.length > 0);
+	const MDX = page.data.body;
 
-  const chapters = fm.chapters ?? [];
-  const firstChapterId = chapters[0]?.id;
+	const chapters = fm.chapters ?? [];
+	const firstChapterId = chapters[0]?.id;
 
-  const chapterIndexById = new Map<string, number>();
-  chapters.forEach((c, i) => chapterIndexById.set(c.id, i));
+	const chapterIndexById = new Map<string, number>();
+	chapters.forEach((c, i) => chapterIndexById.set(c.id, i));
 
-  const ChapterWithIndex = (props: {
-    id: string;
-    label: string;
-    title: string;
-    pullQuote?: string;
-    children: React.ReactNode;
-  }) => {
-    const idx = chapterIndexById.get(props.id) ?? 0;
-    return <Chapter {...props} index={idx} />;
-  };
+	const ChapterWithIndex = (props: {
+		id: string;
+		label: string;
+		title: string;
+		pullQuote?: string;
+		children: React.ReactNode;
+	}) => {
+		const idx = chapterIndexById.get(props.id) ?? 0;
+		return <Chapter {...props} index={idx} />;
+	};
 
-  const ScreensWithTitle = (props: React.ComponentProps<typeof Screens>) => (
-    <Screens
-      {...props}
-      title={props.title ?? fm.title}
-      mockup={props.mockup ?? fm.screenshotMockup}
-    />
-  );
+	const ScreensWithTitle = (props: React.ComponentProps<typeof Screens>) => (
+		<Screens
+			{...props}
+			mockup={props.mockup ?? fm.screenshotMockup}
+			title={props.title ?? fm.title}
+		/>
+	);
 
-  const components = getMDXComponents({
-    Chapter: ChapterWithIndex,
-    Screens: ScreensWithTitle,
-    Figure,
-    Gallery,
-  });
+	const components = getMDXComponents({
+		Chapter: ChapterWithIndex,
+		Figure,
+		Gallery,
+		Screens: ScreensWithTitle,
+	});
 
-  const schemas = [
-    buildCreativeWorkSchema({
-      kind: "work",
-      slug,
-      title: fm.title,
-      description: fm.description,
-      about: fm.tech,
-      startDate,
-      endDate,
-      website: fm.website,
-      external: [fm.appStore, fm.playStore].filter(
-        (s): s is string => Boolean(s)
-      ),
-    }),
-    buildBreadcrumbSchema([
-      { name: "home", url: "/" },
-      { name: "work", url: "/work" },
-      { name: fm.title, url: `/work/${slug}` },
-    ]),
-  ];
+	const schemas = [
+		buildCreativeWorkSchema({
+			about: fm.tech,
+			description: fm.description,
+			endDate,
+			external: [fm.appStore, fm.playStore].filter((s): s is string =>
+				Boolean(s)
+			),
+			kind: "work",
+			slug,
+			startDate,
+			title: fm.title,
+			website: fm.website,
+		}),
+		buildBreadcrumbSchema([
+			{ name: "home", url: "/" },
+			{ name: "work", url: "/work" },
+			{ name: fm.title, url: `/work/${slug}` },
+		]),
+	];
 
-  return (
-    <main>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLd(schemas) }}
-      />
-      <ContentViewTracker kind="work" slug={slug} title={fm.title} />
-      <Link
-        href="/work"
-        className="meta-tag hover-dim inline-flex items-center gap-1.5 mb-12 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded"
-      >
-        ← back
-      </Link>
+	return (
+		<main>
+			<script
+				dangerouslySetInnerHTML={{ __html: jsonLd(schemas) }}
+				type="application/ld+json"
+			/>
+			<ContentViewTracker kind="work" slug={slug} title={fm.title} />
+			<Link
+				className="meta-tag hover-dim mb-12 inline-flex items-center gap-1.5 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
+				href="/work"
+			>
+				← back
+			</Link>
 
-      <article className="relative">
-        {hasCaseStudy && firstChapterId && (
-          <a
-            href={`#${firstChapterId}`}
-            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-24 focus:z-[200] focus:rounded-md focus:border focus:border-border focus:bg-background focus:px-3 focus:py-2 focus:text-[13px] focus:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/25"
-          >
-            skip to case study
-          </a>
-        )}
+			<article className="relative">
+				{hasCaseStudy && firstChapterId && (
+					<a
+						className="sr-only focus:not-sr-only focus:fixed focus:top-24 focus:left-4 focus:z-[200] focus:rounded-md focus:border focus:border-border focus:bg-background focus:px-3 focus:py-2 focus:text-[13px] focus:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/25"
+						href={`#${firstChapterId}`}
+					>
+						skip to case study
+					</a>
+				)}
 
-        {hasCaseStudy ? (
-          <WorkCaseStudyHeader
-            fm={fm}
-            startDate={startDate}
-            endDate={endDate}
-            formatRange={formatRange}
-          />
-        ) : (
-          <WorkDefaultHeader
-            fm={fm}
-            startDate={startDate}
-            endDate={endDate}
-            formatRange={formatRange}
-          />
-        )}
+				{hasCaseStudy ? (
+					<WorkCaseStudyHeader
+						endDate={endDate}
+						fm={fm}
+						formatRange={formatRange}
+						startDate={startDate}
+					/>
+				) : (
+					<WorkDefaultHeader
+						endDate={endDate}
+						fm={fm}
+						formatRange={formatRange}
+						startDate={startDate}
+					/>
+				)}
 
-        <div className={hasCaseStudy ? "space-y-16" : undefined}>
-          <MDX components={components} />
-        </div>
-      </article>
-    </main>
-  );
+				<div className={hasCaseStudy ? "space-y-16" : undefined}>
+					<MDX components={components} />
+				</div>
+			</article>
+		</main>
+	);
 }

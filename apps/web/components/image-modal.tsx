@@ -3,61 +3,63 @@
 import Image from "next/image";
 
 interface ImageModalProps {
-  isOpen: boolean;
-  imageSrc: string;
-  imageAlt: string;
-  onClose: () => void;
+	imageAlt: string;
+	imageSrc: string;
+	isOpen: boolean;
+	onClose: () => void;
 }
 
 export function ImageModal({
-  isOpen,
-  imageSrc,
-  imageAlt,
-  onClose,
+	isOpen,
+	imageSrc,
+	imageAlt,
+	onClose,
 }: ImageModalProps) {
-  if (!isOpen) return null;
+	if (!isOpen) {
+		return null;
+	}
 
-  return (
-    <div
-      className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div className="relative w-full h-full flex items-center justify-center p-4">
-        {/* Close Button */}
-        <button
-          className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors duration-200"
-          onClick={(e) => {
-            e.stopPropagation();
-            onClose();
-          }}
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
+	return (
+		<div
+			className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm"
+			onClick={onClose}
+		>
+			<div className="relative flex h-full w-full items-center justify-center p-4">
+				{/* Close Button */}
+				<button
+					className="absolute top-4 right-4 z-10 rounded-full bg-black/50 p-2 text-white transition-colors duration-200 hover:bg-black/70"
+					onClick={(e) => {
+						e.stopPropagation();
+						onClose();
+					}}
+				>
+					<svg
+						className="h-6 w-6"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+					>
+						<path
+							d="M6 18L18 6M6 6l12 12"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							strokeWidth={2}
+						/>
+					</svg>
+				</button>
 
-        {/* Image Container */}
-        <div className="relative max-w-full max-h-full">
-          <Image
-            src={imageSrc}
-            alt={imageAlt}
-            width={1200}
-            height={800}
-            className="max-w-full max-h-[90vh] object-contain"
-            priority
-          />
-        </div>
-      </div>
-    </div>
-  );
+				{/* Image Container */}
+				<div className="relative max-h-full max-w-full">
+					<Image
+						alt={imageAlt}
+						className="max-h-[90vh] max-w-full object-contain"
+						height={800}
+						priority
+						src={imageSrc}
+						width={1200}
+					/>
+				</div>
+			</div>
+		</div>
+	);
 }

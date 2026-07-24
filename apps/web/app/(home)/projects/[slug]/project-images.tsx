@@ -1,62 +1,62 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
+import { useState } from "react";
 import { ImageModal } from "@/components/image-modal";
 
 interface ProjectImagesProps {
-  title: string;
-  images?: string[];
+	images?: string[];
+	title: string;
 }
 
 export function ProjectImages({ title, images }: ProjectImagesProps) {
-  const [selectedImage, setSelectedImage] = useState<{
-    src: string;
-    alt: string;
-  } | null>(null);
+	const [selectedImage, setSelectedImage] = useState<{
+		src: string;
+		alt: string;
+	} | null>(null);
 
-  if (!images || images.length === 0) {
-    return null;
-  }
+	if (!images || images.length === 0) {
+		return null;
+	}
 
-  return (
-    <>
-      {/* Project Images */}
-      <div className="space-y-6">
-        <h3 className="text-lg font-semibold tracking-tight text-foreground">
-          diagrams
-        </h3>
-        <div className="space-y-6">
-          {images.map((image, index) => (
-            <div
-              key={index}
-              className="group relative rounded-2xl overflow-hidden border border-border/40 hover:border-highlight/30 transition-all duration-500 cursor-pointer"
-              onClick={() => {
-                setSelectedImage({
-                  src: `/${image}`,
-                  alt: `${title} - Image ${index + 1}`,
-                });
-              }}
-            >
-              <Image
-                src={`/${image}`}
-                alt={`${title} - Image ${index + 1}`}
-                width={800}
-                height={600}
-                className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-            </div>
-          ))}
-        </div>
-      </div>
+	return (
+		<>
+			{/* Project Images */}
+			<div className="space-y-6">
+				<h3 className="font-semibold text-foreground text-lg tracking-tight">
+					diagrams
+				</h3>
+				<div className="space-y-6">
+					{images.map((image, index) => (
+						<div
+							className="group relative cursor-pointer overflow-hidden rounded-2xl border border-border/40 transition-all duration-500 hover:border-highlight/30"
+							key={index}
+							onClick={() => {
+								setSelectedImage({
+									alt: `${title} - Image ${index + 1}`,
+									src: `/${image}`,
+								});
+							}}
+						>
+							<Image
+								alt={`${title} - Image ${index + 1}`}
+								className="h-auto w-full object-cover transition-transform duration-500 group-hover:scale-105"
+								height={600}
+								src={`/${image}`}
+								width={800}
+							/>
+						</div>
+					))}
+				</div>
+			</div>
 
-      {/* Image Modal */}
-      <ImageModal
-        isOpen={selectedImage !== null}
-        imageSrc={selectedImage?.src || ""}
-        imageAlt={selectedImage?.alt || ""}
-        onClose={() => setSelectedImage(null)}
-      />
-    </>
-  );
+			{/* Image Modal */}
+			<ImageModal
+				imageAlt={selectedImage?.alt || ""}
+				imageSrc={selectedImage?.src || ""}
+				isOpen={selectedImage !== null}
+				onClose={() => setSelectedImage(null)}
+			/>
+		</>
+	);
 }

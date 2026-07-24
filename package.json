@@ -1,0 +1,51 @@
+{
+  "name": "stormej.me",
+  "private": true,
+  "type": "module",
+  "packageManager": "bun@1.2.23",
+  "engines": {
+    "node": "22.x"
+  },
+  "workspaces": {
+    "packages": [
+      "apps/*",
+      "packages/*"
+    ],
+    "catalog": {
+      "@cloudflare/workers-types": "^4.20260702.1",
+      "better-auth": "1.6.23",
+      "drizzle-orm": "^0.45.2",
+      "typescript": "^5.8.3",
+      "zod": "^4.4.3"
+    }
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:web": "turbo run dev -F web",
+    "dev:server": "turbo run dev -F server",
+    "build": "turbo run build",
+    "check-types": "turbo run check-types",
+    "db:generate": "turbo run db:generate -F @stormej/db",
+    "db:migrate": "turbo run db:migrate -F server",
+    "db:migrate:remote": "turbo run db:migrate:remote -F server",
+    "deploy:server": "turbo run deploy -F server",
+    "check": "ultracite check",
+    "fix": "ultracite fix",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.3",
+    "@types/node": "^22.15.29",
+    "husky": "^9.1.7",
+    "turbo": "^2.10.2",
+    "typescript": "catalog:",
+    "ultracite": "7.9.4"
+  },
+  "trustedDependencies": [
+    "@tailwindcss/oxide",
+    "esbuild",
+    "sharp",
+    "web",
+    "workerd"
+  ]
+}

@@ -16,5 +16,5 @@ export const TROVE_ENABLED: boolean = true;
 export const DISABLED_TROVE_SLUGS: readonly string[] = [];
 
 export function isTroveSlugEnabled(slug: string): boolean {
-  return TROVE_ENABLED && !DISABLED_TROVE_SLUGS.includes(slug);
+	return TROVE_ENABLED && !DISABLED_TROVE_SLUGS.includes(slug);
 }

@@ -6,25 +6,25 @@ import type { PublicationListItem } from "@/lib/publication";
 import { PublicationListItemRow } from "../_components/publication-list-item";
 
 export function PublicationsList({
-  publications,
+	publications,
 }: {
-  publications: PublicationListItem[];
+	publications: PublicationListItem[];
 }) {
-  useEffect(() => {
-    trackPublicationsListViewed();
-  }, []);
+	useEffect(() => {
+		trackPublicationsListViewed();
+	}, []);
 
-  return (
-    <ul className="flex flex-col gap-5">
-      {publications.map((pub) => (
-        <li key={pub.slug}>
-          <PublicationListItemRow
-            pub={pub}
-            showDescription
-            location="publications"
-          />
-        </li>
-      ))}
-    </ul>
-  );
+	return (
+		<ul className="flex flex-col gap-5">
+			{publications.map((pub) => (
+				<li key={pub.slug}>
+					<PublicationListItemRow
+						location="publications"
+						pub={pub}
+						showDescription
+					/>
+				</li>
+			))}
+		</ul>
+	);
 }

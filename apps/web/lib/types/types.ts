@@ -6,4 +6,3 @@ export type WorkImageAsset = string | { light: string; dark: string };
 
 /** Work entry logo: same pairing as {@link WorkImageAsset}. */
 export type WorkLogoAsset = WorkImageAsset;
-
