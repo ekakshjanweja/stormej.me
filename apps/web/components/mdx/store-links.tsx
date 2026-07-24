@@ -16,6 +16,25 @@ const storeIconLink =
 const hoverLabel =
 	"pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-md border border-border/70 bg-popover px-2 py-1 text-[10px] font-medium leading-none tracking-wide text-foreground opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none motion-reduce:group-hover:opacity-100 motion-reduce:group-focus-visible:opacity-100 group-data-[placement=bottom]:top-[calc(100%+8px)] group-data-[placement=bottom]:bottom-auto";
 
+const TOOLTIP_OFFSET = 8;
+const TOOLTIP_HEIGHT = 22;
+
+/** Flip the tooltip below the icon when there is no room above it. */
+function placementFor(el: HTMLAnchorElement, safeTop: number) {
+	const needed = TOOLTIP_HEIGHT + TOOLTIP_OFFSET;
+	const rect = el.getBoundingClientRect();
+	const spaceAbove = rect.top - safeTop;
+	const spaceBelow = window.innerHeight - rect.bottom;
+
+	if (spaceAbove >= needed) {
+		return "top";
+	}
+	if (spaceBelow >= needed) {
+		return "bottom";
+	}
+	return spaceBelow > spaceAbove ? "bottom" : "top";
+}
+
 function toStoreLinks(value?: StoreLink | StoreLink[]): StoreLink[] {
 	if (!value) {
 		return [];
@@ -54,34 +73,17 @@ export function StoreLinks({
 	}, []);
 
 	useEffect(() => {
-		const tooltipOffset = 8;
-		const tooltipHeight = 22;
 		let raf = 0;
 
 		const updatePlacement = () => {
 			const nav = document.querySelector("nav");
 			const navHeight = nav ? nav.getBoundingClientRect().height : 0;
-			const safeTop = navHeight + tooltipOffset;
-			const needed = tooltipHeight + tooltipOffset;
+			const safeTop = navHeight + TOOLTIP_OFFSET;
 
 			for (const el of iconRefs.current) {
-				if (!el) {
-					continue;
+				if (el) {
+					el.dataset.placement = placementFor(el, safeTop);
 				}
-				const rect = el.getBoundingClientRect();
-				const spaceAbove = rect.top - safeTop;
-				const spaceBelow = window.innerHeight - rect.bottom;
-				let placement: "top" | "bottom" = "top";
-
-				if (spaceAbove < needed && spaceBelow >= needed) {
-					placement = "bottom";
-				} else if (spaceBelow < needed && spaceAbove >= needed) {
-					placement = "top";
-				} else if (spaceAbove < needed && spaceBelow < needed) {
-					placement = spaceBelow > spaceAbove ? "bottom" : "top";
-				}
-
-				el.dataset.placement = placement;
 			}
 		};
 

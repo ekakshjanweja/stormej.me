@@ -8,6 +8,82 @@ import { isPairedScreenshots } from "@/lib/work-image";
 
 /** Colour channels are bucketed into 8 bands so near-identical pixels group. */
 const BUCKET_SIZE = 32;
+/** The logo is downsampled to this square before sampling. */
+const SAMPLE_SIZE = 32;
+const ALPHA_FLOOR = 200;
+const LUMA_CEILING = 240;
+const LUMA_FLOOR = 15;
+
+type ColorBucket = {
+	r: number;
+	g: number;
+	b: number;
+	n: number;
+	score: number;
+};
+
+/** Bucket the pixels, then take the bucket with the most saturated mass. */
+function bucketPixels(data: Uint8ClampedArray) {
+	const buckets = new Map<string, ColorBucket>();
+
+	for (let i = 0; i < data.length; i += 4) {
+		if (data[i + 3] < ALPHA_FLOOR) {
+			continue;
+		}
+		const r = data[i];
+		const g = data[i + 1];
+		const b = data[i + 2];
+		const lum = (r + g + b) / 3;
+		if (lum > LUMA_CEILING || lum < LUMA_FLOOR) {
+			continue;
+		}
+		const max = Math.max(r, g, b);
+		const min = Math.min(r, g, b);
+		const sat = max === 0 ? 0 : (max - min) / max;
+		const key = `${Math.floor(r / BUCKET_SIZE)}-${Math.floor(g / BUCKET_SIZE)}-${Math.floor(b / BUCKET_SIZE)}`;
+		const cur = buckets.get(key) ?? { b: 0, g: 0, n: 0, r: 0, score: 0 };
+		cur.r += r;
+		cur.g += g;
+		cur.b += b;
+		cur.n += 1;
+		cur.score += 1 + sat * 2;
+		buckets.set(key, cur);
+	}
+
+	return buckets;
+}
+
+function dominantColor(img: HTMLImageElement): string | null {
+	try {
+		const canvas = document.createElement("canvas");
+		canvas.width = SAMPLE_SIZE;
+		canvas.height = SAMPLE_SIZE;
+		const ctx = canvas.getContext("2d", { willReadFrequently: true });
+		if (!ctx) {
+			return null;
+		}
+		ctx.drawImage(img, 0, 0, SAMPLE_SIZE, SAMPLE_SIZE);
+		const { data } = ctx.getImageData(0, 0, SAMPLE_SIZE, SAMPLE_SIZE);
+
+		let best: ColorBucket | null = null;
+		for (const v of bucketPixels(data).values()) {
+			if (!best || v.score > best.score) {
+				best = v;
+			}
+		}
+		if (!best) {
+			return null;
+		}
+
+		const r = Math.round(best.r / best.n);
+		const g = Math.round(best.g / best.n);
+		const b = Math.round(best.b / best.n);
+		return `rgb(${r} ${g} ${b} / 0.15)`;
+	} catch {
+		// CORS or decode errors just mean no tint
+		return null;
+	}
+}
 
 interface Props {
 	alt?: string;
@@ -41,66 +117,9 @@ export function LogoTile({
 			if (cancelled.current) {
 				return;
 			}
-			try {
-				const s = 32;
-				const canvas = document.createElement("canvas");
-				canvas.width = s;
-				canvas.height = s;
-				const ctx = canvas.getContext("2d", { willReadFrequently: true });
-				if (!ctx) {
-					return;
-				}
-				ctx.drawImage(img, 0, 0, s, s);
-				const { data } = ctx.getImageData(0, 0, s, s);
-				const buckets = new Map<
-					string,
-					{ r: number; g: number; b: number; n: number; score: number }
-				>();
-				for (let i = 0; i < data.length; i += 4) {
-					const a = data[i + 3];
-					if (a < 200) {
-						continue;
-					}
-					const r = data[i];
-					const g = data[i + 1];
-					const b = data[i + 2];
-					const max = Math.max(r, g, b);
-					const min = Math.min(r, g, b);
-					const sat = max === 0 ? 0 : (max - min) / max;
-					const lum = (r + g + b) / 3;
-					if (lum > 240 || lum < 15) {
-						continue;
-					}
-					const key = `${Math.floor(r / BUCKET_SIZE)}-${Math.floor(g / BUCKET_SIZE)}-${Math.floor(b / BUCKET_SIZE)}`;
-					const cur = buckets.get(key) ?? { b: 0, g: 0, n: 0, r: 0, score: 0 };
-					cur.r += r;
-					cur.g += g;
-					cur.b += b;
-					cur.n += 1;
-					cur.score += 1 + sat * 2;
-					buckets.set(key, cur);
-				}
-				let best: {
-					r: number;
-					g: number;
-					b: number;
-					n: number;
-					score: number;
-				} | null = null;
-				for (const v of buckets.values()) {
-					if (!best || v.score > best.score) {
-						best = v;
-					}
-				}
-				if (!best) {
-					return;
-				}
-				const r = Math.round(best.r / best.n);
-				const g = Math.round(best.g / best.n);
-				const b = Math.round(best.b / best.n);
-				setBg(`rgb(${r} ${g} ${b} / 0.15)`);
-			} catch {
-				// ignore (CORS, decode errors)
+			const dominant = dominantColor(img);
+			if (dominant) {
+				setBg(dominant);
 			}
 		};
 		return () => {
