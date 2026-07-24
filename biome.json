@@ -45,7 +45,6 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
       "correctness": {
         "useExhaustiveDependencies": "info"
       },
@@ -69,7 +68,8 @@
         "useNumberNamespace": "error",
         "noInferrableTypes": "error",
         "noUselessElse": "error"
-      }
+      },
+      "preset": "recommended"
     }
   },
   "javascript": {

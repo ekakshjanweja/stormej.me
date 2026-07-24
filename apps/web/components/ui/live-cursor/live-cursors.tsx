@@ -1,6 +1,7 @@
 "use client";
 
 import { REALTIME_CONSTANTS } from "@stormej/shared/constants";
+import type { Dispatch, SetStateAction } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRealtime } from "@/lib/providers/realtime-provider";
 import { ChatModeIndicator } from "./chat-mode-indicator";
@@ -15,6 +16,56 @@ import {
 } from "./utils";
 
 const { MESSAGE_EXPIRY_MS } = REALTIME_CONSTANTS;
+
+const MAX_CHAT_LENGTH = 100;
+
+const isPrintable = (e: KeyboardEvent) =>
+	e.key.length === 1 && !(e.ctrlKey || e.metaKey || e.altKey);
+
+const isTypingTarget = (e: KeyboardEvent) => {
+	const target = e.target as HTMLElement;
+	return (
+		target.tagName === "INPUT" ||
+		target.tagName === "TEXTAREA" ||
+		target.isContentEditable
+	);
+};
+
+/** Chat mode swallows the keyboard: this is the whole in-chat key map. */
+function applyChatKey(
+	e: KeyboardEvent,
+	{
+		addMessage,
+		current,
+		setCurrentMessage,
+		setIsChatMode,
+	}: {
+		addMessage: (text: string) => void;
+		current: string;
+		setCurrentMessage: Dispatch<SetStateAction<string>>;
+		setIsChatMode: Dispatch<SetStateAction<boolean>>;
+	}
+) {
+	if (e.key === "Escape") {
+		setCurrentMessage("");
+		setIsChatMode(false);
+		return;
+	}
+	if (e.key === "Enter") {
+		const text = current.trim();
+		if (text) {
+			addMessage(text);
+		}
+		return;
+	}
+	if (e.key === "Backspace") {
+		setCurrentMessage((prev) => prev.slice(0, -1));
+		return;
+	}
+	if (isPrintable(e) && current.length < MAX_CHAT_LENGTH) {
+		setCurrentMessage((prev) => prev + e.key);
+	}
+}
 
 export function LiveCursors() {
 	const { cursors, user, pathname, sendCursorPosition, sendMessage } =
@@ -102,42 +153,23 @@ export function LiveCursors() {
 		}
 
 		const handleKeyDown = (e: KeyboardEvent) => {
-			const target = e.target as HTMLElement;
-			const isTyping =
-				target.tagName === "INPUT" ||
-				target.tagName === "TEXTAREA" ||
-				target.isContentEditable;
-
-			if (e.key === "/" && !isTyping && !isChatMode) {
-				e.preventDefault();
-				e.stopPropagation();
-				setIsChatMode(true);
-				return;
-			}
-
 			if (!isChatMode) {
+				if (e.key === "/" && !isTypingTarget(e)) {
+					e.preventDefault();
+					e.stopPropagation();
+					setIsChatMode(true);
+				}
 				return;
 			}
 
 			e.preventDefault();
 			e.stopPropagation();
-
-			if (e.key === "Escape") {
-				setCurrentMessage("");
-				setIsChatMode(false);
-			} else if (e.key === "Enter" && currentMessageRef.current.trim()) {
-				addMessage(currentMessageRef.current.trim());
-			} else if (e.key === "Backspace") {
-				setCurrentMessage((prev) => prev.slice(0, -1));
-			} else if (
-				e.key.length === 1 &&
-				!e.ctrlKey &&
-				!e.metaKey &&
-				!e.altKey &&
-				currentMessageRef.current.length < 100
-			) {
-				setCurrentMessage((prev) => prev + e.key);
-			}
+			applyChatKey(e, {
+				addMessage,
+				current: currentMessageRef.current,
+				setCurrentMessage,
+				setIsChatMode,
+			});
 		};
 
 		window.addEventListener("keydown", handleKeyDown, true);

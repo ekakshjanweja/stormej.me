@@ -14,12 +14,55 @@ function formatRange(start: Date, end?: Date | null) {
 	return `${fmt(start)} to ${end ? fmt(end) : "present"}`;
 }
 
-export function GET() {
-	const work = listWork();
-	const projects = listProjects().filter((p) => !p.hidden);
-	const blogs = listBlogs();
-	const trove = listTrove();
+function workLines() {
+	return listWork().map((w) => {
+		const range = formatRange(w.startDate, w.endDate);
+		const tail = w.description ? ` — ${w.description}` : "";
+		return `- [${w.title}](${SITE}${w.url}): ${w.role}, ${range}${tail}`;
+	});
+}
 
+function projectLines() {
+	return listProjects()
+		.filter((p) => !p.hidden)
+		.map((p) => {
+			const desc = p.description ?? p.subtitle ?? "";
+			return `- [${p.title}](${SITE}${p.url})${desc ? `: ${desc}` : ""}`;
+		});
+}
+
+function blogLines() {
+	return listBlogs().map((b) => {
+		const desc = b.description ?? "";
+		const date = b.formattedDate ? ` (${b.formattedDate})` : "";
+		return `- [${b.title}](${SITE}${b.url})${desc ? `: ${desc}` : ""}${date}`;
+	});
+}
+
+function troveLines() {
+	const trove = listTrove();
+	if (trove.length === 0) {
+		return [];
+	}
+
+	const lines = [
+		"## trove",
+		"> flutter stuff i actually use. copy one file, ship.",
+		"> each entry has a plain text version at <url>/llms.txt with the full source inlined.",
+	];
+	for (const t of trove) {
+		const desc = t.description ?? t.subtitle ?? "";
+		const src = t.sourceFile ? ` [${t.sourceFile}]` : "";
+		lines.push(
+			`- [${t.title}](${SITE}${t.url})${src}${desc ? `: ${desc}` : ""}`
+		);
+		lines.push(`  full source: ${SITE}${t.url}/llms.txt`);
+	}
+	lines.push("");
+	return lines;
+}
+
+export function GET() {
 	const lines: string[] = [];
 
 	lines.push("# stormej.me — ekaksh janweja");
@@ -47,47 +90,10 @@ export function GET() {
 	lines.push("- other: react native");
 	lines.push("");
 
-	lines.push("## work");
-	for (const w of work) {
-		const range = formatRange(w.startDate, w.endDate);
-		const tail = w.description ? ` — ${w.description}` : "";
-		lines.push(`- [${w.title}](${SITE}${w.url}): ${w.role}, ${range}${tail}`);
-	}
-	lines.push("");
-
-	lines.push("## projects");
-	for (const p of projects) {
-		const desc = p.description ?? p.subtitle ?? "";
-		lines.push(`- [${p.title}](${SITE}${p.url})${desc ? `: ${desc}` : ""}`);
-	}
-	lines.push("");
-
-	lines.push("## writing");
-	for (const b of blogs) {
-		const desc = b.description ?? "";
-		const date = b.formattedDate ? ` (${b.formattedDate})` : "";
-		lines.push(
-			`- [${b.title}](${SITE}${b.url})${desc ? `: ${desc}` : ""}${date}`
-		);
-	}
-	lines.push("");
-
-	if (trove.length > 0) {
-		lines.push("## trove");
-		lines.push("> flutter stuff i actually use. copy one file, ship.");
-		lines.push(
-			"> each entry has a plain text version at <url>/llms.txt with the full source inlined."
-		);
-		for (const t of trove) {
-			const desc = t.description ?? t.subtitle ?? "";
-			const src = t.sourceFile ? ` [${t.sourceFile}]` : "";
-			lines.push(
-				`- [${t.title}](${SITE}${t.url})${src}${desc ? `: ${desc}` : ""}`
-			);
-			lines.push(`  full source: ${SITE}${t.url}/llms.txt`);
-		}
-		lines.push("");
-	}
+	lines.push("## work", ...workLines(), "");
+	lines.push("## projects", ...projectLines(), "");
+	lines.push("## writing", ...blogLines(), "");
+	lines.push(...troveLines());
 
 	lines.push("## pages");
 	lines.push(`- [home](${SITE}/): bio, recent work, recent writing`);

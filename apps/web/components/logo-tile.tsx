@@ -14,13 +14,13 @@ const ALPHA_FLOOR = 200;
 const LUMA_CEILING = 240;
 const LUMA_FLOOR = 15;
 
-type ColorBucket = {
-	r: number;
-	g: number;
+interface ColorBucket {
 	b: number;
+	g: number;
 	n: number;
+	r: number;
 	score: number;
-};
+}
 
 /** Bucket the pixels, then take the bucket with the most saturated mass. */
 function bucketPixels(data: Uint8ClampedArray) {
