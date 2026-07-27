@@ -16,7 +16,9 @@ type Layout = "mobile" | "desktop";
 
 /** Logical viewport sizes the flutter embed should reflow at. */
 const DEVICE_FRAMES = {
-	desktop: { height: 560, Icon: Monitor, label: "mac layout", width: 720 },
+	// Wide enough that the demo splits into stage + controls columns, and short
+	// enough that the split doesn't leave a band of empty canvas under it.
+	desktop: { height: 460, Icon: Monitor, label: "mac layout", width: 720 },
 	// Shorter than a full phone/desktop chrome so the playground stage + controls
 	// read as one composition instead of a lonely widget in empty canvas.
 	mobile: { height: 620, Icon: Smartphone, label: "iphone layout", width: 390 },
