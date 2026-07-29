@@ -69,6 +69,11 @@ export const oldPortfolio = "https://flutter.stormej.me";
 export const oldPortfolioGithub =
 	"https://github.com/ekakshjanweja/Portfolio-Website";
 
+// YouTube
+
+export const youtubePlaylist =
+	"https://www.youtube.com/playlist?list=PLdiCghcPvPVm0YJbmAfXNHY98q-rgEASF";
+
 //Profile
 
 export const github = "https://github.com/ekakshjanweja";

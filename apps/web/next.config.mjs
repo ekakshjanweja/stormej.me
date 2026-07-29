@@ -19,6 +19,7 @@ const nextConfig = {
 			{ hostname: "cdn.hashnode.com", protocol: "https" },
 			{ hostname: "**.hashnode.com", protocol: "https" },
 			{ hostname: "api.microlink.io", protocol: "https" },
+			{ hostname: "i.ytimg.com", protocol: "https" },
 		],
 		// the vercel services routing in vercel.json never registers /_next/image,
 		// so the optimizer 404s in prod and every non-svg image breaks. serve

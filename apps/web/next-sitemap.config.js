@@ -35,7 +35,8 @@ export default {
 			path === "/work" ||
 			path === "/projects" ||
 			path === "/blog" ||
-			path === "/trove"
+			path === "/trove" ||
+			path === "/watch"
 		) {
 			priority = 0.9;
 		} else if (

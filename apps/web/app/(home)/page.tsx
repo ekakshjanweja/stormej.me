@@ -6,6 +6,7 @@ import Hero from "./_components/hero";
 import { PublicationsRow } from "./_components/publications-row";
 import Stack from "./_components/stack";
 import { TroveRow } from "./_components/trove-row";
+import { WatchRow } from "./_components/watch-row";
 // import { Projects } from "./_components/projects";
 import Work from "./_components/work";
 
@@ -44,6 +45,7 @@ export default async function Home() {
 				<TroveRow />
 				<Contributions />
 				<Stack />
+				<WatchRow />
 			</div>
 		</>
 	);
