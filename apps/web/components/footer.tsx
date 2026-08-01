@@ -18,24 +18,6 @@ export default function Footer() {
 					·
 				</span>
 				<Link
-					className="text-muted-foreground transition-colors hover:text-foreground"
-					href="/privacy"
-				>
-					privacy
-				</Link>
-				<span aria-hidden className="opacity-40">
-					·
-				</span>
-				<Link
-					className="text-muted-foreground transition-colors hover:text-foreground"
-					href="/terms"
-				>
-					terms
-				</Link>
-				<span aria-hidden className="opacity-40">
-					·
-				</span>
-				<Link
 					aria-label="Open vault"
 					className="inline-flex items-center text-muted-foreground transition-colors hover:text-foreground"
 					href="/vault"

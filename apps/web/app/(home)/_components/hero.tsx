@@ -20,8 +20,6 @@ const trackResume = () =>
 export default function Hero() {
 	return (
 		<section aria-labelledby="hero-heading" data-cursor-anchor="hero">
-			<p className="section-label mb-5">ekaksh janweja</p>
-
 			<h1
 				className="hero-lede max-w-[58ch] text-2xl leading-[1.35]"
 				id="hero-heading"
@@ -42,8 +40,7 @@ export default function Hero() {
 			</p>
 
 			<p className="mt-6 max-w-[58ch] text-[14px] text-muted-foreground leading-6">
-				<strong className="font-medium text-foreground">ekaksh janweja</strong>{" "}
-				— personal site and portfolio on stormej.me: work, writing, projects,
+				personal site and portfolio on stormej.me: work, writing, projects,
 				and a public resume. the site itself is public; no login is required to
 				browse. a private admin vault holds resumes and files and unlocks only
 				with a secret access key known to me — there is no public signup.
