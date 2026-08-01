@@ -19,10 +19,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { ContributionActivity } from "@/lib/contributions";
-import {
-	computeContributionStreaks,
-	selectYearContributions,
-} from "@/lib/contributions";
+import { selectYearContributions } from "@/lib/contributions";
 import { cn } from "@/lib/utils";
 
 interface DayCommit {
@@ -210,11 +207,6 @@ export const ContributionsGraphClient = ({
 		[contributions, year]
 	);
 
-	const streaks = useMemo(
-		() => computeContributionStreaks(contributions),
-		[contributions]
-	);
-
 	const yearIndex = years.indexOf(year);
 	const canGoToPreviousYear = yearIndex < years.length - 1;
 	const canGoToNextYear = yearIndex > 0;
@@ -260,19 +252,13 @@ export const ContributionsGraphClient = ({
 				</ContributionGraphCalendar>
 
 				<ContributionGraphFooter className="grid grid-cols-1 gap-3 text-[11px] text-muted-foreground sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:gap-4">
-					<div className="space-y-0.5 sm:justify-self-start">
-						<ContributionGraphTotalCount>
-							{({ totalCount }) => (
-								<span>
-									{totalCount.toLocaleString()} contributions in {year}
-								</span>
-							)}
-						</ContributionGraphTotalCount>
-						<p>
-							current streak: {streaks.current.toLocaleString()} · longest:{" "}
-							{streaks.longest.toLocaleString()}
-						</p>
-					</div>
+					<ContributionGraphTotalCount className="sm:justify-self-start">
+						{({ totalCount }) => (
+							<span>
+								{totalCount.toLocaleString()} contributions in {year}
+							</span>
+						)}
+					</ContributionGraphTotalCount>
 
 					<YearSwitcher
 						canGoToNextYear={canGoToNextYear}
