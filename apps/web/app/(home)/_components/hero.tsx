@@ -20,11 +20,7 @@ const trackResume = () =>
 export default function Hero() {
 	return (
 		<section aria-labelledby="hero-heading" data-cursor-anchor="hero">
-			<span className="sr-only">
-				ekaksh janweja. mobile engineer building fast, reliable software across
-				ai, robotics, and consumer products. currently solving data capture for
-				physical intelligence at fpv labs.
-			</span>
+			<p className="section-label mb-5">ekaksh janweja</p>
 
 			<h1
 				className="hero-lede max-w-[58ch] text-2xl leading-[1.35]"
@@ -42,6 +38,20 @@ export default function Hero() {
 				>
 					fpv labs
 				</LinkPreview>
+				.
+			</p>
+
+			<p className="mt-6 max-w-[58ch] text-[14px] text-muted-foreground leading-6">
+				stormej.me is my personal site and portfolio — work, writing, and
+				projects. google sign-in is only used so i can access a private admin
+				vault for resumes and files; it is not open to the public. see{" "}
+				<Link className="underline-offset-4 hover:underline" href="/privacy">
+					privacy
+				</Link>{" "}
+				and{" "}
+				<Link className="underline-offset-4 hover:underline" href="/terms">
+					terms
+				</Link>
 				.
 			</p>
 
