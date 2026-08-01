@@ -30,8 +30,9 @@ yarn.lock
 # turborepo
 .turbo
 
-# cloudflare
+# cloudflare / alchemy
 .wrangler
+.alchemy
 .dev.vars*
 
 # production

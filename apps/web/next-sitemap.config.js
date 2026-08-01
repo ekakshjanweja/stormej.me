@@ -46,7 +46,7 @@ export default {
 			path.startsWith("/trove/")
 		) {
 			priority = 0.8;
-		} else if (path === "/gear") {
+		} else if (path === "/gear" || path === "/privacy" || path === "/terms") {
 			priority = 0.5;
 		}
 		return {

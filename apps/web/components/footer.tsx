@@ -8,12 +8,30 @@ export default function Footer() {
 			<span className="display-accent font-medium text-[18px] text-foreground">
 				stormej
 			</span>
-			<span className="meta-tag inline-flex items-center gap-2">
+			<span className="meta-tag inline-flex flex-wrap items-center justify-end gap-2">
 				<span>© {new Date().getFullYear()} · new delhi</span>
 				<span aria-hidden className="opacity-40">
 					·
 				</span>
 				<FooterClock />
+				<span aria-hidden className="opacity-40">
+					·
+				</span>
+				<Link
+					className="text-muted-foreground transition-colors hover:text-foreground"
+					href="/privacy"
+				>
+					privacy
+				</Link>
+				<span aria-hidden className="opacity-40">
+					·
+				</span>
+				<Link
+					className="text-muted-foreground transition-colors hover:text-foreground"
+					href="/terms"
+				>
+					terms
+				</Link>
 				<span aria-hidden className="opacity-40">
 					·
 				</span>

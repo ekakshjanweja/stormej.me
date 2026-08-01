@@ -20,13 +20,10 @@
     "db:generate": {
       "cache": false
     },
-    "db:migrate": {
-      "cache": false
-    },
-    "db:migrate:remote": {
-      "cache": false
-    },
     "deploy": {
+      "cache": false
+    },
+    "destroy": {
       "cache": false
     }
   }

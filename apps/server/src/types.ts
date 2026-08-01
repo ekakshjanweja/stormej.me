@@ -5,6 +5,8 @@ export interface Env {
 	BETTER_AUTH_URL: string;
 	CORS_ORIGIN?: string;
 	DB: D1Database;
+	GOOGLE_CLIENT_ID: string;
+	GOOGLE_CLIENT_SECRET: string;
 	REALTIME_ROOM: DurableObjectNamespace;
 	STORAGE_BUCKET: R2Bucket;
 }

@@ -13,7 +13,9 @@
     ],
     "catalog": {
       "@cloudflare/workers-types": "^4.20260702.1",
+      "alchemy": "^0.91.2",
       "better-auth": "1.6.23",
+      "dotenv": "^17.2.2",
       "drizzle-orm": "^0.45.2",
       "typescript": "^5.8.3",
       "zod": "^4.4.3"
@@ -22,13 +24,13 @@
   "scripts": {
     "dev": "turbo run dev",
     "dev:web": "turbo run dev -F web",
-    "dev:server": "turbo run dev -F server",
+    "dev:server": "turbo run dev -F @stormej/infra",
     "build": "turbo run build",
     "check-types": "turbo run check-types",
     "db:generate": "turbo run db:generate -F @stormej/db",
-    "db:migrate": "turbo run db:migrate -F server",
-    "db:migrate:remote": "turbo run db:migrate:remote -F server",
-    "deploy:server": "turbo run deploy -F server",
+    "deploy": "turbo run deploy -F @stormej/infra",
+    "deploy:server": "turbo run deploy -F @stormej/infra",
+    "destroy": "turbo run destroy -F @stormej/infra",
     "check": "ultracite check",
     "fix": "ultracite fix",
     "prepare": "husky"

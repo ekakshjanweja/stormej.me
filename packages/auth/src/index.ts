@@ -13,6 +13,8 @@ export interface AuthEnv {
 	/** comma separated list of origins allowed to call the auth endpoints */
 	CORS_ORIGIN?: string;
 	DB: D1Database;
+	GOOGLE_CLIENT_ID: string;
+	GOOGLE_CLIENT_SECRET: string;
 }
 
 const parseOrigins = (value?: string) =>
@@ -22,6 +24,8 @@ const parseOrigins = (value?: string) =>
 		.filter(Boolean) ?? [];
 
 export function createAuth(env: AuthEnv) {
+	const signupOpen = env.ALLOW_SIGNUP === "true";
+
 	return betterAuth({
 		basePath: "/api/auth",
 		baseURL: env.BETTER_AUTH_URL,
@@ -32,10 +36,17 @@ export function createAuth(env: AuthEnv) {
 		emailAndPassword: {
 			// the vault is single user. signup stays closed unless explicitly opened
 			// to seed the first account.
-			disableSignUp: env.ALLOW_SIGNUP !== "true",
+			disableSignUp: !signupOpen,
 			enabled: true,
 		},
 		secret: env.BETTER_AUTH_SECRET,
+		socialProviders: {
+			google: {
+				clientId: env.GOOGLE_CLIENT_ID,
+				clientSecret: env.GOOGLE_CLIENT_SECRET,
+				disableSignUp: !signupOpen,
+			},
+		},
 		trustedOrigins: parseOrigins(env.CORS_ORIGIN),
 	});
 }

@@ -9,6 +9,7 @@ import {
 	RefreshCcw,
 	Trash2,
 } from "lucide-react";
+import Link from "next/link";
 import {
 	type ChangeEvent,
 	type FormEvent,
@@ -333,6 +334,29 @@ export default function VaultPage() {
 		[email, password, setFailure, setMessage]
 	);
 
+	const loginWithGoogle = useCallback(async () => {
+		setIsLoading(true);
+		setError(null);
+		setStatus(null);
+
+		const { error: signInError } = await signIn.social({
+			callbackURL: "/vault",
+			provider: "google",
+		});
+
+		setIsLoading(false);
+
+		if (signInError) {
+			setFailure(signInError.message || "google said no. try again.");
+		}
+	}, [setFailure]);
+
+	const googleClicked = useCallback(() => {
+		loginWithGoogle().catch((googleError: Error) =>
+			setFailure(googleError.message)
+		);
+	}, [loginWithGoogle, setFailure]);
+
 	const logout = useCallback(async () => {
 		await signOut();
 		setFiles([]);
@@ -477,46 +501,79 @@ export default function VaultPage() {
 						</p>
 					</div>
 
-					<form
-						className="flex w-full flex-col gap-4 text-left"
-						onSubmit={login}
-					>
-						<label className="flex flex-col gap-1.5">
-							<span className="meta-tag normal-case">email</span>
-							<input
-								autoComplete="username"
-								className={inputClassName}
-								onChange={onEmailChange}
-								placeholder="who goes there"
-								type="email"
-								value={email}
-							/>
-						</label>
-						<label className="flex flex-col gap-1.5">
-							<span className="meta-tag normal-case">password</span>
-							<input
-								autoComplete="current-password"
-								className={inputClassName}
-								onChange={onPasswordChange}
-								placeholder="the secret word"
-								type="password"
-								value={password}
-							/>
-						</label>
+					<div className="flex w-full flex-col gap-4">
 						<Button
-							className="group mt-2 inline-flex items-center justify-center gap-2 self-center rounded-full bg-foreground px-5 py-3 text-background shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 sm:py-2.5"
+							className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 py-3 text-background shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 sm:py-2.5"
 							disabled={isLoading}
-							type="submit"
+							onClick={googleClicked}
+							type="button"
 						>
 							<span className="tabular-nums">
-								{isLoading ? "opening..." : "enter the abyss"}
+								{isLoading ? "opening..." : "continue with google"}
 							</span>
 							<ArrowUpRight
 								aria-hidden
 								className="size-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
 							/>
 						</Button>
-					</form>
+
+						<p className="meta-tag normal-case tracking-[0.08em]">
+							or the old way
+						</p>
+
+						<form
+							className="flex w-full flex-col gap-4 text-left"
+							onSubmit={login}
+						>
+							<label className="flex flex-col gap-1.5">
+								<span className="meta-tag normal-case">email</span>
+								<input
+									autoComplete="username"
+									className={inputClassName}
+									onChange={onEmailChange}
+									placeholder="who goes there"
+									type="email"
+									value={email}
+								/>
+							</label>
+							<label className="flex flex-col gap-1.5">
+								<span className="meta-tag normal-case">password</span>
+								<input
+									autoComplete="current-password"
+									className={inputClassName}
+									onChange={onPasswordChange}
+									placeholder="the secret word"
+									type="password"
+									value={password}
+								/>
+							</label>
+							<Button
+								className="group mt-2 inline-flex items-center justify-center gap-2 self-center rounded-full border border-border bg-transparent px-5 py-3 text-foreground shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 sm:py-2.5"
+								disabled={isLoading}
+								type="submit"
+							>
+								<span className="tabular-nums">
+									{isLoading ? "opening..." : "enter the abyss"}
+								</span>
+								<ArrowUpRight
+									aria-hidden
+									className="size-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+								/>
+							</Button>
+						</form>
+					</div>
+
+					<p className="meta-tag normal-case tracking-[0.08em]">
+						<Link className="hover-dim" href="/privacy">
+							privacy
+						</Link>
+						<span aria-hidden className="mx-2 opacity-40">
+							·
+						</span>
+						<Link className="hover-dim" href="/terms">
+							terms
+						</Link>
+					</p>
 
 					{error && (
 						<p className="meta-tag text-destructive normal-case">{error}</p>
