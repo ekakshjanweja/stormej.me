@@ -1,3 +1,10 @@
+import {
+	differenceInCalendarDays,
+	formatISO,
+	parseISO,
+	startOfDay,
+	subDays,
+} from "date-fns";
 import { unstable_cache } from "next/cache";
 
 export interface ContributionActivity {
@@ -66,3 +73,49 @@ export const selectYearContributions = (
 	contributions: ContributionActivity[],
 	year: number
 ) => contributions.filter((activity) => activity.date.startsWith(String(year)));
+
+export interface ContributionStreaks {
+	current: number;
+	longest: number;
+}
+
+export const computeContributionStreaks = (
+	contributions: ContributionActivity[]
+): ContributionStreaks => {
+	const activeDays = contributions
+		.filter((day) => day.count > 0)
+		.map((day) => day.date)
+		.sort((a, b) => a.localeCompare(b));
+
+	if (activeDays.length === 0) {
+		return { current: 0, longest: 0 };
+	}
+
+	let longest = 1;
+	let run = 1;
+
+	for (let index = 1; index < activeDays.length; index += 1) {
+		const previous = parseISO(activeDays[index - 1] as string);
+		const current = parseISO(activeDays[index] as string);
+
+		if (differenceInCalendarDays(current, previous) === 1) {
+			run += 1;
+			longest = Math.max(longest, run);
+		} else {
+			run = 1;
+		}
+	}
+
+	const activeDaySet = new Set(activeDays);
+	const today = startOfDay(new Date());
+	const todayKey = formatISO(today, { representation: "date" });
+	let cursor = activeDaySet.has(todayKey) ? today : subDays(today, 1);
+	let current = 0;
+
+	while (activeDaySet.has(formatISO(cursor, { representation: "date" }))) {
+		current += 1;
+		cursor = subDays(cursor, 1);
+	}
+
+	return { current, longest };
+};

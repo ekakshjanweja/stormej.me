@@ -19,7 +19,10 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { ContributionActivity } from "@/lib/contributions";
-import { selectYearContributions } from "@/lib/contributions";
+import {
+	computeContributionStreaks,
+	selectYearContributions,
+} from "@/lib/contributions";
 import { cn } from "@/lib/utils";
 
 interface DayCommit {
@@ -34,6 +37,15 @@ interface ContributionsGraphClientProps {
 	defaultYear: number;
 	totalsByYear: Record<number, number>;
 	years: number[];
+}
+
+interface YearSwitcherProps {
+	canGoToNextYear: boolean;
+	canGoToPreviousYear: boolean;
+	className?: string;
+	onNextYear: () => void;
+	onPreviousYear: () => void;
+	year: number;
 }
 
 const commitCache = new Map<string, DayCommit[]>();
@@ -53,6 +65,37 @@ const fetchDayCommits = async (date: string): Promise<DayCommit[]> => {
 	commitCache.set(date, data.commits);
 	return data.commits;
 };
+
+const YearSwitcher = ({
+	canGoToNextYear,
+	canGoToPreviousYear,
+	className,
+	onNextYear,
+	onPreviousYear,
+	year,
+}: YearSwitcherProps) => (
+	<div className={cn("inline-flex items-center gap-1", className)}>
+		<button
+			aria-label="Previous year"
+			className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
+			disabled={!canGoToPreviousYear}
+			onClick={onPreviousYear}
+			type="button"
+		>
+			<ChevronLeft className="size-4" />
+		</button>
+		<span className="meta-tag min-w-[3ch] text-center">{year}</span>
+		<button
+			aria-label="Next year"
+			className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
+			disabled={!canGoToNextYear}
+			onClick={onNextYear}
+			type="button"
+		>
+			<ChevronRight className="size-4" />
+		</button>
+	</div>
+);
 
 const DayTooltip = ({
 	activity,
@@ -167,6 +210,11 @@ export const ContributionsGraphClient = ({
 		[contributions, year]
 	);
 
+	const streaks = useMemo(
+		() => computeContributionStreaks(contributions),
+		[contributions]
+	);
+
 	const yearIndex = years.indexOf(year);
 	const canGoToPreviousYear = yearIndex < years.length - 1;
 	const canGoToNextYear = yearIndex > 0;
@@ -200,31 +248,7 @@ export const ContributionsGraphClient = ({
 				data={yearData}
 				totalCount={totalForYear}
 			>
-				<div className="flex items-center justify-between gap-4">
-					<div className="inline-flex items-center gap-1">
-						<button
-							aria-label="Previous year"
-							className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
-							disabled={!canGoToPreviousYear}
-							onClick={goToPreviousYear}
-							type="button"
-						>
-							<ChevronLeft className="size-4" />
-						</button>
-						<span className="meta-tag min-w-[3ch] text-center">{year}</span>
-						<button
-							aria-label="Next year"
-							className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
-							disabled={!canGoToNextYear}
-							onClick={goToNextYear}
-							type="button"
-						>
-							<ChevronRight className="size-4" />
-						</button>
-					</div>
-				</div>
-
-				<ContributionGraphCalendar className="[&>svg]:!h-auto [&>svg]:!w-full mt-4 w-full overflow-hidden pb-2">
+				<ContributionGraphCalendar className="[&>svg]:!h-auto [&>svg]:!w-full w-full overflow-hidden pb-2">
 					{({ activity, dayIndex, weekIndex }) => (
 						<DayTooltip
 							activity={activity}
@@ -235,15 +259,31 @@ export const ContributionsGraphClient = ({
 					)}
 				</ContributionGraphCalendar>
 
-				<ContributionGraphFooter className="flex items-center justify-between text-[11px] text-muted-foreground">
-					<ContributionGraphTotalCount>
-						{({ totalCount }) => (
-							<span>
-								{totalCount.toLocaleString()} contributions in {year}
-							</span>
-						)}
-					</ContributionGraphTotalCount>
-					<ContributionGraphLegend>
+				<ContributionGraphFooter className="grid grid-cols-1 gap-3 text-[11px] text-muted-foreground sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:gap-4">
+					<div className="space-y-0.5 sm:justify-self-start">
+						<ContributionGraphTotalCount>
+							{({ totalCount }) => (
+								<span>
+									{totalCount.toLocaleString()} contributions in {year}
+								</span>
+							)}
+						</ContributionGraphTotalCount>
+						<p>
+							current streak: {streaks.current.toLocaleString()} · longest:{" "}
+							{streaks.longest.toLocaleString()}
+						</p>
+					</div>
+
+					<YearSwitcher
+						canGoToNextYear={canGoToNextYear}
+						canGoToPreviousYear={canGoToPreviousYear}
+						className="justify-self-center"
+						onNextYear={goToNextYear}
+						onPreviousYear={goToPreviousYear}
+						year={year}
+					/>
+
+					<ContributionGraphLegend className="ml-0 sm:justify-self-end">
 						{({ level }) => (
 							<div
 								className={cn("legend-block h-3 w-3 rounded-sm")}
