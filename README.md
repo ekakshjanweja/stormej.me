@@ -42,35 +42,17 @@ automatically when the alchemy worker starts (local or deploy).
 
 ## the vault
 
-`/vault` is a single-admin file manager over r2. auth is better-auth on the worker, mounted at
-`/api/auth`, which next rewrites to so the session cookie stays first party.
-
-primary sign-in is **google**; email/password remains as a fallback. signup stays closed unless
-`ALLOW_SIGNUP=true` is set on the worker — set it once to seed the admin account, then remove it.
-
-### google oauth setup
-
-1. create a Google Cloud **OAuth 2.0 Web client**
-2. authorised javascript origins:
-   - `http://localhost:3000`
-   - `https://www.stormej.me`
-3. authorised redirect uris:
-   - `http://localhost:3000/api/auth/callback/google`
-   - `https://www.stormej.me/api/auth/callback/google`
-4. put `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in `apps/server/.env`
-5. oauth consent screen links:
-   - privacy → `https://www.stormej.me/privacy`
-   - terms → `https://www.stormej.me/terms`
-
-### seed the admin (once)
+`/vault` is a single-admin file manager over r2. it unlocks with a **private access key**
+(`VAULT_ACCESS_KEY` in `apps/server/.env`) — a long random secret only you should know. a
+successful unlock sets a first-party HttpOnly cookie; there is no public signup and no shared
+accounts.
 
 ```bash
-# in apps/server/.env
-ALLOW_SIGNUP=true
-
-bun run deploy   # or bun run dev
-# open /vault → continue with google (once)
-# then remove ALLOW_SIGNUP and deploy again
+# generate once, keep offline / in a password manager
+openssl rand -base64 32
+# put it in apps/server/.env as VAULT_ACCESS_KEY=...
+bun run deploy
+# open /vault and paste the key
 ```
 
 ## legal

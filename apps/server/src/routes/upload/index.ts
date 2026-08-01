@@ -60,7 +60,7 @@ uploadRoutes.get("/files/*", async (c) => {
 	});
 });
 
-// everything under /admin needs a better-auth session
+// everything under /admin needs the vault gate (or a better-auth session)
 uploadRoutes.use("/admin/*", requireSession);
 
 uploadRoutes.get("/admin/files", async (c) => {

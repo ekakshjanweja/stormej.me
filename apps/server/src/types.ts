@@ -9,4 +9,6 @@ export interface Env {
 	GOOGLE_CLIENT_SECRET: string;
 	REALTIME_ROOM: DurableObjectNamespace;
 	STORAGE_BUCKET: R2Bucket;
+	/** long random secret only you know — unlocks /vault via HttpOnly cookie */
+	VAULT_ACCESS_KEY: string;
 }

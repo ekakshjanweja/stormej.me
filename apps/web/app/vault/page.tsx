@@ -20,7 +20,6 @@ import {
 } from "react";
 import { Button } from "@/components/ui/button";
 import { VaultFileUpload } from "@/components/vault-file-upload";
-import { signIn, signOut, useSession } from "@/lib/auth-client";
 
 interface AdminFile {
 	key: string;
@@ -250,9 +249,9 @@ function VaultFileRow({
 
 export default function VaultPage() {
 	const workerUrl = useMemo(getWorkerUrl, []);
-	const { data: session, isPending: isSessionPending } = useSession();
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
+	const [accessKey, setAccessKey] = useState("");
+	const [isUnlocked, setIsUnlocked] = useState(false);
+	const [isCheckingGate, setIsCheckingGate] = useState(true);
 	const [resumeKey, setResumeKey] = useState("resume.pdf");
 	const [files, setFiles] = useState<AdminFile[]>([]);
 	const [newFileKey, setNewFileKey] = useState("resume.pdf");
@@ -304,61 +303,74 @@ export default function VaultPage() {
 		fetchFiles().catch((listError: Error) => setFailure(listError.message));
 	}, [fetchFiles, setFailure]);
 
-	// the session survives reloads, so the listing has to load without a login
+	// cookie survives reloads — probe /admin/files to see if the gate is open
 	useEffect(() => {
-		if (!session) {
-			return;
-		}
+		let cancelled = false;
 
-		refresh();
-	}, [session, refresh]);
+		const probe = async () => {
+			try {
+				await fetchFiles();
+				if (!cancelled) {
+					setIsUnlocked(true);
+				}
+			} catch {
+				if (!cancelled) {
+					setIsUnlocked(false);
+				}
+			} finally {
+				if (!cancelled) {
+					setIsCheckingGate(false);
+				}
+			}
+		};
 
-	const login = useCallback(
+		probe().catch(() => {
+			if (!cancelled) {
+				setIsUnlocked(false);
+				setIsCheckingGate(false);
+			}
+		});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [fetchFiles]);
+
+	const unlock = useCallback(
 		async (event: FormEvent<HTMLFormElement>) => {
 			event.preventDefault();
 			setIsLoading(true);
 			setError(null);
 			setStatus(null);
 
-			const { error: signInError } = await signIn.email({ email, password });
+			const response = await fetch("/admin/unlock", {
+				body: JSON.stringify({ key: accessKey }),
+				credentials: "include",
+				headers: { "Content-Type": "application/json" },
+				method: "POST",
+			});
 
 			setIsLoading(false);
 
-			if (signInError) {
-				setFailure("wrong credentials. respectfully leave.");
+			if (!response.ok) {
+				setFailure(await readError(response));
 				return;
 			}
 
+			setIsUnlocked(true);
+			setAccessKey("");
 			setMessage("welcome to the abyss.");
+			await fetchFiles();
 		},
-		[email, password, setFailure, setMessage]
+		[accessKey, fetchFiles, setFailure, setMessage]
 	);
 
-	const loginWithGoogle = useCallback(async () => {
-		setIsLoading(true);
-		setError(null);
-		setStatus(null);
-
-		const { error: signInError } = await signIn.social({
-			callbackURL: "/vault",
-			provider: "google",
-		});
-
-		setIsLoading(false);
-
-		if (signInError) {
-			setFailure(signInError.message || "google said no. try again.");
-		}
-	}, [setFailure]);
-
-	const googleClicked = useCallback(() => {
-		loginWithGoogle().catch((googleError: Error) =>
-			setFailure(googleError.message)
-		);
-	}, [loginWithGoogle, setFailure]);
-
 	const logout = useCallback(async () => {
-		await signOut();
+		await fetch("/admin/lock", {
+			credentials: "include",
+			method: "POST",
+		});
+		setIsUnlocked(false);
 		setFiles([]);
 		setMessage("sealed behind you.");
 	}, [setMessage]);
@@ -451,13 +463,8 @@ export default function VaultPage() {
 		[fetchFiles, setFailure, setMessage]
 	);
 
-	const onEmailChange = useCallback(
-		(event: ChangeEvent<HTMLInputElement>) => setEmail(event.target.value),
-		[]
-	);
-
-	const onPasswordChange = useCallback(
-		(event: ChangeEvent<HTMLInputElement>) => setPassword(event.target.value),
+	const onAccessKeyChange = useCallback(
+		(event: ChangeEvent<HTMLInputElement>) => setAccessKey(event.target.value),
 		[]
 	);
 
@@ -470,7 +477,7 @@ export default function VaultPage() {
 		setRenameKeys((current) => ({ ...current, [key]: value }));
 	}, []);
 
-	if (isSessionPending) {
+	if (isCheckingGate) {
 		return (
 			<div className="flex min-h-[70vh] w-full items-center justify-center py-12">
 				<p className="meta-tag normal-case">checking the locks...</p>
@@ -478,7 +485,7 @@ export default function VaultPage() {
 		);
 	}
 
-	if (!session) {
+	if (!isUnlocked) {
 		return (
 			<div className="flex min-h-[70vh] w-full items-center justify-center py-12">
 				<div className="flex w-full max-w-[40ch] flex-col items-center gap-8 text-center">
@@ -493,75 +500,44 @@ export default function VaultPage() {
 							things, probably a few cursed files too.
 						</h1>
 						<p className="text-[14px] text-muted-foreground leading-6">
-							if you somehow landed here without access, respectfully pretend
-							you didn&apos;t.
+							locked with a private key only the owner has. if you somehow
+							landed here without it, respectfully pretend you didn&apos;t.
 						</p>
 						<p className="meta-tag normal-case tracking-[0.08em]">
 							admins only.
 						</p>
 					</div>
 
-					<div className="flex w-full flex-col gap-4">
+					<form
+						className="flex w-full flex-col gap-4 text-left"
+						onSubmit={unlock}
+					>
+						<label className="flex flex-col gap-1.5">
+							<span className="meta-tag normal-case">access key</span>
+							<input
+								autoComplete="current-password"
+								className={inputClassName}
+								onChange={onAccessKeyChange}
+								placeholder="the key that opens nothing for anyone else"
+								spellCheck={false}
+								type="password"
+								value={accessKey}
+							/>
+						</label>
 						<Button
-							className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 py-3 text-background shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 sm:py-2.5"
-							disabled={isLoading}
-							onClick={googleClicked}
-							type="button"
+							className="group mt-2 inline-flex items-center justify-center gap-2 self-center rounded-full bg-foreground px-5 py-3 text-background shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 sm:py-2.5"
+							disabled={isLoading || accessKey.trim().length === 0}
+							type="submit"
 						>
 							<span className="tabular-nums">
-								{isLoading ? "opening..." : "continue with google"}
+								{isLoading ? "opening..." : "enter the abyss"}
 							</span>
 							<ArrowUpRight
 								aria-hidden
 								className="size-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
 							/>
 						</Button>
-
-						<p className="meta-tag normal-case tracking-[0.08em]">
-							or the old way
-						</p>
-
-						<form
-							className="flex w-full flex-col gap-4 text-left"
-							onSubmit={login}
-						>
-							<label className="flex flex-col gap-1.5">
-								<span className="meta-tag normal-case">email</span>
-								<input
-									autoComplete="username"
-									className={inputClassName}
-									onChange={onEmailChange}
-									placeholder="who goes there"
-									type="email"
-									value={email}
-								/>
-							</label>
-							<label className="flex flex-col gap-1.5">
-								<span className="meta-tag normal-case">password</span>
-								<input
-									autoComplete="current-password"
-									className={inputClassName}
-									onChange={onPasswordChange}
-									placeholder="the secret word"
-									type="password"
-									value={password}
-								/>
-							</label>
-							<Button
-								className="group mt-2 inline-flex items-center justify-center gap-2 self-center rounded-full border border-border bg-transparent px-5 py-3 text-foreground shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 sm:py-2.5"
-								disabled={isLoading}
-								type="submit"
-							>
-								<span className="tabular-nums">
-									{isLoading ? "opening..." : "enter the abyss"}
-								</span>
-								<ArrowUpRight
-									aria-hidden
-									className="size-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-								/>
-							</Button>
-						</form>
-					</div>
+					</form>
 
 					<p className="meta-tag normal-case tracking-[0.08em]">
 						<Link className="hover-dim" href="/privacy">

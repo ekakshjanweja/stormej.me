@@ -54,6 +54,7 @@ export const server = await Worker("server", {
 		GOOGLE_CLIENT_SECRET: alchemy.secret.env("GOOGLE_CLIENT_SECRET"),
 		REALTIME_ROOM: realtime,
 		STORAGE_BUCKET: storage,
+		VAULT_ACCESS_KEY: alchemy.secret.env("VAULT_ACCESS_KEY"),
 	},
 	compatibility: "node",
 	compatibilityDate: "2025-12-07",

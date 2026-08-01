@@ -27,12 +27,8 @@ const sections = [
 		title: "the site",
 	},
 	{
-		body: "the vault at /vault is private admin storage. access is limited to an authorized account (google sign-in and/or email password). if you are not that person, leave. trying to break in is not clever; it is just rude.",
+		body: "the vault at /vault is private admin storage. it unlocks only with a secret access key held by the site owner. there is no public signup. if you do not have that key, leave. trying to break in is not clever; it is just rude.",
 		title: "the vault",
-	},
-	{
-		body: "google authentication is offered only so the admin can sign in. creating an account does not grant you rights to the site, vault files, or any service level. signup stays closed unless temporarily opened to seed that admin account.",
-		title: "google auth",
 	},
 	{
 		body: "do not scrape aggressively, attempt to access private endpoints, upload malware, or use the site to harm others. public pages are for people; bots that behave poorly will be treated accordingly.",

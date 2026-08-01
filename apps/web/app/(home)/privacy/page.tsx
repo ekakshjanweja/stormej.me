@@ -27,11 +27,11 @@ const sections = [
 		title: "the short version",
 	},
 	{
-		body: "if you sign in with google to access the vault, better-auth receives your google account email and name, stores a session in cloudflare d1, and sets a first-party session cookie on stormej.me. that data exists so i can recognize the admin account — not to build a profile on you.",
-		title: "sign-in data",
+		body: "the vault unlocks with a private access key known only to me. a successful unlock sets a first-party HttpOnly cookie on stormej.me so the browser can call admin endpoints. visitors never create accounts, and i do not collect google profile data for vault access.",
+		title: "vault access",
 	},
 	{
-		body: "files uploaded to the vault live in a private cloudflare r2 bucket. public reads under /files are only for objects i choose to expose (like a resume). everything else stays behind a session.",
+		body: "files uploaded to the vault live in a private cloudflare r2 bucket. public reads under /files are only for objects i choose to expose (like a resume). everything else stays behind the vault cookie.",
 		title: "vault files",
 	},
 	{
@@ -43,7 +43,7 @@ const sections = [
 		title: "realtime",
 	},
 	{
-		body: "sessions last until you sign out or the cookie expires. if you want something deleted from the vault or have a privacy question, email me.",
+		body: "the vault cookie lasts until i sign out or it expires. if you have a privacy question, email me.",
 		title: "retention & contact",
 	},
 ];
