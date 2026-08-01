@@ -39,22 +39,6 @@ export default function Hero() {
 				.
 			</p>
 
-			<p className="mt-6 max-w-[58ch] text-[14px] text-muted-foreground leading-6">
-				personal site and portfolio on stormej.me: work, writing, projects,
-				and a public resume. the site itself is public; no login is required to
-				browse. a private admin vault holds resumes and files and unlocks only
-				with a secret access key known to me — there is no public signup.
-				details in the{" "}
-				<Link className="underline-offset-4 hover:underline" href="/privacy">
-					privacy policy
-				</Link>{" "}
-				and{" "}
-				<Link className="underline-offset-4 hover:underline" href="/terms">
-					terms
-				</Link>
-				.
-			</p>
-
 			<div className="mt-10 flex flex-col gap-6 sm:mt-12 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
 				<div className="flex flex-wrap items-center gap-x-5 gap-y-2">
 					<Link
