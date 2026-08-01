@@ -1,11 +1,13 @@
 import { unstable_cache } from "next/cache";
 
+export interface ContributionActivity {
+	count: number;
+	date: string;
+	level: number;
+}
+
 interface ContributionsResponse {
-	contributions: {
-		date: string;
-		count: number;
-		level: number;
-	}[];
+	contributions: ContributionActivity[];
 	total: Record<string, number>;
 }
 
@@ -14,8 +16,15 @@ const GITHUB_USERNAME =
 
 const CONTRIBUTIONS_ENDPOINT = "https://github-contributions-api.jogruber.de";
 
+export interface GithubContributionsData {
+	contributions: ContributionActivity[];
+	defaultYear: number;
+	totalsByYear: Record<number, number>;
+	years: number[];
+}
+
 export const getGithubContributions = unstable_cache(
-	async () => {
+	async (): Promise<GithubContributionsData> => {
 		const endpoint = new URL(`/v4/${GITHUB_USERNAME}`, CONTRIBUTIONS_ENDPOINT);
 
 		const response = await fetch(endpoint, {
@@ -27,39 +36,23 @@ export const getGithubContributions = unstable_cache(
 		}
 
 		const data = (await response.json()) as ContributionsResponse;
-		const currentYear = new Date().getFullYear();
-
-		const contributionsForYear = selectYear(
-			data.contributions,
-			currentYear.toString()
-		);
-
-		if (contributionsForYear.length > 0) {
-			return {
-				contributions: contributionsForYear,
-				total:
-					data.total[currentYear] ??
-					contributionsForYear.reduce((sum, day) => sum + day.count, 0),
-				year: currentYear,
-			};
-		}
-
-		const [latestYear] = Object.keys(data.total)
+		const years = Object.keys(data.total)
 			.map(Number)
 			.sort((a, b) => b - a);
+		const currentYear = new Date().getFullYear();
+		const defaultYear = years.includes(currentYear)
+			? currentYear
+			: (years[0] ?? currentYear);
 
-		const fallbackYear = latestYear ?? currentYear - 1;
-		const fallbackContributions = selectYear(
-			data.contributions,
-			fallbackYear.toString()
-		);
+		const totalsByYear = Object.fromEntries(
+			Object.entries(data.total).map(([year, total]) => [Number(year), total])
+		) as Record<number, number>;
 
 		return {
-			contributions: fallbackContributions,
-			total:
-				data.total[fallbackYear] ??
-				fallbackContributions.reduce((sum, day) => sum + day.count, 0),
-			year: fallbackYear,
+			contributions: data.contributions,
+			defaultYear,
+			totalsByYear,
+			years,
 		};
 	},
 	["github-contributions", GITHUB_USERNAME],
@@ -69,7 +62,7 @@ export const getGithubContributions = unstable_cache(
 	}
 );
 
-const selectYear = (
-	contributions: ContributionsResponse["contributions"],
-	year: string
+export const selectYearContributions = (
+	contributions: ContributionActivity[],
+	year: number
 ) => contributions.filter((activity) => activity.date.startsWith(String(year)));
