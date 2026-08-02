@@ -291,10 +291,12 @@ export const ContributionsGraphClient = ({
 						/>
 					</div>
 
-					<ContributionGraphLegend className="ml-0 max-sm:mx-auto sm:justify-self-end">
+					<ContributionGraphLegend className="ml-0 mr-auto gap-0.5 text-[9px] sm:mr-0 sm:justify-self-end sm:gap-[3px] sm:text-[11px]">
 						{({ level }) => (
 							<div
-								className={cn("legend-block h-3 w-3 rounded-sm")}
+								className={cn(
+									"legend-block h-2 w-2 rounded-[2px] sm:h-3 sm:w-3 sm:rounded-sm"
+								)}
 								data-level={level}
 							/>
 						)}
