@@ -291,7 +291,7 @@ export const ContributionsGraphClient = ({
 						/>
 					</div>
 
-					<ContributionGraphLegend className="ml-0 mr-auto gap-0.5 text-[9px] sm:mr-0 sm:justify-self-end sm:gap-[3px] sm:text-[11px]">
+					<ContributionGraphLegend className="mr-auto ml-0 gap-0.5 text-[9px] sm:mr-0 sm:gap-[3px] sm:justify-self-end sm:text-[11px]">
 						{({ level }) => (
 							<div
 								className={cn(
