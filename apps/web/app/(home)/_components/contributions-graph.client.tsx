@@ -2,7 +2,7 @@
 
 import { format, parseISO } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
 	type Activity,
 	ContributionGraph,
@@ -201,11 +201,26 @@ export const ContributionsGraphClient = ({
 	years,
 }: ContributionsGraphClientProps) => {
 	const [year, setYear] = useState(defaultYear);
+	const calendarScrollRef = useRef<HTMLDivElement>(null);
 
 	const yearData = useMemo(
 		() => selectYearContributions(contributions, year),
 		[contributions, year]
 	);
+
+	useEffect(() => {
+		const calendar = calendarScrollRef.current;
+
+		if (!calendar) {
+			return;
+		}
+
+		const isMobile = window.matchMedia("(max-width: 639px)").matches;
+
+		if (isMobile) {
+			calendar.scrollLeft = calendar.scrollWidth;
+		}
+	}, [year, yearData]);
 
 	const yearIndex = years.indexOf(year);
 	const canGoToPreviousYear = yearIndex < years.length - 1;
@@ -240,36 +255,43 @@ export const ContributionsGraphClient = ({
 				data={yearData}
 				totalCount={totalForYear}
 			>
-				<ContributionGraphCalendar className="[&>svg]:!h-auto [&>svg]:!w-full w-full overflow-hidden pb-2">
-					{({ activity, dayIndex, weekIndex }) => (
-						<DayTooltip
-							activity={activity}
-							dayIndex={dayIndex}
-							key={`${activity.date}-${weekIndex}-${dayIndex}`}
-							weekIndex={weekIndex}
-						/>
-					)}
-				</ContributionGraphCalendar>
-
-				<ContributionGraphFooter className="grid grid-cols-1 gap-3 text-[11px] text-muted-foreground sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:gap-4">
-					<ContributionGraphTotalCount className="sm:justify-self-start">
-						{({ totalCount }) => (
-							<span>
-								{totalCount.toLocaleString()} contributions in {year}
-							</span>
+				<div
+					className="max-sm:-mx-4 max-sm:overflow-x-auto max-sm:px-4"
+					ref={calendarScrollRef}
+				>
+					<ContributionGraphCalendar className="pb-2 max-sm:overflow-visible max-sm:overflow-y-visible [&>svg]:!h-auto max-sm:[&>svg]:!w-auto sm:overflow-hidden sm:[&>svg]:!w-full">
+						{({ activity, dayIndex, weekIndex }) => (
+							<DayTooltip
+								activity={activity}
+								dayIndex={dayIndex}
+								key={`${activity.date}-${weekIndex}-${dayIndex}`}
+								weekIndex={weekIndex}
+							/>
 						)}
-					</ContributionGraphTotalCount>
+					</ContributionGraphCalendar>
+				</div>
 
-					<YearSwitcher
-						canGoToNextYear={canGoToNextYear}
-						canGoToPreviousYear={canGoToPreviousYear}
-						className="justify-self-center"
-						onNextYear={goToNextYear}
-						onPreviousYear={goToPreviousYear}
-						year={year}
-					/>
+				<ContributionGraphFooter className="flex flex-col gap-2.5 text-[11px] text-muted-foreground sm:grid sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:gap-4">
+					<div className="flex w-full items-center justify-between gap-3 sm:contents">
+						<ContributionGraphTotalCount>
+							{({ totalCount }) => (
+								<span className="min-w-0 truncate">
+									{totalCount.toLocaleString()} contributions in {year}
+								</span>
+							)}
+						</ContributionGraphTotalCount>
 
-					<ContributionGraphLegend className="ml-0 sm:justify-self-end">
+						<YearSwitcher
+							canGoToNextYear={canGoToNextYear}
+							canGoToPreviousYear={canGoToPreviousYear}
+							className="shrink-0 sm:justify-self-center"
+							onNextYear={goToNextYear}
+							onPreviousYear={goToPreviousYear}
+							year={year}
+						/>
+					</div>
+
+					<ContributionGraphLegend className="ml-0 max-sm:mx-auto sm:justify-self-end">
 						{({ level }) => (
 							<div
 								className={cn("legend-block h-3 w-3 rounded-sm")}
