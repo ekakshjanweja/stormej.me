@@ -220,7 +220,7 @@ export const ContributionsGraphClient = ({
 		if (isMobile) {
 			calendar.scrollLeft = calendar.scrollWidth;
 		}
-	}, [year, yearData]);
+	}, [year]);
 
 	const yearIndex = years.indexOf(year);
 	const canGoToPreviousYear = yearIndex < years.length - 1;
@@ -259,7 +259,7 @@ export const ContributionsGraphClient = ({
 					className="max-sm:-mx-4 max-sm:overflow-x-auto max-sm:px-4"
 					ref={calendarScrollRef}
 				>
-					<ContributionGraphCalendar className="pb-2 max-sm:overflow-visible max-sm:overflow-y-visible [&>svg]:!h-auto max-sm:[&>svg]:!w-auto sm:overflow-hidden sm:[&>svg]:!w-full">
+					<ContributionGraphCalendar className="[&>svg]:!h-auto max-sm:[&>svg]:!w-auto sm:[&>svg]:!w-full pb-2 max-sm:overflow-visible max-sm:overflow-y-visible sm:overflow-hidden">
 						{({ activity, dayIndex, weekIndex }) => (
 							<DayTooltip
 								activity={activity}
