@@ -68,6 +68,20 @@ COMPONENTS = [
         "copy_name": "app_spinner.dart",
         "source_file": "lib/app_spinner.dart",
     },
+    {
+        "slug": "app-header",
+        "src": "lib/src/core/ui/widgets/app_header/app_header.dart",
+        "mdx": "content/trove/app-header.mdx",
+        "copy_name": "app_header.dart",
+        "source_file": "lib/app_header.dart",
+    },
+    {
+        "slug": "app-bottom-sheet",
+        "src": "lib/src/core/ui/widgets/app_bottom_sheet/app_bottom_sheet.dart",
+        "mdx": "content/trove/app-bottom-sheet.mdx",
+        "copy_name": "app_bottom_sheet.dart",
+        "source_file": "lib/app_bottom_sheet.dart",
+    },
 ]
 
 

@@ -1,0 +1,752 @@
+---
+title: app bottom sheet
+subtitle: one file bottom sheet for flutter
+description: a bottom sheet for flutter in one file. handle, title, message, theme-aware surface. no packages, no DI, no widget wrapping.
+date: "2026-08-03"
+tech:
+  - flutter
+  - dart
+sourceFile: lib/app_bottom_sheet.dart
+lines: 541
+demo: /trove/demo/app-bottom-sheet/index.html
+published: false
+---
+
+## tldr
+
+copy one file into your project, call `showAppBottomSheet`. no setup, no init call.
+
+```dart
+await showAppBottomSheet<void>(
+  context: context,
+  title: "Appearance",
+  message: "How the app should look on this device.",
+  child: ThemeModePicker(),
+);
+```
+
+transparent modal host + painted sheet surface, so colors rebuild with the
+active theme while the sheet stays open. bottom corners track the device bezel.
+
+<FlutterDemo src="/trove/demo/app-bottom-sheet/index.html" name="app-bottom-sheet" />
+
+## install
+
+<Steps>
+
+<Step>
+
+### copy one file
+
+grab it and drop it in at `lib/app_bottom_sheet.dart`.
+
+<CopyFile name="app_bottom_sheet.dart" lines={541}>
+
+```dart
+// A self-contained, plug-and-play bottom sheet. Drop this single file into any
+// Flutter project — no packages, no DI, no widget wrapping.
+//
+//   1. Call it:
+//        await showAppBottomSheet<void>(
+//          context: context,
+//          title: "Appearance",
+//          message: "How Trove should look on this device.",
+//          child: MyPicker(),
+//        );
+//
+//   2. Restyle once at startup — or never, the defaults stand on their own:
+//        AppBottomSheet.configure(light: AppBottomSheetColors.light.copyWith(card: myCard));
+//
+//   3. Transparent modal host + painted sheet surface so colors rebuild with
+//      the active theme (including while the sheet stays open).
+
+import "dart:ui" as ui;
+
+import "package:flutter/foundation.dart";
+import "package:flutter/material.dart";
+
+/// Portrait logical size (shortest × longest) → display corner radius in pt.
+///
+/// Values from public `_displayCornerRadius` reports. Used on iOS where
+/// [MediaQuery.displayCornerRadii] is still unavailable.
+const List<(double, double, double)> _kIosDisplayCornerRadii =
+    <(double, double, double)>[
+      // mini
+      (360, 780, 44.0),
+      // 12 / 12 Pro / 13 / 13 Pro / 14 / 16e
+      (390, 844, 47.33),
+      // 12 Pro Max / 13 Pro Max / 14 Plus
+      (428, 926, 53.33),
+      // 14 Pro / 15 / 15 Pro / 16
+      (393, 852, 55.0),
+      // 14 Pro Max / 15 Plus / 15 Pro Max / 16 Plus
+      (430, 932, 55.0),
+      // 16 Pro
+      (402, 874, 62.0),
+      // 16 Pro Max / 17 Pro Max
+      (440, 956, 62.0),
+      // X / XS / 11 Pro
+      (375, 812, 39.0),
+      // XR / 11 / XS Max / 11 Pro Max (XS Max is 39; XR is 41.5 — pick mid)
+      (414, 896, 40.0),
+    ];
+
+/// Bottom corner radius that tracks the device display bezel.
+double _deviceBottomCornerRadius(BuildContext context) {
+  // Android API 31+ exposes real radii through MediaQuery / FlutterView.
+  final BorderRadius? mediaRadii = MediaQuery.maybeDisplayCornerRadiiOf(
+    context,
+  );
+  if (mediaRadii != null) {
+    return _maxRadius(mediaRadii.bottomLeft, mediaRadii.bottomRight);
+  }
+
+  final ui.FlutterView? view = View.maybeOf(context);
+  final ui.DisplayCornerRadii? viewRadii = view?.displayCornerRadii;
+  if (viewRadii != null && view != null) {
+    final double dpr = view.devicePixelRatio;
+    return (viewRadii.bottomLeft > viewRadii.bottomRight
+            ? viewRadii.bottomLeft
+            : viewRadii.bottomRight) /
+        dpr;
+  }
+
+  if (defaultTargetPlatform == TargetPlatform.iOS) {
+    return _iosDisplayCornerRadius(MediaQuery.sizeOf(context));
+  }
+
+  return 0;
+}
+
+double _maxRadius(Radius a, Radius b) {
+  final double left = a.x > a.y ? a.x : a.y;
+  final double right = b.x > b.y ? b.x : b.y;
+  return left > right ? left : right;
+}
+
+double _iosDisplayCornerRadius(Size size) {
+  final double shortest = size.shortestSide;
+  final double longest = size.longestSide;
+
+  for (final (double w, double h, double radius) in _kIosDisplayCornerRadii) {
+    if ((shortest - w).abs() <= 1.0 && (longest - h).abs() <= 1.0) {
+      return radius;
+    }
+  }
+  return 0;
+}
+
+// ---------------------------------------------------------------------------
+// Theme
+// ---------------------------------------------------------------------------
+
+/// Color tokens for the bottom sheet palette.
+@immutable
+class AppBottomSheetColors {
+  /// Creates a bottom sheet color palette.
+  const AppBottomSheetColors({
+    required this.foreground,
+    required this.muted,
+    required this.card,
+    required this.border,
+    required this.handle,
+    required this.barrier,
+  });
+
+  /// Title color.
+  final Color foreground;
+
+  /// Message / supporting copy.
+  final Color muted;
+
+  /// Sheet surface fill.
+  final Color card;
+
+  /// Stroke around the sheet.
+  final Color border;
+
+  /// Drag handle pill.
+  final Color handle;
+
+  /// Scrim behind the sheet.
+  final Color barrier;
+
+  /// Default palette for light mode.
+  static const AppBottomSheetColors light = AppBottomSheetColors(
+    foreground: Color(0xFF1C2229),
+    muted: Color(0xFF6C7278),
+    card: Color(0xFFF8FCFF),
+    border: Color(0xFFD8DFE6),
+    handle: Color(0xFFD8DFE6),
+    barrier: Color(0x66000000),
+  );
+
+  /// Default palette for dark mode.
+  static const AppBottomSheetColors dark = AppBottomSheetColors(
+    foreground: Color(0xFFDADEE3),
+    muted: Color(0xFF8B9095),
+    card: Color(0xFF12171B),
+    border: Color(0xFF353B42),
+    handle: Color(0xFF353B42),
+    barrier: Color(0x66000000),
+  );
+
+  /// Returns a copy with the given fields replaced.
+  AppBottomSheetColors copyWith({
+    Color? foreground,
+    Color? muted,
+    Color? card,
+    Color? border,
+    Color? handle,
+    Color? barrier,
+  }) {
+    return AppBottomSheetColors(
+      foreground: foreground ?? this.foreground,
+      muted: muted ?? this.muted,
+      card: card ?? this.card,
+      border: border ?? this.border,
+      handle: handle ?? this.handle,
+      barrier: barrier ?? this.barrier,
+    );
+  }
+}
+
+/// Metrics for the sheet chrome.
+@immutable
+class AppBottomSheetSizing {
+  /// Creates sizing settings.
+  const AppBottomSheetSizing({
+    this.borderRadius = 28,
+    this.padding = const EdgeInsets.fromLTRB(24, 12, 24, 24),
+    this.handleWidth = 36,
+    this.handleHeight = 4,
+    this.handleGap = 16,
+    this.titleGap = 4,
+    this.messageGap = 16,
+    this.maxWidth = 640,
+    this.themeAnimDuration = const Duration(milliseconds: 220),
+  });
+
+  /// Top corner radius (superellipse).
+  final double borderRadius;
+
+  /// Inset around handle, title, and body.
+  final EdgeInsets padding;
+
+  final double handleWidth;
+  final double handleHeight;
+
+  /// Space under the handle before the title.
+  final double handleGap;
+
+  /// Space between title and message.
+  final double titleGap;
+
+  /// Space between message (or title) and body.
+  final double messageGap;
+
+  /// Caps width on large screens; sheet stays bottom-centered.
+  final double maxWidth;
+
+  /// Duration for surface colors when the theme flips while open.
+  final Duration themeAnimDuration;
+
+  AppBottomSheetSizing copyWith({
+    double? borderRadius,
+    EdgeInsets? padding,
+    double? handleWidth,
+    double? handleHeight,
+    double? handleGap,
+    double? titleGap,
+    double? messageGap,
+    double? maxWidth,
+    Duration? themeAnimDuration,
+  }) {
+    return AppBottomSheetSizing(
+      borderRadius: borderRadius ?? this.borderRadius,
+      padding: padding ?? this.padding,
+      handleWidth: handleWidth ?? this.handleWidth,
+      handleHeight: handleHeight ?? this.handleHeight,
+      handleGap: handleGap ?? this.handleGap,
+      titleGap: titleGap ?? this.titleGap,
+      messageGap: messageGap ?? this.messageGap,
+      maxWidth: maxWidth ?? this.maxWidth,
+      themeAnimDuration: themeAnimDuration ?? this.themeAnimDuration,
+    );
+  }
+}
+
+/// Typography for title and message.
+@immutable
+class AppBottomSheetTypography {
+  /// Creates typography settings.
+  const AppBottomSheetTypography({
+    this.fontFamily = "GeistSans",
+    this.title = const TextStyle(
+      fontSize: 16,
+      height: 22 / 16,
+      fontWeight: FontWeight.w600,
+    ),
+    this.message = const TextStyle(
+      fontSize: 12,
+      height: 16 / 12,
+      fontWeight: FontWeight.w400,
+    ),
+  });
+
+  static const Object _unset = Object();
+
+  final String? fontFamily;
+  final TextStyle title;
+  final TextStyle message;
+
+  TextStyle titleStyle(Color color) =>
+      title.copyWith(color: color, fontFamily: title.fontFamily ?? fontFamily);
+
+  TextStyle messageStyle(Color color) => message.copyWith(
+    color: color,
+    fontFamily: message.fontFamily ?? fontFamily,
+  );
+
+  AppBottomSheetTypography copyWith({
+    Object? fontFamily = _unset,
+    TextStyle? title,
+    TextStyle? message,
+  }) {
+    return AppBottomSheetTypography(
+      fontFamily: fontFamily == _unset
+          ? this.fontFamily
+          : fontFamily as String?,
+      title: title ?? this.title,
+      message: message ?? this.message,
+    );
+  }
+}
+
+/// Global bottom sheet configuration.
+@immutable
+class AppBottomSheetTheme {
+  /// Creates a bottom sheet theme.
+  const AppBottomSheetTheme({
+    this.light = AppBottomSheetColors.light,
+    this.dark = AppBottomSheetColors.dark,
+    this.sizing = const AppBottomSheetSizing(),
+    this.typography = const AppBottomSheetTypography(),
+    this.brightnessResolver,
+  });
+
+  static const Object _unset = Object();
+
+  final AppBottomSheetColors light;
+  final AppBottomSheetColors dark;
+  final AppBottomSheetSizing sizing;
+  final AppBottomSheetTypography typography;
+  final Brightness Function(BuildContext context)? brightnessResolver;
+
+  Brightness brightnessOf(BuildContext context) =>
+      brightnessResolver?.call(context) ?? Theme.of(context).brightness;
+
+  AppBottomSheetColors colorsOf(BuildContext context) =>
+      brightnessOf(context) == Brightness.dark ? dark : light;
+
+  AppBottomSheetTheme copyWith({
+    AppBottomSheetColors? light,
+    AppBottomSheetColors? dark,
+    AppBottomSheetSizing? sizing,
+    AppBottomSheetTypography? typography,
+    Object? brightnessResolver = _unset,
+  }) {
+    return AppBottomSheetTheme(
+      light: light ?? this.light,
+      dark: dark ?? this.dark,
+      sizing: sizing ?? this.sizing,
+      typography: typography ?? this.typography,
+      brightnessResolver: brightnessResolver == _unset
+          ? this.brightnessResolver
+          : brightnessResolver as Brightness Function(BuildContext context)?,
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Sheet surface
+// ---------------------------------------------------------------------------
+
+/// Painted sheet chrome: handle, optional title/message, and [child].
+///
+/// Prefer [showAppBottomSheet] for the usual path. The modal host stays
+/// transparent so this surface can rebuild its colors when the theme changes
+/// without closing the sheet.
+class AppBottomSheet extends StatelessWidget {
+  /// Creates a bottom sheet surface.
+  const AppBottomSheet({
+    super.key,
+    required this.child,
+    this.title,
+    this.message,
+    this.showHandle = true,
+    this.padding,
+  });
+
+  static AppBottomSheetTheme _theme = const AppBottomSheetTheme();
+
+  /// The active bottom sheet theme.
+  static AppBottomSheetTheme get theme => _theme;
+
+  /// Restyles every [AppBottomSheet] in the app.
+  static void configure({
+    AppBottomSheetColors? light,
+    AppBottomSheetColors? dark,
+    AppBottomSheetSizing? sizing,
+    AppBottomSheetTypography? typography,
+    Object? brightnessResolver = AppBottomSheetTheme._unset,
+  }) {
+    _theme = _theme.copyWith(
+      light: light,
+      dark: dark,
+      sizing: sizing,
+      typography: typography,
+      brightnessResolver: brightnessResolver,
+    );
+  }
+
+  /// Resets the theme to defaults. For use in tests only.
+  @visibleForTesting
+  static void debugReset() => _theme = const AppBottomSheetTheme();
+
+  /// Body below the optional title block.
+  final Widget child;
+
+  /// Leading title.
+  final String? title;
+
+  /// Supporting line under the title.
+  final String? message;
+
+  /// Drag affordance at the top.
+  final bool showHandle;
+
+  /// Overrides [AppBottomSheetSizing.padding].
+  final EdgeInsets? padding;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppBottomSheetTheme theme = _theme;
+    final AppBottomSheetColors colors = theme.colorsOf(context);
+    final AppBottomSheetSizing sizing = theme.sizing;
+    final AppBottomSheetTypography typography = theme.typography;
+    final EdgeInsets resolvedPadding = padding ?? sizing.padding;
+
+    final double bottomRadius = _deviceBottomCornerRadius(context);
+    final BorderRadius sheetRadius = BorderRadius.only(
+      topLeft: Radius.circular(sizing.borderRadius),
+      topRight: Radius.circular(sizing.borderRadius),
+      bottomLeft: Radius.circular(bottomRadius),
+      bottomRight: Radius.circular(bottomRadius),
+    );
+
+    final double maxHeight = MediaQuery.sizeOf(context).height * 0.88;
+
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: sizing.maxWidth,
+          maxHeight: maxHeight,
+        ),
+        child: AnimatedContainer(
+          margin: EdgeInsets.only(
+            bottom: MediaQuery.viewInsetsOf(context).bottom,
+          ),
+          duration: sizing.themeAnimDuration,
+          curve: Curves.easeOutCubic,
+          width: double.infinity,
+          clipBehavior: Clip.antiAlias,
+          decoration: ShapeDecoration(
+            color: colors.card,
+            shape: RoundedSuperellipseBorder(
+              borderRadius: sheetRadius,
+              side: BorderSide(color: colors.border),
+            ),
+          ),
+          child: SafeArea(
+            top: false,
+            child: SingleChildScrollView(
+              padding: resolvedPadding,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (showHandle) ...[
+                    Center(
+                      child: AnimatedContainer(
+                        duration: sizing.themeAnimDuration,
+                        curve: Curves.easeOutCubic,
+                        width: sizing.handleWidth,
+                        height: sizing.handleHeight,
+                        decoration: BoxDecoration(
+                          color: colors.handle,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: sizing.handleGap),
+                  ],
+                  if (title != null) ...[
+                    Text(
+                      title!,
+                      style: typography.titleStyle(colors.foreground),
+                    ),
+                    if (message != null) SizedBox(height: sizing.titleGap),
+                  ],
+                  if (message != null)
+                    Text(
+                      message!,
+                      style: typography.messageStyle(colors.muted),
+                    ),
+                  if (title != null || message != null)
+                    SizedBox(height: sizing.messageGap),
+                  child,
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Presenter
+// ---------------------------------------------------------------------------
+
+/// Opens an [AppBottomSheet] and returns a value when the route is popped.
+Future<T?> showAppBottomSheet<T>({
+  required BuildContext context,
+  Widget? child,
+  WidgetBuilder? builder,
+  String? title,
+  String? message,
+  bool showHandle = true,
+  EdgeInsets? padding,
+  bool isDismissible = true,
+  bool enableDrag = true,
+  bool useRootNavigator = true,
+}) {
+  assert(
+    child != null || builder != null,
+    "Provide child or builder for showAppBottomSheet.",
+  );
+
+  FocusManager.instance.primaryFocus?.unfocus();
+
+  final AppBottomSheetColors colors = AppBottomSheet.theme.colorsOf(context);
+
+  return showModalBottomSheet<T>(
+    context: context,
+    // Host stays rectangular + transparent; [AppBottomSheet] paints the
+    // top-only RoundedSuperellipseBorder so theme bottomsheet shape (all
+    // corners) cannot round the bottom edge.
+    backgroundColor: Colors.transparent,
+    barrierColor: colors.barrier,
+    shape: const RoundedSuperellipseBorder(borderRadius: BorderRadius.zero),
+    isScrollControlled: true,
+    useRootNavigator: useRootNavigator,
+    // Still true so the route barrier stays tappable when the sheet does not
+    // fill the route; the Stack below also dismisses taps on empty space
+    // above the sheet (needed because scroll-controlled sheets expand).
+    isDismissible: isDismissible,
+    enableDrag: enableDrag,
+    elevation: 0,
+    builder: (BuildContext sheetContext) {
+      final Widget sheet = AppBottomSheet(
+        title: title,
+        message: message,
+        showHandle: showHandle,
+        padding: padding,
+        child: child ?? builder!(sheetContext),
+      );
+
+      return Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          if (isDismissible)
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => Navigator.of(sheetContext).pop(),
+              ),
+            ),
+          sheet,
+        ],
+      );
+    },
+  );
+}
+```
+
+</CopyFile>
+
+it imports `dart:ui`, `foundation`, and `material` from the flutter sdk. nothing
+goes in `pubspec.yaml`.
+
+</Step>
+
+<Step>
+
+### use it
+
+there is no init call. the defaults stand on their own.
+
+```dart
+await showAppBottomSheet<void>(
+  context: context,
+  title: "Saved filters",
+  child: FiltersList(),
+);
+```
+
+</Step>
+
+</Steps>
+
+## usage
+
+title and message are optional. pass either `child` or `builder`.
+
+```dart
+await showAppBottomSheet<void>(
+  context: context,
+  title: "Saved filters",
+  message: "Pin a view to open it faster next time.",
+  child: Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      FilledButton(onPressed: () => Navigator.pop(context), child: Text("Pin")),
+      OutlinedButton(onPressed: () => Navigator.pop(context), child: Text("Not now")),
+    ],
+  ),
+);
+```
+
+hide the drag handle when the sheet is not meant to feel dismissible by gesture
+alone, or turn drag/dismiss off entirely.
+
+```dart
+await showAppBottomSheet<void>(
+  context: context,
+  title: "Pick a mode",
+  showHandle: false,
+  isDismissible: false,
+  enableDrag: false,
+  child: ModeList(),
+);
+```
+
+use `builder` when the body needs the sheet's own context.
+
+```dart
+await showAppBottomSheet<String>(
+  context: context,
+  title: "Choose",
+  builder: (sheetContext) => ListTile(
+    title: const Text("Option A"),
+    onTap: () => Navigator.pop(sheetContext, "a"),
+  ),
+);
+```
+
+## example
+
+```dart
+Future<void> openAppearance(BuildContext context) {
+  return showAppBottomSheet<void>(
+    context: context,
+    title: "Appearance",
+    message: "How the app should look on this device.",
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (final mode in ThemeMode.values)
+          ListTile(
+            title: Text(mode.name),
+            onTap: () {
+              // apply theme…
+              Navigator.pop(context);
+            },
+          ),
+      ],
+    ),
+  );
+}
+```
+
+## reference
+
+everything below is here when you need it. you can ship without reading any of it.
+
+<Accordions>
+  <Accordion title="parameters">
+
+  `showAppBottomSheet`
+
+  | parameter | type | default | notes |
+  |---|---|---|---|
+  | `context` | `BuildContext` | required | |
+  | `child` | `Widget?` | `null` | required unless `builder` is set |
+  | `builder` | `WidgetBuilder?` | `null` | required unless `child` is set |
+  | `title` | `String?` | `null` | leading title |
+  | `message` | `String?` | `null` | supporting line under the title |
+  | `showHandle` | `bool` | `true` | drag affordance at the top |
+  | `padding` | `EdgeInsets?` | theme | overrides sheet padding |
+  | `isDismissible` | `bool` | `true` | tap outside to dismiss |
+  | `enableDrag` | `bool` | `true` | swipe to dismiss |
+  | `useRootNavigator` | `bool` | `true` | present above nested navigators |
+
+  `AppBottomSheet` itself is the painted surface if you ever need it outside the
+  presenter.
+
+  </Accordion>
+  <Accordion title="theming and design tokens">
+
+  zero config follows `Theme.of(context).brightness`. call `configure()` once at
+  startup to restyle.
+
+  ```dart
+  AppBottomSheet.configure(
+    light: AppBottomSheetColors.light.copyWith(card: myCard),
+    sizing: const AppBottomSheetSizing(borderRadius: 24),
+  );
+  ```
+
+  **colors**
+
+  | token | used for |
+  |---|---|
+  | `card` | sheet fill |
+  | `border` | outline |
+  | `handle` | drag affordance |
+  | `foreground` | title |
+  | `muted` | message |
+  | `barrier` | dimmed backdrop |
+
+  </Accordion>
+  <Accordion title="behavior and edge cases">
+
+  - **theme while open**. the modal host is transparent. the sheet paints itself, so light/dark flips update colors without closing it.
+  - **device corners**. bottom radii track the display bezel (android via `MediaQuery.displayCornerRadii`, ios via a size lookup). top corners stay on the theme radius.
+  - **keyboard**. sheet margin lifts with `viewInsets.bottom`.
+  - **focus**. opens by unfocusing the current field first.
+  - **assert**. provide `child` or `builder`. both null fails in debug.
+
+  </Accordion>
+  <Accordion title="notes and limitations">
+
+  - shape is a `RoundedSuperellipseBorder`. if your flutter is old enough to not have it, swap in `RoundedRectangleBorder`.
+  - max height is 88% of the screen. content scrolls inside.
+  - `AppBottomSheet.debugReset()` is there for tests.
+
+  </Accordion>
+</Accordions>

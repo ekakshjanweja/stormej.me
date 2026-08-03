@@ -12,6 +12,8 @@
 #   ./scripts/build-trove-demo.sh app-selectable-chip
 #   ./scripts/build-trove-demo.sh app-progress-bar
 #   ./scripts/build-trove-demo.sh app-spinner
+#   ./scripts/build-trove-demo.sh app-header
+#   ./scripts/build-trove-demo.sh app-bottom-sheet
 #   ./scripts/build-trove-demo.sh            # rebuilds every demo
 #
 # Set TROVE_DIR if the flutter repo lives somewhere else.
@@ -33,6 +35,8 @@ demo_target() {
     app-selectable-chip) echo "lib/demo_app_selectable_chip.dart" ;;
     app-progress-bar) echo "lib/demo_app_progress_bar.dart" ;;
     app-spinner) echo "lib/demo_app_spinner.dart" ;;
+    app-header) echo "lib/demo_app_header.dart" ;;
+    app-bottom-sheet) echo "lib/demo_app_bottom_sheet.dart" ;;
     *) return 1 ;;
   esac
 }
@@ -46,6 +50,8 @@ ALL_DEMOS=(
   app-selectable-chip
   app-progress-bar
   app-spinner
+  app-header
+  app-bottom-sheet
 )
 
 build_demo() {
@@ -71,17 +77,38 @@ build_demo() {
   # ~37MB of dead weight.
   rm -rf canvaskit
 
-  # The demo uses the ambient font. Dropping the app's font assets saves ~2.8MB,
-  # but flutter preloads every family in FontManifest.json, so prune that too or
-  # the console fills with 404s.
-  rm -rf assets/assets/fonts
+  # Demos share the trove app chrome (pixel wordmark + sans UI), so keep Geist
+  # Pixel / Sans. Drop unused pixel variants and prune FontManifest so flutter
+  # doesn't 404 on families we removed.
   python3 - <<'PY'
 import json
+import pathlib
 
-path = "assets/FontManifest.json"
-keep = {"MaterialIcons", "packages/cupertino_icons/CupertinoIcons"}
-families = json.load(open(path))
-json.dump([f for f in families if f["family"] in keep], open(path, "w"))
+manifest = pathlib.Path("assets/FontManifest.json")
+fonts_dir = pathlib.Path("assets/assets/fonts")
+
+keep_families = {
+    "MaterialIcons",
+    "packages/cupertino_icons/CupertinoIcons",
+    "GeistPixel",
+    "GeistSans",
+}
+families = json.loads(manifest.read_text())
+manifest.write_text(
+    json.dumps([f for f in families if f["family"] in keep_families])
+)
+
+if fonts_dir.is_dir():
+    keep_files = {
+        "GeistPixel-Square.ttf",
+        "Geist-Regular.ttf",
+        "Geist-Medium.ttf",
+        "Geist-SemiBold.ttf",
+        "Geist-Bold.ttf",
+    }
+    for path in fonts_dir.iterdir():
+        if path.name not in keep_files:
+            path.unlink(missing_ok=True)
 PY
 
   echo "done: $slug is $(du -sh "$out_dir" | cut -f1)"

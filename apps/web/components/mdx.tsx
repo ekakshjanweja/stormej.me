@@ -19,11 +19,14 @@ import { Figure } from "./mdx/figure";
 import { FlutterDemo } from "./mdx/flutter-demo";
 import { Gallery } from "./mdx/gallery";
 import { Highlights } from "./mdx/highlights";
+import { Lead } from "./mdx/lead";
 import { Links } from "./mdx/links";
 import { Mermaid } from "./mdx/mermaid";
+import { Notable } from "./mdx/notable";
 import { Outcomes } from "./mdx/outcomes";
 import { Screens } from "./mdx/screens";
 import { StoreLinks } from "./mdx/store-links";
+import { Tldr } from "./mdx/tldr";
 
 // Bridge old callout types to Fumadocs types so existing posts keep rendering.
 type LegacyCalloutType = "note" | "tip" | "warning" | "danger";
@@ -138,8 +141,10 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
 		img: (props) => (
 			<ImageZoom {...(props as React.ComponentProps<typeof ImageZoom>)} />
 		),
+		Lead,
 		Links,
 		Mermaid,
+		Notable,
 		Outcomes,
 		Pre,
 		pre: ({ ref: _ref, ...props }) => (
@@ -153,6 +158,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
 		StoreLinks,
 		Tab,
 		Tabs,
+		Tldr,
 		TypeTable,
 		// Custom legacy components used by existing content.
 		Yt,

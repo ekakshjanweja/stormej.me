@@ -1,8 +1,30 @@
 import { type SVGProps, useId } from "react";
 import { cn } from "@/lib/utils";
 
+/** Screen rect inside the 200×400 viewBox — keep in sync with the paths below. */
+export const IPHONE_17_PRO_SCREEN = {
+	height: 374.37,
+	rx: 24.62,
+	width: 171.98,
+	x: 14.08,
+	y: 12.81,
+} as const;
+
+/** Outer device viewBox size for the 17 Pro mock. */
+export const IPHONE_17_PRO_VIEWBOX = { height: 400, width: 200 } as const;
+
 export interface Iphone17ProProps extends SVGProps<SVGSVGElement> {
 	height?: number;
+	/**
+	 * When false, hides the Dynamic Island / camera pill. Work screenshots keep
+	 * it; live demos often drop it for a cleaner status bar.
+	 */
+	showIsland?: boolean;
+	/**
+	 * When false, skips the opaque screen fill so content can show through
+	 * (live demos). Bezel still paints on top.
+	 */
+	showScreen?: boolean;
 	src?: string;
 	width?: number;
 }
@@ -11,10 +33,13 @@ export function Iphone17Pro({
 	width,
 	height,
 	src,
+	showIsland = true,
+	showScreen = true,
 	className,
 	...props
 }: Iphone17ProProps) {
 	const clipId = `iphone17-clip-${useId().replace(/:/g, "")}`;
+	const screen = IPHONE_17_PRO_SCREEN;
 
 	return (
 		<svg
@@ -25,7 +50,7 @@ export function Iphone17Pro({
 			)}
 			fill="none"
 			height={height}
-			viewBox="0 0 200 400"
+			viewBox={`0 0 ${IPHONE_17_PRO_VIEWBOX.width} ${IPHONE_17_PRO_VIEWBOX.height}`}
 			width={width}
 			xmlns="http://www.w3.org/2000/svg"
 			{...props}
@@ -40,48 +65,56 @@ export function Iphone17Pro({
 				fill="#000000"
 			/>
 
-			<rect
-				fill="currentColor"
-				height="374.37"
-				rx="24.62"
-				ry="24.62"
-				width="171.98"
-				x="14.08"
-				y="12.81"
-			/>
-			{src && (
-				<image
-					clipPath={`url(#${clipId})`}
-					height="374.37"
-					href={src}
-					preserveAspectRatio="xMidYMid slice"
-					width="171.98"
-					x="14.08"
-					y="12.81"
+			{showScreen && (
+				<rect
+					fill="currentColor"
+					height={screen.height}
+					rx={screen.rx}
+					ry={screen.rx}
+					width={screen.width}
+					x={screen.x}
+					y={screen.y}
 				/>
 			)}
-			<path
-				d="M119.61,33.86h-38.93c-10.48-.18-10.5-15.78,0-15.96,0,0,38.93,0,38.93,0,4.41,0,7.98,3.57,7.98,7.98,0,4.41-3.57,7.98-7.98,7.98Z"
-				fill="#000000"
-			/>
-			<path
-				d="M118.78,29.21c-4.32.06-4.32-6.73,0-6.66,4.32-.06,4.32,6.73,0,6.66Z"
-				fill="#080d4c"
-			/>
-
-			<defs>
-				<clipPath id={clipId}>
-					<rect
-						fill="#ffffff"
-						height="374.37"
-						rx="24.62"
-						ry="24.62"
-						width="171.98"
-						x="14.08"
-						y="12.81"
+			{showScreen && src && (
+				<image
+					clipPath={`url(#${clipId})`}
+					height={screen.height}
+					href={src}
+					preserveAspectRatio="xMidYMid slice"
+					width={screen.width}
+					x={screen.x}
+					y={screen.y}
+				/>
+			)}
+			{showIsland && (
+				<>
+					<path
+						d="M119.61,33.86h-38.93c-10.48-.18-10.5-15.78,0-15.96,0,0,38.93,0,38.93,0,4.41,0,7.98,3.57,7.98,7.98,0,4.41-3.57,7.98-7.98,7.98Z"
+						fill="#000000"
 					/>
-				</clipPath>
-			</defs>
+					<path
+						d="M118.78,29.21c-4.32.06-4.32-6.73,0-6.66,4.32-.06,4.32,6.73,0,6.66Z"
+						fill="#080d4c"
+					/>
+				</>
+			)}
+
+			{showScreen && (
+				<defs>
+					<clipPath id={clipId}>
+						<rect
+							fill="#ffffff"
+							height={screen.height}
+							rx={screen.rx}
+							ry={screen.rx}
+							width={screen.width}
+							x={screen.x}
+							y={screen.y}
+						/>
+					</clipPath>
+				</defs>
+			)}
 		</svg>
 	);
 }

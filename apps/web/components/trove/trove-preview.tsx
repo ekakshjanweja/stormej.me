@@ -21,12 +21,14 @@ interface TrovePreviewProps {
 
 /** Matches the work hover card: same width, same stage-then-caption shape. */
 const CARD_WIDTH_PX = 280;
-const STAGE_HEIGHT_PX = 128;
+const STAGE_HEIGHT_PX = 140;
 /** Popup menus need a little more vertical room so the preview doesn't clip. */
 const STAGE_HEIGHT_BY_DEMO: Record<string, number> = {
-	"app-popup": 152,
-	"app-selectable-chip": 136,
-	"app-text-field": 180,
+	"app-bottom-sheet": 188,
+	"app-header": 128,
+	"app-popup": 164,
+	"app-selectable-chip": 148,
+	"app-text-field": 192,
 };
 
 function stageHeightForDemo(demo?: string) {

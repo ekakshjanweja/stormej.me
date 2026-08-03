@@ -1,0 +1,1054 @@
+---
+title: app header
+subtitle: one file header for flutter
+description: an app header for flutter in one file. pixel wordmark, circular actions, pin or scroll as a sliver. no packages, no DI, no widget wrapping.
+date: "2026-08-03"
+tech:
+  - flutter
+  - dart
+sourceFile: lib/app_header.dart
+lines: 801
+demo: /trove/demo/app-header/index.html
+published: false
+---
+
+## tldr
+
+copy one file into your project, use it. no setup, no init call.
+
+```dart
+AppHeader(
+  title: "trove",
+  emphasis: " keep",
+  actions: [
+    AppHeaderActionButton(
+      icon: Icons.palette_outlined,
+      semanticLabel: "Theme",
+      onTap: _openTheme,
+    ),
+  ],
+)
+```
+
+pixel title + muted emphasis, solid page-colored bar, circular action buttons
+with a spring press. prefer `.asSliver()` inside a `CustomScrollView`.
+
+<FlutterDemo src="/trove/demo/app-header/index.html" name="app-header" />
+
+## install
+
+<Steps>
+
+<Step>
+
+### copy one file
+
+grab it and drop it in at `lib/app_header.dart`.
+
+<CopyFile name="app_header.dart" lines={801}>
+
+```dart
+// A self-contained, plug-and-play app header. Drop this single file into any
+// Flutter project — no packages, no DI, no widget wrapping.
+//
+//   1. Pinned like a normal app bar (inside a scroll view):
+//        Scaffold(
+//          body: CustomScrollView(
+//            slivers: [
+//              AppHeader(title: "trove", …).asSliver(pinned: true),
+//              SliverToBoxAdapter(child: …),
+//            ],
+//          ),
+//        )
+//
+//      Or let it scroll away with the content:
+//              AppHeader(…).asSliver(pinned: false),
+//
+//   2. Restyle once at startup — or never, the defaults stand on their own:
+//        AppHeader.configure(light: AppHeaderColors.light.copyWith(accent: myBlue));
+//
+//   3. Pixel wordmark + sans emphasis, solid page-colored bar, circular
+//      bordered action buttons with a spring press. Back shows when the
+//      route can pop.
+
+import "package:flutter/material.dart";
+import "package:flutter/physics.dart";
+import "package:flutter/services.dart";
+
+// ---------------------------------------------------------------------------
+// Theme
+// ---------------------------------------------------------------------------
+
+/// Color tokens for the header palette.
+@immutable
+class AppHeaderColors {
+  /// Creates a header color palette.
+  const AppHeaderColors({
+    required this.foreground,
+    required this.muted,
+    required this.surface,
+    required this.border,
+    required this.background,
+  });
+
+  /// Primary title span and action icons.
+  final Color foreground;
+
+  /// Emphasis title span (often italic).
+  final Color muted;
+
+  /// Fill inside circular action buttons.
+  final Color surface;
+
+  /// Ring on circular action buttons.
+  final Color border;
+
+  /// Bar background — matches page / scaffold background.
+  final Color background;
+
+  /// Default palette for light mode.
+  static const AppHeaderColors light = AppHeaderColors(
+    foreground: Color(0xFF1C2229),
+    muted: Color(0xFF6C7278),
+    surface: Color(0xFFEAEFF5),
+    border: Color(0xFFD8DFE6),
+    background: Color(0xFFFBFEFF),
+  );
+
+  /// Default palette for dark mode.
+  static const AppHeaderColors dark = AppHeaderColors(
+    foreground: Color(0xFFDADEE3),
+    muted: Color(0xFF8B9095),
+    surface: Color(0xFF1D2227),
+    border: Color(0xFF353B42),
+    background: Color(0xFF0E1216),
+  );
+
+  /// Returns a copy with the given fields replaced.
+  AppHeaderColors copyWith({
+    Color? foreground,
+    Color? muted,
+    Color? surface,
+    Color? border,
+    Color? background,
+  }) {
+    return AppHeaderColors(
+      foreground: foreground ?? this.foreground,
+      muted: muted ?? this.muted,
+      surface: surface ?? this.surface,
+      border: border ?? this.border,
+      background: background ?? this.background,
+    );
+  }
+}
+
+/// Metrics for the header and its action buttons.
+@immutable
+class AppHeaderSizing {
+  /// Creates sizing settings.
+  const AppHeaderSizing({
+    this.height = kToolbarHeight,
+    this.titleFontSize = 28,
+    this.titleLineHeight = 30,
+    this.emphasisFontSize = 16,
+    this.emphasisLineHeight = 24,
+    this.horizontalInset = 16,
+    this.titleLeadingGap = 12,
+    this.titleMarkSize = 14,
+    this.actionIconSize = 20,
+    this.actionPadding = 6,
+    this.actionGap = 8,
+    this.actionEdgeGap = 16,
+    this.pressScale = 0.92,
+    this.motionDuration = const Duration(milliseconds: 240),
+    this.themeAnimDuration = const Duration(milliseconds: 220),
+  });
+
+  /// Preferred bar height ([PreferredSizeWidget]).
+  final double height;
+
+  /// Brand title size — compact [AppTextTheme.displaySm] for the toolbar.
+  final double titleFontSize;
+
+  /// Brand title line height in logical pixels.
+  final double titleLineHeight;
+
+  /// Emphasis span size — matches [AppTextTheme.bodyLg].
+  final double emphasisFontSize;
+
+  /// Emphasis line height in logical pixels.
+  final double emphasisLineHeight;
+
+  /// Leading inset when there is no back control.
+  final double horizontalInset;
+
+  /// Gap between the leading control and the title text.
+  final double titleLeadingGap;
+
+  /// Glyph size inside the leading mark button.
+  ///
+  /// The button's outer diameter matches [titleLineHeight] so it lines up
+  /// with the title; keep this smaller so the ring still has padding.
+  final double titleMarkSize;
+
+  /// Glyph size inside [AppHeaderActionButton].
+  final double actionIconSize;
+
+  /// Padding inside the circular action ring.
+  final double actionPadding;
+
+  /// Gap after an action that is not the trailing edge.
+  final double actionGap;
+
+  /// Gap after the last action, against the screen edge.
+  final double actionEdgeGap;
+
+  /// Scale applied while an action is pressed.
+  final double pressScale;
+
+  /// Cross-fade / layout motion for icon swaps and pin toggles.
+  final Duration motionDuration;
+
+  /// Color transitions when the theme flips while the header is visible.
+  final Duration themeAnimDuration;
+
+  /// Returns a copy with the given fields replaced.
+  AppHeaderSizing copyWith({
+    double? height,
+    double? titleFontSize,
+    double? titleLineHeight,
+    double? emphasisFontSize,
+    double? emphasisLineHeight,
+    double? horizontalInset,
+    double? titleLeadingGap,
+    double? titleMarkSize,
+    double? actionIconSize,
+    double? actionPadding,
+    double? actionGap,
+    double? actionEdgeGap,
+    double? pressScale,
+    Duration? motionDuration,
+    Duration? themeAnimDuration,
+  }) {
+    return AppHeaderSizing(
+      height: height ?? this.height,
+      titleFontSize: titleFontSize ?? this.titleFontSize,
+      titleLineHeight: titleLineHeight ?? this.titleLineHeight,
+      emphasisFontSize: emphasisFontSize ?? this.emphasisFontSize,
+      emphasisLineHeight: emphasisLineHeight ?? this.emphasisLineHeight,
+      horizontalInset: horizontalInset ?? this.horizontalInset,
+      titleLeadingGap: titleLeadingGap ?? this.titleLeadingGap,
+      titleMarkSize: titleMarkSize ?? this.titleMarkSize,
+      actionIconSize: actionIconSize ?? this.actionIconSize,
+      actionPadding: actionPadding ?? this.actionPadding,
+      actionGap: actionGap ?? this.actionGap,
+      actionEdgeGap: actionEdgeGap ?? this.actionEdgeGap,
+      pressScale: pressScale ?? this.pressScale,
+      motionDuration: motionDuration ?? this.motionDuration,
+      themeAnimDuration: themeAnimDuration ?? this.themeAnimDuration,
+    );
+  }
+}
+
+/// Typography for the two-part title.
+///
+/// Defaults match Trove brand type: Geist Pixel for the name (same family as
+/// [AppWordmark] / display), Geist Sans for the quieter emphasis span.
+@immutable
+class AppHeaderTypography {
+  /// Creates typography settings.
+  const AppHeaderTypography({
+    this.titleFontFamily = "GeistPixel",
+    this.emphasisFontFamily = "GeistSans",
+    this.titleWeight = FontWeight.w400,
+    this.emphasisWeight = FontWeight.w500,
+    this.titleLetterSpacing = -0.2,
+    this.emphasisLetterSpacing = 0,
+    this.emphasisItalic = false,
+  });
+
+  static const Object _unset = Object();
+
+  /// Family for the leading title span. Defaults to Trove's pixel wordmark.
+  final String? titleFontFamily;
+
+  /// Family for the emphasis span. Defaults to Trove's UI sans.
+  final String? emphasisFontFamily;
+
+  final FontWeight titleWeight;
+  final FontWeight emphasisWeight;
+
+  /// Tracking on the pixel title — matches display tokens.
+  final double titleLetterSpacing;
+
+  final double emphasisLetterSpacing;
+
+  /// Whether the emphasis span renders italic. Off by default for Trove.
+  final bool emphasisItalic;
+
+  TextStyle titleStyle(Color color, AppHeaderSizing sizing) {
+    return TextStyle(
+      fontFamily: titleFontFamily,
+      fontSize: sizing.titleFontSize,
+      height: sizing.titleLineHeight / sizing.titleFontSize,
+      fontWeight: titleWeight,
+      letterSpacing: titleLetterSpacing,
+      color: color,
+    );
+  }
+
+  TextStyle emphasisStyle(Color color, AppHeaderSizing sizing) {
+    return TextStyle(
+      fontFamily: emphasisFontFamily,
+      fontSize: sizing.emphasisFontSize,
+      height: sizing.emphasisLineHeight / sizing.emphasisFontSize,
+      fontWeight: emphasisWeight,
+      fontStyle: emphasisItalic ? FontStyle.italic : FontStyle.normal,
+      letterSpacing: emphasisLetterSpacing,
+      color: color,
+    );
+  }
+
+  AppHeaderTypography copyWith({
+    Object? titleFontFamily = _unset,
+    Object? emphasisFontFamily = _unset,
+    FontWeight? titleWeight,
+    FontWeight? emphasisWeight,
+    double? titleLetterSpacing,
+    double? emphasisLetterSpacing,
+    bool? emphasisItalic,
+  }) {
+    return AppHeaderTypography(
+      titleFontFamily: titleFontFamily == _unset
+          ? this.titleFontFamily
+          : titleFontFamily as String?,
+      emphasisFontFamily: emphasisFontFamily == _unset
+          ? this.emphasisFontFamily
+          : emphasisFontFamily as String?,
+      titleWeight: titleWeight ?? this.titleWeight,
+      emphasisWeight: emphasisWeight ?? this.emphasisWeight,
+      titleLetterSpacing: titleLetterSpacing ?? this.titleLetterSpacing,
+      emphasisLetterSpacing:
+          emphasisLetterSpacing ?? this.emphasisLetterSpacing,
+      emphasisItalic: emphasisItalic ?? this.emphasisItalic,
+    );
+  }
+}
+
+/// Global header configuration.
+@immutable
+class AppHeaderTheme {
+  /// Creates a header theme.
+  const AppHeaderTheme({
+    this.light = AppHeaderColors.light,
+    this.dark = AppHeaderColors.dark,
+    this.sizing = const AppHeaderSizing(),
+    this.typography = const AppHeaderTypography(),
+    this.brightnessResolver,
+  });
+
+  static const Object _unset = Object();
+
+  final AppHeaderColors light;
+  final AppHeaderColors dark;
+  final AppHeaderSizing sizing;
+  final AppHeaderTypography typography;
+  final Brightness Function(BuildContext context)? brightnessResolver;
+
+  Brightness brightnessOf(BuildContext context) =>
+      brightnessResolver?.call(context) ?? Theme.of(context).brightness;
+
+  AppHeaderColors colorsOf(BuildContext context) =>
+      brightnessOf(context) == Brightness.dark ? dark : light;
+
+  AppHeaderTheme copyWith({
+    AppHeaderColors? light,
+    AppHeaderColors? dark,
+    AppHeaderSizing? sizing,
+    AppHeaderTypography? typography,
+    Object? brightnessResolver = _unset,
+  }) {
+    return AppHeaderTheme(
+      light: light ?? this.light,
+      dark: dark ?? this.dark,
+      sizing: sizing ?? this.sizing,
+      typography: typography ?? this.typography,
+      brightnessResolver: brightnessResolver == _unset
+          ? this.brightnessResolver
+          : brightnessResolver as Brightness Function(BuildContext context)?,
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Springs
+// ---------------------------------------------------------------------------
+
+abstract final class _AppHeaderSprings {
+  static const SpringDescription press = SpringDescription(
+    mass: 1,
+    stiffness: 520,
+    damping: 36,
+  );
+}
+
+Duration _appHeaderMotionOf(BuildContext context, Duration duration) {
+  return MediaQuery.disableAnimationsOf(context) ? Duration.zero : duration;
+}
+
+Widget _appHeaderFadeScaleSwitcher({
+  required Duration duration,
+  required Widget child,
+}) {
+  return AnimatedSwitcher(
+    duration: duration,
+    switchInCurve: Curves.easeOutCubic,
+    switchOutCurve: Curves.easeInCubic,
+    transitionBuilder: (Widget child, Animation<double> animation) {
+      final Animation<double> curved = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+        reverseCurve: Curves.easeInCubic,
+      );
+      return FadeTransition(
+        opacity: curved,
+        child: ScaleTransition(
+          scale: Tween<double>(begin: 0.86, end: 1).animate(curved),
+          child: child,
+        ),
+      );
+    },
+    child: child,
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Action button
+// ---------------------------------------------------------------------------
+
+/// Circular bordered icon button for [AppHeader] action slots.
+///
+/// Pass [child] instead of [icon] for custom content. With a null [onTap] the
+/// button renders as plain decoration so a parent gesture owner (e.g. a popup)
+/// can drive the press behavior.
+class AppHeaderActionButton extends StatefulWidget {
+  /// Creates a header action button.
+  const AppHeaderActionButton({
+    super.key,
+    this.icon,
+    this.child,
+    this.onTap,
+    this.semanticLabel,
+    this.endPadding,
+    this.size,
+  }) : assert(icon != null || child != null, "Provide an icon or a child");
+
+  /// Material icon drawn inside the ring.
+  final IconData? icon;
+
+  /// Custom content instead of [icon].
+  final Widget? child;
+
+  /// Tap handler. Null keeps the control non-interactive.
+  final VoidCallback? onTap;
+
+  /// Announced by screen readers for icon-only actions.
+  final String? semanticLabel;
+
+  /// Trailing gap to the next action. Defaults to theme [AppHeaderSizing.actionGap];
+  /// the trailing edge action usually passes [AppHeaderSizing.actionEdgeGap].
+  final double? endPadding;
+
+  /// Outer diameter of the circle. When null, the control hugs its child
+  /// plus [AppHeaderSizing.actionPadding].
+  final double? size;
+
+  @override
+  State<AppHeaderActionButton> createState() => _AppHeaderActionButtonState();
+}
+
+class _AppHeaderActionButtonState extends State<AppHeaderActionButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _press;
+  bool _isPressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _press = AnimationController.unbounded(value: 0, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _press.dispose();
+    super.dispose();
+  }
+
+  void _setPressed(bool value) {
+    if (_isPressed == value) return;
+    _isPressed = value;
+    _press.animateWith(
+      SpringSimulation(_AppHeaderSprings.press, _press.value, value ? 1 : 0, 0),
+    );
+  }
+
+  void _handleTap() {
+    if (!MediaQuery.disableAnimationsOf(context)) {
+      HapticFeedback.selectionClick();
+    }
+    widget.onTap?.call();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final AppHeaderTheme theme = AppHeader._theme;
+    final AppHeaderColors colors = theme.colorsOf(context);
+    final AppHeaderSizing sizing = theme.sizing;
+    final double endPadding = widget.endPadding ?? sizing.actionGap;
+    final Duration motion = _appHeaderMotionOf(context, sizing.motionDuration);
+
+    final Widget content =
+        widget.child ??
+        Icon(
+          widget.icon,
+          key: ValueKey<Object?>(widget.icon),
+          size: sizing.actionIconSize,
+          color: colors.foreground,
+        );
+
+    final Widget circle = AnimatedContainer(
+      duration: _appHeaderMotionOf(context, sizing.themeAnimDuration),
+      curve: Curves.easeOutCubic,
+      width: widget.size,
+      height: widget.size,
+      alignment: widget.size != null ? Alignment.center : null,
+      padding: widget.size != null
+          ? EdgeInsets.zero
+          : EdgeInsets.all(sizing.actionPadding),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: colors.surface,
+        border: Border.all(color: colors.border),
+      ),
+      child: _appHeaderFadeScaleSwitcher(
+        duration: motion,
+        child: KeyedSubtree(
+          key: ValueKey<Object?>(widget.icon ?? widget.semanticLabel ?? content),
+          child: content,
+        ),
+      ),
+    );
+
+    // [pressScale] is the pressed target, matching Aura's Pressable.
+    final Widget springCircle = AnimatedBuilder(
+      animation: _press,
+      builder: (BuildContext context, Widget? child) {
+        final double scale = 1 + (sizing.pressScale - 1) * _press.value;
+        return Transform.scale(scale: scale, child: child);
+      },
+      child: circle,
+    );
+
+    final Widget button = widget.onTap == null
+        ? springCircle
+        : Semantics(
+            button: true,
+            label: widget.semanticLabel,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: _handleTap,
+              onTapDown: (_) => _setPressed(true),
+              onTapUp: (_) => _setPressed(false),
+              onTapCancel: () => _setPressed(false),
+              child: springCircle,
+            ),
+          );
+
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.only(right: endPadding),
+        child: button,
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Header
+// ---------------------------------------------------------------------------
+
+/// Shared chrome for [AppHeader] as an [AppBar] or [SliverAppBar].
+class _AppHeaderBarParts {
+  const _AppHeaderBarParts({
+    required this.colors,
+    required this.sizing,
+    required this.titleSpacing,
+    required this.leadingWidth,
+    required this.leading,
+    required this.title,
+    required this.actions,
+  });
+
+  final AppHeaderColors colors;
+  final AppHeaderSizing sizing;
+  final double titleSpacing;
+  final double leadingWidth;
+  final Widget? leading;
+  final Widget title;
+  final List<Widget>? actions;
+}
+
+/// Transparent app bar with a two-part title and circular action slots.
+///
+/// Prefer [asSliver] inside a [CustomScrollView]:
+/// - `pinned: true` — stays put while content scrolls
+/// - `pinned: false` — scrolls away with the content
+///
+/// Still usable as [Scaffold.appBar] when you only need the fixed case.
+class AppHeader extends StatelessWidget implements PreferredSizeWidget {
+  /// Creates an app header.
+  const AppHeader({
+    super.key,
+    required this.title,
+    this.emphasis = "",
+    this.titleStyle,
+    this.emphasisStyle,
+    this.leading,
+    this.leadingSemanticLabel,
+    this.onLeadingTap,
+    this.actions,
+    this.onBack,
+    this.showBack,
+    this.automaticallyImplyLeading = true,
+  });
+
+  static AppHeaderTheme _theme = const AppHeaderTheme();
+
+  /// The active header theme.
+  static AppHeaderTheme get theme => _theme;
+
+  /// Restyles every [AppHeader] in the app.
+  static void configure({
+    AppHeaderColors? light,
+    AppHeaderColors? dark,
+    AppHeaderSizing? sizing,
+    AppHeaderTypography? typography,
+    Object? brightnessResolver = AppHeaderTheme._unset,
+  }) {
+    _theme = _theme.copyWith(
+      light: light,
+      dark: dark,
+      sizing: sizing,
+      typography: typography,
+      brightnessResolver: brightnessResolver,
+    );
+  }
+
+  /// Resets the theme to defaults. For use in tests only.
+  @visibleForTesting
+  static void debugReset() => _theme = const AppHeaderTheme();
+
+  /// Leading title span.
+  final String title;
+
+  /// Trailing title span — often italic, drawn in the muted color.
+  final String emphasis;
+
+  /// Overrides the resolved title style.
+  final TextStyle? titleStyle;
+
+  /// Overrides the resolved emphasis style.
+  final TextStyle? emphasisStyle;
+
+  /// Optional leading control content (e.g. brand mark).
+  ///
+  /// Rendered inside the same circular [AppHeaderActionButton] chrome as the
+  /// trailing actions. Hidden while the back control is showing.
+  final Widget? leading;
+
+  /// Screen-reader label for [leading]. Defaults to [title].
+  final String? leadingSemanticLabel;
+
+  /// Tap handler for [leading]. Null keeps the control decorative.
+  final VoidCallback? onLeadingTap;
+
+  /// Trailing actions, typically [AppHeaderActionButton]s.
+  final List<Widget>? actions;
+
+  /// Back handler. Defaults to [Navigator.maybePop] when a back control shows.
+  final VoidCallback? onBack;
+
+  /// Forces the back control on/off. Null means show when [Navigator.canPop].
+  final bool? showBack;
+
+  /// When true (default), a back control appears if the route can pop.
+  final bool automaticallyImplyLeading;
+
+  @override
+  Size get preferredSize => Size.fromHeight(_theme.sizing.height);
+
+  bool _shouldShowBack(BuildContext context) {
+    if (showBack != null) return showBack!;
+    if (!automaticallyImplyLeading) return false;
+    final ModalRoute<dynamic>? route = ModalRoute.of(context);
+    // Match Aura: hide the tighter title spacing when a covering route means
+    // this page is no longer current, or when there is nothing to pop.
+    if (route != null && !route.isCurrent) return false;
+    return Navigator.of(context).canPop();
+  }
+
+  _AppHeaderBarParts _resolve(BuildContext context) {
+    final AppHeaderTheme theme = _theme;
+    final AppHeaderColors colors = theme.colorsOf(context);
+    final AppHeaderSizing sizing = theme.sizing;
+    final AppHeaderTypography typography = theme.typography;
+    final bool backVisible = _shouldShowBack(context);
+
+    final TextStyle resolvedTitle =
+        titleStyle ?? typography.titleStyle(colors.foreground, sizing);
+    final TextStyle resolvedEmphasis =
+        emphasisStyle ?? typography.emphasisStyle(colors.muted, sizing);
+
+    final bool hasLeadingMark = !backVisible && leading != null;
+    final bool hasLeading = backVisible || hasLeadingMark;
+    // Mark button diameter matches the title line box; back uses the
+    // standard action circle metrics.
+    final double leadingButtonExtent = hasLeadingMark
+        ? sizing.titleLineHeight
+        : sizing.actionIconSize + sizing.actionPadding * 2 + 2;
+
+    final Widget? leadingControl = backVisible
+        ? AppHeaderActionButton(
+            icon: Icons.arrow_back_rounded,
+            semanticLabel: "Back",
+            endPadding: 0,
+            onTap: onBack ?? () => Navigator.of(context).maybePop(),
+          )
+        : hasLeadingMark
+        ? AppHeaderActionButton(
+            size: sizing.titleLineHeight,
+            semanticLabel: leadingSemanticLabel ?? title,
+            endPadding: 0,
+            onTap: onLeadingTap,
+            child: SizedBox(
+              width: sizing.titleMarkSize,
+              height: sizing.titleMarkSize,
+              child: leading,
+            ),
+          )
+        : null;
+
+    final Duration motion = _appHeaderMotionOf(context, sizing.motionDuration);
+
+    return _AppHeaderBarParts(
+      colors: colors,
+      sizing: sizing,
+      titleSpacing: hasLeading ? 0 : sizing.horizontalInset,
+      leadingWidth: hasLeading
+          ? sizing.horizontalInset +
+                leadingButtonExtent +
+                sizing.titleLeadingGap
+          : 0,
+      leading: !hasLeading
+          ? null
+          : Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: EdgeInsets.only(left: sizing.horizontalInset),
+                child: _appHeaderFadeScaleSwitcher(
+                  duration: motion,
+                  child: KeyedSubtree(
+                    key: ValueKey<String>(
+                      backVisible
+                          ? "header-leading-back"
+                          : "header-leading-mark",
+                    ),
+                    child: leadingControl!,
+                  ),
+                ),
+              ),
+            ),
+      title: Text.rich(
+        TextSpan(
+          children: <InlineSpan>[
+            TextSpan(text: title, style: resolvedTitle),
+            if (emphasis.isNotEmpty)
+              TextSpan(text: emphasis, style: resolvedEmphasis),
+          ],
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      actions: actions,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final _AppHeaderBarParts parts = _resolve(context);
+    return AppBar(
+      backgroundColor: parts.colors.background,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.transparent,
+      toolbarHeight: parts.sizing.height,
+      automaticallyImplyLeading: false,
+      centerTitle: false,
+      titleSpacing: parts.titleSpacing,
+      leadingWidth: parts.leadingWidth,
+      leading: parts.leading,
+      title: parts.title,
+      actions: parts.actions,
+    );
+  }
+
+  /// Prefer [asSliver] with `pinned: true` / `false` to showcase both modes.
+  Widget asSliver({bool pinned = false, bool floating = false}) {
+    return _AppHeaderSliver(
+      key: ValueKey<String>("app-header-sliver-$pinned-$floating"),
+      header: this,
+      pinned: pinned,
+      floating: floating,
+    );
+  }
+}
+
+class _AppHeaderSliver extends StatelessWidget {
+  const _AppHeaderSliver({
+    super.key,
+    required this.header,
+    required this.pinned,
+    required this.floating,
+  });
+
+  final AppHeader header;
+  final bool pinned;
+  final bool floating;
+
+  @override
+  Widget build(BuildContext context) {
+    final _AppHeaderBarParts parts = header._resolve(context);
+    return SliverAppBar(
+      pinned: pinned,
+      floating: floating,
+      primary: true,
+      backgroundColor: parts.colors.background,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.transparent,
+      toolbarHeight: parts.sizing.height,
+      automaticallyImplyLeading: false,
+      centerTitle: false,
+      titleSpacing: parts.titleSpacing,
+      leadingWidth: parts.leadingWidth,
+      leading: parts.leading,
+      title: parts.title,
+      actions: parts.actions,
+    );
+  }
+}
+```
+
+</CopyFile>
+
+it imports `material`, `physics`, and `services` from the flutter sdk. nothing goes
+in `pubspec.yaml`.
+
+</Step>
+
+<Step>
+
+### use it
+
+there is no init call. the defaults stand on their own.
+
+```dart
+Scaffold(
+  body: CustomScrollView(
+    slivers: [
+      AppHeader(title: "trove", emphasis: " keep").asSliver(pinned: true),
+      SliverToBoxAdapter(child: content),
+    ],
+  ),
+)
+```
+
+</Step>
+
+</Steps>
+
+## usage
+
+pinned stays put. unpinned scrolls away with the content.
+
+```dart
+AppHeader(title: "trove").asSliver(pinned: true);
+AppHeader(title: "trove").asSliver(pinned: false);
+```
+
+still works as a normal app bar when you only need the fixed case.
+
+```dart
+Scaffold(
+  appBar: AppHeader(title: "trove", emphasis: " keep"),
+  body: content,
+)
+```
+
+trailing actions are circular buttons. pass icons or a custom child.
+
+```dart
+AppHeader(
+  title: "trove",
+  actions: [
+    AppHeaderActionButton(
+      icon: Icons.push_pin_outlined,
+      semanticLabel: "Pin header",
+      onTap: _togglePin,
+    ),
+    AppHeaderActionButton(
+      icon: Icons.palette_outlined,
+      semanticLabel: "Theme",
+      endPadding: AppHeader.theme.sizing.actionEdgeGap,
+      onTap: _openTheme,
+    ),
+  ],
+)
+```
+
+optional leading mark. same chrome as the actions. hides when back is showing.
+
+```dart
+AppHeader(
+  title: "trove",
+  leading: const Icon(Icons.bolt, size: 18),
+  leadingSemanticLabel: "Home",
+  onLeadingTap: _goHome,
+)
+```
+
+back shows when the route can pop. force it with `showBack`, or disable with
+`automaticallyImplyLeading: false`.
+
+```dart
+AppHeader(title: "Detail", showBack: true, onBack: () => Navigator.pop(context));
+```
+
+## example
+
+```dart
+class HomeView extends StatefulWidget {
+  const HomeView({super.key});
+
+  @override
+  State<HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
+  bool _pinHeader = true;
+
+  @override
+  Widget build(BuildContext context) {
+    final header = AppHeader(
+      title: "trove",
+      emphasis: " keep",
+      actions: [
+        AppHeaderActionButton(
+          icon: _pinHeader ? Icons.push_pin : Icons.push_pin_outlined,
+          semanticLabel: _pinHeader ? "Unpin header" : "Pin header",
+          onTap: () => setState(() => _pinHeader = !_pinHeader),
+        ),
+      ],
+    );
+
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          header.asSliver(pinned: _pinHeader),
+          SliverList.builder(
+            itemCount: 40,
+            itemBuilder: (_, i) => ListTile(title: Text("item $i")),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+## reference
+
+everything below is here when you need it. you can ship without reading any of it.
+
+<Accordions>
+  <Accordion title="parameters">
+
+  | parameter | type | default | notes |
+  |---|---|---|---|
+  | `title` | `String` | required | leading title span |
+  | `emphasis` | `String` | `""` | trailing span, often italic / muted |
+  | `leading` | `Widget?` | `null` | mark inside circular chrome. hidden while back shows |
+  | `leadingSemanticLabel` | `String?` | `title` | screen-reader label for leading |
+  | `onLeadingTap` | `VoidCallback?` | `null` | null keeps the leading mark decorative |
+  | `actions` | `List<Widget>?` | `null` | typically `AppHeaderActionButton`s |
+  | `showBack` | `bool?` | `null` | null means show when `Navigator.canPop` |
+  | `onBack` | `VoidCallback?` | `null` | defaults to `Navigator.maybePop` |
+  | `automaticallyImplyLeading` | `bool` | `true` | set false to never imply back |
+  | `titleStyle` / `emphasisStyle` | `TextStyle?` | `null` | overrides resolved styles |
+
+  `asSliver({pinned, floating})` wraps the same bar in a `SliverAppBar`.
+
+  </Accordion>
+  <Accordion title="theming and design tokens">
+
+  zero config follows `Theme.of(context).brightness`. call `configure()` once at
+  startup to restyle.
+
+  ```dart
+  AppHeader.configure(
+    light: AppHeaderColors.light.copyWith(background: myPageBg),
+    sizing: const AppHeaderSizing(height: 56),
+  );
+  ```
+
+  **colors**
+
+  | token | used for |
+  |---|---|
+  | `foreground` | title span and action icons |
+  | `muted` | emphasis span |
+  | `surface` | fill inside circular action buttons |
+  | `border` | ring on circular action buttons |
+  | `background` | bar fill — match your page / scaffold |
+
+  **action button**
+
+  | parameter | type | default | notes |
+  |---|---|---|---|
+  | `icon` | `IconData?` | `null` | ignored when `child` is set |
+  | `child` | `Widget?` | `null` | custom content inside the circle |
+  | `onTap` | `VoidCallback?` | `null` | null keeps it decorative |
+  | `semanticLabel` | `String` | required | screen-reader label |
+  | `size` | `double?` | theme | outer diameter |
+  | `endPadding` | `double` | `0` | trailing inset. use `actionEdgeGap` on the last one |
+
+  </Accordion>
+  <Accordion title="behavior and edge cases">
+
+  - **sliver first**. `asSliver(pinned: true|false)` is the intended path. `Scaffold.appBar` still works for the fixed case.
+  - **press**. circular actions run on a spring. scale and fill land together.
+  - **leading swap**. mark and back crossfade/scale when the back control appears.
+  - **haptics**. light impact on action press when the platform supports it.
+  - **reduce motion**. short-circuits the spring / switcher duration.
+
+  </Accordion>
+  <Accordion title="notes and limitations">
+
+  - bar background should match the page. wire it from your design tokens at `configure()`.
+  - the shape on action buttons is a `RoundedSuperellipseBorder` (squircles).
+  - `AppHeader.debugReset()` is there for tests.
+
+  </Accordion>
+</Accordions>
