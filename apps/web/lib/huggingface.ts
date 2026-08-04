@@ -37,7 +37,7 @@ const PAGE_SEGMENT: Record<HuggingFaceRepoType, string> = {
 	space: "spaces/",
 };
 
-const REVALIDATE_SECONDS = 60 * 60 * 6;
+const REVALIDATE_SECONDS = 60 * 60;
 
 const TRAILING_ZERO_DECIMAL = /\.0$/;
 
