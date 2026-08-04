@@ -9,7 +9,7 @@ import {
 import type { PublicationListItem } from "@/lib/publication";
 
 const linkClassName =
-	"group min-w-0 flex-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded";
+	"group min-w-0 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2";
 
 interface PublicationListItemRowProps {
 	location?: PublicationClickLocation;
@@ -33,38 +33,38 @@ export function PublicationListItemRow({
 		trackPublicationClicked(pub, location);
 	};
 
+	// title gets the full width and the meta sits under it. squeezing the venue
+	// and the chip into a right-hand column made the row read as three columns.
 	return (
-		<div className="flex flex-col gap-1">
-			<div className="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-				<LinkPreview
-					className={linkClassName}
-					onClick={location ? handleClick : undefined}
-					url={pub.paperUrl}
-				>
-					<span className="squiggle-link-hover line-clamp-3 font-medium text-[14px] text-foreground leading-snug">
-						{pub.title}
-					</span>
-				</LinkPreview>
-				{chipUrl || meta ? (
-					<span className="flex shrink-0 items-center gap-2.5">
-						{chipUrl ? (
-							<HuggingFaceChip
-								compact
-								downloads={pub.downloads}
-								type={pub.huggingfaceType}
-								url={chipUrl}
-							/>
-						) : null}
-						{meta ? (
-							<span className="meta-tag whitespace-nowrap">{meta}</span>
-						) : null}
-					</span>
-				) : null}
-			</div>
+		<div className="flex flex-col gap-2">
+			<LinkPreview
+				className={linkClassName}
+				onClick={location ? handleClick : undefined}
+				url={pub.paperUrl}
+			>
+				<span className="squiggle-link-hover line-clamp-3 font-medium text-[14px] text-foreground leading-snug">
+					{pub.title}
+				</span>
+			</LinkPreview>
 			{showDescription && pub.description ? (
 				<span className="line-clamp-2 font-light text-[12px] text-muted-foreground leading-snug">
 					{pub.description}
 				</span>
+			) : null}
+			{chipUrl || meta ? (
+				<div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+					{meta ? (
+						<span className="meta-tag whitespace-nowrap">{meta}</span>
+					) : null}
+					{chipUrl ? (
+						<HuggingFaceChip
+							compact
+							downloads={pub.downloads}
+							type={pub.huggingfaceType}
+							url={chipUrl}
+						/>
+					) : null}
+				</div>
 			) : null}
 		</div>
 	);
