@@ -7,8 +7,9 @@ interface NotableLink {
 }
 
 /**
- * lead block for the thing worth knowing before the case study. rendered as a
- * bordered panel so it reads as a callout rather than another chapter.
+ * lead block for the thing worth knowing before the case study. a left accent
+ * rule rather than a card, so it reads as a margin note next to the prose
+ * instead of a boxed-off widget.
  */
 export function Notable({
 	id = "notable",
@@ -19,23 +20,25 @@ export function Notable({
 }: {
 	id?: string;
 	label?: string;
-	title: string;
+	title?: string;
 	children?: React.ReactNode;
 	links?: NotableLink[];
 }) {
 	return (
 		<section
-			className="scroll-mt-32 rounded-xl border border-border/60 bg-foreground/[0.015] px-5 py-5 sm:px-6 sm:py-6"
+			className="scroll-mt-32 border-[var(--text-highlight)]/35 border-l-2 pl-5 sm:pl-6"
 			id={id}
 		>
 			<span className="meta-tag text-[var(--text-highlight)] tracking-[0.18em]">
 				{label}
 			</span>
-			<h2 className="headline mt-3 max-w-[40ch] text-[clamp(20px,2.2vw,26px)]">
-				{title}
-			</h2>
+			{title && (
+				<h2 className="headline mt-3 max-w-[40ch] text-[clamp(20px,2.2vw,26px)]">
+					{title}
+				</h2>
+			)}
 			{children && (
-				<div className="mt-4 max-w-[60ch] space-y-3 [&_p]:font-light [&_p]:text-[14px] [&_p]:text-muted-foreground [&_p]:leading-[1.65] [&_section]:my-4 [&_strong]:font-medium [&_strong]:text-foreground">
+				<div className="mt-3 max-w-[60ch] space-y-3 [&_p]:font-light [&_p]:text-[14px] [&_p]:text-muted-foreground [&_p]:leading-[1.65] [&_section]:my-3.5 [&_strong]:font-medium [&_strong]:text-foreground">
 					{children}
 				</div>
 			)}
