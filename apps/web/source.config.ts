@@ -85,12 +85,19 @@ export const work = defineDocs({
 	},
 });
 
+const huggingFaceRepoSchema = z.object({
+	id: z.string(),
+	label: z.string().optional(),
+	type: z.enum(["dataset", "model", "space"]).default("dataset"),
+});
+
 const publicationFrontmatterSchema = frontmatterSchema.extend({
 	arxivId: z.string().optional(),
 	arxivUrl: z.string().optional(),
 	authors: z.array(z.string()).default([]),
 	date: z.string().optional(),
 	doi: z.string().optional(),
+	huggingface: z.array(huggingFaceRepoSchema).optional(),
 	pdfUrl: z.string().optional(),
 	published: z.boolean().optional(),
 	venue: z.string().optional(),

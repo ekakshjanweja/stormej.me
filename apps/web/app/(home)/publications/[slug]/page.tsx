@@ -4,6 +4,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ContentViewTracker } from "@/components/analytics/content-view-tracker";
 import { getMDXComponents } from "@/components/mdx";
+import {
+	fetchHuggingFaceStats,
+	formatDownloads,
+	type HuggingFaceRepoRef,
+} from "@/lib/huggingface";
 import { publicationsSource } from "@/lib/source";
 
 interface PageProps {
@@ -17,6 +22,7 @@ interface PublicationData {
 	date?: string;
 	description?: string;
 	doi?: string;
+	huggingface?: HuggingFaceRepoRef[];
 	pdfUrl?: string;
 	title: string;
 	venue?: string;
@@ -88,6 +94,7 @@ export default async function Page({ params }: PageProps) {
 
 	const arxivUrl = resolveArxivUrl(data.arxivId, data.arxivUrl);
 	const authors = data.authors ?? [];
+	const hfRepos = await fetchHuggingFaceStats(data.huggingface);
 
 	return (
 		<main>
@@ -139,6 +146,20 @@ export default async function Page({ params }: PageProps) {
 							doi
 						</a>
 					)}
+					{hfRepos.map((repo) => (
+						<a
+							className="meta-tag hover-dim underline-offset-4 hover:underline"
+							href={repo.url}
+							key={repo.url}
+							rel="noreferrer"
+							target="_blank"
+						>
+							hf:{repo.label ?? repo.id}
+							{repo.downloads === undefined
+								? ""
+								: ` · ${formatDownloads(repo.downloads)} downloads`}
+						</a>
+					))}
 				</div>
 				{data.description && (
 					<p className="font-light text-[14px] text-muted-foreground leading-[1.6]">
