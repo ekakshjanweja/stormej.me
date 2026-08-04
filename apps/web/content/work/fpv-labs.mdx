@@ -43,6 +43,12 @@ chapters:
     label: shipping
   - id: system
     label: system
+  - id: live-stream
+    label: live stream
+  - id: multi-device
+    label: multi device
+  - id: ultrawide-lidar
+    label: ultrawide + lidar
 ---
 
 <Lead>
@@ -79,6 +85,9 @@ through the app, released as **stera-10m**.
 - took crash rate from **~6%** to **under 1%**
 - built resumable uploads for **10gb+** capture sessions
 - shipped **arkit / arcore** capture into **mcap · ros2** datasets
+- streamed live mcap into **foxglove** while recording
+- synced **two phones** to a shared timeline within **1-2 ms**
+- added an **ultrawide + lidar** capture mode on multicam
 - open-sourced the stera capture stack
 
 </Tldr>
@@ -117,6 +126,55 @@ on top of capture, i designed a structured recording pipeline that packages sess
 
 </Chapter>
 
+<Chapter id="live-stream" label="live stream" title="watching a recording while it happens" pullQuote="the writer already knew everything worth streaming. the tap just had to not get in its way.">
+
+debugging a capture used to mean finishing the session, exporting it, and opening the file somewhere else. that loop is too slow when an operator is standing in a warehouse wondering if depth is even working.
+
+so i built **live mcap streaming**. a native server on the phone speaks the **foxglove websocket protocol** on port 8765 and advertises itself over bonjour, so a laptop on the same network sees the device and can watch topics as they record.
+
+the interesting part was where to tap. i subclassed the mcap writer and mirrored every schema, channel, and message to the server **after** the base class had written it to disk and released its lock. the writer itself stays untouched, and a test asserts a tapped and an untapped writer produce **byte-identical files**. streaming can never corrupt the artifact.
+
+our channels are already `cdr` / `ros2msg` and `json` / `jsonschema`, both of which foxglove accepts natively, so the server forwards the recorded bytes unchanged. no second serialization path to keep in sync.
+
+there is also a small viewer served off port 8766 for when nobody has foxglove installed. it decodes cdr in the browser and mirrors the in-app preview: camera with hand pose overlays, depth colormap, an orbitable 3d scene, plots. its decoders are cross checked against `rosbags` in ci so the browser and python agree.
+
+ios ships today. the tap seam on android is the same choke point, so the port is mostly a websocket server and an mdns advert.
+
+</Chapter>
+
+<Chapter id="multi-device" label="multi device" title="two phones, one timeline" pullQuote="starting together is easy. agreeing on when 'together' was is the actual problem.">
+
+one camera only sees one side of a task. the fix is two phones recording the same scene, which sounds simple until you ask what timestamp means across two devices.
+
+it splits into two problems that turn out to be independent. **start together**, and **align afterwards**.
+
+start is the cheap one. the leader broadcasts a countdown, each device counts down on its own clock, and both flip into recording within roughly **5-25 ms**. good enough, and it keeps clock sync off the critical path of scheduling.
+
+alignment is the real work. ios gives you no shared hardware clock between phones, and arkit collaborative sessions are spatial only. they do not sync frame timestamps. so i ran a **ping/pong protocol** between the devices, cristian style, and recorded every raw measurement into the session sidecar. per sample we keep the offset from the lowest rtt round plus median, stddev, and the rtt spread, so post processing can re-verify the estimate instead of trusting it.
+
+on top of the bursty samples there is a continuous path at **2.5 hz** feeding a **kalman filter** over offset and drift. measurement variance per round is derived from rtt, timeouts and outliers get rejected, and the leader pushes its filter state to the follower.
+
+one fix worth calling out. sync originally ran on the reliable transport and queued behind collaboration traffic, so rtt spiked to **60-200 ms** against a **5-8 ms** median. moving sync to the unreliable channel bypassed that queue entirely.
+
+each device writes its own mcap. fusion happens offline: one command takes both session folders, remaps the follower onto the leader timeline with a piecewise linear model, merges into a single namespaced mcap, and emits a report with the measured sync gap. target is **1-2 ms** alignment and a playback gap under **3 ms** on pose.
+
+</Chapter>
+
+<Chapter id="ultrawide-lidar" label="ultrawide + lidar" title="giving up arkit to get raw depth">
+
+arkit owns the wide camera and will not drive the ultra wide. you cannot have both. so getting ultra wide rgb and raw lidar depth from the same session meant dropping arkit for that mode and driving the cameras directly with **`AVCaptureMultiCamSession`**.
+
+that is a real trade. no live pose, no mesh, no point cloud, since all three come from arkit. those get recovered offline instead. what you gain is raw ultra wide frames and raw lidar depth together, which is what the calibration and reconstruction work downstream actually wanted.
+
+i shipped it as a third capture mode next to arkit mode and ultra wide only, toggled from the recording settings panel and persisted with the rest of the config. it writes into the **same mcap file** under a dedicated `/ultrawide/...` namespace, so nothing downstream needed a new reader. channels register lazily, so arkit mode files stay exactly as clean as they were.
+
+sync is the part people get wrong here. wide and depth are genuinely hardware synced through a data output synchronizer, same pipeline, matching presentation timestamps, gap p99 effectively **zero**. wide and ultra wide are not. they are two free running 30 fps cameras on one session and land within about **one frame** of each other. that is the cost of the mode, not a bug, so the recorder emits a per callback sync diagnostic topic and a clock probe sidecar, and the offline analyzer turns them into gap histograms with budgets per pair.
+
+imu lives in a different timebase again, and apple does not promise it matches the video clock. so the probe samples both at once and measures the offset and its drift per device per recording, instead of assuming.
+
+runs on iphone 12 pro and later, hidden everywhere else.
+
+</Chapter>
 
 <Screens
   images={[
@@ -139,5 +197,8 @@ on top of capture, i designed a structured recording pipeline that packages sess
     { metric: "30 fps | 1080p", label: "deterministic sampling", href: "/blog/mobile-ar-recorder-end-to-end" },
     { metric: "mcap · ros2", label: "dataset format" },
     { metric: "under 1%", label: "crash rate" },
+    { metric: "foxglove", label: "live mcap streaming" },
+    { metric: "1-2 ms", label: "two device alignment" },
+    { metric: "ultrawide + lidar", label: "multicam capture" },
   ]}
 />
