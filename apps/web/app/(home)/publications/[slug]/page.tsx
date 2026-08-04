@@ -3,10 +3,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ContentViewTracker } from "@/components/analytics/content-view-tracker";
+import { HuggingFaceChip } from "@/components/hugging-face-chip";
 import { getMDXComponents } from "@/components/mdx";
 import {
 	fetchHuggingFaceStats,
-	formatDownloads,
 	type HuggingFaceRepoRef,
 } from "@/lib/huggingface";
 import { publicationsSource } from "@/lib/source";
@@ -147,18 +147,12 @@ export default async function Page({ params }: PageProps) {
 						</a>
 					)}
 					{hfRepos.map((repo) => (
-						<a
-							className="meta-tag hover-dim underline-offset-4 hover:underline"
-							href={repo.url}
+						<HuggingFaceChip
+							downloads={repo.downloads}
 							key={repo.url}
-							rel="noreferrer"
-							target="_blank"
-						>
-							hf:{repo.label ?? repo.id}
-							{repo.downloads === undefined
-								? ""
-								: ` · ${formatDownloads(repo.downloads)} downloads`}
-						</a>
+							label={repo.label ?? repo.id}
+							url={repo.url}
+						/>
 					))}
 				</div>
 				{data.description && (

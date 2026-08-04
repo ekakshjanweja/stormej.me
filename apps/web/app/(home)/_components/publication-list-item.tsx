@@ -1,15 +1,15 @@
 "use client";
 
+import { HuggingFaceChip } from "@/components/hugging-face-chip";
 import { LinkPreview } from "@/components/ui/link-preview";
 import {
 	type PublicationClickLocation,
 	trackPublicationClicked,
 } from "@/lib/analytics";
-import { formatDownloadsCompact } from "@/lib/huggingface";
 import type { PublicationListItem } from "@/lib/publication";
 
-const rowClassName =
-	"group flex flex-col gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded";
+const linkClassName =
+	"group min-w-0 flex-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded";
 
 interface PublicationListItemRowProps {
 	location?: PublicationClickLocation;
@@ -23,20 +23,37 @@ export function PublicationListItemRow({
 	location,
 }: PublicationListItemRowProps) {
 	const meta = pub.venue ?? pub.year ?? pub.formattedDate;
+	// the chip is its own link, so it has to sit outside the row anchor
+	const chipUrl = pub.huggingfaceUrl;
 
-	const content = (
-		<>
-			<div className="flex flex-col gap-0.5 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-				<span className="squiggle-link-hover line-clamp-3 min-w-0 font-medium text-[14px] text-foreground leading-snug">
-					{pub.title}
-				</span>
-				{meta || pub.downloads !== undefined ? (
-					<span className="flex shrink-0 items-baseline gap-2">
-						{pub.downloads === undefined ? null : (
-							<span className="meta-tag whitespace-nowrap text-[var(--text-highlight)]">
-								{formatDownloadsCompact(pub.downloads)} downloads
-							</span>
-						)}
+	const handleClick = () => {
+		if (!location) {
+			return;
+		}
+		trackPublicationClicked(pub, location);
+	};
+
+	return (
+		<div className="flex flex-col gap-1">
+			<div className="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+				<LinkPreview
+					className={linkClassName}
+					onClick={location ? handleClick : undefined}
+					url={pub.paperUrl}
+				>
+					<span className="squiggle-link-hover line-clamp-3 font-medium text-[14px] text-foreground leading-snug">
+						{pub.title}
+					</span>
+				</LinkPreview>
+				{chipUrl || meta ? (
+					<span className="flex shrink-0 items-center gap-2.5">
+						{chipUrl ? (
+							<HuggingFaceChip
+								compact
+								downloads={pub.downloads}
+								url={chipUrl}
+							/>
+						) : null}
 						{meta ? (
 							<span className="meta-tag whitespace-nowrap">{meta}</span>
 						) : null}
@@ -48,23 +65,6 @@ export function PublicationListItemRow({
 					{pub.description}
 				</span>
 			) : null}
-		</>
-	);
-
-	const handleClick = () => {
-		if (!location) {
-			return;
-		}
-		trackPublicationClicked(pub, location);
-	};
-
-	return (
-		<LinkPreview
-			className={rowClassName}
-			onClick={location ? handleClick : undefined}
-			url={pub.paperUrl}
-		>
-			{content}
-		</LinkPreview>
+		</div>
 	);
 }

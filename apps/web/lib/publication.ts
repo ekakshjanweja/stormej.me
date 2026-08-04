@@ -15,6 +15,8 @@ export interface PublicationListItem {
 	downloads?: number;
 	formattedDate: string;
 	huggingface?: HuggingFaceRepoRef[];
+	/** link target for the downloads chip, attached by withHuggingFaceDownloads */
+	huggingfaceUrl?: string;
 	paperUrl: string;
 	pdfUrl?: string;
 	slug: string;
@@ -124,6 +126,8 @@ export async function withHuggingFaceDownloads(
 			return {
 				...pub,
 				downloads: counted.reduce((sum, s) => sum + (s.downloads ?? 0), 0),
+				// several repos share one chip, so it points at the first
+				huggingfaceUrl: counted[0]?.url,
 			};
 		})
 	);
