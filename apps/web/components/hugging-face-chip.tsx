@@ -1,3 +1,4 @@
+import { HuggingFace } from "@/components/ui/svgs/hugging-face";
 import { formatDownloads, formatDownloadsCompact } from "@/lib/huggingface";
 import { cn } from "@/lib/utils";
 
@@ -43,9 +44,7 @@ export const HuggingFaceChip = ({
 			rel="noreferrer"
 			target="_blank"
 		>
-			<span aria-hidden className="text-[11px] leading-none">
-				🤗
-			</span>
+			<HuggingFace aria-hidden className="h-3.5 w-auto shrink-0" />
 			<span className="meta-tag whitespace-nowrap transition-colors group-hover/hf:text-[var(--text-highlight)]">
 				{count === null ? (label ?? "hugging face") : `${count} downloads`}
 			</span>
