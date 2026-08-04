@@ -1,5 +1,9 @@
 import { HuggingFace } from "@/components/ui/svgs/hugging-face";
-import { formatDownloads, formatDownloadsCompact } from "@/lib/huggingface";
+import {
+	formatDownloads,
+	formatDownloadsCompact,
+	type HuggingFaceRepoType,
+} from "@/lib/huggingface";
 import { cn } from "@/lib/utils";
 
 interface HuggingFaceChipProps {
@@ -7,8 +11,10 @@ interface HuggingFaceChipProps {
 	/** compact renders 170k, exact renders 169,651 */
 	compact?: boolean;
 	downloads?: number;
+	/** repo id, only used for the accessible name */
 	label?: string;
 	onClick?: () => void;
+	type?: HuggingFaceRepoType;
 	url: string;
 }
 
@@ -18,6 +24,7 @@ export const HuggingFaceChip = ({
 	downloads,
 	label,
 	onClick,
+	type = "dataset",
 	url,
 }: HuggingFaceChipProps) => {
 	const count =
@@ -25,10 +32,13 @@ export const HuggingFaceChip = ({
 			? null
 			: (compact ? formatDownloadsCompact : formatDownloads)(downloads);
 
-	// the visible text is just a number, so the link needs its destination spelled out
-	const ariaLabel = count
-		? `${formatDownloads(downloads ?? 0)} downloads on Hugging Face${label ? `: ${label}` : ""}`
-		: `${label ?? "dataset"} on Hugging Face`;
+	const text = count === null ? type : `${type} · ${count} downloads`;
+
+	// the visible text is terse, so the link spells out its destination
+	const ariaLabel =
+		count === null
+			? `${label ?? type} on Hugging Face`
+			: `${type}: ${formatDownloads(downloads ?? 0)} downloads on Hugging Face${label ? ` (${label})` : ""}`;
 
 	return (
 		<a
@@ -46,7 +56,7 @@ export const HuggingFaceChip = ({
 		>
 			<HuggingFace aria-hidden className="h-3.5 w-auto shrink-0" />
 			<span className="meta-tag whitespace-nowrap transition-colors group-hover/hf:text-[var(--text-highlight)]">
-				{count === null ? (label ?? "hugging face") : `${count} downloads`}
+				{text}
 			</span>
 		</a>
 	);

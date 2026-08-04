@@ -151,6 +151,7 @@ export default async function Page({ params }: PageProps) {
 							downloads={repo.downloads}
 							key={repo.url}
 							label={repo.label ?? repo.id}
+							type={repo.type}
 							url={repo.url}
 						/>
 					))}

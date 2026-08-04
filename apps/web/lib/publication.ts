@@ -1,6 +1,7 @@
 import {
 	fetchHuggingFaceStats,
 	type HuggingFaceRepoRef,
+	type HuggingFaceRepoType,
 } from "@/lib/huggingface";
 import { publicationsSource } from "@/lib/source";
 
@@ -15,6 +16,8 @@ export interface PublicationListItem {
 	downloads?: number;
 	formattedDate: string;
 	huggingface?: HuggingFaceRepoRef[];
+	/** repo kind behind the downloads chip, attached by withHuggingFaceDownloads */
+	huggingfaceType?: HuggingFaceRepoType;
 	/** link target for the downloads chip, attached by withHuggingFaceDownloads */
 	huggingfaceUrl?: string;
 	paperUrl: string;
@@ -127,6 +130,7 @@ export async function withHuggingFaceDownloads(
 				...pub,
 				downloads: counted.reduce((sum, s) => sum + (s.downloads ?? 0), 0),
 				// several repos share one chip, so it points at the first
+				huggingfaceType: counted[0]?.type,
 				huggingfaceUrl: counted[0]?.url,
 			};
 		})

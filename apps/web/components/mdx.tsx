@@ -19,6 +19,7 @@ import { Figure } from "./mdx/figure";
 import { FlutterDemo } from "./mdx/flutter-demo";
 import { Gallery } from "./mdx/gallery";
 import { Highlights } from "./mdx/highlights";
+import { HuggingFaceStat } from "./mdx/hugging-face-stat";
 import { Lead } from "./mdx/lead";
 import { Links } from "./mdx/links";
 import { Mermaid } from "./mdx/mermaid";
@@ -135,6 +136,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
 		Gallery,
 		GithubInfo,
 		Highlights,
+		HuggingFaceStat,
 		ImageZoom,
 		InlineTOC,
 		// Click-to-zoom for inline images.

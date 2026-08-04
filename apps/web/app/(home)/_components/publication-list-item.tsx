@@ -51,6 +51,7 @@ export function PublicationListItemRow({
 							<HuggingFaceChip
 								compact
 								downloads={pub.downloads}
+								type={pub.huggingfaceType}
 								url={chipUrl}
 							/>
 						) : null}
