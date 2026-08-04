@@ -53,6 +53,17 @@ export const formatDownloads = (value: number) => {
 	return value.toLocaleString("en-US");
 };
 
+// list rows sit next to the venue tag, so the exact count is too wide there.
+export const formatDownloadsCompact = (value: number) => {
+	if (value >= 1_000_000) {
+		return `${(value / 1_000_000).toFixed(1).replace(TRAILING_ZERO_DECIMAL, "")}M`;
+	}
+	if (value >= 1000) {
+		return `${Math.round(value / 1000)}k`;
+	}
+	return value.toString();
+};
+
 const fetchRepoStats = async (
 	ref: HuggingFaceRepoRef
 ): Promise<HuggingFaceRepoStats> => {

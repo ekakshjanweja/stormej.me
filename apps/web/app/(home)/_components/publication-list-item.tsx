@@ -5,6 +5,7 @@ import {
 	type PublicationClickLocation,
 	trackPublicationClicked,
 } from "@/lib/analytics";
+import { formatDownloadsCompact } from "@/lib/huggingface";
 import type { PublicationListItem } from "@/lib/publication";
 
 const rowClassName =
@@ -29,8 +30,17 @@ export function PublicationListItemRow({
 				<span className="squiggle-link-hover line-clamp-3 min-w-0 font-medium text-[14px] text-foreground leading-snug">
 					{pub.title}
 				</span>
-				{meta ? (
-					<span className="meta-tag shrink-0 whitespace-nowrap">{meta}</span>
+				{meta || pub.downloads !== undefined ? (
+					<span className="flex shrink-0 items-baseline gap-2">
+						{pub.downloads === undefined ? null : (
+							<span className="meta-tag whitespace-nowrap text-[var(--text-highlight)]">
+								{formatDownloadsCompact(pub.downloads)} downloads
+							</span>
+						)}
+						{meta ? (
+							<span className="meta-tag whitespace-nowrap">{meta}</span>
+						) : null}
+					</span>
 				) : null}
 			</div>
 			{showDescription && pub.description ? (

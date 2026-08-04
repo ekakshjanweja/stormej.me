@@ -1,3 +1,7 @@
+import {
+	fetchHuggingFaceStats,
+	type HuggingFaceRepoRef,
+} from "@/lib/huggingface";
 import { publicationsSource } from "@/lib/source";
 
 export interface PublicationListItem {
@@ -7,7 +11,10 @@ export interface PublicationListItem {
 	date?: string;
 	description?: string;
 	doi?: string;
+	/** total hugging face downloads, attached by withHuggingFaceDownloads */
+	downloads?: number;
 	formattedDate: string;
+	huggingface?: HuggingFaceRepoRef[];
 	paperUrl: string;
 	pdfUrl?: string;
 	slug: string;
@@ -64,6 +71,7 @@ export function listPublications(): PublicationListItem[] {
 				arxivUrl?: string;
 				pdfUrl?: string;
 				doi?: string;
+				huggingface?: HuggingFaceRepoRef[];
 			};
 			const slug = page.slugs[0] ?? "";
 			const paperUrl = resolvePaperUrl(data);
@@ -82,6 +90,7 @@ export function listPublications(): PublicationListItem[] {
 					description: data.description,
 					doi: data.doi,
 					formattedDate: fmt(data.date),
+					huggingface: data.huggingface,
 					paperUrl,
 					pdfUrl: data.pdfUrl,
 					slug,
@@ -96,4 +105,26 @@ export function listPublications(): PublicationListItem[] {
 			const tb = b.date ? new Date(b.date).getTime() : 0;
 			return tb - ta;
 		});
+}
+
+/**
+ * server only: resolves hugging face download counts for the given items. a
+ * publication with several repos reports their combined total.
+ */
+export async function withHuggingFaceDownloads(
+	publications: PublicationListItem[]
+): Promise<PublicationListItem[]> {
+	return await Promise.all(
+		publications.map(async (pub) => {
+			const stats = await fetchHuggingFaceStats(pub.huggingface);
+			const counted = stats.filter((s) => s.downloads !== undefined);
+			if (counted.length === 0) {
+				return pub;
+			}
+			return {
+				...pub,
+				downloads: counted.reduce((sum, s) => sum + (s.downloads ?? 0), 0),
+			};
+		})
+	);
 }
