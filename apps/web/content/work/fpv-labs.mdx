@@ -43,6 +43,10 @@ chapters:
     label: shipping
   - id: system
     label: system
+  - id: privacy
+    label: privacy
+  - id: hand-pose
+    label: hand pose
   - id: live-stream
     label: live stream
   - id: multi-device
@@ -82,9 +86,10 @@ through the app, released as **stera-10m**.
 
 <Tldr>
 
-- took crash rate from **~6%** to **under 1%**
 - built resumable uploads for **10gb+** capture sessions
 - shipped **arkit / arcore** capture into **mcap · ros2** datasets
+- anonymized every recording **on device** before upload
+- shipped **21 joint** hand pose lifted through depth
 - streamed live mcap into **foxglove** while recording
 - synced **two phones** to a shared timeline within **1-2 ms**
 - added an **ultrawide + lidar** capture mode on multicam
@@ -123,6 +128,42 @@ the goal was simple: if an upload gets interrupted, the app should recover inste
 i also built a **high-fidelity ar data capture system** on top of **arkit** and **arcore**, recording **video, pose, point cloud, depth, and imu** streams from the same session.
 
 on top of capture, i designed a structured recording pipeline that packages sessions into **mcap datasets** compatible with **ros2**. the system keeps sampling deterministic at roughly **30 fps** and handles session lifecycle cleanly, so what comes out is useful for downstream robotics and physical intelligence workflows, not just raw sensor noise.
+
+</Chapter>
+
+<Chapter id="privacy" label="privacy" title="faces never leave the phone" pullQuote="privacy you can forget to turn on isn't privacy. it had to be a property of the pipeline.">
+
+these recordings happen in public spaces. so every session is anonymized **on device** before it can be uploaded, faces pixellated in every rgb frame of the mcap and in the thumbnail.
+
+the part i actually care about is that it isn't a setting. **no upload row can exist without the blur marker on disk**, enforced inside the one function that creates uploads and inside every recovery path that could sneak around it. an unblurred session is not uploadable. there is no code path where forgetting is possible.
+
+the rewrite is built to survive being killed. read the mcap linearly, blur the face topic frames with **vision** and coreimage, pass everything else through verbatim, write to a temp file, re-scan the temp to verify record counts and decode the first and last frame, then swap with an **atomic replace**. the marker gets written strictly last.
+
+that ordering gives you a clean failure matrix. kill the app anywhere before the swap and the original is untouched, with an inert temp file that the next launch sweeps. kill between the swap and the marker and recovery re-blurs an already blurred file, which is a visual no-op and re-verifies anyway. every interruption lands somewhere recoverable.
+
+decode, detect, pixellate, encode runs **30-45 ms per frame** serial, so it fans out across three workers behind a reorder gate and lands around **0.3-1x** the recording duration. memory stays bounded at six frames in flight.
+
+there is also an inline mode that blurs during capture on the pre-encode image, so frames hit disk already anonymized and the whole rewrite is skipped along with its 2x transient disk cost. privacy stays structural there too: a frame is either scanned before it is written or, under backpressure, never written at all. if vision fails on a frame it still gets written but counted, and the session only earns its marker when that count is zero. anything else falls back to the full pass, which is idempotent over already blurred frames.
+
+</Chapter>
+
+<Chapter id="hand-pose" label="hand pose" title="21 joints, lifted through depth">
+
+hand pose is the signal the recorder exists to capture. vision detects **21 joint** skeletons and we lift them into 3d through the recording's own depth.
+
+the rule that shaped the whole feature is the inverse of blur: **hand pose never gates an upload**. a detection failure, a skip, an unsupported session, all land on done with no poses and the recording uploads anyway. even the naming defends it. the gate is called `isPostProcessEnabled` and not `isRequired`, so nobody wires it into upload eligibility by accident a year from now.
+
+it runs post capture by default, which means a recording can gain poses it was never recorded for, and a fix to the resolver can be applied to footage already sitting on disk.
+
+it takes **two passes** over the file. pass one detects and writes nothing. pass two copies every record and merges the poses in by timestamp. the reason is emission order rather than pairing: by the time an rgb frame's depth partner arrives, its timestamp is already behind the writer's forward-only cursor, so the poses could never be written in order.
+
+pass one buffers small structs, about **1 kb a frame**, instead of serialized bytes. twenty minutes of footage is ~12 mb that way and ~236 mb the other way, and the second number gets you killed by the os on a phone.
+
+the sharp edge is that detection parallelizes and chirality resolution does not. the resolver tracks hands across frames with decayed scores and hysteresis, so it has to run serially in timestamp order. splitting the core into a stateless detect stage and a serial resolve stage was the only way to fan out the expensive half.
+
+both this and blur chain onto a single global rewrite queue, so two whole-file vision passes can never run at once and double peak memory. hand pose always runs after blur, enforced in two places.
+
+the oracle is an offline script that scores a session against **wilor**. record the same scene twice, once inline and once post hoc, and compare. post hoc chirality agreement lands at inline's **~99.8%**.
 
 </Chapter>
 
@@ -197,6 +238,9 @@ runs on iphone 12 pro and later, hidden everywhere else.
     { metric: "30 fps | 1080p", label: "deterministic sampling", href: "/blog/mobile-ar-recorder-end-to-end" },
     { metric: "mcap · ros2", label: "dataset format" },
     { metric: "under 1%", label: "crash rate" },
+    { metric: "on device", label: "face blur" },
+    { metric: "21 joints", label: "hand pose" },
+    { metric: "~99.8%", label: "chirality agreement" },
     { metric: "foxglove", label: "live mcap streaming" },
     { metric: "1-2 ms", label: "two device alignment" },
     { metric: "ultrawide + lidar", label: "multicam capture" },
