@@ -52,12 +52,21 @@ function StickyTitleRow({ fm }: { fm: WorkFrontmatter }) {
 	);
 }
 
-function MetaCell({ label, value }: { label: string; value: string }) {
+/** one inline meta line: the values are self-evident, so the labels are
+ *  screen-reader only and the whole thing stays a single row. */
+function MetaLine({ items }: { items: { label: string; value: string }[] }) {
 	return (
-		<div className="space-y-1">
-			<dt className="meta-tag">{label}</dt>
-			<dd className="font-light text-[13px] text-foreground">{value}</dd>
-		</div>
+		<dl className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
+			{items.map((item, i) => (
+				<div className="flex items-center gap-2.5" key={item.label}>
+					{i > 0 && (
+						<span aria-hidden className="h-2.5 w-px shrink-0 bg-border" />
+					)}
+					<dt className="sr-only">{item.label}</dt>
+					<dd className="meta-tag m-0">{item.value}</dd>
+				</div>
+			))}
+		</dl>
 	);
 }
 
@@ -70,18 +79,20 @@ export function WorkCaseStudyHeader({
 	return (
 		<>
 			<StickyTitleRow fm={fm} />
-			<header className="mb-10 space-y-5">
+			<header className="mb-10 space-y-4">
+				<MetaLine
+					items={[
+						{ label: "role", value: fm.role },
+						{ label: "timeline", value: formatRange(startDate, endDate) },
+						{ label: "stack", value: fm.tech.join(" · ") },
+					]}
+				/>
+
 				{fm.challenge && (
 					<p className="max-w-[60ch] font-light text-[15px] text-foreground leading-[1.6]">
 						{fm.challenge}
 					</p>
 				)}
-
-				<dl className="grid grid-cols-2 gap-x-6 gap-y-3 border-border/70 border-y py-4 sm:grid-cols-3">
-					<MetaCell label="role" value={fm.role} />
-					<MetaCell label="timeline" value={formatRange(startDate, endDate)} />
-					<MetaCell label="stack" value={fm.tech.join(" · ")} />
-				</dl>
 			</header>
 		</>
 	);

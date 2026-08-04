@@ -28,18 +28,11 @@ export function Chapter({
 			<h2 className="headline max-w-[40ch] text-[clamp(22px,2.4vw,28px)]">
 				{title}
 			</h2>
-			{/* data-chapter-body is what brief mode collapses, see globals.css */}
-			<div
-				className="max-w-[60ch] space-y-4 [&_p]:font-light [&_p]:text-[15px] [&_p]:text-foreground [&_p]:leading-[1.7] [&_strong]:font-medium [&_strong]:text-foreground"
-				data-chapter-body
-			>
+			<div className="max-w-[60ch] space-y-4 [&_p]:font-light [&_p]:text-[15px] [&_p]:text-foreground [&_p]:leading-[1.7] [&_strong]:font-medium [&_strong]:text-foreground">
 				{children}
 			</div>
 			{pullQuote && (
-				<blockquote
-					className="mt-6 max-w-[55ch] border-foreground/30 border-l-2 pl-5 font-light text-[17px] text-foreground italic leading-[1.55]"
-					data-chapter-body
-				>
+				<blockquote className="mt-6 max-w-[55ch] border-foreground/30 border-l-2 pl-5 font-light text-[17px] text-foreground italic leading-[1.55]">
 					{pullQuote}
 				</blockquote>
 			)}

@@ -11,7 +11,6 @@ import {
 	WorkCaseStudyHeader,
 	WorkDefaultHeader,
 } from "@/components/work/header";
-import { WorkViewToggle } from "@/components/work/view-toggle";
 import {
 	buildBreadcrumbSchema,
 	buildCreativeWorkSchema,
@@ -179,15 +178,9 @@ export default async function Page({ params }: PageProps) {
 					/>
 				)}
 
-				{hasCaseStudy ? (
-					<WorkViewToggle>
-						<div className="space-y-16">
-							<MDX components={components} />
-						</div>
-					</WorkViewToggle>
-				) : (
+				<div className={hasCaseStudy ? "space-y-16" : undefined}>
 					<MDX components={components} />
-				)}
+				</div>
 			</article>
 		</main>
 	);

@@ -430,18 +430,6 @@ html {
 	letter-spacing: 0.04em;
 }
 
-/* Brief view on work case studies: collapse chapter prose to its headings.
-   Hidden rather than unmounted so the text stays indexable and toggling back
-   is instant. */
-[data-work-view="brief"] [data-chapter-body] {
-	display: none;
-}
-
-/* chapters collapse to bare headings, so they need less air between them */
-[data-work-view="brief"] .space-y-16 > * + * {
-	margin-block-start: 2.5rem;
-}
-
 /* Subtle dim hover for editorial text links and icons. */
 .hover-dim {
 	transition: opacity 150ms ease;

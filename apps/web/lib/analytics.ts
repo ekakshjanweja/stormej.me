@@ -15,8 +15,7 @@ export type AnalyticsEvent =
 	| "trove_file_copied"
 	| "trove_file_downloaded"
 	| "trove_demo_started"
-	| "trove_agent_prompt_copied"
-	| "work_view_toggled";
+	| "trove_agent_prompt_copied";
 
 export type PublicationClickLocation = "home" | "publications";
 
