@@ -120,6 +120,7 @@ const troveFrontmatterSchema = frontmatterSchema.extend({
 	github: z.string().optional(),
 	hidden: z.boolean().optional(),
 	lines: z.number().optional(),
+	orchestrator: z.boolean().optional(),
 	published: z.boolean().optional(),
 	sourceFile: z.string().optional(),
 	subtitle: z.string().optional(),

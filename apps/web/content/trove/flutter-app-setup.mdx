@@ -1,0 +1,417 @@
+---
+title: flutter app setup
+subtitle: an agent-orchestrated flutter foundation
+description: a copyable agent playbook for starting a production-ready Flutter app with feature modules, GoRouter, Riverpod, Drift, KV storage, startup wiring, base UI, logging, permissions, and a Dio API client.
+date: "2026-08-14"
+tech:
+  - flutter
+  - dart
+  - riverpod
+  - go_router
+  - drift
+orchestrator: true
+published: true
+---
+
+## tldr
+
+Copy the agent prompt from this page, or fetch its `llms.txt`, into an agent
+when starting a Flutter app. It tells the agent to inspect the existing repo,
+create the foundation in small verified steps, and leave product-specific
+schema and features alone.
+
+This is intentionally an orchestrator, not a package. The result should be a
+normal Flutter project whose files remain easy to own and change.
+
+<Callout type="info" title="scope">
+The architecture follows the shape used in Spotty: `lib/src/core`, feature
+modules under `lib/src/modules`, infrastructure under `lib/src/services`, a
+root `ProviderContainer`, and a one-shot startup provider. The API client uses
+the stronger Dio/interceptor approach from Rumik, with a separate `http`
+stream for SSE when needed.
+</Callout>
+
+## agent brief
+
+Give the agent this brief after it has inspected the host repository:
+
+> Set up this Flutter app foundation. Preserve the host project's existing
+> brand, package name, auth decisions, and state-management conventions. Use
+> Riverpod with generated providers when Riverpod is already present. Do not
+> add product tables, screens, or business logic beyond a minimal home route.
+> Keep generated `.g.dart` files out of hand-written edits; run build_runner.
+> Run format, analyze, tests, and code generation before reporting completion.
+
+## target structure
+
+Create this structure, omitting only files made unnecessary by conventions
+already present in the host app:
+
+```text
+lib/
+├── main.dart
+└── src/
+    ├── core/
+    │   ├── app_container.dart
+    │   ├── config/
+    │   │   └── app_config.dart
+    │   └── ui/
+    │       ├── theme/
+    │       │   ├── app_theme.dart
+    │       │   ├── app_scroll_behavior.dart
+    │       │   └── theme_mode_provider.dart
+    │       └── widgets/
+    │           ├── app_button.dart
+    │           ├── app_text_field.dart
+    │           ├── app_error_widget.dart
+    │           ├── app_spinner.dart
+    │           ├── app_empty_state.dart
+    │           └── app_toast.dart
+    ├── modules/
+    │   ├── startup/
+    │   │   ├── presentation/providers/startup_provider.dart
+    │   │   └── presentation/ui/startup_view.dart
+    │   ├── home/presentation/ui/home_view.dart
+    │   └── not_found/presentation/ui/not_found_view.dart
+    └── services/
+        ├── api/api_client.dart
+        ├── api/api_provider.dart
+        ├── db/app_database.dart
+        ├── db/app_database_provider.dart
+        ├── kv_store/kv_store.dart
+        ├── logger/app_logger.dart
+        ├── logger/app_logger_provider.dart
+        ├── permissions/permission_service.dart
+        └── router/
+            ├── app_router.dart
+            └── route_config.dart
+```
+
+The dependency direction is one-way:
+
+```text
+presentation → feature/domain → services → core
+```
+
+Services must not import widgets. Feature modules own their screens and
+providers. Shared widgets stay deliberately small and have no feature imports.
+
+## repository detection
+
+Before creating files, determine whether the Flutter app lives inside a
+JavaScript monorepo:
+
+```text
+Turbo repo when:
+  turbo.json exists at the workspace root
+  AND a root package.json has turbo available directly or in devDependencies
+
+Package workspace when:
+  package.json has workspaces, or pnpm-workspace.yaml exists
+
+Flutter app root when:
+  pubspec.yaml exists in the current directory or apps/mobile/
+```
+
+If `turbo.json` exists, do not create a second nested Turborepo. Treat the
+Flutter directory as one package in the existing workspace, preserve its
+package-manager lockfile, and inspect the existing `packageManager` field
+before choosing Bun, pnpm, npm, or Yarn commands. If the repository is not a
+Turborepo, do not add Turbo merely to run Flutter commands.
+
+## Turborepo commands
+
+When the detection above succeeds and the Flutter app is at `apps/mobile`, add
+an `apps/mobile/package.json` with package-local task logic. Use the actual
+package manager's command runner if the repo already has one:
+
+```json
+{
+  "name": "mobile",
+  "private": true,
+  "scripts": {
+    "get": "flutter pub get",
+    "generate": "dart run build_runner build --delete-conflicting-outputs",
+    "format": "dart format lib test",
+    "analyze": "flutter analyze",
+    "test": "flutter test",
+    "build:android": "flutter build apk",
+    "build:ios": "flutter build ios --no-codesign",
+    "clean": "flutter clean"
+  }
+}
+```
+
+Merge with an existing mobile `package.json`; never overwrite its scripts or
+metadata. If the mobile app lives elsewhere, use that relative package path and
+name. Prefer `dart format` and `flutter analyze` over JavaScript formatters for
+Dart files.
+
+Register package tasks in the root `turbo.json`. Preserve all existing tasks
+and merge these entries rather than replacing the file:
+
+```json
+{
+  "tasks": {
+    "get": { "cache": false },
+    "generate": { "cache": false },
+    "format": { "cache": false },
+    "analyze": {},
+    "test": {},
+    "build:android": {
+      "dependsOn": ["generate"],
+      "outputs": ["build/**"]
+    },
+    "build:ios": {
+      "dependsOn": ["generate"],
+      "outputs": ["build/**"]
+    },
+    "clean": { "cache": false }
+  }
+}
+```
+
+Add root delegating scripts only when the root `package.json` already exposes
+workspace commands. They must delegate through `turbo run`; task logic belongs
+to `apps/mobile/package.json`:
+
+```json
+{
+  "scripts": {
+    "mobile:get": "turbo run get --filter=mobile",
+    "mobile:generate": "turbo run generate --filter=mobile",
+    "mobile:format": "turbo run format --filter=mobile",
+    "mobile:analyze": "turbo run analyze --filter=mobile",
+    "mobile:test": "turbo run test --filter=mobile",
+    "mobile:build:android": "turbo run build:android --filter=mobile",
+    "mobile:build:ios": "turbo run build:ios --filter=mobile"
+  }
+}
+```
+
+For a changed-package CI check, use `turbo run analyze test --affected` with
+the repository's configured base branch. Do not put `cd apps/mobile && flutter
+...` task logic in the root package scripts, and do not use the `turbo` shorthand
+inside committed JSON or CI configuration.
+
+## dependencies
+
+Add only the packages that are missing, using versions compatible with the
+project's SDK:
+
+```yaml
+dependencies:
+  dio: ^5.0.0
+  drift: ^2.0.0
+  drift_flutter: ^0.1.0
+  go_router: ^17.0.0
+  logging: ^1.0.0
+  path_provider: ^2.0.0
+  permission_handler: ^12.0.0
+  shared_preferences: ^2.0.0
+  hooks_riverpod: ^3.0.0
+  riverpod_annotation: ^4.0.0
+
+dev_dependencies:
+  build_runner: ^2.0.0
+  drift_dev: ^2.0.0
+  riverpod_generator: ^4.0.0
+```
+
+Use `flutter pub add` where possible so the resolver selects compatible
+versions. If the host uses `flutter_riverpod` instead of hooks, do not add
+hooks just for this setup.
+
+## bootstrap and startup
+
+`main.dart` should initialize bindings, install top-level error handlers, create
+one root `ProviderContainer`, and mount `StartupView`:
+
+```dart
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  installAppErrorHandlers();
+  runApp(
+    UncontrolledProviderScope(
+      container: appContainer,
+      child: const StartupView(),
+    ),
+  );
+}
+```
+
+`StartupView` owns `MaterialApp.router`. Watch one `startupProvider` and render
+three states: splash while loading, a retryable error view on failure, and the
+router once ready. Configure light theme, dark theme, theme mode, clamped text
+scaling, and the app scroll behavior here. Startup should initialize, in order:
+
+1. environment/configuration;
+2. `KvStore`;
+3. theme mode;
+4. the Drift database;
+5. auth/session restoration if the app has auth;
+6. logger subscription;
+7. other platform services and permissions only when needed.
+
+Make startup idempotent and expose retry through
+`ref.invalidate(startupProvider)`. Do not put arbitrary delays in startup.
+
+## routing with GoRouter
+
+Keep route strings in `route_config.dart`, keep route declarations together,
+and keep the router in `app_router.dart`. Use a static navigator key so
+services such as toasts and notification handlers can navigate without a
+`BuildContext`:
+
+```dart
+class AppRouter {
+  static final navigatorKey = GlobalKey<NavigatorState>();
+
+  static final router = GoRouter(
+    navigatorKey: navigatorKey,
+    initialLocation: RoutePaths.root,
+    routes: AppRoutes.routes,
+    errorBuilder: (context, state) => NotFoundView(path: state.uri.toString()),
+  );
+
+  static void go(String location, {Object? extra}) =>
+      router.go(location, extra: extra);
+}
+```
+
+If auth exists, add the repository's auth listenable as `refreshListenable`
+and keep redirects pure: unauthenticated users go to login, authenticated users
+do not remain on login. Validate `state.extra` before casting and show the
+not-found screen when required route data is absent.
+
+## themes and base components
+
+Create `AppTheme.lightTheme` and `AppTheme.darkTheme` from shared color,
+spacing, radius, and typography tokens. Components must consume
+`Theme.of(context)` or the app theme extension; no feature screen should carry
+its own global colors.
+
+Implement small baseline components with accessible semantics:
+
+- `AppButton`: primary, secondary, and text variants; loading and disabled
+  states; minimum tap target of 44 logical pixels.
+- `AppTextField`: label, hint, error, keyboard type, and autofill support.
+- `AppSpinner`: a semantic progress indicator.
+- `AppErrorWidget`: readable message plus an optional retry action.
+- `AppEmptyState`: title, description, and optional action.
+- `AppToast`: success, error, warning, and info events; a global navigator key;
+  no context required; safe-area aware; dismissible; accessible live-region
+  semantics. Prefer a simple overlay/`OverlayEntry` implementation first.
+
+Do not turn these into a design system with speculative APIs. Keep them
+copyable and easy to replace.
+
+## KV store
+
+Wrap `SharedPreferences` behind a typed `KvStore`. Initialize it once during
+startup, define keys in a `KvStoreKeys` class, support `String`, `int`, `bool`,
+`double`, and `List<String>`, and expose `get`, `set`, `remove`, and `clear`.
+
+Do not store secrets in ordinary preferences. If auth tokens are needed, use
+the auth SDK's secure storage or add a secure-storage adapter explicitly.
+
+## Drift database
+
+Create an `AppDatabase extends _$AppDatabase` with an empty `@DriftDatabase`
+table list and `schemaVersion = 1`. Open it with `driftDatabase(name: "app")`,
+keep a singleton provider, expose `forTesting(QueryExecutor executor)`, and
+close it from provider disposal. Keep a `MigrationStrategy` ready for future
+tables, but do not invent schema now.
+
+Run generation after the database and provider files exist:
+
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+
+## logger
+
+Wrap the `logging` package in `AppLogger`. Set `Logger.root.level`, subscribe
+once during startup, use `debugPrint` outside release builds, and leave a
+callback/sink for release error reporting. Return the stream subscription so
+startup can cancel it. Never use `print` or `console` logging in app code.
+
+## permissions
+
+Keep `permission_handler` behind an interface:
+
+```dart
+enum AppPermissionStatus { granted, denied, permanentlyDenied, restricted }
+
+abstract interface class PermissionService {
+  Future<AppPermissionStatus> statusForNotifications();
+  Future<AppPermissionStatus> requestNotifications();
+  Future<bool> openSettings();
+}
+```
+
+Map `PermissionStatus.granted` and `.limited` to `granted`, map permanent and
+restricted states explicitly, and return `denied` for the remaining states.
+Do not request permissions during app construction; request them from the
+feature that needs them and provide an “open settings” path for permanent
+denials. Mention required Android/iOS manifest or `Info.plist` changes in the
+handoff.
+
+## API client
+
+Follow the Rumik shape: use Dio for normal JSON requests and interceptors for
+auth and unauthorized handling. The provider owns one client instance.
+
+```dart
+class ApiClient {
+  ApiClient({required this.baseUrl, this.onUnauthorized}) {
+    _dio = Dio(BaseOptions(
+      baseUrl: baseUrl,
+      connectTimeout: const Duration(seconds: 20),
+      receiveTimeout: const Duration(seconds: 60),
+      headers: {"Content-Type": "application/json"},
+    ));
+    _dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        // Read the current auth token and attach Authorization here.
+        handler.next(options);
+      },
+      onError: (error, handler) async {
+        if (error.response?.statusCode == 401) onUnauthorized?.call();
+        handler.next(error);
+      },
+    ));
+  }
+
+  final String baseUrl;
+  final VoidCallback? onUnauthorized;
+  late final Dio _dio;
+}
+```
+
+Use typed response models instead of returning untyped maps from feature code.
+Normalize API failures into an app exception containing status code, message,
+and optional response data. Clear the auth token before invoking the
+unauthorized callback. For SSE or other long-lived streams, use `http.Request`
+separately, set `Accept: text/event-stream`, parse event/data frames, and apply
+the same 401 handling. Do not force streaming through a normal JSON method.
+
+## completion checklist
+
+The agent is done only when:
+
+- the app boots into a minimal home screen through GoRouter;
+- startup has loading, ready, and retryable error states;
+- light/dark themes and theme persistence work;
+- KV storage and an empty Drift database initialize successfully;
+- base components compile and are used by the startup/error screens;
+- the logger is installed once and has no raw `print` calls;
+- permission access is behind the service interface;
+- the API client has timeouts, auth injection, 401 handling, typed errors, and
+  a provider;
+- generated files are up to date;
+- `dart format .`, `flutter analyze`, and available tests pass.
+- when applicable, the existing Turborepo detects the Flutter package, exposes
+  package-local commands, and keeps root scripts as thin `turbo run` delegates;
+
+Report platform-specific permission configuration separately from Dart changes.

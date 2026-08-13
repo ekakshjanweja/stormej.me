@@ -45,12 +45,39 @@ export async function GET(
 		description?: string;
 		sourceFile?: string;
 		tech?: string[];
+		orchestrator?: boolean;
 	};
 
 	const file = path.join(process.cwd(), "content", "trove", `${slug}.mdx`);
 	const body = toPlainMarkdown(await readFile(file, "utf-8"));
 
 	const target = data.sourceFile ?? "a new file in the project";
+	const steps = data.orchestrator
+		? [
+				"1. inspect the host repository before changing anything. preserve its",
+				"   existing naming, state-management, auth, and environment conventions",
+				"   unless this document explicitly asks you to add the missing piece.",
+				"2. implement the architecture and files described below. use the package",
+				"   versions and generated-code commands that are compatible with the host",
+				"   project's current Flutter/Dart SDK.",
+				"3. keep the first pass schema-free: create the Drift database and its",
+				"   migration hook, but do not invent product tables or domain logic.",
+				"4. run code generation, formatting, static analysis, and the available",
+				"   tests. fix errors introduced by this integration before finishing.",
+				"5. report every file changed, every command run, and any platform setup",
+				"   that still needs a human decision.",
+			]
+		: [
+				`1. create ${target} and copy the source from the end of this file into it,`,
+				"   verbatim. do not reformat, rename, or refactor it.",
+				"2. add no dependencies. this component depends only on the sdk, so nothing",
+				"   goes into pubspec.yaml.",
+				'3. follow the "install" section below to wire it up. it is the setup the',
+				"   author actually uses, so prefer it over improvising.",
+				"4. where the docs conflict with conventions already present in the host",
+				"   codebase, match the host codebase.",
+				'5. verify with an example from the "usage" section below.',
+			];
 
 	// Addressed to the agent, not the reader. Anything that fetches this url
 	// should know what to do without a separate prompt.
@@ -66,17 +93,7 @@ export async function GET(
 		"",
 		"## steps",
 		"",
-		`1. create ${target} and copy the source from the end of this file into it,`,
-		"   verbatim. do not reformat, rename, or refactor it.",
-		"2. add no dependencies. this component depends only on the sdk, so nothing",
-		data.tech?.includes("flutter")
-			? "   goes into pubspec.yaml."
-			: "   goes into the manifest.",
-		'3. follow the "install" section below to wire it up. it is the setup the',
-		"   author actually uses, so prefer it over improvising.",
-		"4. where the docs conflict with conventions already in the host codebase,",
-		"   match the host codebase.",
-		'5. verify with an example from the "usage" section below.',
+		...steps,
 		"",
 		"## constraints",
 		"",
