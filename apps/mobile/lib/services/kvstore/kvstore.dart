@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../securestorage/securestorage.dart';
 
 /// All persistent keys used by the generic orchestration client.
 abstract final class KvStoreKeys {
@@ -16,21 +16,20 @@ abstract final class KvStoreKeys {
 /// server-side secrets and authoritative orchestration state on the service;
 /// this store is only for client credentials, IDs, and resumable state.
 final class KvStore {
-  KvStore({FlutterSecureStorage? storage})
-    : _storage = storage ?? const FlutterSecureStorage();
+  KvStore({SecureStorageService? storage})
+    : _storage = storage ?? SecureStorageService();
 
-  final FlutterSecureStorage _storage;
+  final SecureStorageService _storage;
 
-  Future<String?> read(String key) => _storage.read(key: key);
+  Future<String?> read(String key) => _storage.read(key);
 
-  Future<void> write(String key, String value) =>
-      _storage.write(key: key, value: value);
+  Future<void> write(String key, String value) => _storage.write(key, value);
 
-  Future<void> delete(String key) => _storage.delete(key: key);
+  Future<void> delete(String key) => _storage.delete(key);
 
-  Future<bool> contains(String key) => _storage.containsKey(key: key);
+  Future<bool> contains(String key) => _storage.contains(key);
 
-  Future<void> clear() => _storage.deleteAll();
+  Future<void> clear() => _storage.clear();
 
   Future<T?> readJson<T>(String key, T Function(Object? value) decode) async {
     final value = await read(key);
