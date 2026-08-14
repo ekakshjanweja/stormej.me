@@ -8,11 +8,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:orchestrator_flutter_example/main.dart';
+import 'package:orchestrator_flutter_example/src/modules/startup/presentation/ui/startup_view.dart';
 
 void main() {
   testWidgets('sign-in screen shows email authentication', (tester) async {
-    await tester.pumpWidget(const MaterialApp(home: SignInScreen()));
+    await tester.pumpWidget(const MaterialApp(home: StartupView()));
 
     expect(find.text('sign in'), findsNWidgets(2));
     expect(find.text('Email signup is disabled for this app.'), findsOneWidget);

@@ -9,10 +9,10 @@ Keychain/Keystore.
 
 The orchestrator and auth URLs are configuration values, not constants in the client.
 
-Client-side orchestration IDs and resumable state are isolated in
-`lib/services/kvstore/kvstore.dart`; all KV key names live in that file as well.
-The encrypted platform implementation lives separately in
-`lib/services/securestorage/securestorage.dart`.
+The client follows a layered `lib/src` structure. Client-side orchestration IDs and resumable
+state are isolated in `lib/src/services/db/kv_store.dart` and
+`lib/src/services/db/kv_store_keys.dart`. The encrypted platform implementation lives in
+`lib/src/services/db/secure_storage.dart`.
 
 Copy `.env.example` to `.env`, then set the auth URL for the environment:
 
