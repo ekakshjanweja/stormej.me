@@ -9,6 +9,9 @@ Keychain/Keystore.
 
 The orchestrator and auth URLs are configuration values, not constants in the client.
 
+Client-side orchestration IDs and resumable state are isolated in
+`lib/services/kvstore.dart`; all KV key names live in that file as well.
+
 Copy `.env.example` to `.env`, then set the auth URL for the environment:
 
 ```bash
