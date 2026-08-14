@@ -23,13 +23,6 @@ schema and features alone.
 This is intentionally an orchestrator, not a package. The result should be a
 normal Flutter project whose files remain easy to own and change.
 
-<Callout type="info" title="scope">
-The architecture uses `lib/src/core`, feature modules under
-`lib/src/modules`, infrastructure under `lib/src/services`, a normal
-`ProviderScope`, and a one-shot startup provider. The API client uses Dio for
-JSON, multipart, and streamed responses.
-</Callout>
-
 ## agent brief
 
 Give the agent this brief after it has inspected the host repository:
@@ -103,6 +96,197 @@ presentation → feature/domain → services → core
 Services must not import widgets. Feature modules own their screens and
 providers. Shared widgets stay deliberately small and have no feature imports.
 
+## example feature module
+
+Create one small `example` feature so the architecture is demonstrated by
+working code rather than empty folders. Follow [Flutter's recommended MVVM
+shape](https://docs.flutter.dev/app-architecture/guide): a view renders state,
+a one-to-one view model owns UI state and commands, and repositories are the
+source of truth over services. The domain layer is optional in Flutter's
+guidance, so include it in this dummy feature to show the boundary, but add
+use-cases only when logic is complex or reusable.
+
+```text
+lib/src/modules/example/
+├── data/
+│   ├── datasources/
+│   │   └── example_api_service.dart
+│   ├── models/
+│   │   └── example_dto.dart
+│   └── repositories/
+│       └── example_repository_impl.dart
+├── domain/
+│   ├── entities/
+│   │   └── example.dart
+│   ├── repositories/
+│   │   └── example_repository.dart
+│   └── usecases/
+│       └── load_example.dart
+└── presentation/
+    ├── providers/
+    │   └── example_providers.dart
+    ├── view_models/
+    │   └── example_view_model.dart
+    ├── views/
+    │   └── example_view.dart
+    └── widgets/
+        └── example_content.dart
+```
+
+The dependency flow is:
+
+```text
+ExampleView
+    ↓ commands/state
+ExampleViewModel
+    ↓
+LoadExample (only when useful)
+    ↓
+ExampleRepository
+    ↓
+ExampleApiService → ApiClient
+```
+
+### model and service
+
+Keep transport models in `data/models` and map them into domain entities. The
+service should know endpoints and decoding, but not presentation state:
+
+```dart
+final class ExampleDto {
+  const ExampleDto({required this.id, required this.title});
+
+  final String id;
+  final String title;
+
+  factory ExampleDto.fromJson(Map<String, dynamic> json) => ExampleDto(
+        id: json["id"] as String,
+        title: json["title"] as String,
+      );
+
+  Example toEntity() => Example(id: id, title: title);
+}
+
+final class ExampleApiService {
+  const ExampleApiService(this._api);
+
+  final ApiClient _api;
+
+  Future<Either<Failure, ExampleDto>> fetchExample() {
+    return _api.sendRequest(
+      "/example",
+      method: MethodType.get,
+      decode: (data) => ExampleDto.fromJson(data! as Map<String, dynamic>),
+    );
+  }
+}
+```
+
+### repository and optional use-case
+
+The repository owns caching, refresh, error policy, and conversion to domain
+models. It must not know about widgets or `BuildContext`:
+
+```dart
+abstract interface class ExampleRepository {
+  Future<Either<Failure, Example>> load();
+  Future<Either<Failure, Example>> refresh();
+}
+
+final class ExampleRepositoryImpl implements ExampleRepository {
+  ExampleRepositoryImpl(this._service);
+
+  final ExampleApiService _service;
+  Example? _cached;
+
+  @override
+  Future<Either<Failure, Example>> load() async {
+    final cached = _cached;
+    if (cached != null) return Right(cached);
+    return refresh();
+  }
+
+  @override
+  Future<Either<Failure, Example>> refresh() async {
+    final result = await _service.fetchExample();
+    return result.fold(
+      Left.new,
+      (dto) {
+        final entity = dto.toEntity();
+        _cached = entity;
+        return Right(entity);
+      },
+    );
+  }
+}
+```
+
+`LoadExample` may simply delegate to the repository in this dummy module. It
+exists to show where genuinely complex or reusable domain logic belongs; do
+not create a use-case for every trivial method.
+
+### Riverpod provider and view model
+
+Providers compose the service, repository, and view model. Keep generated files
+out of hand-written code and run the generator afterward:
+
+```dart
+@riverpod
+ExampleApiService exampleApiService(Ref ref) =>
+    ExampleApiService(ref.watch(apiClientProvider));
+
+@riverpod
+ExampleRepository exampleRepository(Ref ref) =>
+    ExampleRepositoryImpl(ref.watch(exampleApiServiceProvider));
+
+@riverpod
+class ExampleViewModel extends _$ExampleViewModel {
+  @override
+  Future<Example?> build() async {
+    final result = await ref.watch(exampleRepositoryProvider).load();
+    return result.fold((failure) => throw failure, (value) => value);
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      final result = await ref.read(exampleRepositoryProvider).refresh();
+      return result.fold((failure) => throw failure, (value) => value);
+    });
+  }
+}
+```
+
+The view should only render `AsyncValue`, call view-model commands, and contain
+layout/routing logic. It must not call the API, repository, database, or
+`jsonDecode` directly:
+
+```dart
+class ExampleView extends ConsumerWidget {
+  const ExampleView({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(exampleViewModelProvider);
+    return Scaffold(
+      appBar: AppBar(title: const Text("Example")),
+      body: state.when(
+        loading: () => const AppSpinner(),
+        error: (error, stackTrace) => AppErrorWidget(
+          error: error,
+          onRetry: () => ref.read(exampleViewModelProvider.notifier).refresh(),
+        ),
+        data: (example) => ExampleContent(example: example),
+      ),
+    );
+  }
+}
+```
+
+Register the example route and make it the minimal home route only to prove the
+whole vertical slice works. Once verified, the agent should treat this module
+as a template and rename it for the first real feature.
+
 ## repository detection
 
 Before creating files, determine whether the Flutter app lives inside a
@@ -139,6 +323,7 @@ package manager's command runner if the repo already has one:
   "scripts": {
     "get": "flutter pub get",
     "generate": "dart run build_runner build --delete-conflicting-outputs",
+    "generate:watch": "dart run build_runner watch --delete-conflicting-outputs",
     "format": "dart format lib test",
     "analyze": "flutter analyze",
     "test": "flutter test",
@@ -162,6 +347,7 @@ and merge these entries rather than replacing the file:
   "tasks": {
     "get": { "cache": false },
     "generate": { "cache": false },
+    "generate:watch": { "cache": false, "persistent": true },
     "format": { "cache": false },
     "analyze": {},
     "test": {},
@@ -187,6 +373,7 @@ to `apps/mobile/package.json`:
   "scripts": {
     "mobile:get": "turbo run get --filter=mobile",
     "mobile:generate": "turbo run generate --filter=mobile",
+    "mobile:generate:watch": "turbo run generate:watch --filter=mobile",
     "mobile:format": "turbo run format --filter=mobile",
     "mobile:analyze": "turbo run analyze --filter=mobile",
     "mobile:test": "turbo run test --filter=mobile",
@@ -342,11 +529,23 @@ keep a singleton provider, expose `forTesting(QueryExecutor executor)`, and
 close it from provider disposal. Keep a `MigrationStrategy` ready for future
 tables, but do not invent schema now.
 
-Run generation after the database and provider files exist:
+Run generation after the database and provider files exist. The one-shot
+command is for CI and completed changes:
 
 ```bash
 dart run build_runner build --delete-conflicting-outputs
 ```
+
+During implementation, use watch mode so Riverpod and Drift generated files
+stay current while the agent or developer edits Dart files:
+
+```bash
+dart run build_runner watch --delete-conflicting-outputs
+```
+
+If the repository has the Turborepo package scripts above, use
+`generate:watch` for the long-running process. Mark it persistent and uncached;
+never run a persistent watch task as a dependency of a build task.
 
 ## logger
 
@@ -482,12 +681,16 @@ The agent is done only when:
 - base components compile and are used by the startup/error screens;
 - the logger is installed once and has no raw `print` calls;
 - permission access is behind the service interface;
-- the API client has timeouts, auth injection, 401 handling, typed errors, and
 - the API client has JSON, multipart, SSE, timeouts, auth injection, 401
   handling, typed errors, and a provider;
 - `Either<Failure, T>` is the feature-facing result type and expected failures
   are not represented by nullable tuples;
+- the example feature works end to end: view → view model → optional use-case →
+  repository → API service → API client;
 - generated files are up to date;
+- code generation has been run once with
+  `build_runner build --delete-conflicting-outputs`, and watch mode is
+  available through `build_runner watch --delete-conflicting-outputs`;
 - `dart format .`, `flutter analyze`, and available tests pass.
 - when applicable, the existing Turborepo detects the Flutter package, exposes
   package-local commands, and keeps root scripts as thin `turbo run` delegates;
