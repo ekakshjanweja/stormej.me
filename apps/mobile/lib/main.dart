@@ -21,7 +21,7 @@ class StormejMobileApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'stormej',
+      title: 'Orchestrator',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
       ),
@@ -138,7 +138,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('stormej'),
+        title: const Text('Orchestrator'),
         actions: [
           IconButton(
             onPressed: BetterAuthFlutter.client.signOut,

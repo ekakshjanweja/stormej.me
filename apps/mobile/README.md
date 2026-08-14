@@ -1,10 +1,13 @@
-# stormej_mobile
+# orchestrator_flutter_example
 
-Flutter client for the Stormej Better Auth service.
+Reference Flutter client for a reusable orchestration service. The service is intentionally
+application-agnostic: each consuming Flutter app supplies its own service URL and app ID.
 
 Authentication uses Better Auth's default cookie-based sessions and email/password sign-in.
-Signup is intentionally disabled. Sessions are persisted securely on native platforms by
-`better_auth_flutter` through Keychain/Keystore.
+Sessions are persisted securely on native platforms by `better_auth_flutter` through
+Keychain/Keystore.
+
+The orchestrator and auth URLs are configuration values, not constants in the client.
 
 Copy `.env.example` to `.env`, then set the auth URL for the environment:
 
