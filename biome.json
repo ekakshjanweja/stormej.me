@@ -28,7 +28,8 @@
       "!**/convex/_generated",
       "!**/public/trove",
       "!**/public",
-      "!**/.source"
+      "!**/.source",
+      "!apps/mobile"
     ]
   },
   "formatter": {

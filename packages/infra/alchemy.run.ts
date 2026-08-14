@@ -15,6 +15,13 @@ const app = await alchemy("stormej");
 const PROD_WEB_ORIGIN = "https://www.stormej.me";
 const PROD_CORS_ORIGIN = "https://www.stormej.me,https://stormej.me";
 
+const authUrl = app.local
+	? alchemy.env("BETTER_AUTH_URL", "http://localhost:3000")
+	: alchemy.env("BETTER_AUTH_URL", PROD_WEB_ORIGIN);
+const corsOrigin = app.local
+	? alchemy.env("CORS_ORIGIN", "http://localhost:3000,http://localhost:8787")
+	: alchemy.env("CORS_ORIGIN", PROD_CORS_ORIGIN);
+
 const db = await D1Database("database", {
 	adopt: true,
 	delete: false,
@@ -40,15 +47,8 @@ export const server = await Worker("server", {
 	bindings: {
 		...(allowSignup ? { ALLOW_SIGNUP: allowSignup } : {}),
 		BETTER_AUTH_SECRET: alchemy.secret.env("BETTER_AUTH_SECRET"),
-		BETTER_AUTH_URL: app.local
-			? alchemy.env("BETTER_AUTH_URL", "http://localhost:3000")
-			: PROD_WEB_ORIGIN,
-		CORS_ORIGIN: app.local
-			? alchemy.env(
-					"CORS_ORIGIN",
-					"http://localhost:3000,http://localhost:8787"
-				)
-			: PROD_CORS_ORIGIN,
+		BETTER_AUTH_URL: authUrl,
+		CORS_ORIGIN: corsOrigin,
 		DB: db,
 		GOOGLE_CLIENT_ID: alchemy.env("GOOGLE_CLIENT_ID"),
 		GOOGLE_CLIENT_SECRET: alchemy.secret.env("GOOGLE_CLIENT_SECRET"),
