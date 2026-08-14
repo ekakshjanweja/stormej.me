@@ -1,17 +1,14 @@
 import 'package:better_auth_flutter/better_auth_flutter.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
-const authBaseUrl = String.fromEnvironment(
-  'AUTH_BASE_URL',
-  defaultValue: 'http://localhost:3000/api/auth',
-);
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(isOptional: true);
   await BetterAuthFlutter.initialize(
-    url: authBaseUrl,
-    enableLogging: kDebugMode,
+    url: dotenv.get(
+      'AUTH_BASE_URL',
+      fallback: 'http://localhost:3000/api/auth',
+    ),
     hydrateOnInit: true,
     mode: AuthMode.cookie,
   );

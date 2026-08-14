@@ -6,10 +6,11 @@ Authentication uses Better Auth's default cookie-based sessions and email/passwo
 Signup is intentionally disabled. Sessions are persisted securely on native platforms by
 `better_auth_flutter` through Keychain/Keystore.
 
-Run locally with the auth URL supplied by the environment:
+Copy `.env.example` to `.env`, then set the auth URL for the environment:
 
 ```bash
-flutter run --dart-define=AUTH_BASE_URL=http://localhost:3000/api/auth
+cp .env.example .env
+flutter run
 ```
 
 For an Android emulator, use `http://10.0.2.2:3000/api/auth`. For production, use the deployed
