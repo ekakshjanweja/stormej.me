@@ -8,9 +8,12 @@ import {
 	Space_Mono,
 } from "next/font/google";
 import "./globals.css";
+import "./design-lab.css";
 import { RootProvider } from "fumadocs-ui/provider/next";
+import { DesignLab } from "@/components/design-lab";
 import Footer from "@/components/footer";
 import { Navbar } from "@/components/navbar";
+import { DESIGN_INIT_SCRIPT } from "@/lib/design-lab";
 import { PostHogProvider } from "@/lib/providers/posthog-provider";
 import { RealtimeProvider } from "@/lib/providers/realtime-provider";
 import { ThemeProvider } from "@/lib/providers/theme-provider";
@@ -135,10 +138,14 @@ export default function RootLayout({
 			<body
 				className="antialiased"
 				style={{
-					fontFamily: "var(--font-geist-sans), ui-sans-serif, system-ui",
+					fontFamily: "var(--font-sans)",
 				}}
 				suppressHydrationWarning
 			>
+				<script
+					// biome-ignore lint/security/noDangerouslySetInnerHtml: must run before paint so a stored design never flashes the default
+					dangerouslySetInnerHTML={{ __html: DESIGN_INIT_SCRIPT }}
+				/>
 				<script
 					// biome-ignore lint/security/noDangerouslySetInnerHtml: json-ld is serialised by jsonLd(); next has no other way to emit structured data
 					dangerouslySetInnerHTML={{ __html: jsonLd(buildWebSiteSchema()) }}
@@ -163,7 +170,7 @@ export default function RootLayout({
 							<RealtimeProvider>
 								<div className="min-h-screen bg-background">
 									<div className="flex w-full justify-center">
-										<div className="flex min-h-screen w-full flex-col md:max-w-3xl">
+										<div className="design-shell flex min-h-screen w-full flex-col md:max-w-3xl">
 											<Navbar />
 											<main
 												className="flex-1 px-4 pb-8"
@@ -176,6 +183,7 @@ export default function RootLayout({
 										</div>
 									</div>
 								</div>
+								<DesignLab />
 							</RealtimeProvider>
 						</RootProvider>
 					</ThemeProvider>

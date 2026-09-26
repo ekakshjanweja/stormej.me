@@ -36,7 +36,7 @@ export default async function Home() {
 				dangerouslySetInnerHTML={{ __html: jsonLd(buildProfilePageSchema()) }}
 				type="application/ld+json"
 			/>
-			<div className="space-y-16">
+			<div className="home-stack space-y-16">
 				<Hero />
 				<Work />
 				{/* <Projects /> */}

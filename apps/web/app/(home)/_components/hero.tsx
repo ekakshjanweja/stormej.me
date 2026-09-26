@@ -19,7 +19,11 @@ const trackResume = () =>
 
 export default function Hero() {
 	return (
-		<section aria-labelledby="hero-heading" data-cursor-anchor="hero">
+		<section
+			aria-labelledby="hero-heading"
+			className="home-hero"
+			data-cursor-anchor="hero"
+		>
 			<h1
 				className="hero-lede max-w-[58ch] text-2xl leading-[1.35]"
 				id="hero-heading"
