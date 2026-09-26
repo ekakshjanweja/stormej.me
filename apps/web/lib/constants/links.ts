@@ -86,3 +86,4 @@ export const github = "https://github.com/ekakshjanweja";
 export const xDotCom = "https://x.com/ekaksh_janweja";
 export const linkedin = "https://www.linkedin.com/in/ekakshjanweja/";
 export const mailTo = "mailto:jekaksh@gmail.com";
+export const cal = "https://cal.com/ekaksh-janweja-pfvauh";

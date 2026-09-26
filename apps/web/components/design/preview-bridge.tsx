@@ -1,8 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { designAttributes, designCss } from "@/lib/design/css";
-import { normalizeDesign } from "@/lib/design/options";
+import {
+	DEFAULT_COPY,
+	type DesignConfig,
+	type HeroCopy,
+	normalizeDesign,
+} from "@/lib/design/options";
 
 export const PREVIEW_PARAM = "design-preview";
 
@@ -12,6 +17,11 @@ export interface DesignPreviewMessage {
 	type: "design-preview";
 }
 
+const HeroCopyContext = createContext<HeroCopy>(DEFAULT_COPY);
+
+/** the published hero copy, or the studio's draft inside a preview frame */
+export const useHeroCopy = () => useContext(HeroCopyContext);
+
 function applyMode(mode: DesignPreviewMessage["mode"]) {
 	const root = document.documentElement;
 	if (root.classList.contains("dark") !== (mode === "dark")) {
@@ -20,8 +30,10 @@ function applyMode(mode: DesignPreviewMessage["mode"]) {
 	root.style.colorScheme = mode;
 }
 
-function applyPreview({ config, mode }: DesignPreviewMessage) {
-	const design = normalizeDesign(config);
+function applyPreview(
+	design: DesignConfig,
+	mode: DesignPreviewMessage["mode"]
+) {
 	const root = document.documentElement;
 	for (const [name, value] of Object.entries(designAttributes(design))) {
 		root.setAttribute(name, value);
@@ -34,11 +46,20 @@ function applyPreview({ config, mode }: DesignPreviewMessage) {
 }
 
 /**
- * Lets the vault's design studio restyle a framed copy of the site live.
- * Only wakes up inside an iframe opened with ?design-preview, and only takes
+ * Hands the published copy to the page, and lets the vault's design studio
+ * restyle and reword a framed copy of the site live. The preview half only
+ * wakes up inside an iframe opened with ?design-preview, and only takes
  * messages from this origin, so it is inert for every normal visit.
  */
-export function DesignPreviewBridge() {
+export function DesignProvider({
+	children,
+	copy,
+}: {
+	children: React.ReactNode;
+	copy: HeroCopy;
+}) {
+	const [previewCopy, setPreviewCopy] = useState<HeroCopy | null>(null);
+
 	useEffect(() => {
 		const framed = window.self !== window.top;
 		const requested = new URLSearchParams(window.location.search).has(
@@ -57,8 +78,10 @@ export function DesignPreviewBridge() {
 			) {
 				return;
 			}
+			const design = normalizeDesign(event.data.config);
 			forcedMode = event.data.mode;
-			applyPreview(event.data);
+			applyPreview(design, event.data.mode);
+			setPreviewCopy(design.copy);
 		};
 
 		// next-themes re-applies the visitor's theme after mount; the frame's
@@ -84,5 +107,9 @@ export function DesignPreviewBridge() {
 		};
 	}, []);
 
-	return null;
+	return (
+		<HeroCopyContext.Provider value={previewCopy ?? copy}>
+			{children}
+		</HeroCopyContext.Provider>
+	);
 }

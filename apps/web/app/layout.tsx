@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./design.css";
 import { RootProvider } from "fumadocs-ui/provider/next";
-import { DesignPreviewBridge } from "@/components/design/preview-bridge";
+import { DesignProvider } from "@/components/design/preview-bridge";
 import Footer from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import { designAttributes, designCss } from "@/lib/design/css";
@@ -134,22 +134,23 @@ export default async function RootLayout({
 						</a>
 						<RootProvider theme={{ enabled: false }}>
 							<RealtimeProvider>
-								<div className="design-page min-h-screen bg-background">
-									<div className="flex w-full justify-center">
-										<div className="design-shell flex min-h-screen w-full flex-col md:max-w-3xl">
-											<Navbar />
-											<main
-												className="flex-1 px-4 pb-8"
-												id="main-content"
-												tabIndex={-1}
-											>
-												{children}
-											</main>
-											<Footer />
+								<DesignProvider copy={design.copy}>
+									<div className="design-page min-h-screen bg-background">
+										<div className="flex w-full justify-center">
+											<div className="design-shell flex min-h-screen w-full flex-col md:max-w-3xl">
+												<Navbar />
+												<main
+													className="flex-1 px-4 pb-8"
+													id="main-content"
+													tabIndex={-1}
+												>
+													{children}
+												</main>
+												<Footer />
+											</div>
 										</div>
 									</div>
-								</div>
-								<DesignPreviewBridge />
+								</DesignProvider>
 							</RealtimeProvider>
 						</RootProvider>
 					</ThemeProvider>

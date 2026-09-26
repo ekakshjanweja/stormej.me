@@ -4,6 +4,7 @@
    of every axis is the original site and has no rules here.
 
    Hooks: .design-page (outer backdrop), .design-shell (the column),
+   .site-nav and its .nav-* parts (components/navbar.tsx),
    .home-stack / .home-hero and [data-cursor-anchor] (homepage sections),
    .design-studio (the vault editor, exempt from shell-wide layouts). */
 
@@ -51,6 +52,363 @@ html[data-shape="brutal"] [data-cursor-anchor="stack"] button {
 html[data-shape="brutal"] .prose-fuma :is(figure.shiki, img) {
 	border: 2px solid var(--foreground);
 	box-shadow: 5px 5px 0 var(--foreground);
+}
+
+/* ─── navbar ─────────────────────────────────────────────────────────── */
+
+/* the navbar renders every part any design might want; these stay hidden
+   unless a [data-nav] below asks for them */
+.nav-home,
+.nav-key,
+.nav-contact,
+.nav-cta,
+.nav-sep,
+.nav-brand-short {
+	display: none;
+}
+
+.nav-cta {
+	align-items: center;
+	padding: 0.45rem 0.95rem;
+	font-weight: 500;
+	line-height: 1;
+	color: var(--background);
+	white-space: nowrap;
+	background: var(--foreground);
+	border-radius: var(--radius);
+	box-shadow: var(--design-card-shadow);
+	transition: opacity 150ms ease;
+}
+.nav-cta:hover {
+	opacity: 0.85;
+}
+
+.nav-sep {
+	width: 1px;
+	height: 1.25rem;
+	background: var(--border);
+}
+
+/* minimal: a name and a way to reach you; the links live behind a menu */
+html[data-nav="minimal"] .nav-brand {
+	font-weight: 500;
+}
+html[data-nav="minimal"] .nav-contact {
+	display: inline-flex;
+}
+@media (min-width: 768px) {
+	html[data-nav="minimal"] .nav-links {
+		display: none;
+	}
+	html[data-nav="minimal"] .nav-menu-button {
+		display: inline-flex;
+	}
+}
+
+/* framed: hairlines run the full width above and below the bar, and rails
+   run down both sides of the column */
+html[data-nav="framed"] body {
+	overflow-x: clip;
+}
+html[data-nav="framed"] .site-nav {
+	padding-block: 0.9rem;
+	background: var(--background);
+	backdrop-filter: none;
+}
+html[data-nav="framed"] :is(.site-nav, .design-shell > footer) {
+	position: relative;
+}
+html[data-nav="framed"] :is(.site-nav, .design-shell > footer)::before,
+html[data-nav="framed"] .site-nav::after {
+	position: absolute;
+	left: 50%;
+	width: 100vw;
+	height: 1px;
+	pointer-events: none;
+	content: "";
+	background: var(--border);
+	transform: translateX(-50%);
+}
+html[data-nav="framed"] :is(.site-nav, .design-shell > footer)::before {
+	top: 0;
+}
+html[data-nav="framed"] .site-nav::after {
+	bottom: 0;
+}
+html[data-nav="framed"] .nav-link {
+	font-size: 14px;
+	font-weight: 500;
+	color: var(--muted-foreground);
+	letter-spacing: 0.01em;
+	opacity: 1;
+	transition: color 150ms ease;
+}
+html[data-nav="framed"] .nav-link:is(:hover, [aria-current="page"]) {
+	color: var(--foreground);
+}
+@media (min-width: 768px) {
+	html[data-nav="framed"] .design-shell:not(:has(.design-studio)) {
+		border-inline: 1px solid var(--border);
+	}
+	html[data-nav="framed"] .nav-links {
+		gap: 1.25rem;
+		margin-left: auto;
+	}
+	html[data-nav="framed"] .nav-actions {
+		gap: 0.75rem;
+		margin-left: 1.25rem;
+	}
+	html[data-nav="framed"] .nav-sep {
+		display: block;
+	}
+}
+
+/* links first: no name in the bar, links on the left, the bar fades into
+   the page instead of blurring it */
+html[data-nav="links"] .site-nav {
+	background: linear-gradient(var(--background) 70%, transparent);
+	backdrop-filter: none;
+}
+html[data-nav="links"] .nav-link {
+	position: relative;
+	font-size: 14px;
+	color: var(--muted-foreground);
+	opacity: 1;
+	transition: color 150ms ease;
+}
+html[data-nav="links"] .nav-link::after {
+	position: absolute;
+	bottom: -1px;
+	left: 0;
+	width: 0;
+	height: 1px;
+	content: "";
+	background: currentColor;
+	transition: width 200ms ease;
+}
+html[data-nav="links"] .nav-link:is(:hover, [aria-current="page"]) {
+	color: var(--foreground);
+}
+html[data-nav="links"] .nav-link:hover::after {
+	width: 100%;
+}
+@media (min-width: 768px) {
+	html[data-nav="links"] .nav-brand {
+		display: none;
+	}
+	html[data-nav="links"] .nav-home {
+		display: inline;
+	}
+	html[data-nav="links"] .nav-links {
+		gap: 1.5rem;
+		margin-left: 0;
+	}
+}
+
+/* centred: links sit dead centre, a solid button on the right */
+html[data-nav="centered"] .site-nav {
+	padding-block: 0.85rem;
+}
+html[data-nav="centered"] .nav-brand {
+	font-weight: 500;
+}
+html[data-nav="centered"] .nav-link {
+	padding: 0.4rem 0.75rem;
+	font-size: 14px;
+	font-weight: 500;
+	color: var(--muted-foreground);
+	border-radius: var(--radius);
+	opacity: 1;
+	transition:
+		color 150ms ease,
+		background-color 150ms ease;
+}
+html[data-nav="centered"] .nav-link:is(:hover, [aria-current="page"]) {
+	color: var(--foreground);
+	background: var(--muted);
+}
+@media (min-width: 640px) {
+	html[data-nav="centered"] .nav-cta {
+		display: inline-flex;
+		order: 1;
+	}
+}
+@media (min-width: 768px) {
+	html[data-nav="centered"] .nav-links {
+		position: absolute;
+		left: 50%;
+		gap: 0.125rem;
+		transform: translateX(-50%);
+	}
+}
+
+/* island and dock share the floating pill */
+html:is([data-nav="island"], [data-nav="dock"]) .site-nav {
+	gap: 1.25rem;
+	justify-content: flex-start;
+	width: fit-content;
+	max-width: calc(100% - 1.5rem);
+	padding: 0.45rem 0.5rem 0.45rem 1.15rem;
+	background: color-mix(in oklab, var(--background) 78%, transparent);
+	border: var(--design-card-border);
+	border-radius: calc(var(--radius) * 3);
+	box-shadow:
+		var(--design-card-shadow),
+		0 12px 32px -16px rgb(0 0 0 / 0.3);
+}
+html:is([data-nav="island"], [data-nav="dock"]) .nav-link {
+	font-size: 14px;
+}
+html:is([data-nav="island"], [data-nav="dock"]) .nav-actions {
+	gap: 0.25rem;
+}
+@media (min-width: 768px) {
+	html:is([data-nav="island"], [data-nav="dock"]) .nav-links {
+		gap: 1.25rem;
+		padding-left: 1.25rem;
+		margin-left: 0;
+		border-left: 1px solid var(--border);
+	}
+	html:is([data-nav="island"], [data-nav="dock"]) .nav-actions {
+		margin-left: 0;
+	}
+}
+
+/* island: the pill floats at the top */
+html[data-nav="island"] .site-nav {
+	top: 1rem;
+	margin: 1rem auto 2.5rem;
+}
+@media (max-width: 767px) {
+	html[data-nav="island"] .site-nav {
+		justify-content: space-between;
+		width: calc(100% - 1.5rem);
+	}
+}
+
+/* dock: the pill sits at the bottom of the screen, links always showing */
+html[data-nav="dock"] .site-nav {
+	position: fixed;
+	top: auto;
+	bottom: 1.25rem;
+	left: 50%;
+	margin: 0;
+	transform: translateX(-50%);
+}
+html[data-nav="dock"] .nav-links {
+	display: flex;
+	gap: 1rem;
+}
+html[data-nav="dock"] .nav-menu-button {
+	display: none;
+}
+html[data-nav="dock"] .design-shell > main {
+	padding-top: 4rem;
+}
+html[data-nav="dock"] .design-shell > footer {
+	padding-bottom: 6.5rem;
+}
+@media (max-width: 767px) {
+	html[data-nav="dock"] .nav-brand-full {
+		display: none;
+	}
+	html[data-nav="dock"] .nav-brand-short {
+		display: inline;
+		font-family: var(--font-label);
+	}
+}
+
+/* masthead: the name set big in the display face, links underneath */
+html[data-nav="masthead"] .site-nav {
+	position: relative;
+	flex-direction: column;
+	gap: 1.5rem;
+	padding-top: 2.75rem;
+	padding-bottom: 0;
+	background: transparent;
+	backdrop-filter: none;
+}
+html[data-nav="masthead"] .nav-brand {
+	font-family: var(--font-display);
+	font-size: clamp(2.25rem, 7vw, 4.25rem);
+	font-weight: var(--display-weight);
+	line-height: 1;
+	letter-spacing: var(--display-tracking);
+}
+html[data-nav="masthead"] .nav-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 1.75rem;
+	align-self: stretch;
+	justify-content: center;
+	padding-block: 0.7rem;
+	margin-left: 0;
+	border-block: 1px solid var(--border);
+}
+html[data-nav="masthead"] .nav-link {
+	font-family: var(--font-label);
+	font-size: 0.6875rem;
+	text-transform: uppercase;
+	letter-spacing: 0.16em;
+}
+html[data-nav="masthead"] .nav-actions {
+	position: absolute;
+	top: 0.75rem;
+	right: 0.5rem;
+}
+html[data-nav="masthead"] .nav-menu-button {
+	display: none;
+}
+
+/* keys: a terminal prompt, every link wearing its keyboard shortcut */
+html[data-nav="keys"] .site-nav {
+	font-family: var(--font-label);
+}
+html[data-nav="keys"] .nav-brand {
+	font-family: var(--font-label);
+	font-size: 13px;
+}
+html[data-nav="keys"] .nav-brand::before {
+	color: var(--text-highlight);
+	content: "~/ ";
+}
+html[data-nav="keys"] .nav-link {
+	display: inline-flex;
+	gap: 0.45rem;
+	align-items: center;
+	font-family: var(--font-label);
+	font-size: 13px;
+}
+html[data-nav="keys"] .nav-key {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 1.35rem;
+	height: 1.35rem;
+	padding: 0 0.3rem;
+	font-family: var(--font-label);
+	font-size: 11px;
+	line-height: 1;
+	color: var(--muted-foreground);
+	border: 1px solid var(--border);
+	border-bottom-width: 2px;
+	border-radius: min(var(--radius), 0.3rem);
+	transition:
+		color 150ms ease,
+		background-color 150ms ease;
+}
+html[data-nav="keys"] .nav-link:is(:hover, [aria-current="page"]) .nav-key {
+	color: var(--background);
+	background: var(--foreground);
+	border-color: var(--foreground);
+}
+@media (min-width: 768px) {
+	html[data-nav="keys"] .nav-home {
+		display: inline-flex;
+	}
+	html[data-nav="keys"] .nav-links {
+		gap: 1.25rem;
+	}
 }
 
 /* ─── layout ─────────────────────────────────────────────────────────── */
@@ -138,13 +496,13 @@ html[data-layout="magazine"] .home-hero p.hero-lede {
 	html[data-layout="sidebar"]
 		.design-shell:not(:has(.design-studio))
 		> nav
-		> a:first-child {
+		> .nav-brand {
 		font-size: 1.125rem;
 	}
 	html[data-layout="sidebar"]
 		.design-shell:not(:has(.design-studio))
 		> nav
-		> div:first-of-type {
+		> .nav-links {
 		flex-direction: column;
 		gap: 0.85rem;
 		align-items: flex-start;

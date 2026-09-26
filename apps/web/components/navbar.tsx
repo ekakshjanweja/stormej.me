@@ -6,18 +6,25 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useState } from "react";
+import { useHeroCopy } from "@/components/design/preview-bridge";
 import { ModeToggle } from "@/components/mode-toggle";
 import { track } from "@/lib/analytics";
-import { resume } from "@/lib/constants/links";
+import { cal, mailTo, resume } from "@/lib/constants/links";
 import { TROVE_ENABLED } from "@/lib/trove-config";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-	{ href: "/work", label: "work" },
-	{ href: "/projects", label: "projects" },
-	{ href: "/blog", label: "blog" },
-	...(TROVE_ENABLED ? [{ href: "/trove", label: "trove" }] : []),
+	{ href: "/work", label: "work", shortcut: "w" },
+	{ href: "/projects", label: "projects", shortcut: "p" },
+	{ href: "/blog", label: "blog", shortcut: "b" },
+	...(TROVE_ENABLED ? [{ href: "/trove", label: "trove", shortcut: "v" }] : []),
 ];
+
+/** only some navbar designs show it (see app/design.css) */
+const homeItem = { href: "/", label: "home", shortcut: "h" };
+
+const focusRing =
+	"rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2";
 
 /** Single-key shortcuts. A key missing here is simply not a shortcut. */
 const SHORTCUT_ACTIONS: Record<string, string> = {
@@ -44,9 +51,11 @@ const SHORTCUT_PATHS: Record<string, string> = {
 type NavItem = (typeof navItems)[number];
 
 function DesktopNavLink({
+	className,
 	item,
 	isActive,
 }: {
+	className?: string;
 	item: NavItem;
 	isActive: boolean;
 }) {
@@ -64,13 +73,17 @@ function DesktopNavLink({
 		<Link
 			aria-current={isActive ? "page" : undefined}
 			className={cn(
-				"font-normal text-[15px] text-foreground transition-opacity duration-150",
+				"nav-link font-normal text-[15px] text-foreground transition-opacity duration-150",
 				isActive ? "opacity-100" : "opacity-60 hover:opacity-100",
-				"rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
+				focusRing,
+				className
 			)}
 			href={item.href}
 			onClick={onClick}
 		>
+			<kbd aria-hidden className="nav-key">
+				{item.shortcut}
+			</kbd>
 			{item.label}
 		</Link>
 	);
@@ -113,6 +126,7 @@ export function Navbar() {
 	const pathname = usePathname();
 	const router = useRouter();
 	const { setTheme } = useTheme();
+	const { cta } = useHeroCopy();
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
 	const toggleMobileMenu = useCallback(() => {
@@ -207,27 +221,36 @@ export function Navbar() {
 		return () => window.removeEventListener("keydown", handleKeyDown);
 	}, [isMobileMenuOpen, pathname, closeMobileMenu, runShortcut]);
 
+	// every navbar design shares this markup; app/design.css shows, hides and
+	// rearranges the pieces per [data-nav], so previews can restyle it live
 	return (
 		<>
 			<nav
 				className={cn(
-					"sticky top-0 z-50 mb-10 px-4 py-5",
+					"site-nav sticky top-0 z-50 mb-10 px-4 py-5",
 					"flex items-center justify-between",
 					"bg-background/85 backdrop-blur-md"
 				)}
 			>
 				<Link
+					aria-label="ekaksh janweja, home"
 					className={cn(
-						"font-normal text-[15px] text-foreground tracking-tight",
+						"nav-brand font-normal text-[15px] text-foreground tracking-tight",
 						"hover-dim",
-						"rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
+						focusRing
 					)}
 					href="/"
 				>
-					ekaksh janweja
+					<span className="nav-brand-full">ekaksh janweja</span>
+					<span className="nav-brand-short">ej</span>
 				</Link>
 
-				<div className="hidden items-center gap-8 md:flex">
+				<div className="nav-links hidden items-center gap-8 md:ml-auto md:flex">
+					<DesktopNavLink
+						className="nav-home"
+						isActive={pathname === homeItem.href}
+						item={homeItem}
+					/>
 					{navItems.map((item) => (
 						<DesktopNavLink
 							isActive={pathname === item.href}
@@ -235,14 +258,33 @@ export function Navbar() {
 							key={item.href}
 						/>
 					))}
-					<ModeToggle />
 				</div>
 
-				<div className="flex items-center gap-3 md:hidden">
+				<div className="nav-actions flex items-center gap-3 md:ml-8 md:gap-4">
+					<Link
+						className={cn(
+							"nav-contact text-[15px] text-foreground",
+							"hover-dim",
+							focusRing
+						)}
+						href={mailTo}
+					>
+						contact
+					</Link>
+					<Link
+						className={cn("nav-cta text-[13px]", focusRing)}
+						href={cal}
+						rel="noopener noreferrer"
+						target="_blank"
+					>
+						{cta}
+					</Link>
+					<span aria-hidden className="nav-sep" />
 					<ModeToggle />
 					<button
-						aria-label="Toggle mobile menu"
-						className="hover-dim -mr-2 rounded p-2 text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
+						aria-expanded={isMobileMenuOpen}
+						aria-label="Toggle menu"
+						className="nav-menu-button hover-dim -mr-2 inline-flex rounded p-2 text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 md:hidden"
 						id="mobile-menu-button"
 						onClick={toggleMobileMenu}
 						type="button"
@@ -258,7 +300,7 @@ export function Navbar() {
 
 			{isMobileMenuOpen && (
 				<div
-					className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md md:hidden"
+					className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md"
 					id="mobile-menu"
 				>
 					<div className="flex justify-end p-4">
