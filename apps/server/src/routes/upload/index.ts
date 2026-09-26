@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { requireSession } from "../../middleware/require-session";
 import type { Env } from "../../types";
+import { DESIGN_KEY } from "../design";
 
 const RESUME_KEY = "resume.pdf";
 const FILE_EXTENSION = /\.[a-z0-9]+$/i;
@@ -66,12 +67,15 @@ uploadRoutes.use("/admin/*", requireSession);
 uploadRoutes.get("/admin/files", async (c) => {
 	const list = await c.env.STORAGE_BUCKET.list();
 	return c.json({
-		files: list.objects.map((object) => ({
-			key: object.key,
-			publicUrl: getFileUrl(new URL(c.req.url).origin, object.key),
-			size: object.size,
-			uploaded: object.uploaded.toISOString(),
-		})),
+		// the published site design lives in the bucket too; it is not a vault file
+		files: list.objects
+			.filter((object) => object.key !== DESIGN_KEY)
+			.map((object) => ({
+				key: object.key,
+				publicUrl: getFileUrl(new URL(c.req.url).origin, object.key),
+				size: object.size,
+				uploaded: object.uploaded.toISOString(),
+			})),
 		resumeKey: RESUME_KEY,
 	});
 });

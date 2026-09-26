@@ -4,6 +4,7 @@ import {
 	ArrowUpRight,
 	FileText,
 	LogOut,
+	Palette,
 	Pencil,
 	Plus,
 	RefreshCcw,
@@ -629,6 +630,27 @@ export default function VaultPage() {
 						</a>
 					</div>
 				</div>
+			</section>
+
+			<section>
+				<div className="mb-4 flex items-baseline justify-between gap-4">
+					<h2 className="section-label">site design</h2>
+				</div>
+				<p className="mb-4 max-w-[58ch] text-[13px] text-muted-foreground leading-5">
+					palettes, fonts, layouts. preview light and dark live, then publish it
+					for everyone.
+				</p>
+				<Link
+					className="group inline-flex items-center gap-2 rounded-full border border-border/40 bg-background px-4 py-2 text-[13px] shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-foreground/40 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
+					href="/vault/design"
+				>
+					<Palette aria-hidden className="size-3.5 shrink-0" />
+					<span>open the design studio</span>
+					<ArrowUpRight
+						aria-hidden
+						className="size-3.5 shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-foreground"
+					/>
+				</Link>
 			</section>
 
 			<section>

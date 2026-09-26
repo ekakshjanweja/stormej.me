@@ -8,6 +8,7 @@ import {
 	VAULT_COOKIE,
 	vaultCookieOptions,
 } from "./lib/vault-gate";
+import { designRoutes } from "./routes/design";
 import { uploadRoutes } from "./routes/upload";
 import type { Env } from "./types";
 
@@ -62,6 +63,7 @@ app.post("/admin/lock", (c) => {
 	return c.json({ ok: true });
 });
 
+app.route("/", designRoutes);
 app.route("/", uploadRoutes);
 
 app.all("/ws", (c) => {

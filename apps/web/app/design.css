@@ -1,0 +1,525 @@
+/* Structural design options (lib/design/options.ts), keyed off the data
+   attributes the root layout puts on <html>. Colours and font roles come from
+   the generated #site-design stylesheet (lib/design/css.ts). The first option
+   of every axis is the original site and has no rules here.
+
+   Hooks: .design-page (outer backdrop), .design-shell (the column),
+   .home-stack / .home-hero and [data-cursor-anchor] (homepage sections),
+   .design-studio (the vault editor, exempt from shell-wide layouts). */
+
+html[data-design] {
+	--design-card-border: 1px solid var(--border);
+	--design-card-shadow: none;
+}
+
+main {
+	counter-reset: design-section;
+}
+
+/* ─── font roles ─────────────────────────────────────────────────────── */
+
+html[data-design] .headline,
+html[data-design] .prose-fuma :is(h1, h2, h3) {
+	font-weight: var(--display-weight);
+	letter-spacing: var(--display-tracking);
+}
+html[data-design] .hero-lede {
+	font-weight: var(--lede-weight);
+	letter-spacing: var(--lede-tracking);
+}
+
+/* ─── shape ──────────────────────────────────────────────────────────── */
+
+html[data-shape="sharp"] {
+	--radius: 0rem;
+}
+html[data-shape="round"] {
+	--radius: 1.15rem;
+}
+html[data-shape="brutal"] {
+	--radius: 0rem;
+	--design-card-border: 2px solid var(--foreground);
+	--design-card-shadow: 5px 5px 0 var(--foreground);
+}
+html[data-shape="brutal"] .rounded-full {
+	border-radius: 0;
+}
+html[data-shape="brutal"] [data-cursor-anchor="stack"] button {
+	border: 2px solid var(--foreground);
+	box-shadow: 3px 3px 0 var(--foreground);
+}
+html[data-shape="brutal"] .prose-fuma :is(figure.shiki, img) {
+	border: 2px solid var(--foreground);
+	box-shadow: 5px 5px 0 var(--foreground);
+}
+
+/* ─── layout ─────────────────────────────────────────────────────────── */
+
+/* compact: narrow and dense everywhere */
+html[data-layout="compact"] .design-shell {
+	max-width: 40rem;
+}
+html[data-layout="compact"] .design-shell > nav {
+	margin-bottom: 1.5rem;
+}
+html[data-layout="compact"] .home-stack > :not(:last-child) {
+	margin-block-end: 2.75rem;
+}
+html[data-layout="compact"] .home-hero .hero-lede {
+	font-size: 1.25rem;
+}
+
+html[data-layout="magazine"] .home-hero {
+	padding-bottom: 3rem;
+	border-bottom: 1px solid var(--border);
+}
+html[data-layout="magazine"] .home-hero h1.hero-lede {
+	max-width: none;
+	font-size: clamp(2.25rem, 6vw, 5rem);
+	line-height: 1;
+}
+html[data-layout="magazine"] .home-hero p.hero-lede {
+	font-size: clamp(1.25rem, 2.2vw, 1.75rem);
+}
+
+@media (min-width: 1024px) {
+	/* split: sticky intro on the left, feed on the right (homepage only) */
+	html[data-layout="split"] .design-shell:has(.home-stack) {
+		max-width: 76rem;
+	}
+	html[data-layout="split"] .home-stack {
+		display: grid;
+		grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+		column-gap: 5rem;
+		align-items: start;
+	}
+	html[data-layout="split"] .home-stack > * {
+		grid-column: 2;
+	}
+	html[data-layout="split"] .home-stack > .home-hero {
+		position: sticky;
+		top: 6rem;
+		grid-row: 1 / span 12;
+		grid-column: 1;
+	}
+	html[data-layout="split"] .home-hero .hero-lede {
+		font-size: 1.75rem;
+	}
+	html[data-layout="split"] .home-hero > div:last-child {
+		flex-direction: column;
+		gap: 1.5rem;
+		align-items: flex-start;
+	}
+
+	/* sidebar: the nav becomes a fixed left rail on every page */
+	html[data-layout="sidebar"] .design-shell:not(:has(.design-studio)) {
+		display: grid;
+		grid-template-columns: 14rem minmax(0, 1fr);
+		column-gap: 3.5rem;
+		align-content: start;
+		align-items: start;
+		max-width: 76rem;
+	}
+	html[data-layout="sidebar"] .design-shell:not(:has(.design-studio)) > nav {
+		position: sticky;
+		top: 0;
+		flex-direction: column;
+		grid-row: 1 / span 2;
+		gap: 2.5rem;
+		align-items: flex-start;
+		justify-content: flex-start;
+		height: 100vh;
+		padding-top: 3.25rem;
+		margin-bottom: 0;
+		background: transparent;
+		border-right: 1px solid var(--border);
+		backdrop-filter: none;
+	}
+	html[data-layout="sidebar"]
+		.design-shell:not(:has(.design-studio))
+		> nav
+		> a:first-child {
+		font-size: 1.125rem;
+	}
+	html[data-layout="sidebar"]
+		.design-shell:not(:has(.design-studio))
+		> nav
+		> div:first-of-type {
+		flex-direction: column;
+		gap: 0.85rem;
+		align-items: flex-start;
+	}
+	html[data-layout="sidebar"]
+		.design-shell:not(:has(.design-studio))
+		> :is(main, footer) {
+		grid-column: 2;
+	}
+	html[data-layout="sidebar"] .design-shell:not(:has(.design-studio)) > main {
+		padding-top: 3.25rem;
+	}
+}
+
+@media (min-width: 768px) {
+	/* bento: homepage sections become cards on a six-column grid */
+	html[data-layout="bento"] .design-shell:has(.home-stack) {
+		max-width: 72rem;
+	}
+	html[data-layout="bento"] .home-stack {
+		display: grid;
+		grid-template-columns: repeat(6, minmax(0, 1fr));
+		grid-auto-flow: dense;
+		gap: 1rem;
+	}
+	html[data-layout="bento"] .home-stack > * {
+		grid-column: span 3;
+		min-width: 0;
+		padding: 1.5rem;
+		margin: 0;
+		background: var(--card);
+		border: var(--design-card-border);
+		border-radius: calc(var(--radius) + 4px);
+		box-shadow: var(--design-card-shadow);
+	}
+	html[data-layout="bento"]
+		.home-stack
+		> :is(
+			.home-hero,
+			[data-cursor-anchor="contributions"],
+			[data-cursor-anchor="watch"]
+		) {
+		grid-column: span 6;
+	}
+	html[data-layout="bento"] .home-stack > .home-hero {
+		padding: 2.5rem;
+	}
+	html[data-layout="bento"] .home-stack > [data-cursor-anchor="work"] {
+		grid-column: span 4;
+	}
+	html[data-layout="bento"] .home-stack > [data-cursor-anchor="stack"] {
+		grid-column: span 2;
+	}
+
+	/* magazine: a poster of an intro, then a two-column feed */
+	html[data-layout="magazine"] .design-shell:has(.home-stack) {
+		max-width: 74rem;
+	}
+	html[data-layout="magazine"] .home-stack {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 4rem 4.5rem;
+	}
+	html[data-layout="magazine"] .home-stack > * {
+		min-width: 0;
+		margin: 0;
+	}
+	html[data-layout="magazine"]
+		.home-stack
+		> :is(
+			.home-hero,
+			[data-cursor-anchor="work"],
+			[data-cursor-anchor="contributions"]
+		) {
+		grid-column: span 2;
+	}
+}
+
+/* window: the whole site framed as an app window */
+html[data-layout="window"] .design-page {
+	padding: 1rem 0.75rem;
+	background: var(--muted);
+}
+html[data-layout="window"] .design-shell:not(:has(.design-studio)) {
+	min-height: calc(100vh - 2rem);
+	background: var(--background);
+	border: var(--design-card-border);
+	border-radius: calc(var(--radius) + 6px);
+	box-shadow:
+		var(--design-card-shadow),
+		0 40px 80px -40px rgb(0 0 0 / 0.35);
+}
+html[data-layout="window"] .design-shell:not(:has(.design-studio))::before {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 2.5rem;
+	font-family: var(--font-label);
+	font-size: 0.6875rem;
+	color: var(--muted-foreground);
+	letter-spacing: 0.08em;
+	content: "stormej.me";
+	background:
+		radial-gradient(circle at 1.25rem 50%, #ff5f57 0.32rem, transparent 0.36rem),
+		radial-gradient(circle at 2.25rem 50%, #febc2e 0.32rem, transparent 0.36rem),
+		radial-gradient(circle at 3.25rem 50%, #28c840 0.32rem, transparent 0.36rem);
+	border-bottom: var(--design-card-border);
+}
+@media (min-width: 768px) {
+	html[data-layout="window"] .design-page {
+		padding: 2.5rem 1.5rem;
+	}
+	html[data-layout="window"] .design-shell:not(:has(.design-studio)) {
+		min-height: calc(100vh - 5rem);
+	}
+}
+
+/* ─── intro size ─────────────────────────────────────────────────────── */
+
+html[data-scale="small"] .home-hero .hero-lede {
+	font-size: 1.25rem;
+}
+html[data-scale="large"] .home-hero .hero-lede {
+	font-size: clamp(1.625rem, 3.2vw, 2.25rem);
+	line-height: 1.2;
+}
+html[data-scale="huge"] .home-hero h1.hero-lede {
+	max-width: none;
+	font-size: clamp(2.5rem, 6.5vw, 5.25rem);
+	line-height: 1;
+}
+html[data-scale="huge"] .home-hero p.hero-lede {
+	font-size: clamp(1.25rem, 2.4vw, 1.875rem);
+}
+
+/* ─── headings ───────────────────────────────────────────────────────── */
+
+html[data-heading="numbered"] .section-label::before {
+	margin-right: 0.75em;
+	color: var(--text-highlight);
+	content: counter(design-section, decimal-leading-zero) " —";
+	counter-increment: design-section;
+}
+
+html[data-heading="serif"] .section-label {
+	font-family: var(--font-display);
+	font-size: 1.75rem;
+	font-style: italic;
+	font-weight: var(--display-weight);
+	line-height: 1;
+	text-transform: lowercase;
+	letter-spacing: var(--display-tracking);
+}
+
+html[data-heading="rule"] .section-label {
+	display: flex;
+	flex: 1;
+	gap: 0.75rem;
+	align-items: center;
+}
+html[data-heading="rule"] .section-label::after {
+	flex: 1;
+	height: 1px;
+	content: "";
+	background-color: var(--border);
+}
+html[data-heading="rule"] .section-label + a {
+	margin-left: 0.75rem;
+}
+
+html[data-heading="bracket"] .section-label::before {
+	color: var(--text-highlight);
+	content: "[ ";
+}
+html[data-heading="bracket"] .section-label::after {
+	color: var(--text-highlight);
+	content: " ]";
+}
+
+html[data-heading="slash"] .section-label::before {
+	color: var(--text-highlight);
+	content: "// ";
+}
+
+html[data-heading="marker"] .section-label {
+	width: fit-content;
+	padding: 0 0.3em;
+	margin-left: -0.3em;
+	background: linear-gradient(
+		transparent 45%,
+		color-mix(in oklab, var(--text-highlight) 40%, transparent) 45%
+	);
+}
+
+html[data-heading="block"] .section-label {
+	width: fit-content;
+	padding: 0.35em 0.7em;
+	color: var(--background);
+	background: var(--foreground);
+	border-radius: var(--radius);
+	box-shadow: var(--design-card-shadow);
+}
+html[data-heading="block"] .section-label .meta-tag {
+	color: inherit;
+	opacity: 0.7;
+}
+
+/* ─── links ──────────────────────────────────────────────────────────── */
+
+html[data-link="underline"] :is(.squiggle-link, .squiggle-link-hover)::after {
+	height: 1px;
+	-webkit-mask-image: none;
+	mask-image: none;
+}
+html[data-link="underline"] .squiggle-link::after {
+	bottom: 0;
+}
+html[data-link="underline"] .squiggle-link-hover::after {
+	opacity: 1;
+	transform: scaleX(0);
+	transform-origin: left;
+	transition: transform 0.25s ease;
+}
+html[data-link="underline"]
+	:is(.group:hover, .group:focus-visible)
+	.squiggle-link-hover::after {
+	transform: scaleX(1);
+}
+
+html[data-link="marker"] :is(.squiggle-link, .squiggle-link-hover) {
+	z-index: 0;
+}
+html[data-link="marker"] :is(.squiggle-link, .squiggle-link-hover)::after {
+	bottom: 0.08em;
+	left: -0.12em;
+	z-index: -1;
+	width: calc(100% + 0.24em);
+	height: 0.55em;
+	opacity: 0.3;
+	-webkit-mask-image: none;
+	mask-image: none;
+}
+html[data-link="marker"] .squiggle-link-hover::after {
+	transform: scaleX(0);
+	transform-origin: left;
+	transition: transform 0.3s ease;
+}
+html[data-link="marker"]
+	:is(.group:hover, .group:focus-visible)
+	.squiggle-link-hover::after {
+	opacity: 0.3;
+	transform: scaleX(1);
+}
+
+html[data-link="invert"] :is(.squiggle-link, .squiggle-link-hover) {
+	z-index: 0;
+	transition: color 0.2s ease;
+}
+html[data-link="invert"] :is(.squiggle-link, .squiggle-link-hover)::after {
+	inset: 0 -0.15em;
+	z-index: -1;
+	width: auto;
+	height: auto;
+	background-color: var(--foreground);
+	opacity: 1;
+	-webkit-mask-image: none;
+	mask-image: none;
+	transform: scaleY(0);
+	transform-origin: bottom;
+	transition: transform 0.2s ease;
+}
+html[data-link="invert"] .squiggle-link::after {
+	background-color: color-mix(in oklab, var(--text-highlight) 28%, transparent);
+	transform: none;
+}
+html[data-link="invert"]
+	:is(.group:hover, .group:focus-visible)
+	.squiggle-link-hover {
+	color: var(--background);
+}
+html[data-link="invert"]
+	:is(.group:hover, .group:focus-visible)
+	.squiggle-link-hover::after {
+	transform: scaleY(1);
+}
+
+html[data-link="dotted"] :is(.squiggle-link, .squiggle-link-hover)::after {
+	bottom: -2px;
+	height: 0;
+	background: none;
+	border-bottom: 2px dotted var(--text-highlight);
+	-webkit-mask-image: none;
+	mask-image: none;
+}
+
+html[data-link="marker"] .prose-fuma a,
+html[data-link="invert"] .prose-fuma a {
+	color: inherit;
+	text-decoration: none;
+	background-image: linear-gradient(
+		color-mix(in oklab, var(--text-highlight) 30%, transparent),
+		color-mix(in oklab, var(--text-highlight) 30%, transparent)
+	);
+	background-repeat: no-repeat;
+	background-position: 0 88%;
+	background-size: 100% 0.45em;
+}
+html[data-link="dotted"] .prose-fuma a {
+	text-decoration-thickness: 2px;
+	text-decoration-style: dotted;
+}
+
+/* ─── texture ────────────────────────────────────────────────────────── */
+
+html[data-texture="grid"] body {
+	background-image:
+		linear-gradient(
+			color-mix(in oklab, var(--border) 75%, transparent) 1px,
+			transparent 1px
+		),
+		linear-gradient(
+			90deg,
+			color-mix(in oklab, var(--border) 75%, transparent) 1px,
+			transparent 1px
+		);
+	background-size: 28px 28px;
+}
+
+html[data-texture="dots"] body {
+	background-image: radial-gradient(
+		color-mix(in oklab, var(--foreground) 20%, transparent) 1px,
+		transparent 1.5px
+	);
+	background-size: 18px 18px;
+}
+
+/* patterns sit on <body>, so the page backdrop has to get out of the way */
+html[data-texture]:not([data-texture="none"]) .design-page {
+	background-color: transparent;
+}
+html[data-texture]:not([data-texture="none"]) body {
+	background-color: var(--background);
+}
+html[data-layout="window"][data-texture]:not([data-texture="none"])
+	.design-page {
+	background-color: color-mix(in oklab, var(--muted) 70%, transparent);
+}
+
+html:is([data-texture="grain"], [data-texture="scanlines"]) body::after {
+	position: fixed;
+	inset: 0;
+	z-index: 70;
+	pointer-events: none;
+	content: "";
+}
+html[data-texture="grain"] body::after {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+	mix-blend-mode: multiply;
+	opacity: 0.08;
+}
+html[data-texture="grain"].dark body::after {
+	mix-blend-mode: screen;
+	opacity: 0.06;
+}
+html[data-texture="scanlines"] body::after {
+	background-image: repeating-linear-gradient(
+		to bottom,
+		rgb(0 0 0 / 0.05) 0 1px,
+		transparent 1px 3px
+	);
+}
+html[data-texture="scanlines"].dark body::after {
+	background-image: repeating-linear-gradient(
+		to bottom,
+		rgb(255 255 255 / 0.035) 0 1px,
+		transparent 1px 3px
+	);
+}

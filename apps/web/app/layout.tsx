@@ -1,59 +1,17 @@
 import type { Metadata } from "next";
-import {
-	EB_Garamond,
-	Geist,
-	Geist_Mono,
-	Handjet,
-	Instrument_Serif,
-	Space_Mono,
-} from "next/font/google";
 import "./globals.css";
-import "./design-lab.css";
+import "./design.css";
 import { RootProvider } from "fumadocs-ui/provider/next";
-import { DesignLab } from "@/components/design-lab";
+import { DesignPreviewBridge } from "@/components/design/preview-bridge";
 import Footer from "@/components/footer";
 import { Navbar } from "@/components/navbar";
-import { DESIGN_INIT_SCRIPT } from "@/lib/design-lab";
+import { designAttributes, designCss } from "@/lib/design/css";
+import { getPublishedDesign } from "@/lib/design/server";
 import { PostHogProvider } from "@/lib/providers/posthog-provider";
 import { RealtimeProvider } from "@/lib/providers/realtime-provider";
 import { ThemeProvider } from "@/lib/providers/theme-provider";
 import { buildWebSiteSchema, jsonLd, SITE_TAGLINE } from "@/lib/schema";
-
-const geistSans = Geist({
-	subsets: ["latin"],
-	variable: "--font-geist-sans",
-});
-
-const geistMono = Geist_Mono({
-	subsets: ["latin"],
-	variable: "--font-geist-mono",
-});
-
-const spaceMono = Space_Mono({
-	style: ["italic", "normal"],
-	subsets: ["latin"],
-	variable: "--font-space-mono",
-	weight: ["400", "700"],
-});
-
-const ebGaramond = EB_Garamond({
-	subsets: ["latin"],
-	variable: "--font-garamond",
-	weight: ["400", "500"],
-});
-
-const handjet = Handjet({
-	subsets: ["latin"],
-	variable: "--font-handjet",
-	weight: ["400", "500"],
-});
-
-const instrumentSerif = Instrument_Serif({
-	style: ["italic", "normal"],
-	subsets: ["latin"],
-	variable: "--font-instrument-serif",
-	weight: ["400"],
-});
+import { fontVariables } from "./fonts";
 
 export const metadata: Metadata = {
 	applicationName: "stormej.me",
@@ -128,16 +86,19 @@ export const metadata: Metadata = {
 	},
 };
 
-export default function RootLayout({
+export default async function RootLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	const design = await getPublishedDesign();
+
 	return (
 		<html
-			className={`${geistSans.variable} ${geistMono.variable} ${spaceMono.variable} ${ebGaramond.variable} ${handjet.variable} ${instrumentSerif.variable}`}
+			className={fontVariables}
 			lang="en"
 			suppressHydrationWarning
+			{...designAttributes(design)}
 		>
 			<body
 				className="antialiased"
@@ -146,9 +107,10 @@ export default function RootLayout({
 				}}
 				suppressHydrationWarning
 			>
-				<script
-					// biome-ignore lint/security/noDangerouslySetInnerHtml: must run before paint so a stored design never flashes the default
-					dangerouslySetInnerHTML={{ __html: DESIGN_INIT_SCRIPT }}
+				<style
+					// biome-ignore lint/security/noDangerouslySetInnerHtml: generated from validated ids and #rrggbb colours only (lib/design/css.ts)
+					dangerouslySetInnerHTML={{ __html: designCss(design) }}
+					id="site-design"
 				/>
 				<script
 					// biome-ignore lint/security/noDangerouslySetInnerHtml: json-ld is serialised by jsonLd(); next has no other way to emit structured data
@@ -172,7 +134,7 @@ export default function RootLayout({
 						</a>
 						<RootProvider theme={{ enabled: false }}>
 							<RealtimeProvider>
-								<div className="min-h-screen bg-background">
+								<div className="design-page min-h-screen bg-background">
 									<div className="flex w-full justify-center">
 										<div className="design-shell flex min-h-screen w-full flex-col md:max-w-3xl">
 											<Navbar />
@@ -187,7 +149,7 @@ export default function RootLayout({
 										</div>
 									</div>
 								</div>
-								<DesignLab />
+								<DesignPreviewBridge />
 							</RealtimeProvider>
 						</RootProvider>
 					</ThemeProvider>
