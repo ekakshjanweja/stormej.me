@@ -3,11 +3,11 @@ import { buildProfilePageSchema, jsonLd, SITE_TAGLINE } from "@/lib/schema";
 import { BlogRow } from "./_components/blog-row";
 import { Contributions } from "./_components/contributions";
 import Hero from "./_components/hero";
+import { Projects } from "./_components/projects";
 import { PublicationsRow } from "./_components/publications-row";
 import Stack from "./_components/stack";
 import { TroveRow } from "./_components/trove-row";
 import { WatchRow } from "./_components/watch-row";
-// import { Projects } from "./_components/projects";
 import Work from "./_components/work";
 
 export const metadata: Metadata = {
@@ -39,7 +39,7 @@ export default async function Home() {
 			<div className="space-y-16">
 				<Hero />
 				<Work />
-				{/* <Projects /> */}
+				<Projects />
 				<PublicationsRow />
 				<BlogRow />
 				<TroveRow />

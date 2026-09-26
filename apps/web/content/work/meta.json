@@ -1,6 +1,13 @@
 {
   "title": "work",
-  "pages": ["fpv-labs", "digital-domi", "merlin", "team-black-box", "zuai"],
-  "home": ["fpv-labs", "digital-domi", "merlin"],
+  "pages": [
+    "bullzeye",
+    "fpv-labs",
+    "digital-domi",
+    "merlin",
+    "team-black-box",
+    "zuai"
+  ],
+  "home": ["bullzeye", "fpv-labs", "digital-domi"],
   "homeCount": 3
 }

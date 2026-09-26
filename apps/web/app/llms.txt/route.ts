@@ -68,10 +68,13 @@ export function GET() {
 	lines.push("# stormej.me — ekaksh janweja");
 	lines.push("");
 	lines.push(
-		"> mobile developer (flutter, dart, ios, android) building products at early-stage startups."
+		"> mobile engineer (flutter, dart, ios, android) building spatial computing and ai systems."
 	);
 	lines.push(
-		"> currently building ar data capture systems at fpv labs (arkit, arcore, sensor pipelines)."
+		"> currently building spatial capture and geometry systems on iphone lidar at bullzeye."
+	);
+	lines.push(
+		"> previously built ar data capture systems at fpv labs (arkit, arcore, sensor pipelines)."
 	);
 	lines.push(
 		"> based in new delhi, india. writes about mobile development, large file uploads, and shipping apps."
@@ -83,7 +86,10 @@ export function GET() {
 
 	lines.push("## skills");
 	lines.push("- mobile: flutter, dart, ios, android");
-	lines.push("- ar: arkit, arcore, ar data capture (camera, imu, lidar)");
+	lines.push(
+		"- spatial: arkit, arcore, iphone lidar, depth, ar data capture (camera, imu, lidar)"
+	);
+	lines.push("- ai: realtime voice, vision, llms, agents, memory");
 	lines.push("- state & data: riverpod, firebase, rest apis, sqlite");
 	lines.push("- uploads: resumable / multipart / background uploads");
 	lines.push("- web: typescript, next.js, cloudflare workers, bun");

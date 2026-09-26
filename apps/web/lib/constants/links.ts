@@ -11,6 +11,7 @@ export const nvimDotFiles = "https://github.com/ekakshjanweja/neovim_dotfiles";
 
 //Work Ex Links
 
+export const bullzeye = "https://bullzeyegolf.com/";
 export const fpvLabs = "https://www.fpvlabs.ai/";
 export const domi = "https://digitaldomi.com/";
 export const getMerlin = "https://www.getmerlin.in/";

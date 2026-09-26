@@ -2,9 +2,8 @@
 
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
-import { LinkPreview } from "@/components/ui/link-preview";
 import { track } from "@/lib/analytics";
-import { fpvLabs, resume } from "@/lib/constants/links";
+import { resume } from "@/lib/constants/links";
 import SocialLinks from "./social-links";
 
 const CAL_URL = "https://cal.com/ekaksh-janweja-pfvauh";
@@ -24,19 +23,13 @@ export default function Hero() {
 				className="hero-lede max-w-[58ch] text-2xl leading-[1.35]"
 				id="hero-heading"
 			>
-				mobile engineer building fast, reliable software across ai, robotics,
-				and consumer products.
+				mobile engineer building spatial computing and ai systems that work in
+				the real world.
 			</h1>
 
 			<p className="hero-lede mt-5 max-w-[58ch] text-2xl text-muted-foreground leading-[1.35]">
-				currently solving data capture for physical intelligence at{" "}
-				<LinkPreview
-					className="squiggle-link !text-[var(--text-highlight)] font-serif italic"
-					url={fpvLabs}
-				>
-					fpv labs
-				</LinkPreview>
-				.
+				currently building spatial capture and geometry systems on iphone lidar
+				for physical-world applications.
 			</p>
 
 			<div className="mt-10 flex flex-col gap-6 sm:mt-12 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
