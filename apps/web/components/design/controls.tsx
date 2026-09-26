@@ -2,9 +2,13 @@
 
 import { type ChangeEvent, useCallback, useEffect, useState } from "react";
 import {
+	COPY_FIELDS,
+	COPY_OPTIONS,
 	FONTS,
 	type FontId,
+	type HeroCopy,
 	isHexColor,
+	matchCopyOption,
 	PALETTE_TOKEN_KEYS,
 	PALETTE_TOKEN_LABELS,
 	type PaletteModes,
@@ -289,5 +293,112 @@ export function ColourColumn({
 				/>
 			))}
 		</div>
+	);
+}
+
+const COPY_CHOICES = COPY_OPTIONS.map((option) => ({
+	hint: option.hint,
+	label: option.id,
+	value: option.id,
+}));
+
+const fieldClass =
+	"w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-[13px] leading-snug outline-none focus:border-foreground/40";
+
+function CopyField({
+	field,
+	value,
+	onChange,
+}: {
+	field: (typeof COPY_FIELDS)[number];
+	onChange: (key: keyof HeroCopy, value: string) => void;
+	value: string;
+}) {
+	const handleChange = useCallback(
+		(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+			onChange(field.key, event.target.value),
+		[field.key, onChange]
+	);
+	const id = `design-copy-${field.key}`;
+
+	return (
+		<div className="flex flex-col gap-1">
+			<div className="flex items-baseline justify-between gap-2 text-[11px] uppercase tracking-[0.08em]">
+				<label className="text-muted-foreground" htmlFor={id}>
+					{field.label}
+				</label>
+				<span className="text-muted-foreground/70 tabular-nums tracking-normal">
+					{value.length}/{field.max}
+				</span>
+			</div>
+			{field.multiline ? (
+				<textarea
+					className={cn(fieldClass, "resize-y")}
+					id={id}
+					maxLength={field.max}
+					onChange={handleChange}
+					rows={3}
+					value={value}
+				/>
+			) : (
+				<input
+					className={fieldClass}
+					id={id}
+					maxLength={field.max}
+					onChange={handleChange}
+					type="text"
+					value={value}
+				/>
+			)}
+		</div>
+	);
+}
+
+/** pick a written option as a starting point, then edit any line by hand */
+export function CopyEditor({
+	copy,
+	onChange,
+}: {
+	copy: HeroCopy;
+	onChange: (copy: HeroCopy) => void;
+}) {
+	const pickOption = useCallback(
+		(id: string) => {
+			const option = COPY_OPTIONS.find((item) => item.id === id);
+			if (option) {
+				onChange(option.copy);
+			}
+		},
+		[onChange]
+	);
+	const editField = useCallback(
+		(key: keyof HeroCopy, value: string) => onChange({ ...copy, [key]: value }),
+		[copy, onChange]
+	);
+
+	return (
+		<>
+			<ChoiceGroup
+				label="start from"
+				name="design-copy"
+				onChange={pickOption}
+				options={COPY_CHOICES}
+				value={matchCopyOption(copy)?.id}
+			/>
+			<div className="flex flex-col gap-3">
+				{COPY_FIELDS.map((field) => (
+					<CopyField
+						field={field}
+						key={field.key}
+						onChange={editField}
+						value={copy[field.key]}
+					/>
+				))}
+			</div>
+			<p className="mt-3 text-[12px] text-muted-foreground">
+				leave the eyebrow or subline empty to hide them. the button label is
+				shared with the centred navbar.
+			</p>
+		</>
 	);
 }

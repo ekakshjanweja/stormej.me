@@ -601,6 +601,18 @@ export const LAYOUTS = [
 	option("window", "window", "the whole site in an app window"),
 ] as const;
 
+export const NAVS = [
+	option("classic", "classic", "name left, links right"),
+	option("minimal", "minimal", "just your name and a way to reach you"),
+	option("framed", "framed", "rails and hairlines around the bar"),
+	option("links", "links first", "links on the left, fades out on scroll"),
+	option("centered", "centred", "links in the middle, a button on the right"),
+	option("island", "island", "floating pill at the top"),
+	option("dock", "dock", "floating pill at the bottom"),
+	option("masthead", "masthead", "big name, links underneath"),
+	option("keys", "keys", "every link shows its keyboard shortcut"),
+] as const;
+
 export const HEADINGS = [
 	option("label", "label", "tracked mono caps"),
 	option("numbered", "numbered", "01 — numbered"),
@@ -651,6 +663,7 @@ type ValueOf<T extends readonly { value: string }[]> = T[number]["value"];
 type LedeFont = ValueOf<typeof LEDE_FONTS>;
 
 export const STRUCTURE_AXES = [
+	{ key: "nav", label: "navbar", options: NAVS },
 	{ key: "layout", label: "layout", options: LAYOUTS },
 	{ key: "heading", label: "headings", options: HEADINGS },
 	{ key: "link", label: "links", options: LINKS },
@@ -662,9 +675,124 @@ export const STRUCTURE_AXES = [
 export type StructureAxis = (typeof STRUCTURE_AXES)[number];
 export type StructureKey = StructureAxis["key"];
 
+// ─── hero copy ──────────────────────────────────────────────────────────
+
+/** the words at the top of the homepage; rendered as text, never as html */
+export interface HeroCopy {
+	/** button to cal.com */
+	cta: string;
+	/** small caps line above the headline; empty hides it */
+	eyebrow: string;
+	headline: string;
+	/** quieter second paragraph; empty hides it */
+	subline: string;
+}
+
+export const COPY_FIELDS = [
+	{ key: "eyebrow", label: "eyebrow", max: 60, multiline: false },
+	{ key: "headline", label: "headline", max: 180, multiline: true },
+	{ key: "subline", label: "subline", max: 320, multiline: true },
+	{ key: "cta", label: "button", max: 32, multiline: false },
+] as const satisfies readonly {
+	key: keyof HeroCopy;
+	label: string;
+	max: number;
+	multiline: boolean;
+}[];
+
+export const COPY_OPTIONS: { copy: HeroCopy; hint: string; id: string }[] = [
+	{
+		copy: {
+			cta: "get in touch",
+			eyebrow: "",
+			headline:
+				"mobile engineer building spatial computing and ai systems that work in the real world.",
+			subline:
+				"currently building spatial capture and geometry systems on iphone lidar for physical-world applications.",
+		},
+		hint: "what shipped before the studio",
+		id: "original",
+	},
+	{
+		copy: {
+			cta: "say hi",
+			eyebrow: "ekaksh janweja · new delhi",
+			headline: "i build mobile apps that understand the room they're in.",
+			subline:
+				"right now that means turning iphone lidar scans into geometry an app can trust. before that: ar capture at fpv labs and a mailbox app built from scratch at digital domi.",
+		},
+		hint: "plain words, one clear idea",
+		id: "plain",
+	},
+	{
+		copy: {
+			cta: "get in touch",
+			eyebrow: "mobile engineer",
+			headline: "i make phones see in 3d.",
+			subline:
+				"lidar, depth and on-device geometry on iphone. shipping flutter and native apps to real people since 2021.",
+		},
+		hint: "short and loud",
+		id: "punchy",
+	},
+	{
+		copy: {
+			cta: "work with me",
+			eyebrow: "mobile engineer @ bullzeye",
+			headline: "spatial capture, ar and ai products, end to end on mobile.",
+			subline:
+				"founding mobile engineer at digital domi, ar capture at fpv labs, and co-author of mobileego anywhere: 200 hours of egocentric data recorded on everyday phones.",
+		},
+		hint: "leads with the receipts",
+		id: "proof",
+	},
+	{
+		copy: {
+			cta: "let's talk",
+			eyebrow: "hello, नमस्ते",
+			headline:
+				"i'm ekaksh, a mobile engineer who sweats the details you feel but never notice.",
+			subline:
+				"these days i'm teaching iphones to measure the physical world. off the clock: valorant, mechanical keyboards and seedhe maut on repeat.",
+		},
+		hint: "a greeting and a bit of personality",
+		id: "warm",
+	},
+	{
+		copy: {
+			cta: "contact",
+			eyebrow: "",
+			headline: "mobile engineer. spatial computing. ai.",
+			subline: "currently: lidar capture and on-device geometry at bullzeye.",
+		},
+		hint: "three words and a status line",
+		id: "terse",
+	},
+	{
+		copy: {
+			cta: "get in touch",
+			eyebrow: "ios · android · lidar",
+			headline:
+				"from depth sensor to app store, i build the whole mobile stack.",
+			subline:
+				"capture, geometry, upload pipelines and the interface on top, in flutter, swift and arkit, shipped to real users on both platforms.",
+		},
+		hint: "full-stack mobile, top to bottom",
+		id: "builder",
+	},
+];
+
+export const DEFAULT_COPY: HeroCopy = COPY_OPTIONS[0]?.copy as HeroCopy;
+
+export const matchCopyOption = (copy: HeroCopy) =>
+	COPY_OPTIONS.find((candidate) =>
+		COPY_FIELDS.every(({ key }) => candidate.copy[key] === copy[key])
+	);
+
 // ─── the config ─────────────────────────────────────────────────────────
 
 export interface DesignConfig {
+	copy: HeroCopy;
 	/** only read when palette is "custom" */
 	custom: PaletteModes;
 	fontBody: FontId;
@@ -674,6 +802,7 @@ export interface DesignConfig {
 	layout: ValueOf<typeof LAYOUTS>;
 	lede: LedeFont;
 	link: ValueOf<typeof LINKS>;
+	nav: ValueOf<typeof NAVS>;
 	palette: PaletteId;
 	scale: ValueOf<typeof SCALES>;
 	shape: ValueOf<typeof SHAPES>;
@@ -683,6 +812,7 @@ export interface DesignConfig {
 const SLATE = PALETTES[0].modes;
 
 export const DEFAULT_DESIGN: DesignConfig = {
+	copy: DEFAULT_COPY,
 	custom: SLATE,
 	fontBody: "geist",
 	fontDisplay: "instrument-serif",
@@ -691,6 +821,7 @@ export const DEFAULT_DESIGN: DesignConfig = {
 	layout: "column",
 	lede: "body",
 	link: "squiggle",
+	nav: "classic",
 	palette: "slate",
 	scale: "regular",
 	shape: "soft",
@@ -701,9 +832,11 @@ export const DEFAULT_DESIGN: DesignConfig = {
 
 type PresetConfig = Omit<
 	DesignConfig,
-	"custom" | "fontBody" | "fontDisplay" | "fontLabel" | "lede"
+	"copy" | "custom" | "fontBody" | "fontDisplay" | "fontLabel" | "lede" | "nav"
 > & {
 	fonts: (typeof FONT_PAIRINGS)[number]["id"];
+	/** older presets predate the navbar axis and keep the classic bar */
+	nav?: DesignConfig["nav"];
 };
 
 const RAW_PRESETS: {
@@ -893,6 +1026,126 @@ const RAW_PRESETS: {
 		description: "8-bit desktop app",
 		id: "arcade",
 	},
+	{
+		config: {
+			fonts: "grotesk",
+			heading: "rule",
+			layout: "column",
+			link: "underline",
+			nav: "framed",
+			palette: "ink",
+			scale: "regular",
+			shape: "sharp",
+			texture: "none",
+		},
+		description: "rails and hairlines, component-library craft",
+		id: "framed",
+	},
+	{
+		config: {
+			fonts: "editorial",
+			heading: "label",
+			layout: "compact",
+			link: "underline",
+			nav: "minimal",
+			palette: "paper",
+			scale: "large",
+			shape: "soft",
+			texture: "none",
+		},
+		description: "a name, a contact link, the work",
+		id: "quiet",
+	},
+	{
+		config: {
+			fonts: "grotesk",
+			heading: "label",
+			layout: "column",
+			link: "underline",
+			nav: "links",
+			palette: "slate",
+			scale: "large",
+			shape: "soft",
+			texture: "none",
+		},
+		description: "links first, header fades into the page",
+		id: "tinkerer",
+	},
+	{
+		config: {
+			fonts: "grotesk",
+			heading: "block",
+			layout: "magazine",
+			link: "underline",
+			nav: "centered",
+			palette: "ink",
+			scale: "huge",
+			shape: "soft",
+			texture: "none",
+		},
+		description: "centred nav and a button, like a product launch",
+		id: "launch",
+	},
+	{
+		config: {
+			fonts: "soft",
+			heading: "serif",
+			layout: "compact",
+			link: "marker",
+			nav: "dock",
+			palette: "rose",
+			scale: "large",
+			shape: "round",
+			texture: "grain",
+		},
+		description: "a greeting up top, a dock at the bottom",
+		id: "hello",
+	},
+	{
+		config: {
+			fonts: "soft",
+			heading: "marker",
+			layout: "bento",
+			link: "marker",
+			nav: "island",
+			palette: "dusk",
+			scale: "large",
+			shape: "round",
+			texture: "none",
+		},
+		description: "floating pill over a bento grid",
+		id: "island",
+	},
+	{
+		config: {
+			fonts: "quarterly",
+			heading: "serif",
+			layout: "magazine",
+			link: "underline",
+			nav: "masthead",
+			palette: "paper",
+			scale: "large",
+			shape: "sharp",
+			texture: "grain",
+		},
+		description: "a newspaper masthead",
+		id: "broadsheet",
+	},
+	{
+		config: {
+			fonts: "terminal",
+			heading: "slash",
+			layout: "compact",
+			link: "dotted",
+			nav: "keys",
+			palette: "slate",
+			scale: "regular",
+			shape: "sharp",
+			texture: "none",
+		},
+		description: "keyboard first, every link shows its key",
+		id: "keys",
+	},
 ];
 
 export function applyFontPairing(
@@ -931,17 +1184,26 @@ export function matchFontPairing(config: DesignConfig) {
 	);
 }
 
+/** presets are looks only; applying one keeps whatever copy you wrote */
+export const applyPreset = (
+	config: DesignConfig,
+	preset: DesignConfig
+): DesignConfig => ({ ...preset, copy: config.copy });
+
 export function matchPreset(config: DesignConfig) {
-	const key = designKey(config);
+	const key = designKey({ ...config, copy: DEFAULT_COPY });
 	return DESIGN_PRESETS.find((preset) => designKey(preset.config) === key);
 }
 
 /** stable identity for comparing designs; custom colours only count when used */
 export function designKey(config: DesignConfig) {
-	const { custom, ...rest } = config;
+	const { copy, custom, ...rest } = config;
 	const entries = Object.entries(rest).sort(([a], [b]) => a.localeCompare(b));
+	const copyEntries = COPY_FIELDS.map(({ key }) => copy[key]);
 	return JSON.stringify(
-		config.palette === "custom" ? [entries, custom] : entries
+		config.palette === "custom"
+			? [entries, copyEntries, custom]
+			: [entries, copyEntries]
 	);
 }
 
@@ -991,6 +1253,32 @@ function normalizeTokens(
 	return result;
 }
 
+const RUNS_OF_WHITESPACE = /\s+/g;
+
+/** plain single-line text: newlines and runs of spaces collapse, capped */
+const cleanText = (value: unknown, max: number) =>
+	typeof value === "string"
+		? value.replace(RUNS_OF_WHITESPACE, " ").trim().slice(0, max)
+		: null;
+
+function normalizeCopy(input: unknown): HeroCopy {
+	const source =
+		input && typeof input === "object"
+			? (input as Record<string, unknown>)
+			: {};
+	const result = { ...DEFAULT_COPY };
+	for (const { key, max } of COPY_FIELDS) {
+		const value = cleanText(source[key], max);
+		if (value !== null) {
+			result[key] = value;
+		}
+	}
+	// the headline and button carry the section; never let them go blank
+	result.headline ||= DEFAULT_COPY.headline;
+	result.cta ||= DEFAULT_COPY.cta;
+	return result;
+}
+
 /**
  * Accepts anything (stored JSON, a postMessage, a request body) and returns a
  * fully valid design. Every value that ends up in generated CSS is either an
@@ -1007,6 +1295,7 @@ export function normalizeDesign(input: unknown): DesignConfig {
 			: {};
 
 	return {
+		copy: normalizeCopy(source.copy),
 		custom: {
 			dark: normalizeTokens(custom.dark, SLATE.dark),
 			light: normalizeTokens(custom.light, SLATE.light),
@@ -1018,6 +1307,7 @@ export function normalizeDesign(input: unknown): DesignConfig {
 		layout: pick(values(LAYOUTS), source.layout, DEFAULT_DESIGN.layout),
 		lede: pick(values(LEDE_FONTS), source.lede, DEFAULT_DESIGN.lede),
 		link: pick(values(LINKS), source.link, DEFAULT_DESIGN.link),
+		nav: pick(values(NAVS), source.nav, DEFAULT_DESIGN.nav),
 		palette: pick(PALETTE_IDS, source.palette, DEFAULT_DESIGN.palette),
 		scale: pick(values(SCALES), source.scale, DEFAULT_DESIGN.scale),
 		shape: pick(values(SHAPES), source.shape, DEFAULT_DESIGN.shape),
@@ -1075,11 +1365,13 @@ export function randomPalette(): PaletteModes {
 	};
 }
 
-export function shuffleDesign(): DesignConfig {
+/** a random look; the copy is yours and stays put */
+export function shuffleDesign(copy: HeroCopy): DesignConfig {
 	const useRandomColours = Math.random() < RANDOM_PALETTE_CHANCE;
 	const pairing = randomItem(FONT_PAIRINGS);
 	return applyFontPairing(
 		{
+			copy,
 			custom: useRandomColours ? randomPalette() : DEFAULT_DESIGN.custom,
 			fontBody: DEFAULT_DESIGN.fontBody,
 			fontDisplay: DEFAULT_DESIGN.fontDisplay,
@@ -1088,6 +1380,7 @@ export function shuffleDesign(): DesignConfig {
 			layout: randomItem(LAYOUTS).value,
 			lede: DEFAULT_DESIGN.lede,
 			link: randomItem(LINKS).value,
+			nav: randomItem(NAVS).value,
 			palette: useRandomColours ? "custom" : randomItem(PALETTES).id,
 			scale: randomItem(SCALES).value,
 			shape: randomItem(SHAPES).value,

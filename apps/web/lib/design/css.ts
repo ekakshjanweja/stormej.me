@@ -8,11 +8,15 @@ import {
 
 /** Attributes for <html>; app/design.css keys every structural rule off them. */
 export function designAttributes(config: DesignConfig) {
+	// the sidebar layout turns the bar into its own rail, so no navbar design
+	// is layered on top of it
+	const nav = config.layout === "sidebar" ? "classic" : config.nav;
 	return {
 		"data-design": "",
 		"data-heading": config.heading,
 		"data-layout": config.layout,
 		"data-link": config.link,
+		"data-nav": nav,
 		"data-palette": config.palette,
 		"data-scale": config.scale,
 		"data-shape": config.shape,

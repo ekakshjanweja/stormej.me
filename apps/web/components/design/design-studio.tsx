@@ -19,12 +19,14 @@ import {
 } from "react";
 import {
 	applyFontPairing,
+	applyPreset,
 	DEFAULT_DESIGN,
 	DESIGN_PRESETS,
 	type DesignConfig,
 	designKey,
 	FONT_PAIRINGS,
 	type FontId,
+	type HeroCopy,
 	LEDE_FONTS,
 	matchFontPairing,
 	matchPreset,
@@ -42,6 +44,7 @@ import { cn } from "@/lib/utils";
 import {
 	ChoiceGroup,
 	ColourColumn,
+	CopyEditor,
 	FontSelect,
 	StudioSection,
 	Swatches,
@@ -177,7 +180,7 @@ export function DesignStudio() {
 	);
 
 	const shuffle = useCallback(() => {
-		setDraft(shuffleDesign());
+		setDraft((current) => shuffleDesign(current.copy));
 		setStatus({ text: "shuffled. keep going until something clicks." });
 	}, []);
 
@@ -192,8 +195,10 @@ export function DesignStudio() {
 	}, [published]);
 
 	const resetToOriginal = useCallback(() => {
-		setDraft(DEFAULT_DESIGN);
-		setStatus({ text: "loaded the original design. publish to restore it." });
+		setDraft((current) => applyPreset(current, DEFAULT_DESIGN));
+		setStatus({
+			text: "loaded the original look (your copy stayed). publish to restore it.",
+		});
 	}, []);
 
 	const publish = useCallback(async () => {
@@ -222,9 +227,14 @@ export function DesignStudio() {
 	}, [draft]);
 
 	const loadFromGallery = useCallback((config: DesignConfig) => {
-		setDraft(config);
+		setDraft((current) => applyPreset(current, config));
 		setView("editor");
 		setStatus({ text: "loaded into the editor. tweak away, then publish." });
+	}, []);
+
+	const loadPreset = useCallback((config: DesignConfig) => {
+		setDraft((current) => applyPreset(current, config));
+		setStatus(null);
 	}, []);
 
 	const publishClicked = useCallback(() => {
@@ -328,6 +338,7 @@ export function DesignStudio() {
 							draft={draft}
 							onAxis={setAxis}
 							onColour={editColour}
+							onPreset={loadPreset}
 							onUpdate={update}
 						/>
 					</aside>
@@ -403,6 +414,7 @@ function StudioControls({
 	draft,
 	onAxis,
 	onColour,
+	onPreset,
 	onUpdate,
 }: {
 	draft: DesignConfig;
@@ -412,6 +424,7 @@ function StudioControls({
 		token: keyof PaletteTokens,
 		value: string
 	) => void;
+	onPreset: (config: DesignConfig) => void;
 	onUpdate: (patch: Partial<DesignConfig>) => void;
 }) {
 	const activePreset = matchPreset(draft);
@@ -448,6 +461,10 @@ function StudioControls({
 		(lede: DesignConfig["lede"]) => onUpdate({ lede }),
 		[onUpdate]
 	);
+	const setCopy = useCallback(
+		(copy: HeroCopy) => onUpdate({ copy }),
+		[onUpdate]
+	);
 
 	return (
 		<>
@@ -457,11 +474,22 @@ function StudioControls({
 						<PresetButton
 							active={activePreset?.id === preset.id}
 							key={preset.id}
-							onPick={onUpdate}
+							onPick={onPreset}
 							preset={preset}
 						/>
 					))}
 				</div>
+			</StudioSection>
+
+			<StudioSection
+				action={
+					<span className="text-[11px] text-muted-foreground">
+						homepage intro
+					</span>
+				}
+				title="hero copy"
+			>
+				<CopyEditor copy={draft.copy} onChange={setCopy} />
 			</StudioSection>
 
 			<StudioSection title="palette">
@@ -524,6 +552,12 @@ function StudioControls({
 			</StudioSection>
 
 			<StudioSection title="structure">
+				{draft.layout === "sidebar" && (
+					<p className="mb-3 text-[12px] text-muted-foreground">
+						the sidebar layout brings its own rail on wide screens, so the
+						navbar choice only shows on smaller ones.
+					</p>
+				)}
 				{STRUCTURE_AXES.map((axis) => (
 					<AxisChoice
 						axis={axis}
@@ -567,7 +601,7 @@ function PresetButton({
 	onPick,
 }: {
 	active: boolean;
-	onPick: (patch: Partial<DesignConfig>) => void;
+	onPick: (config: DesignConfig) => void;
 	preset: (typeof DESIGN_PRESETS)[number];
 }) {
 	const pick = useCallback(
