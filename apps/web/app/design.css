@@ -411,6 +411,122 @@ html[data-nav="keys"] .nav-link:is(:hover, [aria-current="page"]) .nav-key {
 	}
 }
 
+/* corner: the name scrolls away, one round button stays pinned to the
+   corner and opens a full-screen menu set in the display face */
+html[data-nav="corner"] .site-nav {
+	position: relative;
+	/* no stacking context, so the pinned button can sit above the menu */
+	z-index: auto;
+	background: transparent;
+	backdrop-filter: none;
+}
+html[data-nav="corner"] .nav-links {
+	display: none;
+}
+html[data-nav="corner"] .nav-menu-button {
+	position: fixed;
+	top: 1rem;
+	right: 1rem;
+	z-index: 60;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 3rem;
+	height: 3rem;
+	margin: 0;
+	color: var(--background);
+	background: var(--foreground);
+	border-radius: calc(var(--radius) * 3);
+	box-shadow:
+		var(--design-card-shadow),
+		0 10px 30px -12px rgb(0 0 0 / 0.35);
+	opacity: 1;
+}
+html[data-nav="corner"] .nav-overlay-close {
+	visibility: hidden;
+}
+html[data-nav="corner"] .nav-overlay-list {
+	gap: 0.5rem;
+	max-width: 48rem;
+	padding-top: 8vh;
+	counter-reset: nav-overlay;
+}
+html[data-nav="corner"] .nav-overlay-link {
+	font-family: var(--font-display);
+	font-size: clamp(2.75rem, 9vw, 5.5rem);
+	font-weight: var(--display-weight);
+	line-height: 1.05;
+	letter-spacing: var(--display-tracking);
+}
+html[data-nav="corner"] .nav-overlay-link::before {
+	margin-right: 0.6em;
+	font-family: var(--font-label);
+	font-size: 0.75rem;
+	vertical-align: super;
+	color: var(--text-highlight);
+	letter-spacing: 0.1em;
+	content: counter(nav-overlay, decimal-leading-zero);
+	counter-increment: nav-overlay;
+}
+@media (max-width: 767px) {
+	/* keep the theme toggle clear of the pinned button */
+	html[data-nav="corner"] .nav-actions {
+		padding-right: 3.5rem;
+	}
+}
+
+/* edges: on wide screens the name runs up the left edge and the links run
+   down the right, leaving the page itself clear */
+@media (min-width: 1024px) {
+	html[data-nav="edges"] .site-nav {
+		position: static;
+		height: 0;
+		padding: 0;
+		margin: 0;
+		background: transparent;
+		backdrop-filter: none;
+	}
+	html[data-nav="edges"] :is(.nav-brand, .nav-links, .nav-actions) {
+		position: fixed;
+		z-index: 50;
+		margin: 0;
+	}
+	html[data-nav="edges"] .nav-brand {
+		top: 50%;
+		left: 1.5rem;
+		font-family: var(--font-label);
+		font-size: 12px;
+		text-transform: uppercase;
+		letter-spacing: 0.22em;
+		writing-mode: vertical-rl;
+		transform: translateY(-50%) rotate(180deg);
+	}
+	html[data-nav="edges"] .nav-links {
+		top: 50%;
+		right: 1.5rem;
+		gap: 2rem;
+		writing-mode: vertical-rl;
+		transform: translateY(-50%);
+	}
+	html[data-nav="edges"] .nav-link {
+		font-family: var(--font-label);
+		font-size: 12px;
+		text-transform: uppercase;
+		letter-spacing: 0.22em;
+	}
+	html[data-nav="edges"] .nav-actions {
+		right: 1rem;
+		bottom: 1rem;
+	}
+	html[data-nav="edges"] .design-shell > main {
+		padding-top: 4.5rem;
+	}
+	/* over the diptych's dark half the name has to flip colour */
+	html[data-nav="edges"][data-layout="diptych"]:has(.home-stack) .nav-brand {
+		color: var(--background);
+	}
+}
+
 /* ─── layout ─────────────────────────────────────────────────────────── */
 
 /* compact: narrow and dense everywhere */
@@ -617,6 +733,271 @@ html[data-layout="window"] .design-shell:not(:has(.design-studio))::before {
 	}
 	html[data-layout="window"] .design-shell:not(:has(.design-studio)) {
 		min-height: calc(100vh - 5rem);
+	}
+}
+
+/* cover: the intro takes the whole first screen, the feed starts below */
+html[data-layout="cover"] .design-shell:has(.home-stack) {
+	max-width: 80rem;
+}
+html[data-layout="cover"] .home-stack > :not(.home-hero) {
+	width: 100%;
+	max-width: 46rem;
+	margin-inline: auto;
+}
+html[data-layout="cover"] .home-hero {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	min-height: calc(100svh - 8rem);
+	padding-bottom: 3rem;
+	border-bottom: 1px solid var(--border);
+}
+html[data-layout="cover"][data-design] .home-hero h1.hero-lede {
+	max-width: 22ch;
+	font-size: clamp(2.5rem, 6.5vw, 6rem);
+	line-height: 1;
+}
+html[data-layout="cover"][data-design] .home-hero p.hero-lede {
+	max-width: 46ch;
+	font-size: clamp(1.125rem, 1.8vw, 1.5rem);
+}
+html[data-layout="cover"] .home-hero::after {
+	position: absolute;
+	right: 0;
+	bottom: -0.55rem;
+	padding-left: 0.75rem;
+	font-family: var(--font-label);
+	font-size: 0.6875rem;
+	color: var(--muted-foreground);
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+	content: "scroll ↓";
+	background: var(--background);
+}
+
+/* ledger: every section is a row, its label pinned in a narrow left column */
+html[data-layout="ledger"] .home-stack > * {
+	padding-block: 2.25rem;
+	margin: 0;
+	border-top: 1px solid var(--border);
+}
+html[data-layout="ledger"] .home-stack > .home-hero {
+	padding-top: 0.5rem;
+	border-top: 0;
+}
+@media (min-width: 768px) {
+	html[data-layout="ledger"] .design-shell:has(.home-stack) {
+		max-width: 62rem;
+	}
+	html[data-layout="ledger"] .home-stack > * {
+		display: grid;
+		grid-template-columns: 10rem minmax(0, 1fr);
+		column-gap: 3rem;
+		align-items: start;
+	}
+	html[data-layout="ledger"] .home-stack > * > * {
+		grid-column: 2;
+		min-width: 0;
+	}
+	html[data-layout="ledger"] .home-stack > :not(.home-hero) > :first-child {
+		position: sticky;
+		top: 6rem;
+		display: flex;
+		flex-direction: column;
+		grid-row: 1 / span 12;
+		grid-column: 1;
+		gap: 0.6rem;
+		align-items: flex-start;
+		margin: 0;
+	}
+	html[data-layout="ledger"] .home-hero::before {
+		grid-row: 1 / span 6;
+		grid-column: 1;
+		padding-top: 0.55rem;
+		font-family: var(--font-label);
+		font-size: 0.75rem;
+		color: var(--foreground);
+		text-transform: uppercase;
+		letter-spacing: 0.25em;
+		content: "about";
+	}
+}
+
+/* diptych and bands both print the intro inverted: page colour on ink */
+html:is([data-layout="diptych"], [data-layout="bands"]) .home-hero {
+	color: var(--background);
+	background: var(--foreground);
+}
+html:is([data-layout="diptych"], [data-layout="bands"])
+	.home-hero
+	:is(.text-muted-foreground, .meta-tag) {
+	color: color-mix(in oklab, var(--background) 62%, var(--foreground));
+}
+html:is([data-layout="diptych"], [data-layout="bands"])
+	.home-hero
+	:is(h1, .text-foreground) {
+	color: var(--background);
+}
+
+/* diptych: on wide screens the intro is a fixed half of the screen and the
+   rest of the site scrolls beside it; smaller screens get an inverted card */
+html[data-layout="diptych"] .home-hero {
+	padding: 2.25rem 1.75rem;
+	margin-inline: -0.25rem;
+	border-radius: calc(var(--radius) + 4px);
+}
+@media (min-width: 1024px) {
+	html[data-layout="diptych"] .design-shell:has(.home-stack) {
+		max-width: none;
+		padding-left: 50vw;
+	}
+	html[data-layout="diptych"] .home-stack > .home-hero {
+		position: fixed;
+		inset: 0 auto 0 0;
+		z-index: 40;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		width: 50vw;
+		padding: 2.5rem 3.5rem 3rem;
+		margin: 0;
+		overflow-y: auto;
+		border-radius: 0;
+	}
+	html[data-layout="diptych"] .home-hero::before {
+		font-family: var(--font-label);
+		font-size: 0.6875rem;
+		text-transform: uppercase;
+		letter-spacing: 0.14em;
+		content: "stormej.me";
+		opacity: 0.6;
+	}
+	html[data-layout="diptych"][data-design] .home-hero h1.hero-lede {
+		margin-top: auto;
+		font-size: clamp(2rem, 3.4vw, 3.5rem);
+		line-height: 1.08;
+	}
+	html[data-layout="diptych"] .design-shell:has(.home-stack) > * {
+		max-width: 44rem;
+	}
+}
+
+/* bands: every section is a full-width stripe; the intro is the dark one */
+html[data-layout="bands"] body {
+	overflow-x: clip;
+}
+html[data-layout="bands"] .design-shell:has(.home-stack) > .site-nav {
+	margin-bottom: 0;
+}
+html[data-layout="bands"] .home-stack > * {
+	position: relative;
+	padding-block: 3.5rem;
+	margin: 0;
+}
+html[data-layout="bands"] .home-stack > :is(.home-hero, :nth-child(even)) {
+	clip-path: inset(0 -100vmax);
+}
+html[data-layout="bands"] .home-stack > .home-hero {
+	padding-block: 5rem 4rem;
+	box-shadow: 0 0 0 100vmax var(--foreground);
+}
+html[data-layout="bands"] .home-stack > :nth-child(even) {
+	background: var(--card);
+	box-shadow: 0 0 0 100vmax var(--card);
+}
+
+/* newspaper: a banner of an intro, then the feed in three ruled columns */
+html[data-layout="newspaper"] .home-hero {
+	padding-top: 1.25rem;
+	border-top: 3px double var(--foreground);
+}
+html[data-layout="newspaper"] .home-hero::before {
+	display: block;
+	margin-bottom: 1.5rem;
+	font-family: var(--font-label);
+	font-size: 0.6875rem;
+	color: var(--muted-foreground);
+	text-transform: uppercase;
+	letter-spacing: 0.14em;
+	content: "new delhi edition · mobile, spatial, ai";
+}
+@media (min-width: 1024px) {
+	html[data-layout="newspaper"] .design-shell:has(.home-stack) {
+		max-width: 76rem;
+	}
+	html[data-layout="newspaper"] .home-stack {
+		column-gap: 3rem;
+		column-rule: 1px solid var(--border);
+		columns: 3 16rem;
+	}
+	html[data-layout="newspaper"] .home-stack > * {
+		margin: 0 0 3rem;
+		break-inside: avoid;
+	}
+	html[data-layout="newspaper"]
+		.home-stack
+		> :is(.home-hero, [data-cursor-anchor="contributions"]) {
+		column-span: all;
+	}
+	html[data-layout="newspaper"] .home-stack > .home-hero {
+		padding-bottom: 2.5rem;
+		border-bottom: 1px solid var(--foreground);
+	}
+	html[data-layout="newspaper"][data-design] .home-hero h1.hero-lede {
+		max-width: 26ch;
+		font-family: var(--font-display);
+		font-size: clamp(2.5rem, 4.8vw, 4.5rem);
+		font-weight: var(--display-weight);
+		line-height: 1.02;
+		letter-spacing: var(--display-tracking);
+	}
+	html[data-layout="newspaper"][data-design] .home-hero p.hero-lede {
+		max-width: 60ch;
+		font-size: 1.25rem;
+	}
+}
+
+/* blueprint: rails down both sides, sections split by hatched strips whose
+   edges run the full width of the screen */
+html[data-layout="blueprint"] body {
+	overflow-x: clip;
+}
+html[data-layout="blueprint"] .home-stack > * {
+	position: relative;
+	padding-block: 2.25rem;
+	margin: 0;
+}
+html[data-layout="blueprint"] .home-stack > * + * {
+	margin-top: 2.5rem;
+}
+html[data-layout="blueprint"] .home-stack > * + *::before,
+html[data-layout="blueprint"] .home-stack > * + *::after {
+	position: absolute;
+	top: -2.5rem;
+	height: 2.5rem;
+	pointer-events: none;
+	content: "";
+}
+html[data-layout="blueprint"] .home-stack > * + *::before {
+	right: -1rem;
+	left: -1rem;
+	background: repeating-linear-gradient(
+		-45deg,
+		color-mix(in oklab, var(--border) 80%, transparent) 0 1px,
+		transparent 1px 9px
+	);
+}
+html[data-layout="blueprint"] .home-stack > * + *::after {
+	left: 50%;
+	width: 100vw;
+	border-block: 1px solid var(--border);
+	transform: translateX(-50%);
+}
+@media (min-width: 768px) {
+	html[data-layout="blueprint"] .design-shell:not(:has(.design-studio)) {
+		border-inline: 1px solid var(--border);
 	}
 }
 

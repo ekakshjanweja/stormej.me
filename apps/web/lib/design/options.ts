@@ -599,6 +599,16 @@ export const LAYOUTS = [
 	option("magazine", "magazine", "poster-size intro, two-column feed"),
 	option("sidebar", "sidebar", "navigation in a fixed left rail"),
 	option("window", "window", "the whole site in an app window"),
+	option("cover", "cover", "the intro fills the first screen"),
+	option("ledger", "ledger", "every section a row, label on the left"),
+	option("diptych", "diptych", "split screen, intro on a fixed dark half"),
+	option("bands", "bands", "full-width stripes, one per section"),
+	option("newspaper", "newspaper", "three ruled columns under a banner"),
+	option(
+		"blueprint",
+		"blueprint",
+		"rails and hatched dividers between sections"
+	),
 ] as const;
 
 export const NAVS = [
@@ -611,6 +621,8 @@ export const NAVS = [
 	option("dock", "dock", "floating pill at the bottom"),
 	option("masthead", "masthead", "big name, links underneath"),
 	option("keys", "keys", "every link shows its keyboard shortcut"),
+	option("corner", "corner", "one round button, a full-screen menu"),
+	option("edges", "edges", "name and links pinned to the screen edges"),
 ] as const;
 
 export const HEADINGS = [
@@ -1119,8 +1131,8 @@ const RAW_PRESETS: {
 	{
 		config: {
 			fonts: "quarterly",
-			heading: "serif",
-			layout: "magazine",
+			heading: "rule",
+			layout: "newspaper",
 			link: "underline",
 			nav: "masthead",
 			palette: "paper",
@@ -1128,7 +1140,7 @@ const RAW_PRESETS: {
 			shape: "sharp",
 			texture: "grain",
 		},
-		description: "a newspaper masthead",
+		description: "masthead over three ruled columns",
 		id: "broadsheet",
 	},
 	{
@@ -1145,6 +1157,96 @@ const RAW_PRESETS: {
 		},
 		description: "keyboard first, every link shows its key",
 		id: "keys",
+	},
+	{
+		config: {
+			fonts: "poster",
+			heading: "label",
+			layout: "cover",
+			link: "underline",
+			nav: "corner",
+			palette: "ink",
+			scale: "regular",
+			shape: "sharp",
+			texture: "none",
+		},
+		description: "a full-screen intro and one round button",
+		id: "cover",
+	},
+	{
+		config: {
+			fonts: "grotesk",
+			heading: "label",
+			layout: "ledger",
+			link: "underline",
+			nav: "minimal",
+			palette: "paper",
+			scale: "regular",
+			shape: "soft",
+			texture: "none",
+		},
+		description: "an index: label on the left, rows on the right",
+		id: "ledger",
+	},
+	{
+		config: {
+			fonts: "quarterly",
+			heading: "serif",
+			layout: "diptych",
+			link: "marker",
+			nav: "classic",
+			palette: "dusk",
+			scale: "regular",
+			shape: "soft",
+			texture: "grain",
+		},
+		description: "split screen, the intro on a dark half",
+		id: "diptych",
+	},
+	{
+		config: {
+			fonts: "soft",
+			heading: "numbered",
+			layout: "bands",
+			link: "marker",
+			nav: "island",
+			palette: "sage",
+			scale: "large",
+			shape: "round",
+			texture: "none",
+		},
+		description: "full-width stripes, section by section",
+		id: "bands",
+	},
+	{
+		config: {
+			fonts: "grotesk",
+			heading: "bracket",
+			layout: "blueprint",
+			link: "dotted",
+			nav: "framed",
+			palette: "cobalt",
+			scale: "regular",
+			shape: "sharp",
+			texture: "none",
+		},
+		description: "rails, hatching and klein blue",
+		id: "blueprint",
+	},
+	{
+		config: {
+			fonts: "soft",
+			heading: "serif",
+			layout: "column",
+			link: "underline",
+			nav: "edges",
+			palette: "rose",
+			scale: "huge",
+			shape: "soft",
+			texture: "none",
+		},
+		description: "gallery wall, name and links on the edges",
+		id: "gallery",
 	},
 ];
 
