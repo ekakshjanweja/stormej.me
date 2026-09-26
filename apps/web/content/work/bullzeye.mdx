@@ -1,0 +1,73 @@
+---
+title: bullzeye - spatial capture on iphone lidar
+subtitle: capture, geometry, and confidence for physical-world apps
+description: building spatial capture and geometry systems on iphone lidar at bullzeye. depth, alignment, and confidence systems for physical-world applications.
+role: mobile engineer
+startDate: 2026-09-01
+website: https://bullzeyegolf.com/
+tech:
+  - ios
+  - lidar
+  - arkit
+  - depth
+  - on-device
+logo:
+  light: /images/logos/bullzeye_light.webp
+  dark: /images/logos/bullzeye_dark.webp
+challenge: turn iphone lidar scans into geometry an app can actually trust. raw depth is noisy, alignment drifts, and a wrong surface is worse than no surface.
+chapters:
+  - id: starting-point
+    label: starting point
+  - id: capture-confidence
+    label: capture confidence
+  - id: geometry-on-device
+    label: geometry on device
+---
+
+<Lead>
+
+<Tldr>
+
+- building **spatial capture** pipelines on **iphone lidar**
+- aligning **depth and mesh** data into usable surfaces
+- gating output on **capture confidence**, not hope
+- keeping processing **on device** where it matters
+- optimizing geometry under **risk**, not just fit
+
+</Tldr>
+
+</Lead>
+
+<Chapter id="starting-point" label="starting point" title="capture you can build on">
+
+the work is **spatial capture and geometry systems on iphone** for physical-world applications. the phone scans, and what comes out has to be good enough to drive real decisions downstream.
+
+that sets the bar differently from a demo. every stage of the pipeline has to answer the same question: is this scan actually good enough to use.
+
+</Chapter>
+
+<Chapter id="capture-confidence" label="capture confidence" title="evidence first, output second" pullQuote="a scan without a confidence story is just a pretty point cloud.">
+
+raw lidar depth is noisy. meshes drift. coverage has holes. so the system treats **confidence as a first-class output**: depth and mesh alignment get checked, coverage gets measured, and weak captures get flagged instead of quietly passing through.
+
+the rule is simple. nothing downstream should have to guess whether the geometry is trustworthy. the capture either earns its confidence or it says so.
+
+</Chapter>
+
+<Chapter id="geometry-on-device" label="geometry on device" title="geometry that respects uncertainty">
+
+once a surface is captured, the interesting problem is what to compute on it. fitting lines and shapes through noisy real-world data means reasoning about **risk, not just best fit**: prefer the robust answer over the flashy one, and keep the heavy lifting **on device** so the loop stays fast and private.
+
+details stay intentionally generic here. the engineering is the point: reliable spatial systems on commodity phones.
+
+</Chapter>
+
+<Outcomes
+  items={[
+    { metric: "iphone lidar", label: "capture source" },
+    { metric: "arkit · depth", label: "spatial stack" },
+    { metric: "confidence-gated", label: "capture pipeline" },
+    { metric: "on device", label: "processing" },
+    { metric: "risk-aware", label: "geometry" },
+  ]}
+/>

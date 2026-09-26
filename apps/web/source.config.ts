@@ -25,6 +25,7 @@ export const docs = defineDocs({
 });
 
 const projectFrontmatterSchema = frontmatterSchema.extend({
+	archived: z.boolean().optional(),
 	github: z.string().optional(),
 	hidden: z.boolean().optional(),
 	images: z.array(z.string()).optional(),

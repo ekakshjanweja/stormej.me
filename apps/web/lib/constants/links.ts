@@ -11,6 +11,7 @@ export const nvimDotFiles = "https://github.com/ekakshjanweja/neovim_dotfiles";
 
 //Work Ex Links
 
+export const bullzeye = "https://bullzeyegolf.com/";
 export const fpvLabs = "https://www.fpvlabs.ai/";
 export const domi = "https://digitaldomi.com/";
 export const getMerlin = "https://www.getmerlin.in/";
@@ -41,6 +42,11 @@ export const iWontForgetPlayStore =
 
 export const zuAppPlayStore =
 	"https://play.google.com/store/apps/details?id=in.zupay.app&hl=en";
+
+//Arthiq
+
+export const arthiq = "https://arthiq.ekaksh.in";
+export const arthiqDemo = "https://youtu.be/_wxe7cxajCI?si=UcuPqEVCCyFko2iV";
 
 //Project links
 

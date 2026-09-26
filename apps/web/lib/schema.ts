@@ -2,7 +2,7 @@ const SITE = "https://www.stormej.me";
 
 /** Person blurb — global SEO, OG home, structured data. */
 export const SITE_TAGLINE =
-	"building fast, scalable mobile apps and ai-powered products end-to-end.";
+	"building spatial capture systems on iphone and ai products end-to-end.";
 
 export type SchemaObject = Record<string, unknown>;
 
@@ -34,6 +34,12 @@ export function buildPersonSchema(): SchemaObject {
 			"arcore",
 			"augmented reality",
 			"ar data capture",
+			"iphone lidar",
+			"spatial computing",
+			"computer vision",
+			"depth",
+			"realtime voice",
+			"ai agents",
 			"riverpod",
 			"firebase",
 			"resumable file uploads",
@@ -58,7 +64,7 @@ export function buildPersonSchema(): SchemaObject {
 		url: SITE,
 		worksFor: {
 			"@type": "Organization",
-			name: "digitaldomi",
+			name: "bullzeye technologies",
 		},
 	};
 }
