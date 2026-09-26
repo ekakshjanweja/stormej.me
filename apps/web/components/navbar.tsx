@@ -111,7 +111,7 @@ function MobileNavLink({
 		<Link
 			aria-current={isActive ? "page" : undefined}
 			className={cn(
-				"font-normal text-base text-foreground transition-opacity duration-150",
+				"nav-overlay-link font-normal text-base text-foreground transition-opacity duration-150",
 				isActive ? "opacity-100" : "opacity-60 hover:opacity-100"
 			)}
 			href={item.href}
@@ -300,20 +300,20 @@ export function Navbar() {
 
 			{isMobileMenuOpen && (
 				<div
-					className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md"
+					className="nav-overlay fixed inset-0 z-50 bg-background/95 backdrop-blur-md"
 					id="mobile-menu"
 				>
 					<div className="flex justify-end p-4">
 						<button
 							aria-label="Close mobile menu"
-							className="hover-dim p-2 text-foreground"
+							className="nav-overlay-close hover-dim p-2 text-foreground"
 							onClick={closeMobileMenu}
 							type="button"
 						>
 							<CloseIcon className="h-5 w-5" />
 						</button>
 					</div>
-					<div className="mx-auto flex max-w-sm flex-col gap-5 p-6 pt-4">
+					<div className="nav-overlay-list mx-auto flex max-w-sm flex-col gap-5 p-6 pt-4">
 						{navItems.map((item) => (
 							<MobileNavLink
 								isActive={pathname === item.href}
