@@ -54,14 +54,16 @@ function ProjectRowItem({ project }: { project: ProjectRowEntry }) {
 }
 
 export function Projects() {
-	const projects = listProjects().filter((p) => !p.hidden);
+	const all = listProjects().filter((p) => !p.hidden);
+	const projects = all.filter((p) => !p.archived);
 	const visible = projects.slice(0, 4);
+	const hasMore = projects.length > 4 || all.length > projects.length;
 
 	return (
 		<section data-cursor-anchor="projects">
 			<div className="mb-6 flex items-baseline justify-between">
 				<h2 className="section-label">projects</h2>
-				{projects.length > 4 && (
+				{hasMore && (
 					<Link
 						className="meta-tag hover-dim rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
 						href="/projects"

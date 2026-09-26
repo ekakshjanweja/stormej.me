@@ -61,6 +61,7 @@ export const LinkPreview = ({
 				"viewport.height": height * 3,
 				"viewport.isMobile": true,
 				"viewport.width": width * 3,
+				waitUntil: "networkidle0",
 			})}`;
 
 	const hostname = getHostname(url);

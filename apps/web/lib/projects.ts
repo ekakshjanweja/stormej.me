@@ -11,6 +11,7 @@ function sortKeyForSlug(slug: string) {
 }
 
 export interface ProjectFrontmatter {
+	archived?: boolean;
 	description?: string;
 	github?: string;
 	hidden?: boolean;
@@ -25,6 +26,7 @@ export interface ProjectFrontmatter {
 }
 
 export interface ProjectListItem {
+	archived?: boolean;
 	description?: string;
 	hidden?: boolean;
 	slug: string;
@@ -46,6 +48,7 @@ export function listProjects(): ProjectListItem[] {
 			const slug = page.slugs[0] ?? "";
 			return {
 				_sortTitle: fm.title,
+				archived: fm.archived,
 				description: fm.description,
 				hidden: fm.hidden,
 				slug,
