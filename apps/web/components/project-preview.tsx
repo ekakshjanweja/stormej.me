@@ -19,7 +19,7 @@ export function ProjectPreview({ children, project }: ProjectPreviewProps) {
 				<HoverCard.Content
 					align="start"
 					avoidCollisions
-					className="data-[state=open]:fade-in data-[state=open]:zoom-in-95 z-[60] max-h-[calc(100dvh-24px)] w-[min(320px,calc(100dvw-24px))] overflow-hidden rounded-md border border-border bg-popover shadow-lg outline-none data-[state=open]:animate-in"
+					className="data-[state=open]:fade-in data-[state=open]:zoom-in-95 z-[100] max-h-[calc(100dvh-24px)] w-[min(320px,calc(100dvw-24px))] overflow-hidden rounded-md border border-border bg-popover shadow-lg outline-none data-[state=open]:animate-in"
 					collisionPadding={12}
 					side="top"
 					sideOffset={10}

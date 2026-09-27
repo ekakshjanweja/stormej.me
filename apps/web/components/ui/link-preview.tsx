@@ -105,63 +105,65 @@ export const LinkPreview = ({
 					</Link>
 				</HoverCardPrimitive.Trigger>
 
-				<HoverCardPrimitive.Content
-					align="center"
-					avoidCollisions
-					className="z-50 max-h-[calc(100dvh-24px)] max-w-[calc(100dvw-24px)] origin-[--radix-hover-card-content-transform-origin] overflow-auto"
-					collisionPadding={12}
-					side="top"
-					sideOffset={10}
-					sticky="always"
-				>
-					<AnimatePresence>
-						{isOpen && (
-							<motion.div
-								animate={{
-									opacity: 1,
-									scale: 1,
-									transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1] },
-									y: 0,
-								}}
-								exit={{
-									opacity: 0,
-									scale: 0.97,
-									transition: { duration: 0.1, ease: [0.4, 0, 1, 1] },
-									y: 4,
-								}}
-								initial={{ opacity: 0, scale: 0.97, y: 4 }}
-							>
-								<Link
-									className="group block max-w-full overflow-hidden rounded-md border border-border bg-popover transition-colors duration-150 hover:border-foreground/30"
-									href={url}
-									onClick={onClick}
-									rel="noopener noreferrer"
-									target="_blank"
+				<HoverCardPrimitive.Portal>
+					<HoverCardPrimitive.Content
+						align="center"
+						avoidCollisions
+						className="z-[100] max-h-[calc(100dvh-24px)] max-w-[calc(100dvw-24px)] origin-[--radix-hover-card-content-transform-origin] overflow-auto"
+						collisionPadding={12}
+						side="top"
+						sideOffset={10}
+						sticky="always"
+					>
+						<AnimatePresence>
+							{isOpen && (
+								<motion.div
+									animate={{
+										opacity: 1,
+										scale: 1,
+										transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1] },
+										y: 0,
+									}}
+									exit={{
+										opacity: 0,
+										scale: 0.97,
+										transition: { duration: 0.1, ease: [0.4, 0, 1, 1] },
+										y: 4,
+									}}
+									initial={{ opacity: 0, scale: 0.97, y: 4 }}
 								>
-									<div
-										className="relative max-w-full overflow-hidden bg-background"
-										style={{ height, width }}
+									<Link
+										className="group block max-w-full overflow-hidden rounded-md border border-border bg-popover transition-colors duration-150 hover:border-foreground/30"
+										href={url}
+										onClick={onClick}
+										rel="noopener noreferrer"
+										target="_blank"
 									>
-										<Image
-											alt={`Preview of ${hostname}`}
-											className="block h-auto max-w-full"
-											height={height}
-											priority
-											quality={quality}
-											src={isStatic ? imageSrc : src}
-											width={width}
-										/>
-									</div>
-									<div className="border-border/70 border-t px-2.5 py-1.5">
-										<span className="meta-tag truncate normal-case tracking-[0.08em]">
-											{hostname}
-										</span>
-									</div>
-								</Link>
-							</motion.div>
-						)}
-					</AnimatePresence>
-				</HoverCardPrimitive.Content>
+										<div
+											className="relative max-w-full overflow-hidden bg-background"
+											style={{ height, width }}
+										>
+											<Image
+												alt={`Preview of ${hostname}`}
+												className="block h-auto max-w-full"
+												height={height}
+												priority
+												quality={quality}
+												src={isStatic ? imageSrc : src}
+												width={width}
+											/>
+										</div>
+										<div className="border-border/70 border-t px-2.5 py-1.5">
+											<span className="meta-tag truncate normal-case tracking-[0.08em]">
+												{hostname}
+											</span>
+										</div>
+									</Link>
+								</motion.div>
+							)}
+						</AnimatePresence>
+					</HoverCardPrimitive.Content>
+				</HoverCardPrimitive.Portal>
 			</HoverCardPrimitive.Root>
 		</>
 	);

@@ -112,67 +112,69 @@ export function YoutubePreview({
 				{children}
 			</HoverCardPrimitive.Trigger>
 
-			<HoverCardPrimitive.Content
-				align="start"
-				avoidCollisions
-				className="z-50 max-h-[calc(100dvh-24px)] w-max min-w-0 max-w-[calc(100dvw-24px)] origin-[--radix-hover-card-content-transform-origin] overflow-y-auto p-0 outline-none"
-				collisionPadding={12}
-				side="top"
-				sideOffset={12}
-				sticky="always"
-			>
-				<AnimatePresence>
-					{isOpen && (
-						<motion.div
-							animate={{
-								opacity: 1,
-								scale: 1,
-								transition: { duration: 0.16, ease: [0.16, 1, 0.3, 1] },
-								y: 0,
-							}}
-							className="min-w-0 overflow-hidden"
-							exit={{
-								opacity: 0,
-								scale: 0.97,
-								transition: { duration: 0.1, ease: [0.4, 0, 1, 1] },
-								y: 4,
-							}}
-							initial={{ opacity: 0, scale: 0.97, y: 4 }}
-							style={{
-								maxWidth: `min(${CARD_WIDTH_PX}px, calc(100vw - 1.5rem))`,
-								width: `min(${CARD_WIDTH_PX}px, calc(100vw - 1.5rem))`,
-							}}
-						>
-							<div className="flex min-w-0 flex-col overflow-hidden rounded-md border border-border bg-popover">
-								<div
-									className="relative overflow-hidden bg-background"
-									style={{ height: STAGE_HEIGHT_PX }}
-								>
-									<Image
-										alt=""
-										className="absolute inset-0 h-full w-full object-cover"
-										height={STAGE_HEIGHT_PX}
-										src={stillSrc}
-										unoptimized
-										width={CARD_WIDTH_PX}
-									/>
-								</div>
-								<div className="flex h-9 min-w-0 items-center justify-between gap-2 border-border/70 border-t px-3">
-									<span
-										className="meta-tag block min-w-0 truncate normal-case tracking-[0.08em]"
-										title={title}
+			<HoverCardPrimitive.Portal>
+				<HoverCardPrimitive.Content
+					align="start"
+					avoidCollisions
+					className="z-[100] max-h-[calc(100dvh-24px)] w-max min-w-0 max-w-[calc(100dvw-24px)] origin-[--radix-hover-card-content-transform-origin] overflow-y-auto p-0 outline-none"
+					collisionPadding={12}
+					side="top"
+					sideOffset={12}
+					sticky="always"
+				>
+					<AnimatePresence>
+						{isOpen && (
+							<motion.div
+								animate={{
+									opacity: 1,
+									scale: 1,
+									transition: { duration: 0.16, ease: [0.16, 1, 0.3, 1] },
+									y: 0,
+								}}
+								className="min-w-0 overflow-hidden"
+								exit={{
+									opacity: 0,
+									scale: 0.97,
+									transition: { duration: 0.1, ease: [0.4, 0, 1, 1] },
+									y: 4,
+								}}
+								initial={{ opacity: 0, scale: 0.97, y: 4 }}
+								style={{
+									maxWidth: `min(${CARD_WIDTH_PX}px, calc(100vw - 1.5rem))`,
+									width: `min(${CARD_WIDTH_PX}px, calc(100vw - 1.5rem))`,
+								}}
+							>
+								<div className="flex min-w-0 flex-col overflow-hidden rounded-md border border-border bg-popover">
+									<div
+										className="relative overflow-hidden bg-background"
+										style={{ height: STAGE_HEIGHT_PX }}
 									>
-										{title}
-									</span>
-									<span className="meta-tag ml-auto shrink-0 normal-case tracking-[0.08em]">
-										preview
-									</span>
+										<Image
+											alt=""
+											className="absolute inset-0 h-full w-full object-cover"
+											height={STAGE_HEIGHT_PX}
+											src={stillSrc}
+											unoptimized
+											width={CARD_WIDTH_PX}
+										/>
+									</div>
+									<div className="flex h-9 min-w-0 items-center justify-between gap-2 border-border/70 border-t px-3">
+										<span
+											className="meta-tag block min-w-0 truncate normal-case tracking-[0.08em]"
+											title={title}
+										>
+											{title}
+										</span>
+										<span className="meta-tag ml-auto shrink-0 normal-case tracking-[0.08em]">
+											preview
+										</span>
+									</div>
 								</div>
-							</div>
-						</motion.div>
-					)}
-				</AnimatePresence>
-			</HoverCardPrimitive.Content>
+							</motion.div>
+						)}
+					</AnimatePresence>
+				</HoverCardPrimitive.Content>
+			</HoverCardPrimitive.Portal>
 		</HoverCardPrimitive.Root>
 	);
 }
