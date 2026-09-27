@@ -68,13 +68,13 @@ export function GET() {
 	lines.push("# stormej.me — ekaksh janweja");
 	lines.push("");
 	lines.push(
-		"> mobile engineer (flutter, dart, ios, android) building spatial computing and ai systems."
+		"> mobile engineer. flutter, ios, android, and the backend behind the app."
 	);
 	lines.push(
-		"> currently building spatial capture and geometry systems on iphone lidar at bullzeye."
+		"> currently mobile at bullzeye. before that, founding mobile at digital domi, flutter at merlin, and capture systems at fpv labs."
 	);
 	lines.push(
-		"> previously built ar data capture systems at fpv labs (arkit, arcore, sensor pipelines)."
+		"> also ships apis and workers when the product needs them. typescript, cloudflare, next.js."
 	);
 	lines.push(
 		"> based in new delhi, india. writes about mobile development, large file uploads, and shipping apps."
@@ -85,15 +85,14 @@ export function GET() {
 	lines.push("");
 
 	lines.push("## skills");
-	lines.push("- mobile: flutter, dart, ios, android");
+	lines.push("- mobile: flutter, dart, ios, android, react native");
 	lines.push(
-		"- spatial: arkit, arcore, iphone lidar, depth, ar data capture (camera, imu, lidar)"
+		"- backend: typescript, rest apis, cloudflare workers, bun, next.js"
 	);
-	lines.push("- ai: realtime voice, vision, llms, agents, memory");
-	lines.push("- state & data: riverpod, firebase, rest apis, sqlite");
+	lines.push("- state & data: riverpod, firebase, sqlite");
 	lines.push("- uploads: resumable / multipart / background uploads");
-	lines.push("- web: typescript, next.js, cloudflare workers, bun");
-	lines.push("- other: react native");
+	lines.push("- ai: realtime voice, vision, llms, agents");
+	lines.push("- also: arkit, arcore, iphone lidar, sensor capture");
 	lines.push("");
 
 	lines.push("## work", ...workLines(), "");

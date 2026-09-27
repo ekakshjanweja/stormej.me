@@ -2,7 +2,7 @@ const SITE = "https://www.stormej.me";
 
 /** Person blurb — global SEO, OG home, structured data. */
 export const SITE_TAGLINE =
-	"building spatial capture systems on iphone and ai products end-to-end.";
+	"mobile engineer. apps on ios and android, plus the backend behind them.";
 
 export type SchemaObject = Record<string, unknown>;
 
@@ -30,27 +30,23 @@ export function buildPersonSchema(): SchemaObject {
 			"ios development",
 			"android development",
 			"mobile app development",
-			"arkit",
-			"arcore",
-			"augmented reality",
-			"ar data capture",
-			"iphone lidar",
-			"spatial computing",
-			"computer vision",
-			"depth",
-			"realtime voice",
-			"ai agents",
+			"typescript",
+			"rest apis",
+			"cloudflare workers",
+			"next.js",
+			"bun",
 			"riverpod",
 			"firebase",
 			"resumable file uploads",
 			"background uploads",
 			"multipart uploads",
+			"realtime voice",
+			"ai agents",
 			"react native",
-			"typescript",
-			"next.js",
-			"cloudflare workers",
-			"bun",
-			"rest apis",
+			"arkit",
+			"arcore",
+			"augmented reality",
+			"iphone lidar",
 			"software engineering",
 		],
 		name: "ekaksh janweja",

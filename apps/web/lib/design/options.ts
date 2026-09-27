@@ -717,12 +717,11 @@ export const COPY_OPTIONS: { copy: HeroCopy; hint: string; id: string }[] = [
 		copy: {
 			cta: "get in touch",
 			eyebrow: "",
-			headline:
-				"mobile engineer building spatial computing and ai systems that work in the real world.",
+			headline: "mobile engineer who also builds the backend.",
 			subline:
-				"currently building spatial capture and geometry systems on iphone lidar for physical-world applications.",
+				"flutter, ios, and android. apis, uploads, realtime. currently at bullzeye.",
 		},
-		hint: "what shipped before the studio",
+		hint: "the generalist, current job as a footnote",
 		id: "original",
 	},
 	// short ones, written the way the blog and case studies read
@@ -730,31 +729,33 @@ export const COPY_OPTIONS: { copy: HeroCopy; hint: string; id: string }[] = [
 		copy: {
 			cta: "get in touch",
 			eyebrow: "",
-			headline: "confidence, not hope.",
+			headline: "the happy path is the easy part.",
 			subline:
-				"mobile engineer building spatial capture on iphone lidar. if a scan isn't good enough, it says so.",
+				"mobile engineer. i stay for loading, empty, error, and the api that has to survive them.",
 		},
-		hint: "crisp: the bullzeye rule in three words",
+		hint: "crisp: the states people actually hit",
 		id: "not-hope",
 	},
 	{
 		copy: {
 			cta: "say hi",
 			eyebrow: "mobile engineer",
-			headline: "scan → geometry → decisions.",
-			subline: "i build the part in between. iphone lidar, on device.",
+			headline: "app, api, then the weird edge case.",
+			subline:
+				"i build all three. flutter and native, plus the backend when it isn't someone else's job.",
 		},
-		hint: "crisp: the pipeline as an arrow chain",
+		hint: "crisp: the stack as a chain",
 		id: "arrows",
 	},
 	{
 		copy: {
 			cta: "get in touch",
 			eyebrow: "",
-			headline: "spatial capture isn't a camera problem. it's a trust problem.",
-			subline: "i make phone scans good enough to build on.",
+			headline: "most of the work isn't the screen.",
+			subline:
+				"it's the upload that resumes, the api that doesn't lie, and the state nobody designed for.",
 		},
-		hint: "crisp: reframe, like the ar recorder post",
+		hint: "crisp: the product is the unglamorous part",
 		id: "reframe",
 	},
 	{
@@ -763,7 +764,7 @@ export const COPY_OPTIONS: { copy: HeroCopy; hint: string; id: string }[] = [
 			eyebrow: "ekaksh · new delhi",
 			headline: "shipping isn't finishing.",
 			subline:
-				"mobile engineer who stays for the loading, empty and error states. currently on iphone lidar.",
+				"mobile engineer who stays for the loading, empty and error states. apps, and the backend behind them.",
 		},
 		hint: "crisp: detail work compounds",
 		id: "finishing",
@@ -774,7 +775,7 @@ export const COPY_OPTIONS: { copy: HeroCopy; hint: string; id: string }[] = [
 			eyebrow: "",
 			headline: "robust over flashy.",
 			subline:
-				"mobile apps that measure the real world. iphone lidar, ar capture, uploads that survive a dead network.",
+				"consumer apps on ios and android. uploads that survive a dead network. apis that stay boring.",
 		},
 		hint: "crisp: prefer the boring answer that works",
 		id: "robust",
@@ -782,11 +783,11 @@ export const COPY_OPTIONS: { copy: HeroCopy; hint: string; id: string }[] = [
 	{
 		copy: {
 			cta: "say hi",
-			eyebrow: "mobile · spatial · ai",
+			eyebrow: "mobile · backend · ai",
 			headline:
 				"i build the edge cases nobody asks about until something breaks.",
 			subline:
-				"spatial capture at bullzeye. before that, the recorder behind 200 hours of egocentric data.",
+				"a mailbox app at digital domi. capture and uploads at fpv labs. mobile at bullzeye now.",
 		},
 		hint: "crisp: dry, a little self-aware",
 		id: "edge-cases",
@@ -795,9 +796,9 @@ export const COPY_OPTIONS: { copy: HeroCopy; hint: string; id: string }[] = [
 		copy: {
 			cta: "get in touch",
 			eyebrow: "",
-			headline: "nothing downstream should have to guess.",
+			headline: "the app shouldn't have to guess.",
 			subline:
-				"spatial capture and geometry systems on iphone. confidence-gated, on device.",
+				"mobile clients and the apis they depend on. if the data is wrong, the screen doesn't matter.",
 		},
 		hint: "crisp: one principle, one line of proof",
 		id: "downstream",
@@ -806,20 +807,20 @@ export const COPY_OPTIONS: { copy: HeroCopy; hint: string; id: string }[] = [
 		copy: {
 			cta: "say hi",
 			eyebrow: "ekaksh janweja · new delhi",
-			headline: "i build mobile apps that understand the room they're in.",
+			headline: "i build mobile apps, and usually the server they talk to.",
 			subline:
-				"right now that means turning iphone lidar scans into geometry an app can trust. before that: ar capture at fpv labs and a mailbox app built from scratch at digital domi.",
+				"digital domi from scratch, merlin's flutter app, then capture and uploads at fpv labs. currently mobile at bullzeye.",
 		},
-		hint: "plain words, one clear idea",
+		hint: "plain words, the actual resume",
 		id: "plain",
 	},
 	{
 		copy: {
 			cta: "get in touch",
 			eyebrow: "mobile engineer",
-			headline: "i make phones see in 3d.",
+			headline: "phones, apis, shipped.",
 			subline:
-				"lidar, depth and on-device geometry on iphone. shipping flutter and native apps to real people since 2021.",
+				"flutter, ios, android, and the backend behind them. real users since 2021.",
 		},
 		hint: "short and loud",
 		id: "punchy",
@@ -827,10 +828,10 @@ export const COPY_OPTIONS: { copy: HeroCopy; hint: string; id: string }[] = [
 	{
 		copy: {
 			cta: "work with me",
-			eyebrow: "mobile engineer @ bullzeye",
-			headline: "spatial capture, ar and ai products, end to end on mobile.",
+			eyebrow: "mobile engineer",
+			headline: "consumer apps, end to end.",
 			subline:
-				"founding mobile engineer at digital domi, ar capture at fpv labs, and co-author of mobileego anywhere: 200 hours of egocentric data recorded on everyday phones.",
+				"founding mobile at digital domi. flutter at merlin. capture and uploads at fpv labs. mobile at bullzeye now.",
 		},
 		hint: "leads with the receipts",
 		id: "proof",
@@ -842,7 +843,7 @@ export const COPY_OPTIONS: { copy: HeroCopy; hint: string; id: string }[] = [
 			headline:
 				"i'm ekaksh, a mobile engineer who sweats the details you feel but never notice.",
 			subline:
-				"these days i'm teaching iphones to measure the physical world. off the clock: valorant, mechanical keyboards and seedhe maut on repeat.",
+				"apps, backends, and the occasional hard system. off the clock: valorant, mechanical keyboards and seedhe maut on repeat.",
 		},
 		hint: "a greeting and a bit of personality",
 		id: "warm",
@@ -851,22 +852,21 @@ export const COPY_OPTIONS: { copy: HeroCopy; hint: string; id: string }[] = [
 		copy: {
 			cta: "contact",
 			eyebrow: "",
-			headline: "mobile engineer. spatial computing. ai.",
-			subline: "currently: lidar capture and on-device geometry at bullzeye.",
+			headline: "mobile engineer. backend when it counts.",
+			subline: "currently at bullzeye. before that, digital domi and fpv labs.",
 		},
-		hint: "three words and a status line",
+		hint: "three beats and a status line",
 		id: "terse",
 	},
 	{
 		copy: {
 			cta: "get in touch",
-			eyebrow: "ios · android · lidar",
-			headline:
-				"from depth sensor to app store, i build the whole mobile stack.",
+			eyebrow: "ios · android · backend",
+			headline: "from the screen to the api, i build the whole product.",
 			subline:
-				"capture, geometry, upload pipelines and the interface on top, in flutter, swift and arkit, shipped to real users on both platforms.",
+				"flutter, swift when it has to be native, and typescript on the server. uploads, realtime, and the interface on top.",
 		},
-		hint: "full-stack mobile, top to bottom",
+		hint: "the product, top to bottom",
 		id: "builder",
 	},
 ];
