@@ -584,6 +584,31 @@ html[data-reveal="sweep"] body {
 
 /* ─── background layer ───────────────────────────────────────────────── */
 
+/* Full-width bars otherwise cut animated backgrounds off at their bottom
+   edge. Keep a light frosted surface so the effect flows through the bar
+   while sticky navigation stays readable over scrolling content. Floating
+   docks and the desktop/terminal chrome keep their own distinct surfaces. */
+html[data-background]:not([data-background="none"]):not(
+	[data-layout="desktop"],
+	[data-layout="sidebar"],
+	[data-layout="terminal"],
+	[data-layout="window"]
+):is(
+	[data-nav="classic"],
+	[data-nav="minimal"],
+	[data-nav="links"],
+	[data-nav="centered"],
+	[data-nav="framed"],
+	[data-nav="tabs"],
+	[data-nav="keys"],
+	[data-nav="masthead"],
+	[data-nav="ticker"]
+)
+.site-nav {
+	background: color-mix(in oklab, var(--background) 28%, transparent);
+	backdrop-filter: blur(16px) saturate(1.15);
+}
+
 /* .design-fx is .design-page's first child (components/design/effects/
    design-effects.tsx). isolating the page lets its z-index -1 sit above the
    page's own backdrop (plain, a texture, a scrapbook board) and below
