@@ -725,6 +725,83 @@ export const COPY_OPTIONS: { copy: HeroCopy; hint: string; id: string }[] = [
 		hint: "what shipped before the studio",
 		id: "original",
 	},
+	// short ones, written the way the blog and case studies read
+	{
+		copy: {
+			cta: "get in touch",
+			eyebrow: "",
+			headline: "confidence, not hope.",
+			subline:
+				"mobile engineer building spatial capture on iphone lidar. if a scan isn't good enough, it says so.",
+		},
+		hint: "crisp: the bullzeye rule in three words",
+		id: "not-hope",
+	},
+	{
+		copy: {
+			cta: "say hi",
+			eyebrow: "mobile engineer",
+			headline: "scan → geometry → decisions.",
+			subline: "i build the part in between. iphone lidar, on device.",
+		},
+		hint: "crisp: the pipeline as an arrow chain",
+		id: "arrows",
+	},
+	{
+		copy: {
+			cta: "get in touch",
+			eyebrow: "",
+			headline: "spatial capture isn't a camera problem. it's a trust problem.",
+			subline: "i make phone scans good enough to build on.",
+		},
+		hint: "crisp: reframe, like the ar recorder post",
+		id: "reframe",
+	},
+	{
+		copy: {
+			cta: "let's talk",
+			eyebrow: "ekaksh · new delhi",
+			headline: "shipping isn't finishing.",
+			subline:
+				"mobile engineer who stays for the loading, empty and error states. currently on iphone lidar.",
+		},
+		hint: "crisp: detail work compounds",
+		id: "finishing",
+	},
+	{
+		copy: {
+			cta: "get in touch",
+			eyebrow: "",
+			headline: "robust over flashy.",
+			subline:
+				"mobile apps that measure the real world. iphone lidar, ar capture, uploads that survive a dead network.",
+		},
+		hint: "crisp: prefer the boring answer that works",
+		id: "robust",
+	},
+	{
+		copy: {
+			cta: "say hi",
+			eyebrow: "mobile · spatial · ai",
+			headline:
+				"i build the edge cases nobody asks about until something breaks.",
+			subline:
+				"spatial capture at bullzeye. before that, the recorder behind 200 hours of egocentric data.",
+		},
+		hint: "crisp: dry, a little self-aware",
+		id: "edge-cases",
+	},
+	{
+		copy: {
+			cta: "get in touch",
+			eyebrow: "",
+			headline: "nothing downstream should have to guess.",
+			subline:
+				"spatial capture and geometry systems on iphone. confidence-gated, on device.",
+		},
+		hint: "crisp: one principle, one line of proof",
+		id: "downstream",
+	},
 	{
 		copy: {
 			cta: "say hi",
