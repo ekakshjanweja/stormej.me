@@ -17,6 +17,7 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { PREVIEW_PARAM } from "@/components/design/preview-bridge";
 import { LiveCursors } from "@/components/ui/live-cursor/live-cursors";
 import {
 	generateRandomColor,
@@ -91,6 +92,17 @@ function getOrCreateIdentity(): UserIdentity {
 	return identity;
 }
 
+/**
+ * Studio previews are the real site inside an iframe, so the route is not
+ * `/vault`. The same signal the design bridge uses keeps cursors off there.
+ */
+function isDesignPreviewFrame(): boolean {
+	return (
+		window.self !== window.top &&
+		new URLSearchParams(window.location.search).has(PREVIEW_PARAM)
+	);
+}
+
 // Pending cursor update type
 interface PendingCursorUpdate {
 	anchor?: CursorAnchor;
@@ -103,6 +115,12 @@ interface PendingCursorUpdate {
 
 export function RealtimeProvider({ children }: { children: ReactNode }) {
 	const pathname = usePathname();
+	const inVault = pathname.startsWith("/vault");
+	// null until the preview check runs, so a studio iframe never opens a socket first
+	const [previewFrame, setPreviewFrame] = useState<boolean | null>(null);
+	const cursorsEnabled = !inVault && previewFrame === false;
+	const cursorsEnabledRef = useRef(cursorsEnabled);
+	cursorsEnabledRef.current = cursorsEnabled;
 	const [user, setUser] = useState<UserIdentity | null>(null);
 	const [cursors, setCursors] = useState<CursorPosition[]>([]);
 	const [isConnected, setIsConnected] = useState(false);
@@ -135,6 +153,10 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 
 	// Track if browser is online
 	const isOnlineRef = useRef(true);
+
+	useEffect(() => {
+		setPreviewFrame(isDesignPreviewFrame());
+	}, []);
 
 	// Initialize user identity
 	useEffect(() => {
@@ -218,7 +240,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 	);
 
 	const connect = useCallback(() => {
-		if (!user) {
+		if (!(user && cursorsEnabledRef.current)) {
 			return;
 		}
 
@@ -432,13 +454,17 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 		};
 	}, [user, getWsUrl]);
 
-	// Connect to WebSocket
+	// Public pages only. The vault, design lab, and studio previews stay quiet.
 	useEffect(() => {
+		if (!cursorsEnabled) {
+			disconnect(true);
+			return;
+		}
 		connect();
 		return () => {
 			disconnect(false);
 		};
-	}, [connect, disconnect]);
+	}, [cursorsEnabled, connect, disconnect]);
 
 	// Handle visibility change - disconnect when hidden, reconnect when visible
 	useEffect(() => {
@@ -531,6 +557,9 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 
 	// Clean up expired messages from cursors
 	useEffect(() => {
+		if (!cursorsEnabled) {
+			return;
+		}
 		const interval = setInterval(() => {
 			const now = Date.now();
 			setCursors((prev) =>
@@ -548,7 +577,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 		}, 1000);
 
 		return () => clearInterval(interval);
-	}, []);
+	}, [cursorsEnabled]);
 
 	// Send cursor position to server
 	const sendCursorPosition = useCallback(
@@ -659,7 +688,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 	return (
 		<RealtimeContext.Provider value={contextValue}>
 			{children}
-			{user && <LiveCursors />}
+			{cursorsEnabled && user && <LiveCursors />}
 		</RealtimeContext.Provider>
 	);
 }
