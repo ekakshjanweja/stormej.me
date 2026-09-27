@@ -3,24 +3,35 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { DesignConfig } from "@/lib/design/options";
 import { cn } from "@/lib/utils";
-import { type DesignPreviewMessage, PREVIEW_PARAM } from "./preview-bridge";
+import {
+	type DesignPreviewMessage,
+	type DesignReplayMessage,
+	PREVIEW_PARAM,
+} from "./preview-bridge";
 
-/** previews render the real site at a desktop width, then scale to fit */
-const FRAME_WIDTH = 1280;
+/** previews render the real site at a device width, then scale to fit */
+export const FRAME_WIDTHS = { desktop: 1280, mobile: 390 } as const;
+
+export type PreviewDevice = keyof typeof FRAME_WIDTHS;
 
 interface PreviewFrameProps {
 	className?: string;
 	config: DesignConfig;
+	device?: PreviewDevice;
 	mode: DesignPreviewMessage["mode"];
 	path: string;
+	/** bump to play the frame's entrance animations again */
+	replay?: number;
 	title: string;
 }
 
 export function PreviewFrame({
 	className,
 	config,
+	device = "desktop",
 	mode,
 	path,
+	replay = 0,
 	title,
 }: PreviewFrameProps) {
 	const boxRef = useRef<HTMLDivElement>(null);
@@ -61,6 +72,17 @@ export function PreviewFrame({
 		post();
 	}, [post]);
 
+	useEffect(() => {
+		if (replay === 0) {
+			return;
+		}
+		const message: DesignReplayMessage = { type: "design-replay" };
+		frameRef.current?.contentWindow?.postMessage(
+			message,
+			window.location.origin
+		);
+	}, [replay]);
+
 	// and answer the frame when it (re)loads and asks for the current design
 	useEffect(() => {
 		const onMessage = (event: MessageEvent<{ type?: string }>) => {
@@ -76,7 +98,8 @@ export function PreviewFrame({
 		return () => window.removeEventListener("message", onMessage);
 	}, [post]);
 
-	const scale = box.width > 0 ? box.width / FRAME_WIDTH : 0;
+	const frameWidth = FRAME_WIDTHS[device];
+	const scale = box.width > 0 ? box.width / frameWidth : 0;
 	const separator = path.includes("?") ? "&" : "?";
 
 	return (
@@ -96,7 +119,7 @@ export function PreviewFrame({
 					style={{
 						height: box.height / scale,
 						transform: `scale(${scale})`,
-						width: FRAME_WIDTH,
+						width: frameWidth,
 					}}
 					title={title}
 				/>

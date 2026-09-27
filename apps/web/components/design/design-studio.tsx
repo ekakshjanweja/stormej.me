@@ -2,9 +2,13 @@
 
 import {
 	ArrowUpRight,
+	Bookmark,
 	Dices,
+	Monitor,
 	Palette,
 	RotateCcw,
+	RotateCw,
+	Smartphone,
 	Sparkles,
 	Undo2,
 	Upload,
@@ -17,6 +21,7 @@ import {
 	useMemo,
 	useState,
 } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
 	applyFontPairing,
 	applyPreset,
@@ -28,6 +33,9 @@ import {
 	type FontId,
 	type HeroCopy,
 	LEDE_FONTS,
+	MOTION_AXES,
+	type MotionFeel,
+	type MotionSpeed,
 	matchFontPairing,
 	matchPreset,
 	normalizeDesign,
@@ -38,18 +46,29 @@ import {
 	randomPalette,
 	STRUCTURE_AXES,
 	type StructureKey,
+	sameLook,
 	shuffleDesign,
 } from "@/lib/design/options";
+import type { SavedPreset } from "@/lib/design/saved-presets";
+import { MAX_SAVED_PRESETS } from "@/lib/design/saved-presets";
 import { cn } from "@/lib/utils";
 import {
 	ChoiceGroup,
 	ColourColumn,
 	CopyEditor,
+	FeelPicker,
 	FontSelect,
+	SpeedSlider,
 	StudioSection,
 	Swatches,
 } from "./controls";
-import { PreviewFrame } from "./preview-frame";
+import { type PreviewDevice, PreviewFrame } from "./preview-frame";
+import {
+	SavedGallery,
+	SavePresetForm,
+	studioButtonClass,
+} from "./saved-presets";
+import { useSavedPresets } from "./use-saved-presets";
 
 const DRAFT_STORAGE_KEY = "stormej.design-draft";
 
@@ -65,10 +84,38 @@ type PreviewMode = (typeof PREVIEW_MODES)[number]["value"];
 
 type Gate = "checking" | "locked" | "missing" | "offline" | "open";
 
-type View = "editor" | "gallery";
+const VIEWS = ["editor", "gallery", "saved"] as const;
 
-const buttonClass =
-	"inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-[12px] transition-colors hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-40";
+type View = (typeof VIEWS)[number];
+
+const isView = (value: string): value is View =>
+	(VIEWS as readonly string[]).includes(value);
+
+const PANELS = ["look", "layout", "motion", "copy"] as const;
+
+interface Preset {
+	config: DesignConfig;
+	description: string;
+	id: string;
+	/** shown instead of the id; saved presets have names */
+	label?: string;
+}
+
+/** whatever is published right now, offered next to the built-in presets */
+const livePreset = (config: DesignConfig): Preset => ({
+	config,
+	description: "what the site looks like right now",
+	id: "live",
+});
+
+const savedAsPreset = (saved: SavedPreset): Preset => ({
+	config: saved.config,
+	description: "saved by you",
+	id: saved.id,
+	label: saved.name,
+});
+
+const buttonClass = studioButtonClass;
 
 const readError = async (response: Response) => {
 	const text = await response.text();
@@ -95,6 +142,10 @@ export function DesignStudio() {
 	const [view, setView] = useState<View>("editor");
 	const [previewMode, setPreviewMode] = useState<PreviewMode>("both");
 	const [previewPath, setPreviewPath] = useState("/");
+	const [device, setDevice] = useState<PreviewDevice>("desktop");
+	const [replay, setReplay] = useState(0);
+	const [isSaving, setIsSaving] = useState(false);
+	const saved = useSavedPresets();
 	const [status, setStatus] = useState<{
 		error?: boolean;
 		text: string;
@@ -241,11 +292,78 @@ export function DesignStudio() {
 		publish().catch(() => undefined);
 	}, [publish]);
 
+	const playAgain = useCallback(() => setReplay((count) => count + 1), []);
+
+	const openSave = useCallback(() => setIsSaving(true), []);
+	const closeSave = useCallback(() => setIsSaving(false), []);
+	const {
+		overwrite: overwritePreset,
+		remove: removeSaved,
+		rename: renameSaved,
+		save: savePreset,
+	} = saved;
+	const saveDraft = useCallback(
+		async (name: string) => {
+			const ok = await savePreset(name, draft);
+			if (ok) {
+				setIsSaving(false);
+				setStatus({ text: `saved "${name.trim()}". find it under saved.` });
+			}
+		},
+		[draft, savePreset]
+	);
+	const saveClicked = useCallback(
+		(name: string) => {
+			saveDraft(name).catch((error: unknown) =>
+				setStatus({ error: true, text: (error as Error).message })
+			);
+		},
+		[saveDraft]
+	);
+	const overwriteWithDraft = useCallback(
+		(id: string) => {
+			overwritePreset(id, draft).catch(() => undefined);
+		},
+		[draft, overwritePreset]
+	);
+	const renamePreset = useCallback(
+		(id: string, name: string) => {
+			renameSaved(id, name).catch(() => undefined);
+		},
+		[renameSaved]
+	);
+	const removePreset = useCallback(
+		(id: string) => {
+			removeSaved(id).catch(() => undefined);
+		},
+		[removeSaved]
+	);
+
+	const selectView = useCallback((value: string) => {
+		if (isView(value)) {
+			setView(value);
+		}
+	}, []);
+
 	if (gate !== "open") {
 		return <StudioGate gate={gate} />;
 	}
 
 	const activePreset = matchPreset(draft);
+	const live = livePreset(published);
+	const savedPresets = saved.presets.map(savedAsPreset);
+	const activeSaved = saved.presets.find((preset) =>
+		sameLook(preset.config, draft)
+	);
+	let lookLabel = "custom mix";
+	if (activeSaved) {
+		lookLabel = `saved: ${activeSaved.name}`;
+	} else if (activePreset) {
+		lookLabel = `preset: ${activePreset.id}`;
+	} else if (sameLook(draft, published)) {
+		lookLabel = "preset: live";
+	}
+	const suggestedName = activeSaved?.name ?? activePreset?.id ?? "";
 
 	return (
 		<div className="design-studio relative left-1/2 w-[min(96rem,calc(100vw-3rem))] -translate-x-1/2">
@@ -262,7 +380,7 @@ export function DesignStudio() {
 							"this is what is live"
 						)}
 						{" · "}
-						{activePreset ? `preset: ${activePreset.id}` : "custom mix"}
+						{lookLabel}
 					</p>
 				</div>
 				<div className="flex flex-wrap items-center gap-2">
@@ -296,6 +414,19 @@ export function DesignStudio() {
 						original
 					</button>
 					<button
+						aria-expanded={isSaving}
+						className={buttonClass}
+						disabled={
+							saved.storage === "loading" ||
+							saved.presets.length >= MAX_SAVED_PRESETS
+						}
+						onClick={openSave}
+						type="button"
+					>
+						<Bookmark className="size-3.5" />
+						save preset
+					</button>
+					<button
 						className="inline-flex items-center gap-1.5 rounded-full border border-foreground bg-foreground px-4 py-1.5 text-[12px] text-background transition-opacity hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-40"
 						disabled={!isDirty || isPublishing}
 						onClick={publishClicked}
@@ -307,80 +438,93 @@ export function DesignStudio() {
 				</div>
 			</header>
 
-			{status && (
+			{isSaving && (
+				<SavePresetForm
+					defaultName={suggestedName}
+					onCancel={closeSave}
+					onSave={saveClicked}
+					storage={saved.storage}
+				/>
+			)}
+
+			{(status || saved.error) && (
 				<p
 					className={cn(
 						"mb-5 rounded-md border px-3 py-2 text-[13px]",
-						status.error
+						status?.error || saved.error
 							? "border-destructive/40 text-destructive"
 							: "border-border text-foreground"
 					)}
 				>
-					{status.text}
+					{saved.error ? `saved presets: ${saved.error}` : status?.text}
 				</p>
 			)}
 
-			<div className="mb-5 flex flex-wrap items-center gap-2">
-				<ViewTab current={view} onSelect={setView} value="editor">
-					editor
-				</ViewTab>
-				<ViewTab current={view} onSelect={setView} value="gallery">
-					all presets
-				</ViewTab>
-			</div>
+			<Tabs onValueChange={selectView} value={view}>
+				<TabsList className="mb-5 h-auto rounded-full p-1">
+					<TabsTrigger className="rounded-full text-[12px]" value="editor">
+						editor
+					</TabsTrigger>
+					<TabsTrigger className="rounded-full text-[12px]" value="gallery">
+						all presets
+					</TabsTrigger>
+					<TabsTrigger className="rounded-full text-[12px]" value="saved">
+						saved
+						{saved.presets.length > 0 && (
+							<span className="ml-1.5 text-muted-foreground tabular-nums">
+								{saved.presets.length}
+							</span>
+						)}
+					</TabsTrigger>
+				</TabsList>
 
-			{view === "gallery" ? (
-				<PresetGallery onPick={loadFromGallery} />
-			) : (
-				<div className="grid gap-8 lg:grid-cols-[23rem_minmax(0,1fr)]">
-					<aside className="custom-scrollbar flex flex-col gap-5 lg:sticky lg:top-24 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto lg:pr-3">
-						<StudioControls
+				<TabsContent className="mt-0" value="editor">
+					<div className="grid gap-8 lg:grid-cols-[23rem_minmax(0,1fr)]">
+						<aside className="custom-scrollbar flex flex-col gap-5 lg:sticky lg:top-24 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto lg:pr-3">
+							<StudioControls
+								draft={draft}
+								live={live}
+								onAxis={setAxis}
+								onColour={editColour}
+								onPreset={loadPreset}
+								onReplay={playAgain}
+								onUpdate={update}
+								saved={savedPresets}
+							/>
+						</aside>
+						<PreviewPane
+							device={device}
 							draft={draft}
-							onAxis={setAxis}
-							onColour={editColour}
-							onPreset={loadPreset}
-							onUpdate={update}
+							mode={previewMode}
+							onDevice={setDevice}
+							onMode={setPreviewMode}
+							onPath={setPreviewPath}
+							onReplay={playAgain}
+							path={previewPath}
+							replay={replay}
 						/>
-					</aside>
-					<PreviewPane
-						draft={draft}
-						mode={previewMode}
-						onMode={setPreviewMode}
-						onPath={setPreviewPath}
-						path={previewPath}
-					/>
-				</div>
-			)}
-		</div>
-	);
-}
+					</div>
+				</TabsContent>
 
-function ViewTab({
-	children,
-	current,
-	value,
-	onSelect,
-}: {
-	children: React.ReactNode;
-	current: View;
-	onSelect: (view: View) => void;
-	value: View;
-}) {
-	const select = useCallback(() => onSelect(value), [onSelect, value]);
-	return (
-		<button
-			aria-pressed={current === value}
-			className={cn(
-				"rounded-full px-3 py-1 text-[12px] transition-colors",
-				current === value
-					? "bg-foreground text-background"
-					: "text-muted-foreground hover:text-foreground"
-			)}
-			onClick={select}
-			type="button"
-		>
-			{children}
-		</button>
+				{/* radix only mounts the active panel, so the galleries' many
+				    preview frames load when their tab opens */}
+				<TabsContent className="mt-0" value="gallery">
+					<PresetGallery live={live} onPick={loadFromGallery} />
+				</TabsContent>
+
+				<TabsContent className="mt-0" value="saved">
+					<SavedGallery
+						currentId={activeSaved?.id}
+						onLoad={loadFromGallery}
+						onOverwrite={overwriteWithDraft}
+						onRemove={removePreset}
+						onRename={renamePreset}
+						presets={saved.presets}
+						storage={saved.storage}
+					/>
+				</TabsContent>
+			</Tabs>
+		</div>
 	);
 }
 
@@ -412,12 +556,16 @@ function StudioGate({ gate }: { gate: Exclude<Gate, "open"> }) {
 
 function StudioControls({
 	draft,
+	live,
 	onAxis,
 	onColour,
 	onPreset,
+	onReplay,
 	onUpdate,
+	saved,
 }: {
 	draft: DesignConfig;
+	live: Preset;
 	onAxis: (key: StructureKey, value: string) => void;
 	onColour: (
 		mode: keyof PaletteModes,
@@ -425,7 +573,9 @@ function StudioControls({
 		value: string
 	) => void;
 	onPreset: (config: DesignConfig) => void;
+	onReplay: () => void;
 	onUpdate: (patch: Partial<DesignConfig>) => void;
+	saved: Preset[];
 }) {
 	const activePreset = matchPreset(draft);
 	const pairing = matchFontPairing(draft);
@@ -465,109 +615,217 @@ function StudioControls({
 		(copy: HeroCopy) => onUpdate({ copy }),
 		[onUpdate]
 	);
+	const setFeel = useCallback(
+		(motion: MotionFeel) => onUpdate({ motion }),
+		[onUpdate]
+	);
+	const setSpeed = useCallback(
+		(speed: MotionSpeed) => onUpdate({ speed }),
+		[onUpdate]
+	);
 
 	return (
-		<>
-			<StudioSection title="presets">
-				<div className="grid grid-cols-2 gap-1.5">
-					{DESIGN_PRESETS.map((preset) => (
+		<Tabs defaultValue="look">
+			<TabsList className="sticky top-0 z-10 grid h-auto w-full grid-cols-4 p-1">
+				{PANELS.map((panel) => (
+					<TabsTrigger className="text-[12px]" key={panel} value={panel}>
+						{panel}
+					</TabsTrigger>
+				))}
+			</TabsList>
+
+			<TabsContent className="mt-5 flex flex-col gap-5" value="look">
+				<StudioSection title="presets">
+					{saved.length > 0 && (
+						<>
+							<p className="mb-1.5 text-[11px] text-muted-foreground uppercase tracking-[0.08em]">
+								saved
+							</p>
+							<div className="mb-3 grid grid-cols-2 gap-1.5">
+								{saved.map((preset) => (
+									<PresetButton
+										active={sameLook(draft, preset.config)}
+										key={preset.id}
+										onPick={onPreset}
+										preset={preset}
+									/>
+								))}
+							</div>
+							<p className="mb-1.5 text-[11px] text-muted-foreground uppercase tracking-[0.08em]">
+								built in
+							</p>
+						</>
+					)}
+					<div className="grid grid-cols-2 gap-1.5">
 						<PresetButton
-							active={activePreset?.id === preset.id}
-							key={preset.id}
+							active={sameLook(draft, live.config)}
 							onPick={onPreset}
-							preset={preset}
+							preset={live}
 						/>
-					))}
-				</div>
-			</StudioSection>
+						{DESIGN_PRESETS.map((preset) => (
+							<PresetButton
+								active={activePreset?.id === preset.id}
+								key={preset.id}
+								onPick={onPreset}
+								preset={preset}
+							/>
+						))}
+					</div>
+				</StudioSection>
 
-			<StudioSection
-				action={
-					<span className="text-[11px] text-muted-foreground">
-						homepage intro
-					</span>
-				}
-				title="hero copy"
-			>
-				<CopyEditor copy={draft.copy} onChange={setCopy} />
-			</StudioSection>
-
-			<StudioSection title="palette">
-				<div className="mb-4 grid grid-cols-3 gap-1.5">
-					{PALETTES.map((palette) => (
+				<StudioSection title="palette">
+					<div className="mb-4 grid grid-cols-3 gap-1.5">
+						{PALETTES.map((palette) => (
+							<PaletteButton
+								active={draft.palette === palette.id}
+								id={palette.id}
+								key={palette.id}
+								label={palette.label}
+								modes={palette.modes}
+								onPick={onUpdate}
+							/>
+						))}
 						<PaletteButton
-							active={draft.palette === palette.id}
-							id={palette.id}
-							key={palette.id}
-							label={palette.label}
-							modes={palette.modes}
+							active={draft.palette === "custom"}
+							id="custom"
+							label="custom"
+							modes={draft.custom}
 							onPick={onUpdate}
 						/>
-					))}
-					<PaletteButton
-						active={draft.palette === "custom"}
-						id="custom"
-						label="custom"
-						modes={draft.custom}
-						onPick={onUpdate}
-					/>
-				</div>
-				<p className="mb-3 text-[12px] text-muted-foreground">
-					edit any colour below; built-in palettes fork into custom.
-				</p>
-				<div className="grid grid-cols-2 gap-4">
-					<ColourColumn mode="light" onChange={onColour} tokens={modes.light} />
-					<ColourColumn mode="dark" onChange={onColour} tokens={modes.dark} />
-				</div>
-			</StudioSection>
-
-			<StudioSection title="type">
-				<ChoiceGroup
-					label="pairing"
-					name="design-pairing"
-					onChange={choosePairing}
-					options={pairingOptions}
-					value={pairing?.id}
-				/>
-				<div className="mb-4 flex flex-col gap-2">
-					<FontSelect label="body" onChange={setBody} value={draft.fontBody} />
-					<FontSelect
-						label="display"
-						onChange={setDisplay}
-						value={draft.fontDisplay}
-					/>
-					<FontSelect
-						label="labels"
-						onChange={setLabel}
-						value={draft.fontLabel}
-					/>
-				</div>
-				<ChoiceGroup
-					label="intro font"
-					name="design-lede"
-					onChange={setLede}
-					options={LEDE_FONTS}
-					value={draft.lede}
-				/>
-			</StudioSection>
-
-			<StudioSection title="structure">
-				{draft.layout === "sidebar" && (
+					</div>
 					<p className="mb-3 text-[12px] text-muted-foreground">
-						the sidebar layout brings its own rail on wide screens, so the
-						navbar choice only shows on smaller ones.
+						edit any colour below; built-in palettes fork into custom.
 					</p>
-				)}
-				{STRUCTURE_AXES.map((axis) => (
-					<AxisChoice
-						axis={axis}
-						key={axis.key}
-						onAxis={onAxis}
-						value={draft[axis.key]}
+					<div className="grid grid-cols-2 gap-4">
+						<ColourColumn
+							mode="light"
+							onChange={onColour}
+							tokens={modes.light}
+						/>
+						<ColourColumn mode="dark" onChange={onColour} tokens={modes.dark} />
+					</div>
+				</StudioSection>
+
+				<StudioSection title="type">
+					<ChoiceGroup
+						label="pairing"
+						name="design-pairing"
+						onChange={choosePairing}
+						options={pairingOptions}
+						value={pairing?.id}
 					/>
-				))}
-			</StudioSection>
-		</>
+					<div className="mb-4 flex flex-col gap-2">
+						<FontSelect
+							label="body"
+							onChange={setBody}
+							value={draft.fontBody}
+						/>
+						<FontSelect
+							label="display"
+							onChange={setDisplay}
+							value={draft.fontDisplay}
+						/>
+						<FontSelect
+							label="labels"
+							onChange={setLabel}
+							value={draft.fontLabel}
+						/>
+					</div>
+					<ChoiceGroup
+						label="intro font"
+						name="design-lede"
+						onChange={setLede}
+						options={LEDE_FONTS}
+						value={draft.lede}
+					/>
+				</StudioSection>
+			</TabsContent>
+
+			<TabsContent className="mt-5" value="layout">
+				<StudioSection title="structure">
+					{draft.layout === "sidebar" && (
+						<p className="mb-3 text-[12px] text-muted-foreground">
+							the sidebar layout brings its own rail on wide screens, so the
+							navbar choice only shows on smaller ones.
+						</p>
+					)}
+					{(draft.nav === "dock" ||
+						draft.nav === "corner" ||
+						draft.nav === "magnify") && (
+						<p className="mb-3 text-[12px] text-muted-foreground">
+							the {draft.nav} navbar pins itself, so navbar scroll does not
+							change it.
+						</p>
+					)}
+					{STRUCTURE_AXES.map((axis) => (
+						<AxisChoice
+							axis={axis}
+							key={axis.key}
+							onAxis={onAxis}
+							value={draft[axis.key]}
+						/>
+					))}
+				</StudioSection>
+			</TabsContent>
+
+			<TabsContent className="mt-5" value="motion">
+				<StudioSection
+					action={
+						<button className={buttonClass} onClick={onReplay} type="button">
+							<RotateCw className="size-3.5" />
+							replay
+						</button>
+					}
+					title="motion"
+				>
+					<FeelPicker
+						onChange={setFeel}
+						speed={draft.speed}
+						value={draft.motion}
+					/>
+					<SpeedSlider
+						disabled={draft.motion === "off"}
+						onChange={setSpeed}
+						value={draft.speed}
+					/>
+					{draft.motion === "off" && (
+						<p className="mb-4 text-[12px] text-muted-foreground">
+							motion is off: entrances, scroll reveals, the headline effect and
+							the cursor sit still, and backgrounds freeze.
+						</p>
+					)}
+					{MOTION_AXES.map((axis) => (
+						<AxisChoice
+							axis={axis}
+							key={axis.key}
+							onAxis={onAxis}
+							value={draft[axis.key]}
+						/>
+					))}
+					<p className="mt-4 text-[12px] text-muted-foreground">
+						visitors who ask their system for reduced motion always get the
+						still version.
+					</p>
+				</StudioSection>
+			</TabsContent>
+
+			<TabsContent className="mt-5" value="copy">
+				<StudioSection
+					action={
+						<span className="text-[11px] text-muted-foreground">
+							homepage intro
+						</span>
+					}
+					title="hero copy"
+				>
+					<CopyEditor
+						copy={draft.copy}
+						live={live.config.copy}
+						onChange={setCopy}
+					/>
+				</StudioSection>
+			</TabsContent>
+		</Tabs>
 	);
 }
 
@@ -576,7 +834,7 @@ function AxisChoice({
 	value,
 	onAxis,
 }: {
-	axis: (typeof STRUCTURE_AXES)[number];
+	axis: (typeof STRUCTURE_AXES)[number] | (typeof MOTION_AXES)[number];
 	onAxis: (key: StructureKey, value: string) => void;
 	value: string;
 }) {
@@ -602,7 +860,7 @@ function PresetButton({
 }: {
 	active: boolean;
 	onPick: (config: DesignConfig) => void;
-	preset: (typeof DESIGN_PRESETS)[number];
+	preset: Preset;
 }) {
 	const pick = useCallback(
 		() => onPick(preset.config),
@@ -623,7 +881,9 @@ function PresetButton({
 		>
 			<Swatches modes={paletteModes(preset.config)} />
 			<span className="min-w-0">
-				<span className="block font-medium text-[12px]">{preset.id}</span>
+				<span className="block truncate font-medium text-[12px]">
+					{preset.label ?? preset.id}
+				</span>
 				<span className="block truncate text-[11px] text-muted-foreground">
 					{preset.description}
 				</span>
@@ -664,29 +924,73 @@ function PaletteButton({
 	);
 }
 
+const DEVICES = [
+	{ icon: Monitor, label: "desktop", value: "desktop" },
+	{ icon: Smartphone, label: "mobile", value: "mobile" },
+] as const;
+
+function DeviceButton({
+	current,
+	device,
+	onDevice,
+}: {
+	current: PreviewDevice;
+	device: (typeof DEVICES)[number];
+	onDevice: (device: PreviewDevice) => void;
+}) {
+	const pick = useCallback(() => onDevice(device.value), [device, onDevice]);
+	const Icon = device.icon;
+	return (
+		<button
+			aria-label={`${device.label} preview`}
+			aria-pressed={current === device.value}
+			className={cn(
+				"inline-flex size-7 items-center justify-center rounded-full transition-colors",
+				current === device.value
+					? "bg-foreground text-background"
+					: "text-muted-foreground hover:text-foreground"
+			)}
+			onClick={pick}
+			title={`${device.label} preview`}
+			type="button"
+		>
+			<Icon className="size-3.5" />
+		</button>
+	);
+}
+
 function PreviewPane({
+	device,
 	draft,
 	mode,
 	path,
+	replay,
+	onDevice,
 	onMode,
 	onPath,
+	onReplay,
 }: {
+	device: PreviewDevice;
 	draft: DesignConfig;
 	mode: PreviewMode;
+	onDevice: (device: PreviewDevice) => void;
 	onMode: (mode: PreviewMode) => void;
 	onPath: (path: string) => void;
+	onReplay: () => void;
 	path: string;
+	replay: number;
 }) {
 	const onPathChange = useCallback(
 		(event: ChangeEvent<HTMLSelectElement>) => onPath(event.target.value),
 		[onPath]
 	);
 	const frames = mode === "both" ? (["light", "dark"] as const) : [mode];
+	const isMobile = device === "mobile";
 
 	return (
 		<div className="min-w-0">
 			<div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-				<div className="flex items-center gap-3">
+				<div className="flex flex-wrap items-center gap-3">
 					<label className="flex items-center gap-2 text-[12px] text-muted-foreground">
 						page
 						<select
@@ -701,6 +1005,20 @@ function PreviewPane({
 							))}
 						</select>
 					</label>
+					<div className="flex items-center gap-0.5 rounded-full border border-border p-0.5">
+						{DEVICES.map((item) => (
+							<DeviceButton
+								current={device}
+								device={item}
+								key={item.value}
+								onDevice={onDevice}
+							/>
+						))}
+					</div>
+					<button className={buttonClass} onClick={onReplay} type="button">
+						<RotateCw className="size-3.5" />
+						replay
+					</button>
 					<Link
 						className="meta-tag hover-dim inline-flex items-center gap-1 normal-case"
 						href={path}
@@ -724,20 +1042,26 @@ function PreviewPane({
 			<div
 				className={cn(
 					"grid gap-4",
-					mode === "both" ? "2xl:grid-cols-2" : "grid-cols-1"
+					mode === "both" && (isMobile ? "grid-cols-2" : "2xl:grid-cols-2"),
+					mode !== "both" && "grid-cols-1"
 				)}
 			>
 				{frames.map((frameMode) => (
-					<div key={frameMode}>
+					<div
+						className={cn(isMobile && "mx-auto w-full max-w-[24rem]")}
+						key={frameMode}
+					>
 						<p className="mb-1.5 inline-flex items-center gap-1.5 text-[11px] text-muted-foreground uppercase tracking-[0.08em]">
 							<Sparkles className="size-3" />
 							{frameMode}
 						</p>
 						<PreviewFrame
-							className="aspect-[16/10]"
+							className={isMobile ? "aspect-[9/18]" : "aspect-[16/10]"}
 							config={draft}
+							device={device}
 							mode={frameMode}
 							path={path}
+							replay={replay}
 							title={`${frameMode} preview`}
 						/>
 					</div>
@@ -747,9 +1071,16 @@ function PreviewPane({
 	);
 }
 
-function PresetGallery({ onPick }: { onPick: (config: DesignConfig) => void }) {
+function PresetGallery({
+	live,
+	onPick,
+}: {
+	live: Preset;
+	onPick: (config: DesignConfig) => void;
+}) {
 	return (
 		<ul className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+			<GalleryCard onPick={onPick} preset={live} />
 			{DESIGN_PRESETS.map((preset) => (
 				<GalleryCard key={preset.id} onPick={onPick} preset={preset} />
 			))}
@@ -762,7 +1093,7 @@ function GalleryCard({
 	onPick,
 }: {
 	onPick: (config: DesignConfig) => void;
-	preset: (typeof DESIGN_PRESETS)[number];
+	preset: Preset;
 }) {
 	const pick = useCallback(
 		() => onPick(preset.config),

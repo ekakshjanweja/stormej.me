@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./design.css";
+import "./design-motion.css";
 import { RootProvider } from "fumadocs-ui/provider/next";
+import { DesignEffects } from "@/components/design/effects/design-effects";
 import { DesignProvider } from "@/components/design/preview-bridge";
 import Footer from "@/components/footer";
 import { Navbar } from "@/components/navbar";
@@ -128,8 +130,9 @@ export default async function RootLayout({
 						</a>
 						<RootProvider theme={{ enabled: false }}>
 							<RealtimeProvider>
-								<DesignProvider copy={design.copy}>
+								<DesignProvider design={design}>
 									<div className="design-page min-h-screen bg-background">
+										<DesignEffects />
 										<div className="flex w-full justify-center">
 											<div className="design-shell flex min-h-screen w-full flex-col md:max-w-3xl">
 												<Navbar />

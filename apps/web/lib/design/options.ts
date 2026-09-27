@@ -574,6 +574,535 @@ export const PALETTES = [
 			),
 		},
 	},
+	{
+		hint: "warm sand, burnt sienna",
+		id: "sand",
+		label: "sand",
+		modes: {
+			dark: tokens(
+				"#170c00",
+				"#ebe0cf",
+				"#261903",
+				"#afa390",
+				"#41331d",
+				"#ffa383"
+			),
+			light: tokens(
+				"#fff5e7",
+				"#3b3121",
+				"#f7e7cf",
+				"#645c51",
+				"#e1d2bc",
+				"#aa3700"
+			),
+		},
+	},
+	{
+		hint: "cream and deep honey",
+		id: "honey",
+		label: "honey",
+		modes: {
+			dark: tokens(
+				"#150d00",
+				"#e7e1cf",
+				"#231b01",
+				"#aba490",
+				"#3d351b",
+				"#efb146"
+			),
+			light: tokens(
+				"#fef7e1",
+				"#383321",
+				"#f2e9cd",
+				"#625d50",
+				"#ddd4ba",
+				"#835a01"
+			),
+		},
+	},
+	{
+		hint: "cocoa paper, caramel",
+		id: "cocoa",
+		label: "cocoa",
+		modes: {
+			dark: tokens(
+				"#1c0800",
+				"#efddd2",
+				"#2c1505",
+				"#b4a093",
+				"#472f1f",
+				"#ffa37f"
+			),
+			light: tokens(
+				"#fff5ee",
+				"#402f23",
+				"#fee4d3",
+				"#685b52",
+				"#e9cebd",
+				"#a63d02"
+			),
+		},
+	},
+	{
+		hint: "olive paper, moss ink",
+		id: "olive",
+		label: "olive",
+		modes: {
+			dark: tokens(
+				"#0f1000",
+				"#e1e3d1",
+				"#1c1e03",
+				"#a5a792",
+				"#36381e",
+				"#a3cf68"
+			),
+			light: tokens(
+				"#f7f9e2",
+				"#333423",
+				"#eaedd0",
+				"#5e5f52",
+				"#d4d7bc",
+				"#4d7000"
+			),
+		},
+	},
+	{
+		hint: "yellow-green, sap",
+		id: "moss",
+		label: "moss",
+		modes: {
+			dark: tokens(
+				"#081201",
+				"#dce5d4",
+				"#142007",
+				"#9ea995",
+				"#2e3a22",
+				"#8cd472"
+			),
+			light: tokens(
+				"#f0fce5",
+				"#2d3625",
+				"#e1efd4",
+				"#596053",
+				"#ccdac0",
+				"#307609"
+			),
+		},
+	},
+	{
+		hint: "pine wash, deep green",
+		id: "forest",
+		label: "forest",
+		modes: {
+			dark: tokens(
+				"#001307",
+				"#d5e7da",
+				"#072212",
+				"#97aa9c",
+				"#233c2c",
+				"#71d790"
+			),
+			light: tokens(
+				"#e8fdee",
+				"#27382c",
+				"#d7f2df",
+				"#556158",
+				"#c3dcca",
+				"#02773b"
+			),
+		},
+	},
+	{
+		hint: "cool mint, teal ink",
+		id: "mint",
+		label: "mint",
+		modes: {
+			dark: tokens(
+				"#00130b",
+				"#d2e7de",
+				"#032218",
+				"#93aba1",
+				"#1f3c31",
+				"#4fd9b4"
+			),
+			light: tokens(
+				"#e6fdf3",
+				"#233830",
+				"#d4f2e5",
+				"#53615b",
+				"#c0dcd0",
+				"#00755d"
+			),
+		},
+	},
+	{
+		hint: "lagoon wash, cyan",
+		id: "lagoon",
+		label: "lagoon",
+		modes: {
+			dark: tokens(
+				"#001313",
+				"#cfe7e5",
+				"#002221",
+				"#90aba9",
+				"#1a3c3b",
+				"#2ad7d7"
+			),
+			light: tokens(
+				"#e2fdfc",
+				"#203837",
+				"#cff2f0",
+				"#516160",
+				"#bcdcda",
+				"#017272"
+			),
+		},
+	},
+	{
+		hint: "ice paper, steel blue",
+		id: "glacier",
+		label: "glacier",
+		modes: {
+			dark: tokens(
+				"#001219",
+				"#d0e6ed",
+				"#012029",
+				"#91a9b2",
+				"#1d3a43",
+				"#60cbff"
+			),
+			light: tokens(
+				"#ebfaff",
+				"#21373d",
+				"#d2eff9",
+				"#536065",
+				"#bedae3",
+				"#046c93"
+			),
+		},
+	},
+	{
+		hint: "open sky, cobalt ink",
+		id: "sky",
+		label: "sky",
+		modes: {
+			dark: tokens(
+				"#01101c",
+				"#d4e4f1",
+				"#081e2d",
+				"#95a7b6",
+				"#233847",
+				"#91c1ff"
+			),
+			light: tokens(
+				"#f1f8fe",
+				"#253541",
+				"#d7edff",
+				"#555f67",
+				"#c3d7e8",
+				"#1762b6"
+			),
+		},
+	},
+	{
+		hint: "indigo night, periwinkle",
+		id: "indigo",
+		label: "indigo",
+		modes: {
+			dark: tokens(
+				"#0a0c1f",
+				"#dce0f2",
+				"#161a2f",
+				"#9fa4b8",
+				"#2f344a",
+				"#a7bafe"
+			),
+			light: tokens(
+				"#f5f6fe",
+				"#2e3242",
+				"#e3e8fe",
+				"#5a5d69",
+				"#cdd3eb",
+				"#4759b7"
+			),
+		},
+	},
+	{
+		hint: "soft iris, violet",
+		id: "iris",
+		label: "iris",
+		modes: {
+			dark: tokens(
+				"#110a1d",
+				"#e3def0",
+				"#1f172d",
+				"#a7a1b5",
+				"#393048",
+				"#d1a9ff"
+			),
+			light: tokens(
+				"#f8f5fe",
+				"#352f40",
+				"#ede5fe",
+				"#5f5b68",
+				"#d7cfe9",
+				"#7847a6"
+			),
+		},
+	},
+	{
+		hint: "grape wash, magenta",
+		id: "grape",
+		label: "grape",
+		modes: {
+			dark: tokens(
+				"#150819",
+				"#e8dcec",
+				"#241529",
+				"#ad9fb1",
+				"#3e2f43",
+				"#f398eb"
+			),
+			light: tokens(
+				"#fcf3ff",
+				"#392e3d",
+				"#f5e2fa",
+				"#635a65",
+				"#decde4",
+				"#903d8b"
+			),
+		},
+	},
+	{
+		hint: "wine stain, burgundy",
+		id: "wine",
+		label: "wine",
+		modes: {
+			dark: tokens(
+				"#1c060b",
+				"#f1dbde",
+				"#2d1218",
+				"#b69da1",
+				"#482c31",
+				"#ff9ac2"
+			),
+			light: tokens(
+				"#fff4f5",
+				"#412d30",
+				"#fee1e5",
+				"#69595b",
+				"#ebcbd0",
+				"#a13567"
+			),
+		},
+	},
+	{
+		hint: "warm white, cherry",
+		id: "cherry",
+		label: "cherry",
+		modes: {
+			dark: tokens(
+				"#1c0707",
+				"#f2dbda",
+				"#2d1313",
+				"#b79e9c",
+				"#482d2c",
+				"#ff9fa2"
+			),
+			light: tokens(
+				"#fef4f4",
+				"#412d2c",
+				"#ffe1e0",
+				"#685959",
+				"#eaccca",
+				"#ab2f3f"
+			),
+		},
+	},
+	{
+		hint: "shell, coral",
+		id: "coral",
+		label: "coral",
+		modes: {
+			dark: tokens(
+				"#1c0702",
+				"#f1dcd5",
+				"#2d140b",
+				"#b69f97",
+				"#482e25",
+				"#ffa28f"
+			),
+			light: tokens(
+				"#fff4f1",
+				"#402e27",
+				"#fee3da",
+				"#695a55",
+				"#eacdc3",
+				"#ab331f"
+			),
+		},
+	},
+	{
+		hint: "apricot cream, persimmon",
+		id: "apricot",
+		label: "apricot",
+		modes: {
+			dark: tokens(
+				"#1b0900",
+				"#eeded1",
+				"#2b1603",
+				"#b3a192",
+				"#46301d",
+				"#fea47c"
+			),
+			light: tokens(
+				"#fef5ed",
+				"#3f2f22",
+				"#fee4cf",
+				"#675b51",
+				"#e7cfbb",
+				"#a24100"
+			),
+		},
+	},
+	{
+		hint: "cool grey, signal blue",
+		id: "fog",
+		label: "fog",
+		modes: {
+			dark: tokens(
+				"#080f16",
+				"#d5e3f2",
+				"#141d26",
+				"#97a7b7",
+				"#2e363f",
+				"#92c1fd"
+			),
+			light: tokens(
+				"#f3f7fc",
+				"#273442",
+				"#e2ebf4",
+				"#5b5e61",
+				"#ced5dd",
+				"#0961bb"
+			),
+		},
+	},
+	{
+		hint: "warm grey, amber",
+		id: "stone",
+		label: "stone",
+		modes: {
+			dark: tokens(
+				"#130d05",
+				"#eae0cf",
+				"#221b0f",
+				"#afa390",
+				"#3b3429",
+				"#f8ab4f"
+			),
+			light: tokens(
+				"#faf6ef",
+				"#3b3121",
+				"#f0e8dc",
+				"#605d59",
+				"#dad3c9",
+				"#8b5500"
+			),
+		},
+	},
+	{
+		hint: "blue black, ice",
+		id: "midnight",
+		label: "midnight",
+		modes: {
+			dark: tokens(
+				"#030e1f",
+				"#d7e3f2",
+				"#0d1c30",
+				"#98a6b8",
+				"#27364b",
+				"#2ad5e5"
+			),
+			light: tokens(
+				"#f1f7ff",
+				"#293442",
+				"#ddebfd",
+				"#565e6a",
+				"#c5d6ec",
+				"#02717a"
+			),
+		},
+	},
+	{
+		hint: "copper brown, bright metal",
+		id: "copper",
+		label: "copper",
+		modes: {
+			dark: tokens(
+				"#1d0700",
+				"#f0ddd3",
+				"#2d1406",
+				"#b59f95",
+				"#492e20",
+				"#ffa565"
+			),
+			light: tokens(
+				"#fff4ef",
+				"#412e24",
+				"#ffe3d5",
+				"#695a52",
+				"#ebcdbe",
+				"#974c00"
+			),
+		},
+	},
+	{
+		hint: "lilac mist, plum",
+		id: "lilac",
+		label: "lilac",
+		modes: {
+			dark: tokens(
+				"#160817",
+				"#eadceb",
+				"#261426",
+				"#af9eaf",
+				"#402e41",
+				"#f999da"
+			),
+			light: tokens(
+				"#fff2ff",
+				"#3b2e3b",
+				"#f6e2f7",
+				"#645a64",
+				"#e0cde1",
+				"#953d7c"
+			),
+		},
+	},
+	{
+		hint: "hot pink on blush",
+		id: "flamingo",
+		label: "flamingo",
+		modes: {
+			dark: tokens(
+				"#1a070e",
+				"#f0dbe0",
+				"#2b131b",
+				"#b69da4",
+				"#462d34",
+				"#ff96d3"
+			),
+			light: tokens(
+				"#fef4f6",
+				"#402d32",
+				"#fee1e8",
+				"#675a5d",
+				"#e7ccd3",
+				"#9e3378"
+			),
+		},
+	},
 ] as const satisfies readonly {
 	hint: string;
 	id: string;
@@ -609,6 +1138,17 @@ export const LAYOUTS = [
 		"blueprint",
 		"rails and hatched dividers between sections"
 	),
+	option("stack", "card stack", "sections pile up like cards as you scroll"),
+	option("horizontal", "sideways", "the homepage scrolls left to right"),
+	option("scrapbook", "scrapbook", "taped-down paper cards at odd angles"),
+	option(
+		"timeline",
+		"timeline",
+		"a line down the middle, sections either side"
+	),
+	option("terminal", "terminal", "every section is a command and its output"),
+	option("slides", "slides", "one full-screen slide per section"),
+	option("desktop", "desktop", "sections as windows on an old desktop"),
 ] as const;
 
 export const NAVS = [
@@ -623,6 +1163,19 @@ export const NAVS = [
 	option("keys", "keys", "every link shows its keyboard shortcut"),
 	option("corner", "corner", "one round button, a full-screen menu"),
 	option("edges", "edges", "name and links pinned to the screen edges"),
+	option("tabs", "tabs", "a pill slides under whichever link you point at"),
+	option("magnify", "magnify", "an icon dock that swells under the cursor"),
+	option("ticker", "ticker", "links scroll past in a strip across the top"),
+	option("morph", "morph", "a tiny island that opens into the menu"),
+] as const;
+
+/** navbars that render their own markup instead of restyling the shared bar */
+export const SCRIPTED_NAVS = ["tabs", "magnify"] as const;
+
+export const NAV_POSITIONS = [
+	option("default", "default", "whatever the navbar design does"),
+	option("sticky", "sticky", "stays at the top as you scroll"),
+	option("static", "not sticky", "scrolls away with the page"),
 ] as const;
 
 export const HEADINGS = [
@@ -634,6 +1187,10 @@ export const HEADINGS = [
 	option("slash", "slash", "// work"),
 	option("marker", "marker", "highlighter behind the label"),
 	option("block", "block", "inverted tag"),
+	option("giant", "giant", "huge display type, nearly a poster"),
+	option("outline", "outline", "hollow letters, stroked in the accent"),
+	option("sticker", "sticker", "a tilted pill slapped on the page"),
+	option("gradient", "gradient", "accent gradient drifting through the text"),
 ] as const;
 
 export const LINKS = [
@@ -642,6 +1199,10 @@ export const LINKS = [
 	option("marker", "marker", "highlighter swipe"),
 	option("invert", "invert", "text flips out of a solid block"),
 	option("dotted", "dotted", "dotted underline"),
+	option("arrow", "arrow", "an arrow slides in after the text"),
+	option("glow", "glow", "the text lights up in the accent"),
+	option("gradient", "gradient", "a gradient underline sweeps across"),
+	option("bracket", "bracket", "[ brackets ] close in around it"),
 ] as const;
 
 export const TEXTURES = [
@@ -650,6 +1211,11 @@ export const TEXTURES = [
 	option("grid", "grid", "graph paper"),
 	option("dots", "dots", "dot matrix"),
 	option("scanlines", "scanlines", "crt lines"),
+	option("mesh", "mesh", "soft blurred colour in the corners"),
+	option("lined", "lined", "notebook paper with a margin"),
+	option("halftone", "halftone", "print dots fading down the page"),
+	option("stripes", "stripes", "fine diagonal pinstripes"),
+	option("topo", "topo", "contour lines, like a map"),
 ] as const;
 
 export const SHAPES = [
@@ -657,6 +1223,20 @@ export const SHAPES = [
 	option("sharp", "sharp", "square corners"),
 	option("round", "round", "extra round"),
 	option("brutal", "brutal", "hard borders and offset shadows"),
+	option("glass", "glass", "frosted panels, best over a background"),
+	option("clay", "clay", "puffy, pillowy and pastel-soft"),
+	option("pixel", "pixel", "stepped 8-bit borders"),
+	option("retro", "retro", "bevelled platinum, like mac os 9"),
+	option("elevated", "elevated", "floating cards with deep soft shadows"),
+] as const;
+
+export const HEROES = [
+	option("plain", "plain", "left aligned, as written"),
+	option("centered", "centred", "everything on the middle line"),
+	option("name", "name", "your name, huge, behind the intro"),
+	option("marquee", "marquee", "the headline runs across the screen"),
+	option("boxed", "boxed", "framed with crop marks"),
+	option("columns", "columns", "headline left, subline right"),
 ] as const;
 
 export const SCALES = [
@@ -671,12 +1251,107 @@ export const LEDE_FONTS = [
 	option("display", "display font", "intro set in the display font"),
 ] as const;
 
+// ─── motion ─────────────────────────────────────────────────────────────
+
+/** how everything moves: one feel drives every animation on the site */
+export const MOTION_FEELS = [
+	option("smooth", "smooth", "eased out and unhurried"),
+	option("subtle", "subtle", "short and small, barely there"),
+	option("snappy", "snappy", "quick and crisp"),
+	option("springy", "springy", "overshoots, then settles"),
+	option("dramatic", "dramatic", "long, far and blurry"),
+	option("off", "off", "nothing moves at all"),
+] as const;
+
+/** slowest to fastest, so the studio can lay them out as a slider */
+export const MOTION_SPEEDS = [
+	option("slower", "0.5×", "half speed"),
+	option("slow", "0.75×", "a little slower"),
+	option("normal", "1×", "as designed"),
+	option("fast", "1.5×", "a little quicker"),
+	option("faster", "2×", "double speed"),
+] as const;
+
+export const ENTRANCES = [
+	option("none", "none", "the page is simply there"),
+	option("fade", "fade", "sections fade in one after another"),
+	option("rise", "rise", "sections float up into place"),
+	option("blur", "blur", "sections come into focus"),
+	option("scale", "scale", "sections grow in from slightly smaller"),
+	option("slide", "slide", "sections slide in from the side"),
+	option("clip", "wipe", "sections wipe in from behind a mask"),
+	option("flip", "flip", "sections tip forward in 3d"),
+] as const;
+
+export const REVEALS = [
+	option("none", "none", "nothing happens as you scroll"),
+	option("fade", "fade", "sections fade in as they scroll into view"),
+	option("rise", "rise", "sections rise as they scroll into view"),
+	option("blur", "blur", "sections sharpen as they scroll into view"),
+	option("zoom", "zoom", "sections zoom up as they scroll into view"),
+	option("sweep", "sweep", "sections sweep in from alternating sides"),
+] as const;
+
+export const TEXT_EFFECTS = [
+	option("none", "none", "the headline just sits there"),
+	option("typewriter", "typewriter", "typed out, caret and all"),
+	option("scramble", "scramble", "decodes from random characters"),
+	option("blur", "blur", "words drift into focus one by one"),
+	option("mask", "mask", "words rise out of a mask"),
+	option("letters", "letters", "letters cascade in"),
+	option("shimmer", "shimmer", "a sheen sweeps across the text"),
+	option("aurora", "aurora", "accent colours flow through the letters"),
+	option("highlight", "highlight", "a highlighter swipes across"),
+	option("glitch", "glitch", "rgb-split flicker"),
+] as const;
+
+export const BACKGROUNDS = [
+	option("none", "none", "just the page colour"),
+	option("aurora", "aurora", "slow northern lights in the accent"),
+	option("orbs", "orbs", "blurred blobs drifting around"),
+	option("beams", "beams", "light beams sweeping along curves"),
+	option("meteors", "meteors", "streaks falling across the page"),
+	option("stars", "stars", "twinkling stars and the odd shooting one"),
+	option("particles", "particles", "dots that drift away from the cursor"),
+	option("flicker", "flicker", "a grid of flickering cells"),
+	option("squares", "squares", "grid squares lighting up at random"),
+	option("retro", "retro grid", "a synthwave floor rolling toward you"),
+	option("ripple", "ripple", "rings pulsing out behind the intro"),
+	option("spotlight", "spotlight", "a stage light swinging over the top"),
+] as const;
+
+export const CURSORS = [
+	option("default", "default", "your normal cursor"),
+	option("ring", "ring", "a ring that follows and grows over links"),
+	option("trail", "trail", "a dot with a lagging ring"),
+	option("blob", "blob", "an inverting blob"),
+	option("spotlight", "spotlight", "a soft light that follows you"),
+] as const;
+
+export const HOVERS = [
+	option("none", "none", "rows stay put"),
+	option("lift", "lift", "rows and cards lift toward you"),
+	option("dim", "dim", "everything else fades back"),
+	option("slide", "slide", "rows nudge over with an accent bar"),
+	option("glow", "glow", "a light follows the cursor inside cards"),
+	option("tilt", "tilt", "cards tilt toward the cursor in 3d"),
+] as const;
+
+export const PROGRESS_BARS = [
+	option("none", "none", "no scroll indicator"),
+	option("bar", "bar", "a line fills across the top"),
+	option("edge", "edge", "a line fills down the left edge"),
+	option("ring", "ring", "a ring fills in the corner, with a percentage"),
+] as const;
+
 type ValueOf<T extends readonly { value: string }[]> = T[number]["value"];
 type LedeFont = ValueOf<typeof LEDE_FONTS>;
 
 export const STRUCTURE_AXES = [
 	{ key: "nav", label: "navbar", options: NAVS },
+	{ key: "navPosition", label: "navbar scroll", options: NAV_POSITIONS },
 	{ key: "layout", label: "layout", options: LAYOUTS },
+	{ key: "hero", label: "intro", options: HEROES },
 	{ key: "heading", label: "headings", options: HEADINGS },
 	{ key: "link", label: "links", options: LINKS },
 	{ key: "texture", label: "texture", options: TEXTURES },
@@ -684,8 +1359,118 @@ export const STRUCTURE_AXES = [
 	{ key: "scale", label: "intro size", options: SCALES },
 ] as const;
 
+/** feel and speed get their own controls; these are plain choices */
+export const MOTION_AXES = [
+	{ key: "entrance", label: "on load", options: ENTRANCES },
+	{ key: "reveal", label: "on scroll", options: REVEALS },
+	{ key: "textEffect", label: "headline", options: TEXT_EFFECTS },
+	{ key: "background", label: "background", options: BACKGROUNDS },
+	{ key: "hover", label: "hover", options: HOVERS },
+	{ key: "cursor", label: "cursor", options: CURSORS },
+	{ key: "progress", label: "scroll progress", options: PROGRESS_BARS },
+] as const;
+
 export type StructureAxis = (typeof STRUCTURE_AXES)[number];
-export type StructureKey = StructureAxis["key"];
+export type StructureKey =
+	| StructureAxis["key"]
+	| (typeof MOTION_AXES)[number]["key"]
+	| "motion"
+	| "speed";
+
+export type MotionFeel = ValueOf<typeof MOTION_FEELS>;
+export type MotionSpeed = ValueOf<typeof MOTION_SPEEDS>;
+
+interface MotionTokens {
+	blur: number;
+	/** px a section travels on the way in */
+	distance: number;
+	/** seconds, before the speed multiplier */
+	duration: number;
+	/** cubic-bezier control points; springy uses `spring` instead */
+	ease: [number, number, number, number];
+	/** framer-motion spring for scripted effects, when the feel has one */
+	spring?: { damping: number; stiffness: number };
+	/** seconds between one section and the next */
+	stagger: number;
+}
+
+const MOTION_FEEL_TOKENS: Record<MotionFeel, MotionTokens> = {
+	dramatic: {
+		blur: 18,
+		distance: 56,
+		duration: 1.3,
+		ease: [0.16, 1, 0.3, 1],
+		stagger: 0.14,
+	},
+	off: { blur: 0, distance: 0, duration: 0, ease: [0, 0, 1, 1], stagger: 0 },
+	smooth: {
+		blur: 8,
+		distance: 18,
+		duration: 0.7,
+		ease: [0.22, 1, 0.36, 1],
+		stagger: 0.08,
+	},
+	snappy: {
+		blur: 3,
+		distance: 10,
+		duration: 0.32,
+		ease: [0.2, 0.9, 0.1, 1],
+		stagger: 0.035,
+	},
+	springy: {
+		blur: 0,
+		distance: 30,
+		duration: 0.9,
+		ease: [0.34, 1.56, 0.64, 1],
+		spring: { damping: 12, stiffness: 180 },
+		stagger: 0.07,
+	},
+	subtle: {
+		blur: 3,
+		distance: 6,
+		duration: 0.45,
+		ease: [0.25, 0.46, 0.45, 0.94],
+		stagger: 0.04,
+	},
+};
+
+const SPEED_MULTIPLIERS: Record<MotionSpeed, number> = {
+	fast: 0.66,
+	faster: 0.5,
+	normal: 1,
+	slow: 1.33,
+	slower: 2,
+};
+
+/** the feel's numbers with the speed applied; css.ts and the effects share it */
+export function motionTokens(config: Pick<DesignConfig, "motion" | "speed">) {
+	const base = MOTION_FEEL_TOKENS[config.motion] ?? MOTION_FEEL_TOKENS.smooth;
+	const multiplier = SPEED_MULTIPLIERS[config.speed] ?? 1;
+	return {
+		...base,
+		duration: base.duration * multiplier,
+		stagger: base.stagger * multiplier,
+	};
+}
+
+/**
+ * The design as it should actually render: "off" silences every animated
+ * axis, so nothing downstream has to check the feel on its own.
+ */
+export function effectiveDesign(config: DesignConfig): DesignConfig {
+	if (config.motion !== "off") {
+		return config;
+	}
+	return {
+		...config,
+		cursor: "default",
+		entrance: "none",
+		hover: "none",
+		progress: "none",
+		reveal: "none",
+		textEffect: "none",
+	};
+}
 
 // ─── hero copy ──────────────────────────────────────────────────────────
 
@@ -873,60 +1658,108 @@ export const COPY_OPTIONS: { copy: HeroCopy; hint: string; id: string }[] = [
 
 export const DEFAULT_COPY: HeroCopy = COPY_OPTIONS[0]?.copy as HeroCopy;
 
+export const sameCopy = (a: HeroCopy, b: HeroCopy) =>
+	COPY_FIELDS.every(({ key }) => a[key] === b[key]);
+
 export const matchCopyOption = (copy: HeroCopy) =>
-	COPY_OPTIONS.find((candidate) =>
-		COPY_FIELDS.every(({ key }) => candidate.copy[key] === copy[key])
-	);
+	COPY_OPTIONS.find((candidate) => sameCopy(candidate.copy, copy));
 
 // ─── the config ─────────────────────────────────────────────────────────
 
 export interface DesignConfig {
+	background: ValueOf<typeof BACKGROUNDS>;
 	copy: HeroCopy;
+	cursor: ValueOf<typeof CURSORS>;
 	/** only read when palette is "custom" */
 	custom: PaletteModes;
+	entrance: ValueOf<typeof ENTRANCES>;
 	fontBody: FontId;
 	fontDisplay: FontId;
 	fontLabel: FontId;
 	heading: ValueOf<typeof HEADINGS>;
+	hero: ValueOf<typeof HEROES>;
+	hover: ValueOf<typeof HOVERS>;
 	layout: ValueOf<typeof LAYOUTS>;
 	lede: LedeFont;
 	link: ValueOf<typeof LINKS>;
+	motion: MotionFeel;
 	nav: ValueOf<typeof NAVS>;
+	navPosition: ValueOf<typeof NAV_POSITIONS>;
 	palette: PaletteId;
+	progress: ValueOf<typeof PROGRESS_BARS>;
+	reveal: ValueOf<typeof REVEALS>;
 	scale: ValueOf<typeof SCALES>;
 	shape: ValueOf<typeof SHAPES>;
+	speed: MotionSpeed;
+	textEffect: ValueOf<typeof TEXT_EFFECTS>;
 	texture: ValueOf<typeof TEXTURES>;
 }
 
 const SLATE = PALETTES[0].modes;
 
 export const DEFAULT_DESIGN: DesignConfig = {
+	background: "none",
 	copy: DEFAULT_COPY,
+	cursor: "default",
 	custom: SLATE,
+	entrance: "none",
 	fontBody: "geist",
 	fontDisplay: "instrument-serif",
 	fontLabel: "space-mono",
 	heading: "label",
+	hero: "plain",
+	hover: "none",
 	layout: "column",
 	lede: "body",
 	link: "squiggle",
+	motion: "smooth",
 	nav: "classic",
+	navPosition: "default",
 	palette: "slate",
+	progress: "none",
+	reveal: "none",
 	scale: "regular",
 	shape: "soft",
+	speed: "normal",
+	textEffect: "none",
 	texture: "none",
 };
+
+/** everything the motion tab owns; presets from before it leave these alone */
+type MotionKey =
+	| "background"
+	| "cursor"
+	| "entrance"
+	| "hover"
+	| "motion"
+	| "progress"
+	| "reveal"
+	| "speed"
+	| "textEffect";
 
 // ─── presets ────────────────────────────────────────────────────────────
 
 type PresetConfig = Omit<
 	DesignConfig,
-	"copy" | "custom" | "fontBody" | "fontDisplay" | "fontLabel" | "lede" | "nav"
+	| "copy"
+	| "custom"
+	| "fontBody"
+	| "fontDisplay"
+	| "fontLabel"
+	| "hero"
+	| "lede"
+	| "nav"
+	| "navPosition"
+	| MotionKey
 > & {
 	fonts: (typeof FONT_PAIRINGS)[number]["id"];
+	/** older presets keep the plain intro */
+	hero?: DesignConfig["hero"];
 	/** older presets predate the navbar axis and keep the classic bar */
 	nav?: DesignConfig["nav"];
-};
+	/** presets leave scrolling to the navbar design unless they say otherwise */
+	navPosition?: DesignConfig["navPosition"];
+} & Partial<Pick<DesignConfig, MotionKey>>;
 
 const RAW_PRESETS: {
 	config: PresetConfig;
@@ -1325,6 +2158,297 @@ const RAW_PRESETS: {
 		description: "gallery wall, name and links on the edges",
 		id: "gallery",
 	},
+	// the ones below lean on motion; everything above sits still
+	{
+		config: {
+			background: "aurora",
+			cursor: "spotlight",
+			entrance: "blur",
+			fonts: "soft",
+			heading: "label",
+			hero: "centered",
+			hover: "glow",
+			layout: "bento",
+			link: "glow",
+			motion: "smooth",
+			nav: "island",
+			palette: "iris",
+			reveal: "rise",
+			scale: "large",
+			shape: "glass",
+			textEffect: "aurora",
+			texture: "none",
+		},
+		description: "frosted cards drifting over northern lights",
+		id: "aurora",
+	},
+	{
+		config: {
+			entrance: "scale",
+			fonts: "grotesk",
+			heading: "label",
+			hover: "lift",
+			layout: "desktop",
+			link: "invert",
+			motion: "snappy",
+			nav: "classic",
+			palette: "fog",
+			scale: "regular",
+			shape: "retro",
+			textEffect: "typewriter",
+			texture: "dots",
+		},
+		description: "platinum windows on a 1999 desktop",
+		id: "platinum",
+	},
+	{
+		config: {
+			background: "spotlight",
+			entrance: "clip",
+			fonts: "poster",
+			heading: "giant",
+			hero: "name",
+			layout: "slides",
+			link: "underline",
+			motion: "dramatic",
+			nav: "corner",
+			palette: "midnight",
+			progress: "edge",
+			scale: "huge",
+			shape: "sharp",
+			textEffect: "mask",
+			texture: "none",
+		},
+		description: "one slide at a time, lit from above",
+		id: "cinema",
+	},
+	{
+		config: {
+			cursor: "trail",
+			entrance: "fade",
+			fonts: "terminal",
+			heading: "slash",
+			layout: "terminal",
+			link: "bracket",
+			motion: "snappy",
+			nav: "keys",
+			palette: "phosphor",
+			progress: "bar",
+			scale: "regular",
+			shape: "sharp",
+			textEffect: "typewriter",
+			texture: "scanlines",
+		},
+		description: "a shell session you can scroll",
+		id: "shell",
+	},
+	{
+		config: {
+			entrance: "flip",
+			fonts: "soft",
+			heading: "sticker",
+			hover: "tilt",
+			layout: "scrapbook",
+			link: "marker",
+			motion: "springy",
+			nav: "morph",
+			palette: "riso",
+			scale: "large",
+			shape: "clay",
+			textEffect: "highlight",
+			texture: "grain",
+		},
+		description: "taped-down cards that wobble when you touch them",
+		id: "collage",
+	},
+	{
+		config: {
+			entrance: "rise",
+			fonts: "grotesk",
+			heading: "giant",
+			hover: "dim",
+			layout: "stack",
+			link: "arrow",
+			motion: "smooth",
+			nav: "tabs",
+			palette: "sky",
+			progress: "ring",
+			reveal: "zoom",
+			scale: "large",
+			shape: "elevated",
+			textEffect: "blur",
+			texture: "none",
+		},
+		description: "sections pile up like a deck of cards",
+		id: "deck",
+	},
+	{
+		config: {
+			entrance: "rise",
+			fonts: "quarterly",
+			heading: "numbered",
+			hover: "slide",
+			layout: "timeline",
+			link: "underline",
+			motion: "smooth",
+			nav: "morph",
+			palette: "sand",
+			reveal: "sweep",
+			scale: "large",
+			shape: "soft",
+			textEffect: "letters",
+			texture: "topo",
+		},
+		description: "a career drawn down one line",
+		id: "chronicle",
+	},
+	{
+		config: {
+			background: "squares",
+			entrance: "slide",
+			fonts: "poster",
+			heading: "outline",
+			hero: "marquee",
+			layout: "horizontal",
+			link: "gradient",
+			motion: "snappy",
+			nav: "ticker",
+			palette: "acid",
+			scale: "huge",
+			shape: "pixel",
+			textEffect: "none",
+			texture: "none",
+		},
+		description: "a flyer that scrolls sideways",
+		id: "sideways",
+	},
+	{
+		config: {
+			background: "retro",
+			cursor: "blob",
+			entrance: "rise",
+			fonts: "rave",
+			heading: "gradient",
+			hero: "boxed",
+			layout: "cover",
+			link: "glow",
+			motion: "springy",
+			nav: "island",
+			palette: "grape",
+			reveal: "blur",
+			scale: "huge",
+			shape: "glass",
+			textEffect: "glitch",
+			texture: "none",
+		},
+		description: "neon grid floor, glitching headline",
+		id: "synthwave",
+	},
+	{
+		config: {
+			entrance: "fade",
+			fonts: "bookish",
+			heading: "marker",
+			layout: "column",
+			link: "underline",
+			motion: "subtle",
+			nav: "masthead",
+			palette: "paper",
+			reveal: "fade",
+			scale: "large",
+			shape: "soft",
+			textEffect: "highlight",
+			texture: "lined",
+		},
+		description: "ruled paper and a highlighter",
+		id: "notebook",
+	},
+	{
+		config: {
+			background: "stars",
+			entrance: "blur",
+			fonts: "editorial",
+			heading: "serif",
+			hero: "columns",
+			layout: "magazine",
+			link: "underline",
+			motion: "dramatic",
+			nav: "magnify",
+			palette: "midnight",
+			reveal: "blur",
+			scale: "huge",
+			shape: "soft",
+			textEffect: "blur",
+			texture: "none",
+		},
+		description: "a night sky and a dock to steer by",
+		id: "starfield",
+	},
+	{
+		config: {
+			background: "flicker",
+			entrance: "scale",
+			fonts: "pixel",
+			heading: "block",
+			hover: "lift",
+			layout: "bento",
+			link: "invert",
+			motion: "snappy",
+			nav: "magnify",
+			palette: "phosphor",
+			scale: "huge",
+			shape: "pixel",
+			textEffect: "scramble",
+			texture: "none",
+		},
+		description: "8-bit cards over a flickering grid",
+		id: "quest",
+	},
+	{
+		config: {
+			background: "orbs",
+			cursor: "ring",
+			entrance: "rise",
+			fonts: "grotesk",
+			heading: "rule",
+			hero: "centered",
+			hover: "lift",
+			layout: "column",
+			link: "arrow",
+			motion: "springy",
+			nav: "tabs",
+			palette: "lilac",
+			progress: "bar",
+			reveal: "rise",
+			scale: "large",
+			shape: "glass",
+			textEffect: "shimmer",
+			texture: "mesh",
+		},
+		description: "soft blobs, frosted glass and a bouncy cursor",
+		id: "bubble",
+	},
+	{
+		config: {
+			background: "particles",
+			entrance: "rise",
+			fonts: "grotesk",
+			heading: "rule",
+			hover: "glow",
+			layout: "blueprint",
+			link: "dotted",
+			motion: "smooth",
+			nav: "framed",
+			palette: "glacier",
+			reveal: "fade",
+			scale: "regular",
+			shape: "sharp",
+			textEffect: "scramble",
+			texture: "grid",
+		},
+		description: "an engineering drawing, dust in the air",
+		id: "drafting",
+	},
 ];
 
 export function applyFontPairing(
@@ -1369,9 +2493,13 @@ export const applyPreset = (
 	preset: DesignConfig
 ): DesignConfig => ({ ...preset, copy: config.copy });
 
+/** same look, whatever the copy says */
+export const sameLook = (a: DesignConfig, b: DesignConfig) =>
+	designKey({ ...a, copy: DEFAULT_COPY }) ===
+	designKey({ ...b, copy: DEFAULT_COPY });
+
 export function matchPreset(config: DesignConfig) {
-	const key = designKey({ ...config, copy: DEFAULT_COPY });
-	return DESIGN_PRESETS.find((preset) => designKey(preset.config) === key);
+	return DESIGN_PRESETS.find((preset) => sameLook(preset.config, config));
 }
 
 /** stable identity for comparing designs; custom colours only count when used */
@@ -1474,22 +2602,49 @@ export function normalizeDesign(input: unknown): DesignConfig {
 			: {};
 
 	return {
+		background: pick(
+			values(BACKGROUNDS),
+			source.background,
+			DEFAULT_DESIGN.background
+		),
 		copy: normalizeCopy(source.copy),
+		cursor: pick(values(CURSORS), source.cursor, DEFAULT_DESIGN.cursor),
 		custom: {
 			dark: normalizeTokens(custom.dark, SLATE.dark),
 			light: normalizeTokens(custom.light, SLATE.light),
 		},
+		entrance: pick(values(ENTRANCES), source.entrance, DEFAULT_DESIGN.entrance),
 		fontBody: pick(FONT_IDS, source.fontBody, DEFAULT_DESIGN.fontBody),
 		fontDisplay: pick(FONT_IDS, source.fontDisplay, DEFAULT_DESIGN.fontDisplay),
 		fontLabel: pick(FONT_IDS, source.fontLabel, DEFAULT_DESIGN.fontLabel),
 		heading: pick(values(HEADINGS), source.heading, DEFAULT_DESIGN.heading),
+		hero: pick(values(HEROES), source.hero, DEFAULT_DESIGN.hero),
+		hover: pick(values(HOVERS), source.hover, DEFAULT_DESIGN.hover),
 		layout: pick(values(LAYOUTS), source.layout, DEFAULT_DESIGN.layout),
 		lede: pick(values(LEDE_FONTS), source.lede, DEFAULT_DESIGN.lede),
 		link: pick(values(LINKS), source.link, DEFAULT_DESIGN.link),
+		motion: pick(values(MOTION_FEELS), source.motion, DEFAULT_DESIGN.motion),
 		nav: pick(values(NAVS), source.nav, DEFAULT_DESIGN.nav),
+		navPosition: pick(
+			values(NAV_POSITIONS),
+			source.navPosition,
+			DEFAULT_DESIGN.navPosition
+		),
 		palette: pick(PALETTE_IDS, source.palette, DEFAULT_DESIGN.palette),
+		progress: pick(
+			values(PROGRESS_BARS),
+			source.progress,
+			DEFAULT_DESIGN.progress
+		),
+		reveal: pick(values(REVEALS), source.reveal, DEFAULT_DESIGN.reveal),
 		scale: pick(values(SCALES), source.scale, DEFAULT_DESIGN.scale),
 		shape: pick(values(SHAPES), source.shape, DEFAULT_DESIGN.shape),
+		speed: pick(values(MOTION_SPEEDS), source.speed, DEFAULT_DESIGN.speed),
+		textEffect: pick(
+			values(TEXT_EFFECTS),
+			source.textEffect,
+			DEFAULT_DESIGN.textEffect
+		),
 		texture: pick(values(TEXTURES), source.texture, DEFAULT_DESIGN.texture),
 	};
 }
@@ -1503,6 +2658,15 @@ const randomItem = <T>(list: readonly T[]): T =>
 
 const HUE_TURN = 360;
 const RANDOM_PALETTE_CHANCE = 0.35;
+
+/** a shuffle that turns every effect on at once is noise, so each is a coin flip */
+const QUIET_CHANCE = 0.45;
+
+/** a random choice that lands on the list's first ("none") option now and then */
+const maybe = <T extends { value: string }>(list: readonly T[]): T["value"] =>
+	Math.random() < QUIET_CHANCE
+		? (list[0] as T).value
+		: randomItem(list.slice(1)).value;
 
 function hslToHex(hue: number, saturation: number, lightness: number) {
 	const s = saturation / 100;
@@ -1550,19 +2714,32 @@ export function shuffleDesign(copy: HeroCopy): DesignConfig {
 	const pairing = randomItem(FONT_PAIRINGS);
 	return applyFontPairing(
 		{
+			background: maybe(BACKGROUNDS),
 			copy,
+			cursor: maybe(CURSORS),
 			custom: useRandomColours ? randomPalette() : DEFAULT_DESIGN.custom,
+			entrance: randomItem(ENTRANCES.slice(1)).value,
 			fontBody: DEFAULT_DESIGN.fontBody,
 			fontDisplay: DEFAULT_DESIGN.fontDisplay,
 			fontLabel: DEFAULT_DESIGN.fontLabel,
 			heading: randomItem(HEADINGS).value,
+			hero: randomItem(HEROES).value,
+			hover: maybe(HOVERS),
 			layout: randomItem(LAYOUTS).value,
 			lede: DEFAULT_DESIGN.lede,
 			link: randomItem(LINKS).value,
+			// "off" would hide half of what the shuffle just picked
+			motion: randomItem(MOTION_FEELS.filter((feel) => feel.value !== "off"))
+				.value,
 			nav: randomItem(NAVS).value,
+			navPosition: DEFAULT_DESIGN.navPosition,
 			palette: useRandomColours ? "custom" : randomItem(PALETTES).id,
+			progress: maybe(PROGRESS_BARS),
+			reveal: maybe(REVEALS),
 			scale: randomItem(SCALES).value,
 			shape: randomItem(SHAPES).value,
+			speed: DEFAULT_DESIGN.speed,
+			textEffect: maybe(TEXT_EFFECTS),
 			texture: randomItem(TEXTURES).value,
 		},
 		pairing.id

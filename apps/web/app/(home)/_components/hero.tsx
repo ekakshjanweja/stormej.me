@@ -2,6 +2,7 @@
 
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import { HeroHeadline } from "@/components/design/effects/hero-headline";
 import { useHeroCopy } from "@/components/design/preview-bridge";
 import { track } from "@/lib/analytics";
 import { cal, resume } from "@/lib/constants/links";
@@ -25,13 +26,24 @@ export default function Hero() {
 			className="home-hero"
 			data-cursor-anchor="hero"
 		>
+			{/* decoration for the intro designs in app/design.css; hidden unless
+			    a [data-hero] asks for it, and never read out */}
+			<span aria-hidden className="hero-marks" />
+			<p aria-hidden className="hero-name">
+				ekaksh janweja
+			</p>
+			<div aria-hidden className="hero-marquee">
+				<span>{headline}</span>
+				<span>{headline}</span>
+			</div>
+
 			{eyebrow ? <p className="hero-eyebrow meta-tag mb-5">{eyebrow}</p> : null}
 
 			<h1
 				className="hero-lede max-w-[58ch] text-2xl leading-[1.35]"
 				id="hero-heading"
 			>
-				{headline}
+				<HeroHeadline text={headline} />
 			</h1>
 
 			{subline ? (

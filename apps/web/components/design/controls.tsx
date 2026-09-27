@@ -1,6 +1,14 @@
 "use client";
 
-import { type ChangeEvent, useCallback, useEffect, useState } from "react";
+import {
+	type ChangeEvent,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
+import { Slider } from "@/components/ui/slider";
+import { motionEasing } from "@/lib/design/css";
 import {
 	COPY_FIELDS,
 	COPY_OPTIONS,
@@ -8,11 +16,17 @@ import {
 	type FontId,
 	type HeroCopy,
 	isHexColor,
+	MOTION_FEELS,
+	MOTION_SPEEDS,
+	type MotionFeel,
+	type MotionSpeed,
 	matchCopyOption,
+	motionTokens,
 	PALETTE_TOKEN_KEYS,
 	PALETTE_TOKEN_LABELS,
 	type PaletteModes,
 	type PaletteTokens,
+	sameCopy,
 } from "@/lib/design/options";
 import { cn } from "@/lib/utils";
 
@@ -296,11 +310,16 @@ export function ColourColumn({
 	);
 }
 
-const COPY_CHOICES = COPY_OPTIONS.map((option) => ({
-	hint: option.hint,
-	label: option.id,
-	value: option.id,
-}));
+const LIVE_COPY_ID = "live";
+
+const COPY_CHOICES = [
+	{ hint: "what the site says right now", label: "live", value: LIVE_COPY_ID },
+	...COPY_OPTIONS.map((option) => ({
+		hint: option.hint,
+		label: option.id,
+		value: option.id,
+	})),
+];
 
 const fieldClass =
 	"w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-[13px] leading-snug outline-none focus:border-foreground/40";
@@ -357,19 +376,26 @@ function CopyField({
 /** pick a written option as a starting point, then edit any line by hand */
 export function CopyEditor({
 	copy,
+	live,
 	onChange,
 }: {
 	copy: HeroCopy;
+	/** the published copy, offered as the "live" starting point */
+	live: HeroCopy;
 	onChange: (copy: HeroCopy) => void;
 }) {
 	const pickOption = useCallback(
 		(id: string) => {
+			if (id === LIVE_COPY_ID) {
+				onChange(live);
+				return;
+			}
 			const option = COPY_OPTIONS.find((item) => item.id === id);
 			if (option) {
 				onChange(option.copy);
 			}
 		},
-		[onChange]
+		[live, onChange]
 	);
 	const editField = useCallback(
 		(key: keyof HeroCopy, value: string) => onChange({ ...copy, [key]: value }),
@@ -383,7 +409,7 @@ export function CopyEditor({
 				name="design-copy"
 				onChange={pickOption}
 				options={COPY_CHOICES}
-				value={matchCopyOption(copy)?.id}
+				value={sameCopy(copy, live) ? LIVE_COPY_ID : matchCopyOption(copy)?.id}
 			/>
 			<div className="flex flex-col gap-3">
 				{COPY_FIELDS.map((field) => (
@@ -400,5 +426,177 @@ export function CopyEditor({
 				shared with the centred navbar.
 			</p>
 		</>
+	);
+}
+
+/** pause at each end of the demo so the settle is visible */
+const FEEL_DEMO_REST_MS = 450;
+
+/** a dot crossing a track with the feel's real duration and easing */
+function FeelDemo({
+	feel,
+	playing,
+	speed,
+}: {
+	feel: MotionFeel;
+	playing: boolean;
+	speed: MotionSpeed;
+}) {
+	const dotRef = useRef<HTMLSpanElement>(null);
+
+	useEffect(() => {
+		const dot = dotRef.current;
+		const reduced = window.matchMedia(
+			"(prefers-reduced-motion: reduce)"
+		).matches;
+		if (!(dot && playing) || feel === "off" || reduced) {
+			return;
+		}
+		const { duration } = motionTokens({ motion: feel, speed });
+		const animation = dot.animate(
+			[{ left: "0%" }, { left: "calc(100% - 0.5rem)" }],
+			{
+				direction: "alternate",
+				duration: duration * 1000,
+				easing: motionEasing({ motion: feel, speed }),
+				endDelay: FEEL_DEMO_REST_MS,
+				iterations: Number.POSITIVE_INFINITY,
+			}
+		);
+		return () => animation.cancel();
+	}, [feel, playing, speed]);
+
+	return (
+		<span
+			aria-hidden
+			className="relative mt-2 block h-2 w-full rounded-full bg-muted"
+		>
+			<span
+				className="absolute top-0 left-0 size-2 rounded-full bg-current"
+				ref={dotRef}
+			/>
+		</span>
+	);
+}
+
+function FeelButton({
+	active,
+	feel,
+	onPick,
+	speed,
+}: {
+	active: boolean;
+	feel: (typeof MOTION_FEELS)[number];
+	onPick: (feel: MotionFeel) => void;
+	speed: MotionSpeed;
+}) {
+	const [hovered, setHovered] = useState(false);
+	const pick = useCallback(() => onPick(feel.value), [feel.value, onPick]);
+	const enter = useCallback(() => setHovered(true), []);
+	const leave = useCallback(() => setHovered(false), []);
+
+	return (
+		<button
+			aria-pressed={active}
+			className={cn(
+				"rounded-md border px-2.5 py-2 text-left transition-colors",
+				active
+					? "border-foreground/60 bg-accent text-foreground"
+					: "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground"
+			)}
+			onBlur={leave}
+			onClick={pick}
+			onFocus={enter}
+			onMouseEnter={enter}
+			onMouseLeave={leave}
+			title={feel.hint}
+			type="button"
+		>
+			<span className="block font-medium text-[12px]">{feel.label}</span>
+			<FeelDemo feel={feel.value} playing={active || hovered} speed={speed} />
+		</button>
+	);
+}
+
+/** the one knob every animation on the site answers to */
+export function FeelPicker({
+	speed,
+	value,
+	onChange,
+}: {
+	onChange: (feel: MotionFeel) => void;
+	speed: MotionSpeed;
+	value: MotionFeel;
+}) {
+	const selected = MOTION_FEELS.find((feel) => feel.value === value);
+	return (
+		<fieldset className="mb-4">
+			<legend className="mb-1.5 flex w-full items-baseline justify-between gap-2 text-[11px] uppercase tracking-[0.08em]">
+				<span className="text-muted-foreground">feel</span>
+				<span className="truncate text-muted-foreground/70 normal-case tracking-normal">
+					{selected?.hint}
+				</span>
+			</legend>
+			<div className="grid grid-cols-3 gap-1.5">
+				{MOTION_FEELS.map((feel) => (
+					<FeelButton
+						active={feel.value === value}
+						feel={feel}
+						key={feel.value}
+						onPick={onChange}
+						speed={speed}
+					/>
+				))}
+			</div>
+		</fieldset>
+	);
+}
+
+export function SpeedSlider({
+	disabled,
+	value,
+	onChange,
+}: {
+	disabled: boolean;
+	onChange: (speed: MotionSpeed) => void;
+	value: MotionSpeed;
+}) {
+	const index = Math.max(
+		0,
+		MOTION_SPEEDS.findIndex((speed) => speed.value === value)
+	);
+	const change = useCallback(
+		([next]: number[]) => {
+			const speed = MOTION_SPEEDS[next ?? index];
+			if (speed) {
+				onChange(speed.value);
+			}
+		},
+		[index, onChange]
+	);
+
+	return (
+		<div className="mb-5">
+			<div className="mb-2.5 flex items-baseline justify-between gap-2 text-[11px] uppercase tracking-[0.08em]">
+				<span className="text-muted-foreground">speed</span>
+				<span className="text-foreground tabular-nums tracking-normal">
+					{MOTION_SPEEDS[index]?.label}
+				</span>
+			</div>
+			<Slider
+				aria-label="animation speed"
+				disabled={disabled}
+				max={MOTION_SPEEDS.length - 1}
+				min={0}
+				onValueChange={change}
+				step={1}
+				value={[index]}
+			/>
+			<div className="mt-1.5 flex justify-between text-[10px] text-muted-foreground tabular-nums">
+				{MOTION_SPEEDS.map((speed) => (
+					<span key={speed.value}>{speed.label}</span>
+				))}
+			</div>
+		</div>
 	);
 }

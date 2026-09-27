@@ -2,14 +2,16 @@
 "use client";
 
 import { X as CloseIcon, Menu } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useState } from "react";
-import { useHeroCopy } from "@/components/design/preview-bridge";
+import { useDesign, useHeroCopy } from "@/components/design/preview-bridge";
 import { ModeToggle } from "@/components/mode-toggle";
 import { track } from "@/lib/analytics";
 import { cal, mailTo, resume } from "@/lib/constants/links";
+import { designAttributes } from "@/lib/design/css";
 import { TROVE_ENABLED } from "@/lib/trove-config";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +24,22 @@ const navItems = [
 
 /** only some navbar designs show it (see app/design.css) */
 const homeItem = { href: "/", label: "home", shortcut: "h" };
+
+/** the scripted navbars always lead with home */
+const allItems = [homeItem, ...navItems];
+
+// navbars with their own markup and motion (SCRIPTED_NAVS in
+// lib/design/options.ts); each is a separate chunk only its design loads
+const TabsLinks = dynamic(() =>
+	import("@/components/design/effects/navs/tabs-links").then(
+		(module) => module.TabsLinks
+	)
+);
+const MagnifyNav = dynamic(() =>
+	import("@/components/design/effects/navs/magnify-nav").then(
+		(module) => module.MagnifyNav
+	)
+);
 
 const focusRing =
 	"rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2";
@@ -127,6 +145,8 @@ export function Navbar() {
 	const router = useRouter();
 	const { setTheme } = useTheme();
 	const { cta } = useHeroCopy();
+	// the attribute, not the raw config: the sidebar layout forces "classic"
+	const nav = designAttributes(useDesign().design)["data-nav"];
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
 	const toggleMobileMenu = useCallback(() => {
@@ -221,8 +241,14 @@ export function Navbar() {
 		return () => window.removeEventListener("keydown", handleKeyDown);
 	}, [isMobileMenuOpen, pathname, closeMobileMenu, runShortcut]);
 
-	// every navbar design shares this markup; app/design.css shows, hides and
-	// rearranges the pieces per [data-nav], so previews can restyle it live
+	if (nav === "magnify") {
+		// the dock holds every link, so there is no menu to open
+		return <MagnifyNav items={allItems} pathname={pathname ?? "/"} />;
+	}
+
+	// every other navbar design shares this markup; app/design.css shows,
+	// hides and rearranges the pieces per [data-nav], so previews can restyle
+	// it live
 	return (
 		<>
 			<nav
@@ -245,20 +271,28 @@ export function Navbar() {
 					<span className="nav-brand-short">ej</span>
 				</Link>
 
-				<div className="nav-links hidden items-center gap-8 md:ml-auto md:flex">
-					<DesktopNavLink
-						className="nav-home"
-						isActive={pathname === homeItem.href}
-						item={homeItem}
+				{nav === "tabs" ? (
+					<TabsLinks
+						focusRing={focusRing}
+						items={allItems}
+						pathname={pathname ?? "/"}
 					/>
-					{navItems.map((item) => (
+				) : (
+					<div className="nav-links hidden items-center gap-8 md:ml-auto md:flex">
 						<DesktopNavLink
-							isActive={pathname === item.href}
-							item={item}
-							key={item.href}
+							className="nav-home"
+							isActive={pathname === homeItem.href}
+							item={homeItem}
 						/>
-					))}
-				</div>
+						{navItems.map((item) => (
+							<DesktopNavLink
+								isActive={pathname === item.href}
+								item={item}
+								key={item.href}
+							/>
+						))}
+					</div>
+				)}
 
 				<div className="nav-actions flex items-center gap-3 md:ml-8 md:gap-4">
 					<Link

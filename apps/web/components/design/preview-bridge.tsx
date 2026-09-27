@@ -3,9 +3,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { designAttributes, designCss } from "@/lib/design/css";
 import {
-	DEFAULT_COPY,
+	DEFAULT_DESIGN,
 	type DesignConfig,
-	type HeroCopy,
+	effectiveDesign,
 	normalizeDesign,
 } from "@/lib/design/options";
 
@@ -17,10 +17,31 @@ export interface DesignPreviewMessage {
 	type: "design-preview";
 }
 
-const HeroCopyContext = createContext<HeroCopy>(DEFAULT_COPY);
+/** asks a preview frame to play its entrance animations again */
+export interface DesignReplayMessage {
+	type: "design-replay";
+}
+
+interface DesignContextValue {
+	/** the design as it renders: motion "off" already applied */
+	design: DesignConfig;
+	/** bumps whenever the studio asks for a replay; key effects on it */
+	replay: number;
+}
+
+const DesignContext = createContext<DesignContextValue>({
+	design: DEFAULT_DESIGN,
+	replay: 0,
+});
+
+/** the published design, or the studio's draft inside a preview frame */
+export const useDesign = () => useContext(DesignContext);
 
 /** the published hero copy, or the studio's draft inside a preview frame */
-export const useHeroCopy = () => useContext(HeroCopyContext);
+export const useHeroCopy = () => useContext(DesignContext).design.copy;
+
+/** css entrance keyframes all start with this, see app/design.css */
+const ENTRANCE_ANIMATION_PREFIX = "design-enter";
 
 function applyMode(mode: DesignPreviewMessage["mode"]) {
 	const root = document.documentElement;
@@ -45,20 +66,34 @@ function applyPreview(
 	applyMode(mode);
 }
 
+function replayEntrances() {
+	window.scrollTo({ behavior: "instant", top: 0 });
+	for (const animation of document.getAnimations()) {
+		if (
+			animation instanceof CSSAnimation &&
+			animation.animationName.startsWith(ENTRANCE_ANIMATION_PREFIX)
+		) {
+			animation.cancel();
+			animation.play();
+		}
+	}
+}
+
 /**
- * Hands the published copy to the page, and lets the vault's design studio
+ * Hands the published design to the page, and lets the vault's design studio
  * restyle and reword a framed copy of the site live. The preview half only
  * wakes up inside an iframe opened with ?design-preview, and only takes
  * messages from this origin, so it is inert for every normal visit.
  */
 export function DesignProvider({
 	children,
-	copy,
+	design,
 }: {
 	children: React.ReactNode;
-	copy: HeroCopy;
+	design: DesignConfig;
 }) {
-	const [previewCopy, setPreviewCopy] = useState<HeroCopy | null>(null);
+	const [preview, setPreview] = useState<DesignConfig | null>(null);
+	const [replay, setReplay] = useState(0);
 
 	useEffect(() => {
 		const framed = window.self !== window.top;
@@ -71,17 +106,24 @@ export function DesignProvider({
 
 		let forcedMode: DesignPreviewMessage["mode"] | null = null;
 
-		const onMessage = (event: MessageEvent<DesignPreviewMessage>) => {
-			if (
-				event.origin !== window.location.origin ||
-				event.data?.type !== "design-preview"
-			) {
+		const onMessage = (
+			event: MessageEvent<DesignPreviewMessage | DesignReplayMessage>
+		) => {
+			if (event.origin !== window.location.origin) {
 				return;
 			}
-			const design = normalizeDesign(event.data.config);
+			if (event.data?.type === "design-replay") {
+				replayEntrances();
+				setReplay((count) => count + 1);
+				return;
+			}
+			if (event.data?.type !== "design-preview") {
+				return;
+			}
+			const next = normalizeDesign(event.data.config);
 			forcedMode = event.data.mode;
-			applyPreview(design, event.data.mode);
-			setPreviewCopy(design.copy);
+			applyPreview(next, event.data.mode);
+			setPreview(next);
 		};
 
 		// next-themes re-applies the visitor's theme after mount; the frame's
@@ -107,9 +149,11 @@ export function DesignProvider({
 		};
 	}, []);
 
+	const value = effectiveDesign(preview ?? design);
+
 	return (
-		<HeroCopyContext.Provider value={previewCopy ?? copy}>
+		<DesignContext.Provider value={{ design: value, replay }}>
 			{children}
-		</HeroCopyContext.Provider>
+		</DesignContext.Provider>
 	);
 }

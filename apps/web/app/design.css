@@ -1,3 +1,4 @@
+/* biome-ignore-all lint/style/noDescendingSpecificity: Design variants deliberately scope later rules to different data attributes and breakpoints. */
 /* Structural design options (lib/design/options.ts), keyed off the data
    attributes the root layout puts on <html>. Colours and font roles come from
    the generated #site-design stylesheet (lib/design/css.ts). The first option
@@ -11,10 +12,22 @@
 html[data-design] {
 	--design-card-border: 1px solid var(--border);
 	--design-card-shadow: none;
+	/* what a card is filled with, and what it does to whatever shows through
+	   it; only the see-through shapes change these */
+	--design-card-surface: var(--card);
+	--design-card-backdrop: none;
 }
 
 main {
 	counter-reset: design-section;
+}
+
+/* the hero renders decoration for every intro design (see [data-hero] below);
+   none of it shows unless a design asks */
+.hero-marks,
+.hero-name,
+.hero-marquee {
+	display: none;
 }
 
 /* ─── font roles ─────────────────────────────────────────────────────── */
@@ -52,6 +65,169 @@ html[data-shape="brutal"] [data-cursor-anchor="stack"] button {
 html[data-shape="brutal"] .prose-fuma :is(figure.shiki, img) {
 	border: 2px solid var(--foreground);
 	box-shadow: 5px 5px 0 var(--foreground);
+}
+
+/* glass: frosted, see-through panels with a bright rim. made to sit over a
+   background effect or a texture; over a flat page it reads as a soft tint */
+html[data-shape="glass"] {
+	--radius: 1rem;
+	--design-card-border: 1px solid
+		color-mix(in oklab, var(--foreground) 11%, transparent);
+	--design-card-shadow:
+		inset 0 1px 0 rgb(255 255 255 / 0.45),
+		inset 0 -1px 0 color-mix(in oklab, var(--foreground) 4%, transparent),
+		0 12px 40px -16px rgb(0 0 0 / 0.28);
+	--design-card-surface: color-mix(in oklab, var(--card) 52%, transparent);
+	--design-card-backdrop: blur(18px) saturate(1.6);
+}
+html[data-shape="glass"].dark {
+	--design-card-border: 1px solid rgb(255 255 255 / 0.1);
+	--design-card-shadow:
+		inset 0 1px 0 rgb(255 255 255 / 0.1), 0 12px 40px -16px rgb(0 0 0 / 0.7);
+	--design-card-surface: color-mix(in oklab, var(--card) 45%, transparent);
+}
+
+/* clay: puffy and pillowy, lit from above and pressed in underneath, on a
+   pastel wash of the accent */
+html[data-shape="clay"] {
+	--radius: 1.5rem;
+	--design-card-border: 0 solid transparent;
+	--design-card-shadow:
+		inset 0 2px 1px rgb(255 255 255 / 0.6),
+		inset 0 -10px 18px color-mix(in oklab, var(--foreground) 7%, transparent),
+		0 16px 30px -14px color-mix(in oklab, var(--foreground) 32%, transparent),
+		0 3px 6px color-mix(in oklab, var(--foreground) 7%, transparent);
+	--design-card-surface: color-mix(
+		in oklab,
+		var(--text-highlight) 9%,
+		var(--card)
+	);
+}
+html[data-shape="clay"].dark {
+	--design-card-shadow:
+		inset 0 2px 1px rgb(255 255 255 / 0.12),
+		inset 0 -10px 18px rgb(0 0 0 / 0.3),
+		0 16px 30px -14px rgb(0 0 0 / 0.8),
+		0 3px 6px rgb(0 0 0 / 0.3);
+	--design-card-surface: color-mix(
+		in oklab,
+		var(--text-highlight) 10%,
+		var(--card)
+	);
+}
+
+/* pixel: 8-bit borders stacked out of hard shadows, so every corner comes
+   out notched like a sprite, with a stepped bevel inside */
+html[data-shape="pixel"] {
+	--radius: 0rem;
+	--design-card-border: 0 solid transparent;
+	--design-card-shadow:
+		0 -4px 0 0 var(--foreground),
+		0 4px 0 0 var(--foreground),
+		-4px 0 0 0 var(--foreground),
+		4px 0 0 0 var(--foreground),
+		inset -4px -4px 0 0 color-mix(in oklab, var(--foreground) 14%, transparent),
+		inset 4px 4px 0 0 color-mix(in oklab, var(--background) 60%, transparent);
+}
+html[data-shape="pixel"] .rounded-full {
+	border-radius: 0;
+}
+
+/* retro: platinum, like mac os 9. a dark outline, a light bevel on the top
+   and left edges, a shaded one on the bottom and right */
+html[data-shape="retro"] {
+	--radius: 0.2rem;
+	--design-card-border: 1px solid
+		color-mix(in oklab, var(--foreground) 80%, transparent);
+	--design-card-shadow:
+		inset 1px 1px 0 rgb(255 255 255 / 0.8),
+		inset -1px -1px 0 color-mix(in oklab, var(--foreground) 22%, transparent),
+		2px 2px 0 color-mix(in oklab, var(--foreground) 20%, transparent);
+	--design-card-surface: color-mix(
+		in oklab,
+		var(--muted) 75%,
+		var(--background)
+	);
+}
+html[data-shape="retro"].dark {
+	--design-card-shadow:
+		inset 1px 1px 0 rgb(255 255 255 / 0.14),
+		inset -1px -1px 0 rgb(0 0 0 / 0.45), 2px 2px 0 rgb(0 0 0 / 0.45);
+}
+
+/* elevated: cards float well off the page on deep, layered soft shadows */
+html[data-shape="elevated"] {
+	--radius: 0.9rem;
+	--design-card-border: 1px solid
+		color-mix(in oklab, var(--border) 45%, transparent);
+	--design-card-shadow:
+		0 1px 1px rgb(0 0 0 / 0.03),
+		0 2px 4px rgb(0 0 0 / 0.04),
+		0 10px 20px -6px rgb(0 0 0 / 0.08),
+		0 32px 56px -20px rgb(0 0 0 / 0.22);
+	--design-card-surface: var(--background);
+}
+html[data-shape="elevated"].dark {
+	--design-card-border: 1px solid rgb(255 255 255 / 0.06);
+	--design-card-shadow:
+		0 1px 1px rgb(0 0 0 / 0.2), 0 10px 20px -6px rgb(0 0 0 / 0.4),
+		0 32px 56px -20px rgb(0 0 0 / 0.75);
+	--design-card-surface: color-mix(
+		in oklab,
+		var(--card) 92%,
+		var(--foreground)
+	);
+}
+
+/* the new shapes also dress the small surfaces every page has: the stack
+   chips, the work previews, code blocks and article images */
+html:is(
+	[data-shape="glass"],
+	[data-shape="clay"],
+	[data-shape="pixel"],
+	[data-shape="retro"],
+	[data-shape="elevated"]
+)
+:is(
+	[data-cursor-anchor="stack"] button,
+	[data-cursor-anchor="work"] li > [aria-hidden="true"],
+	.prose-fuma figure.shiki
+) {
+	background: var(--design-card-surface);
+	border: var(--design-card-border);
+	box-shadow: var(--design-card-shadow);
+	backdrop-filter: var(--design-card-backdrop);
+}
+html:is(
+		[data-shape="glass"],
+		[data-shape="clay"],
+		[data-shape="pixel"],
+		[data-shape="retro"],
+		[data-shape="elevated"]
+	)
+	.prose-fuma
+	img {
+	border: var(--design-card-border);
+	border-radius: var(--radius);
+	box-shadow: var(--design-card-shadow);
+}
+html:is([data-shape="pixel"], [data-shape="retro"])
+	[data-cursor-anchor="stack"]
+	button {
+	border-radius: var(--radius);
+}
+html[data-shape="pixel"] [data-cursor-anchor="stack"] button {
+	margin: 4px;
+}
+html[data-shape="retro"] .nav-cta {
+	color: var(--foreground);
+	background: var(--design-card-surface);
+	border: var(--design-card-border);
+	/* the default button's heavy ring */
+	box-shadow:
+		var(--design-card-shadow),
+		0 0 0 2px var(--background),
+		0 0 0 3px var(--foreground);
 }
 
 /* ─── navbar ─────────────────────────────────────────────────────────── */
@@ -527,6 +703,177 @@ html[data-nav="corner"] .nav-overlay-link::before {
 	}
 }
 
+/* ticker: the links run past in a strip like a stock ticker. pointing at the
+   strip holds it still; tabbing into it stops it and lays the links out */
+html[data-nav="ticker"] .site-nav {
+	gap: 1.25rem;
+}
+html[data-nav="ticker"] .nav-links {
+	display: flex;
+	flex: 1;
+	gap: 0;
+	min-width: 0;
+	padding-block: 0.4rem;
+	margin: 0;
+	container-type: inline-size;
+	overflow: hidden;
+	border-block: 1px solid var(--border);
+	-webkit-mask-image: linear-gradient(
+		90deg,
+		transparent,
+		#000 10%,
+		#000 90%,
+		transparent
+	);
+	mask-image: linear-gradient(
+		90deg,
+		transparent,
+		#000 10%,
+		#000 90%,
+		transparent
+	);
+}
+html[data-nav="ticker"] .nav-link {
+	flex: none;
+	font-family: var(--font-label);
+	font-size: 12px;
+	color: var(--muted-foreground);
+	text-transform: uppercase;
+	letter-spacing: 0.14em;
+	white-space: nowrap;
+	opacity: 1;
+}
+html[data-nav="ticker"] .nav-link::before {
+	margin-inline: 1.1rem;
+	color: var(--text-highlight);
+	content: "✦";
+}
+html[data-nav="ticker"] .nav-link:is(:hover, [aria-current="page"]) {
+	color: var(--foreground);
+}
+html[data-nav="ticker"] .nav-actions {
+	margin-left: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+	/* started part way through, so the strip is never empty on load */
+	html[data-nav="ticker"]:not([data-motion="off"]) .nav-link {
+		animation: design-ticker 18s -7s linear infinite;
+	}
+	html[data-nav="ticker"] .nav-links:hover .nav-link {
+		animation-play-state: paused;
+	}
+	html[data-nav="ticker"] .nav-links:focus-within .nav-link {
+		animation: none;
+	}
+}
+@keyframes design-ticker {
+	from {
+		transform: translateX(100cqw);
+	}
+	to {
+		transform: translateX(-100cqw);
+	}
+}
+
+/* morph: a tiny island at the top, like a phone's; point at it or tab into
+   it and it swells open into the whole menu */
+html[data-nav="morph"] {
+	--morph-surface: var(--foreground);
+	--morph-ink: var(--background);
+}
+html[data-nav="morph"].dark {
+	--morph-surface: color-mix(in oklab, var(--background) 55%, black);
+	--morph-ink: var(--foreground);
+}
+html[data-nav="morph"] .site-nav {
+	top: 0.75rem;
+	gap: 0;
+	justify-content: flex-start;
+	width: fit-content;
+	max-width: calc(100% - 1.5rem);
+	padding: 0.35rem 0.4rem 0.35rem 1rem;
+	margin: 0.75rem auto 2.5rem;
+	color: var(--morph-ink);
+	background: var(--morph-surface);
+	border: 1px solid color-mix(in oklab, var(--morph-ink) 14%, transparent);
+	border-radius: 999px;
+	box-shadow: 0 14px 34px -16px rgb(0 0 0 / 0.5);
+	backdrop-filter: none;
+}
+html[data-nav="morph"] :is(.nav-brand, .nav-link, .nav-actions button) {
+	color: var(--morph-ink);
+}
+html[data-nav="morph"] .nav-brand {
+	display: inline-flex;
+	gap: 0.6rem;
+	align-items: center;
+	padding-right: 0.5rem;
+	font-size: 14px;
+	font-weight: 500;
+	white-space: nowrap;
+}
+html[data-nav="morph"] .nav-brand::before {
+	width: 0.45rem;
+	height: 0.45rem;
+	content: "";
+	background: var(--text-highlight);
+	border-radius: 50%;
+	box-shadow: 0 0 0 3px
+		color-mix(in oklab, var(--text-highlight) 28%, transparent);
+}
+html[data-nav="morph"] .nav-link {
+	font-size: 14px;
+	white-space: nowrap;
+}
+html[data-nav="morph"] .nav-actions {
+	gap: 0.25rem;
+	margin-left: 0;
+}
+@media (min-width: 768px) and (hover: hover) {
+	html[data-nav="morph"] .site-nav {
+		display: grid;
+		grid-template-columns: auto 0fr auto;
+		align-items: center;
+		transition: grid-template-columns 450ms cubic-bezier(0.3, 1.25, 0.5, 1);
+	}
+	html[data-nav="morph"] .nav-links {
+		gap: 1.25rem;
+		min-width: 0;
+		padding-inline: 0;
+		margin: 0;
+		overflow: clip;
+		overflow-clip-margin: 0.4rem;
+		opacity: 0;
+		transition:
+			opacity 180ms ease,
+			padding 450ms cubic-bezier(0.3, 1.25, 0.5, 1);
+	}
+	html[data-nav="morph"] .site-nav:is(:hover, :focus-within) {
+		grid-template-columns: auto 1fr auto;
+	}
+	html[data-nav="morph"] .site-nav:is(:hover, :focus-within) .nav-links {
+		padding-inline: 1rem 1.25rem;
+		opacity: 1;
+		transition-delay: 120ms, 0ms;
+	}
+}
+
+/* navbar scroll: "default" leaves each design as it is. dock and corner pin
+   their own pieces and edges does on wide screens, so they ignore it there;
+   the sidebar layout's rail outranks it too */
+html[data-nav-position="sticky"]:is([data-nav="framed"], [data-nav="masthead"])
+.site-nav {
+	position: sticky;
+}
+html[data-nav-position="sticky"][data-nav="masthead"] .site-nav {
+	padding-bottom: 0.75rem;
+	background: var(--background);
+}
+html[data-nav-position="static"]:not([data-nav="dock"], [data-nav="corner"])
+	.site-nav {
+	position: relative;
+}
+
 /* ─── layout ─────────────────────────────────────────────────────────── */
 
 /* compact: narrow and dense everywhere */
@@ -649,10 +996,11 @@ html[data-layout="magazine"] .home-hero p.hero-lede {
 		min-width: 0;
 		padding: 1.5rem;
 		margin: 0;
-		background: var(--card);
+		background: var(--design-card-surface);
 		border: var(--design-card-border);
 		border-radius: calc(var(--radius) + 4px);
 		box-shadow: var(--design-card-shadow);
+		backdrop-filter: var(--design-card-backdrop);
 	}
 	html[data-layout="bento"]
 		.home-stack
@@ -1001,6 +1349,1428 @@ html[data-layout="blueprint"] .home-stack > * + *::after {
 	}
 }
 
+/* card stack: every section is a card that sticks under the bar, so the next
+   one slides up over it and they pile like index cards, each leaving its
+   label showing. all cards share a height so each covers the one below */
+html[data-layout="stack"] {
+	--stack-top: 5rem;
+	--stack-peek: 2.25rem;
+	--stack-card: 21rem;
+}
+html[data-layout="stack"]:is(
+	[data-nav="masthead"],
+	[data-nav="corner"],
+	[data-nav="dock"],
+	[data-nav-position="static"]
+) {
+	--stack-top: 1rem;
+}
+html[data-layout="stack"] .design-shell:has(.home-stack) {
+	max-width: 52rem;
+}
+html[data-layout="stack"] .home-stack {
+	padding-bottom: 8rem;
+}
+html[data-layout="stack"] .home-stack > * {
+	--stack-index: 0;
+	display: flex;
+	flex-direction: column;
+	min-height: var(--stack-card);
+	padding: 0.8rem 1.5rem 1.75rem;
+	margin: 0 0 1.5rem;
+	background: var(--card);
+	border: var(--design-card-border);
+	border-radius: calc(var(--radius) + 6px);
+	box-shadow:
+		var(--design-card-shadow),
+		0 -14px 32px -22px rgb(0 0 0 / 0.35);
+}
+html[data-layout="stack"] .home-stack > :not(.home-hero) > :first-child {
+	min-height: 1.5rem;
+	padding-bottom: 0.85rem;
+	margin-bottom: 1.35rem;
+	border-bottom: 1px dashed var(--border);
+}
+html[data-layout="stack"] .home-hero::before {
+	padding-bottom: 0.85rem;
+	margin-bottom: 1.35rem;
+	font-family: var(--font-label);
+	font-size: 0.75rem;
+	text-transform: uppercase;
+	letter-spacing: 0.25em;
+	content: "hello";
+	border-bottom: 1px dashed var(--border);
+}
+html[data-layout="stack"] .home-hero > div:last-child {
+	padding-top: 2rem;
+	margin-top: auto;
+}
+html[data-layout="stack"] .home-stack > :nth-child(2) {
+	--stack-index: 1;
+}
+html[data-layout="stack"] .home-stack > :nth-child(3) {
+	--stack-index: 2;
+}
+html[data-layout="stack"] .home-stack > :nth-child(4) {
+	--stack-index: 3;
+}
+html[data-layout="stack"] .home-stack > :nth-child(5) {
+	--stack-index: 4;
+}
+html[data-layout="stack"] .home-stack > :nth-child(6) {
+	--stack-index: 5;
+}
+html[data-layout="stack"] .home-stack > :nth-child(7) {
+	--stack-index: 6;
+}
+html[data-layout="stack"] .home-stack > :nth-child(8) {
+	--stack-index: 7;
+}
+html[data-layout="stack"] .home-stack > :nth-child(9) {
+	--stack-index: 8;
+}
+/* only where the whole pile fits; on short screens the cards just scroll.
+   the min() pulls later cards up rather than letting them hang off screen */
+@media (min-height: 36rem) {
+	html[data-layout="stack"] .home-stack > * {
+		position: sticky;
+		top: min(
+			calc(var(--stack-top) + var(--stack-index) * var(--stack-peek)),
+			calc(100svh - var(--stack-card) - 1rem)
+		);
+	}
+}
+
+/* sideways: on wide screens the homepage is one long strip of tall columns
+   that runs left to right. scrolling down drives it sideways where the
+   browser can link the two; elsewhere it is a snapping strip you swipe.
+   smaller screens read top to bottom, each section under a big numeral */
+html[data-layout="horizontal"] .home-stack {
+	counter-reset: sideways;
+}
+html[data-layout="horizontal"] .home-stack > :not(.home-hero) {
+	padding-top: 1.5rem;
+	margin: 0;
+	counter-increment: sideways;
+	border-top: 1px solid var(--border);
+}
+html[data-layout="horizontal"] .home-stack > * + * {
+	margin-top: 3.5rem;
+}
+html[data-layout="horizontal"] .home-stack > :not(.home-hero)::before {
+	display: block;
+	margin-bottom: 1.25rem;
+	font-family: var(--font-display);
+	font-size: 3.25rem;
+	font-weight: var(--display-weight);
+	line-height: 0.9;
+	color: var(--text-highlight);
+	letter-spacing: var(--display-tracking);
+	content: counter(sideways, decimal-leading-zero);
+}
+@media (min-width: 1024px) {
+	html[data-layout="horizontal"] .design-shell:has(.home-stack) {
+		max-width: none;
+	}
+	html[data-layout="horizontal"] .design-shell > main:has(.home-stack) {
+		padding-inline: 0;
+	}
+	html[data-layout="horizontal"] .home-stack {
+		display: flex;
+		align-items: stretch;
+		height: calc(100svh - 7.5rem);
+		min-height: 30rem;
+		padding: 0 3rem 1.5rem;
+		overflow-x: auto;
+		overscroll-behavior-x: contain;
+		scroll-snap-type: x mandatory;
+		scroll-padding-inline: 3rem;
+		scrollbar-color: var(--border) transparent;
+		scrollbar-width: thin;
+	}
+	html[data-layout="horizontal"] .home-stack > * {
+		flex: none;
+		width: 24rem;
+		padding: 0.5rem 2.75rem 0;
+		margin: 0;
+		scroll-snap-align: start;
+	}
+	html[data-layout="horizontal"] .home-stack > :not(.home-hero) {
+		border-top: 0;
+		border-left: 1px solid var(--border);
+	}
+	html[data-layout="horizontal"] .home-stack > * + * {
+		margin-top: 0;
+	}
+	html[data-layout="horizontal"] .home-stack > :not(.home-hero)::before {
+		margin-bottom: 2rem;
+		font-size: clamp(4rem, 9vh, 6.5rem);
+	}
+	html[data-layout="horizontal"] .home-stack > [data-cursor-anchor="work"] {
+		width: 30rem;
+	}
+	html[data-layout="horizontal"]
+		.home-stack
+		> [data-cursor-anchor="contributions"] {
+		width: max-content;
+	}
+	html[data-layout="horizontal"] .home-stack > .home-hero {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		width: min(46rem, 62vw);
+		padding: 0.5rem 4rem 0 0;
+	}
+	html[data-layout="horizontal"][data-design] .home-hero h1.hero-lede {
+		font-family: var(--font-display);
+		font-size: clamp(2.5rem, 4.6vw, 4.5rem);
+		font-weight: var(--display-weight);
+		line-height: 1.02;
+		letter-spacing: var(--display-tracking);
+	}
+	html[data-layout="horizontal"][data-design] .home-hero p.hero-lede {
+		font-size: clamp(1.125rem, 1.6vw, 1.5rem);
+	}
+	html[data-layout="horizontal"] .home-hero > div:last-child {
+		margin-top: auto;
+	}
+	html[data-layout="horizontal"] .home-hero::after {
+		position: absolute;
+		top: 0.75rem;
+		right: 1.5rem;
+		font-family: var(--font-label);
+		font-size: 0.6875rem;
+		color: var(--muted-foreground);
+		text-transform: uppercase;
+		letter-spacing: 0.14em;
+		content: "scroll →";
+	}
+	/* the work previews open downwards, since the strip clips above it */
+	html[data-layout="horizontal"] [data-cursor-anchor="work"]
+		li
+		> [aria-hidden="true"] {
+		top: 100%;
+		bottom: auto;
+		margin: 0.75rem 0 0;
+		transform-origin: top left;
+	}
+}
+@supports (animation-timeline: view()) {
+	@media (min-width: 1024px) {
+		/* main grows tall enough to scroll through, and the strip rides along
+		   pinned to the screen, pushed left by how far main has scrolled */
+		html[data-layout="horizontal"] .design-shell > main:has(.home-stack) {
+			flex: none;
+			height: calc(100svh + 250rem - 100vw);
+			padding-bottom: 0;
+			overflow-x: clip;
+			container-type: inline-size;
+			view-timeline: --sideways block;
+		}
+		html[data-layout="horizontal"] .home-stack {
+			position: sticky;
+			top: 5rem;
+			width: max-content;
+			overflow: visible;
+			animation: design-sideways linear both;
+			animation-range: contain;
+			animation-timeline: --sideways;
+		}
+		/* tabbing hands the strip back to the browser, so the focused link
+		   scrolls into view instead of hiding off screen */
+		html[data-layout="horizontal"] .home-stack:has(:focus-visible) {
+			width: auto;
+			overflow-x: auto;
+			animation: none;
+		}
+	}
+}
+@keyframes design-sideways {
+	to {
+		transform: translateX(calc(100cqw - 100%));
+	}
+}
+
+/* scrapbook: sections are scraps of paper taped down at odd angles, on a
+   darker board. the intro is a ruled index card, a couple of scraps are
+   sticky notes, one is pinned instead of taped */
+html[data-layout="scrapbook"] {
+	--scrapbook-board: color-mix(in oklab, var(--muted) 70%, var(--background));
+}
+html[data-layout="scrapbook"].dark {
+	--scrapbook-board: color-mix(in oklab, var(--background) 70%, black);
+}
+html[data-layout="scrapbook"] .design-page:not(:has(.design-studio)) {
+	background-color: var(--scrapbook-board);
+}
+html[data-layout="scrapbook"] .home-stack > * {
+	--scrap-tilt: -1deg;
+	--scrap-paper: var(--background);
+	position: relative;
+	padding: 2rem 1.6rem 1.6rem;
+	margin: 0 0 2.75rem;
+	background-color: var(--scrap-paper);
+	border-radius: 2px;
+	box-shadow:
+		0 1px 1px rgb(0 0 0 / 0.08),
+		0 14px 24px -14px rgb(0 0 0 / 0.4);
+	transform: rotate(calc(var(--scrap-tilt) * 0.6));
+	break-inside: avoid;
+}
+html[data-layout="scrapbook"].dark .home-stack > * {
+	--scrap-paper: var(--card);
+	box-shadow:
+		0 1px 1px rgb(0 0 0 / 0.3),
+		0 14px 24px -12px rgb(0 0 0 / 0.8);
+}
+/* tape: a translucent strip with torn ends */
+html[data-layout="scrapbook"] .home-stack > *::before {
+	position: absolute;
+	top: -0.85rem;
+	left: 50%;
+	width: 6.5rem;
+	height: 1.7rem;
+	pointer-events: none;
+	content: "";
+	background: color-mix(
+		in oklab,
+		color-mix(in oklab, var(--text-highlight) 30%, var(--background)) 72%,
+		transparent
+	);
+	clip-path: polygon(
+		0 8%,
+		5% 0,
+		12% 6%,
+		20% 0,
+		80% 4%,
+		90% 0,
+		100% 8%,
+		97% 50%,
+		100% 92%,
+		88% 100%,
+		78% 95%,
+		15% 100%,
+		6% 94%,
+		0 100%,
+		3% 50%
+	);
+	transform: translateX(-50%) rotate(var(--tape-tilt, -3deg));
+}
+html[data-layout="scrapbook"] .home-stack > :nth-child(2) {
+	--scrap-tilt: 1.4deg;
+	--tape-tilt: 4deg;
+}
+html[data-layout="scrapbook"] .home-stack > :nth-child(3) {
+	--scrap-tilt: -1.8deg;
+	--tape-tilt: -2deg;
+	--scrap-paper: color-mix(
+		in oklab,
+		var(--text-highlight) 16%,
+		var(--background)
+	);
+}
+html[data-layout="scrapbook"] .home-stack > :nth-child(4) {
+	--scrap-tilt: 2deg;
+	--tape-tilt: -5deg;
+}
+html[data-layout="scrapbook"] .home-stack > :nth-child(5) {
+	--scrap-tilt: -0.8deg;
+	--tape-tilt: 3deg;
+	/* ruled paper */
+	background-image: repeating-linear-gradient(
+		transparent 0 calc(1.6rem - 1px),
+		color-mix(in oklab, var(--border) 70%, transparent) calc(1.6rem - 1px)
+			1.6rem
+	);
+	background-position: 0 0.9rem;
+}
+html[data-layout="scrapbook"] .home-stack > :nth-child(6) {
+	--scrap-tilt: 1deg;
+	--tape-tilt: -1deg;
+}
+html[data-layout="scrapbook"] .home-stack > :nth-child(7) {
+	--scrap-tilt: -0.5deg;
+	--tape-tilt: 2deg;
+}
+html[data-layout="scrapbook"] .home-stack > :nth-child(8) {
+	--scrap-tilt: 2.4deg;
+	--scrap-paper: color-mix(
+		in oklab,
+		var(--text-highlight) 22%,
+		var(--background)
+	);
+}
+html[data-layout="scrapbook"] .home-stack > :nth-child(9) {
+	--scrap-tilt: -1.6deg;
+	--tape-tilt: 5deg;
+}
+/* the sticky note is pinned, not taped */
+html[data-layout="scrapbook"] .home-stack > :nth-child(8)::before {
+	top: 0.6rem;
+	width: 1rem;
+	height: 1rem;
+	background: radial-gradient(
+		circle at 35% 35%,
+		color-mix(in oklab, white 55%, var(--text-highlight)),
+		var(--text-highlight) 45%,
+		color-mix(in oklab, var(--text-highlight) 60%, black)
+	);
+	border-radius: 50%;
+	box-shadow: 2px 3px 3px rgb(0 0 0 / 0.3);
+	clip-path: none;
+}
+/* the intro: a ruled index card with a margin line, taped at two corners */
+html[data-layout="scrapbook"] .home-stack > .home-hero {
+	--scrap-tilt: -1.2deg;
+	padding: 2.75rem 2rem 2rem 3.25rem;
+	background-image:
+		linear-gradient(
+			90deg,
+			transparent 2.2rem,
+			color-mix(in oklab, var(--text-highlight) 55%, transparent) 2.2rem
+				calc(2.2rem + 1px),
+			transparent calc(2.2rem + 1px)
+		),
+		repeating-linear-gradient(
+			transparent 0 calc(1.8rem - 1px),
+			color-mix(in oklab, var(--border) 80%, transparent) calc(1.8rem - 1px)
+				1.8rem
+		);
+	background-position:
+		0 0,
+		0 1.1rem;
+}
+html[data-layout="scrapbook"] .home-hero::before {
+	left: -1rem;
+	transform: rotate(-35deg);
+}
+html[data-layout="scrapbook"] .home-hero::after {
+	position: absolute;
+	top: -0.6rem;
+	right: -1.25rem;
+	width: 6rem;
+	height: 1.6rem;
+	pointer-events: none;
+	content: "";
+	background: color-mix(
+		in oklab,
+		color-mix(in oklab, var(--text-highlight) 30%, var(--background)) 72%,
+		transparent
+	);
+	transform: rotate(38deg);
+}
+@media (min-width: 768px) {
+	html[data-layout="scrapbook"] .design-shell:has(.home-stack) {
+		max-width: 62rem;
+	}
+	html[data-layout="scrapbook"] .home-stack {
+		column-gap: 3rem;
+		columns: 2;
+		padding-top: 1rem;
+	}
+	html[data-layout="scrapbook"] .home-stack > * {
+		display: block;
+		transform: rotate(var(--scrap-tilt));
+	}
+	html[data-layout="scrapbook"]
+		.home-stack
+		> :is(.home-hero, [data-cursor-anchor="contributions"]) {
+		column-span: all;
+	}
+	html[data-layout="scrapbook"] .home-stack > .home-hero {
+		width: min(100%, 44rem);
+		margin-bottom: 3.5rem;
+	}
+	html[data-layout="scrapbook"]
+		.home-stack
+		> [data-cursor-anchor="contributions"] {
+		width: fit-content;
+		max-width: 100%;
+		margin-inline: auto;
+	}
+}
+
+/* timeline: a line runs down the middle from a "now" marker, and sections
+   hang off it on alternating sides, each on its own node. small screens
+   put the line down the left */
+html[data-layout="timeline"] .home-stack {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+}
+html[data-layout="timeline"] .home-stack > * {
+	grid-row: var(--timeline-row);
+	grid-column: 1;
+	align-self: start;
+	margin: 0 0 2rem 2.25rem;
+}
+html[data-layout="timeline"] .home-stack > :not(.home-hero) {
+	position: relative;
+	padding: 1.35rem 1.5rem 1.5rem;
+	background: var(--design-card-surface);
+	border: var(--design-card-border);
+	border-radius: calc(var(--radius) + 4px);
+	box-shadow: var(--design-card-shadow);
+	backdrop-filter: var(--design-card-backdrop);
+}
+html[data-layout="timeline"] .home-stack > .home-hero {
+	margin: 0 0 3.5rem;
+}
+/* the line and its "now" marker are grid items too, so they start right
+   under the intro whatever its height */
+html[data-layout="timeline"] .home-stack::before {
+	grid-row: 2 / span 12;
+	grid-column: 1;
+	justify-self: start;
+	width: 2px;
+	margin-left: 0.5rem;
+	content: "";
+	background: linear-gradient(var(--border) 88%, transparent);
+}
+html[data-layout="timeline"] .home-stack::after {
+	z-index: 1;
+	grid-row: 2;
+	grid-column: 1;
+	align-self: start;
+	justify-self: start;
+	padding: 0.2rem 0.55rem;
+	margin: -2.25rem 0 0 -0.35rem;
+	font-family: var(--font-label);
+	font-size: 0.625rem;
+	color: var(--background);
+	text-transform: uppercase;
+	letter-spacing: 0.14em;
+	content: "now";
+	background: var(--text-highlight);
+	border-radius: 999px;
+}
+/* each section's node, sat on the line */
+html[data-layout="timeline"] .home-stack > :not(.home-hero)::before {
+	position: absolute;
+	top: 1.45rem;
+	left: calc(-2.25rem + 0.05rem);
+	width: 0.9rem;
+	height: 0.9rem;
+	content: "";
+	background: var(--background);
+	border: 2px solid var(--text-highlight);
+	border-radius: 50%;
+	transition: background-color 150ms ease;
+}
+html[data-layout="timeline"]
+	.home-stack
+	> :not(.home-hero):is(:hover, :focus-within)::before {
+	background: var(--text-highlight);
+}
+html[data-layout="timeline"] .home-stack > :nth-child(1) {
+	--timeline-row: 1;
+}
+html[data-layout="timeline"] .home-stack > :nth-child(2) {
+	--timeline-row: 2;
+}
+html[data-layout="timeline"] .home-stack > :nth-child(3) {
+	--timeline-row: 3;
+}
+html[data-layout="timeline"] .home-stack > :nth-child(4) {
+	--timeline-row: 4;
+}
+html[data-layout="timeline"] .home-stack > :nth-child(5) {
+	--timeline-row: 5;
+}
+html[data-layout="timeline"] .home-stack > :nth-child(6) {
+	--timeline-row: 6;
+}
+html[data-layout="timeline"] .home-stack > :nth-child(7) {
+	--timeline-row: 7;
+}
+html[data-layout="timeline"] .home-stack > :nth-child(8) {
+	--timeline-row: 8;
+}
+html[data-layout="timeline"] .home-stack > :nth-child(9) {
+	--timeline-row: 9;
+}
+@media (min-width: 1024px) {
+	html[data-layout="timeline"] .design-shell:has(.home-stack) {
+		max-width: 68rem;
+	}
+	html[data-layout="timeline"] .home-stack {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		column-gap: 6rem;
+	}
+	/* every section spans two rows starting one row after the last, so the
+	   two sides interlock like a zip */
+	html[data-layout="timeline"] .home-stack > * {
+		grid-row: var(--timeline-row) / span 2;
+		margin: 0 0 2rem;
+	}
+	html[data-layout="timeline"] .home-stack > :nth-child(even) {
+		grid-column: 1;
+	}
+	html[data-layout="timeline"] .home-stack > :nth-child(odd) {
+		grid-column: 2;
+	}
+	html[data-layout="timeline"] .home-stack > .home-hero {
+		grid-row: 1;
+		grid-column: 1 / -1;
+		justify-self: center;
+		margin-bottom: 5rem;
+		text-align: center;
+	}
+	html[data-layout="timeline"] .home-hero .hero-lede {
+		margin-inline: auto;
+	}
+	html[data-layout="timeline"] .home-hero > div:last-child {
+		flex-direction: column;
+		gap: 1.5rem;
+		align-items: center;
+	}
+	html[data-layout="timeline"] .home-stack::before {
+		grid-column: 1 / -1;
+		justify-self: center;
+		margin-left: 0;
+	}
+	html[data-layout="timeline"] .home-stack::after {
+		grid-column: 1 / -1;
+		justify-self: center;
+		margin: -2.75rem 0 0;
+	}
+	html[data-layout="timeline"] .home-stack > :nth-child(even)::before {
+		right: calc(-3rem - 0.45rem);
+		left: auto;
+	}
+	html[data-layout="timeline"]
+		.home-stack
+		> :nth-child(odd):not(.home-hero)::before {
+		left: calc(-3rem - 0.45rem);
+	}
+	/* a short arm from the card to its node */
+	html[data-layout="timeline"] .home-stack > :not(.home-hero)::after {
+		position: absolute;
+		top: calc(1.45rem + 0.45rem);
+		width: calc(3rem - 0.45rem);
+		height: 1px;
+		content: "";
+		background: var(--border);
+	}
+	html[data-layout="timeline"] .home-stack > :nth-child(even)::after {
+		left: calc(100% + 1px);
+	}
+	html[data-layout="timeline"]
+		.home-stack
+		> :nth-child(odd):not(.home-hero)::after {
+		right: calc(100% + 1px);
+	}
+}
+
+/* terminal: the site as a shell session. everything is set in the label
+   face, every section is a command followed by its output, a tmux-style
+   status bar runs along the bottom and a prompt waits at the end */
+html[data-layout="terminal"] .design-shell:not(:has(.design-studio)) {
+	--font-sans: var(--font-label);
+	--font-display: var(--font-label);
+	--font-serif: var(--font-label);
+	--font-lede: var(--font-label);
+	--display-tracking: -0.02em;
+	--lede-tracking: -0.02em;
+	font-family: var(--font-label);
+}
+html[data-layout="terminal"]
+	.design-shell:not(:has(.design-studio))
+	.section-label {
+	font-size: 0.875rem;
+	text-transform: none;
+	letter-spacing: 0;
+}
+/* a page title is where you are, a section label is what you ran */
+html[data-layout="terminal"] .design-shell:not(:has(.design-studio))
+	.section-label::before {
+	margin-right: 0;
+	color: var(--text-highlight);
+	content: "$ " var(--terminal-command, "cd ");
+}
+html[data-layout="terminal"]
+	.design-shell:not(:has(.design-studio))
+	.section-label::after {
+	color: var(--muted-foreground);
+	content: var(--terminal-suffix, "");
+}
+html[data-layout="terminal"] .design-shell:not(:has(.design-studio)) .meta-tag {
+	letter-spacing: 0.02em;
+}
+/* articles read like markdown in a pager */
+html[data-layout="terminal"] .design-shell:not(:has(.design-studio))
+	.headline::before,
+html[data-layout="terminal"] .prose-fuma :is(h2, h3)::before {
+	color: var(--text-highlight);
+	content: "# ";
+}
+html[data-layout="terminal"] .prose-fuma h2::before {
+	content: "## ";
+}
+html[data-layout="terminal"] .prose-fuma h3::before {
+	content: "### ";
+}
+html[data-layout="terminal"]
+	.design-shell:not(:has(.design-studio))
+	> main::after {
+	display: block;
+	width: fit-content;
+	padding-right: 1.6ch;
+	margin-top: 4rem;
+	font-family: var(--font-label);
+	font-size: 0.875rem;
+	color: var(--text-highlight);
+	content: "$";
+	background:
+		linear-gradient(currentColor, currentColor) no-repeat right center / 0.65em
+		1.2em;
+}
+html[data-layout="terminal"] [data-cursor-anchor] {
+	--terminal-command: "cat ";
+}
+html[data-layout="terminal"]
+	:is(
+		[data-cursor-anchor="projects"],
+		[data-cursor-anchor="blog"],
+		[data-cursor-anchor="trove"]
+	) {
+	--terminal-command: "ls ";
+	--terminal-suffix: "/";
+}
+html[data-layout="terminal"] [data-cursor-anchor="publications"] {
+	--terminal-suffix: ".bib";
+}
+html[data-layout="terminal"] [data-cursor-anchor="contributions"] {
+	--terminal-command: "git log --graph --";
+}
+html[data-layout="terminal"] [data-cursor-anchor="stack"] {
+	--terminal-command: "echo $";
+}
+html[data-layout="terminal"] [data-cursor-anchor="watch"] {
+	--terminal-command: "open ";
+	--terminal-suffix: "/";
+}
+/* the work label carries a "(~3 yrs)" after the word, so its extension
+   goes on the word itself */
+html[data-layout="terminal"] [data-cursor-anchor="work"]
+	.section-label
+	> span:first-child::after {
+	color: var(--muted-foreground);
+	content: ".md";
+}
+html[data-layout="terminal"] .home-hero::before {
+	display: block;
+	margin-bottom: 1rem;
+	font-size: 0.875rem;
+	color: var(--text-highlight);
+	content: "$ whoami";
+}
+html[data-layout="terminal"][data-design] .home-hero .hero-lede {
+	font-size: clamp(1.25rem, 2.4vw, 1.625rem);
+	line-height: 1.4;
+}
+html[data-layout="terminal"] .home-stack > * + * {
+	margin-top: 3.5rem;
+}
+/* tmux: the footer becomes the status bar, pinned to the bottom edge and
+   run out to both sides of the screen */
+html[data-layout="terminal"] .design-shell:not(:has(.design-studio)) > footer {
+	position: sticky;
+	bottom: 0;
+	z-index: 40;
+	gap: 1rem;
+	padding-block: 0.3rem;
+	margin-top: 3rem;
+	color: var(--background);
+	background: var(--text-highlight);
+	box-shadow: 0 0 0 100vmax var(--text-highlight);
+	clip-path: inset(0 -100vmax);
+}
+html[data-layout="terminal"] .design-shell > footer :is(span, a) {
+	color: inherit;
+}
+html[data-layout="terminal"] .design-shell > footer > span:first-child {
+	font-family: var(--font-label);
+	font-size: 0.8125rem;
+	letter-spacing: 0;
+}
+html[data-layout="terminal"] .design-shell > footer > span:first-child::before {
+	content: "[";
+}
+html[data-layout="terminal"] .design-shell > footer > span:first-child::after {
+	margin-left: 0.2ch;
+	content: "] 0:zsh*";
+}
+html[data-layout="terminal"][data-nav="dock"] .site-nav {
+	bottom: 2.75rem;
+}
+html[data-layout="terminal"][data-nav="dock"] .design-shell > footer {
+	padding-bottom: 0.3rem;
+}
+@media (prefers-reduced-motion: no-preference) {
+	html[data-layout="terminal"]:not([data-motion="off"])
+		.design-shell
+		> main::after {
+		animation: design-caret 1.1s steps(1) infinite;
+	}
+}
+@keyframes design-caret {
+	50% {
+		background-size: 0 0;
+	}
+}
+
+/* slides: the homepage as a deck. every section is a full-screen slide the
+   page snaps to, its label set big as the slide title on the left, with a
+   running footer and a slide number */
+html[data-layout="slides"]:has(.home-stack) {
+	scroll-snap-type: y mandatory;
+	scroll-padding-top: 4.5rem;
+}
+html[data-layout="slides"] .design-shell:has(.home-stack) {
+	max-width: none;
+}
+html[data-layout="slides"] .design-shell:has(.home-stack) > .site-nav {
+	margin-bottom: 0;
+}
+html[data-layout="slides"] .design-shell > main:has(.home-stack) {
+	padding: 0;
+}
+html[data-layout="slides"] .design-shell:has(.home-stack) > footer {
+	margin-top: 0;
+	scroll-snap-align: end;
+}
+html[data-layout="slides"] .home-stack {
+	counter-reset: slide;
+}
+html[data-layout="slides"] .home-stack > * {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	min-height: calc(100svh - 4.5rem);
+	padding: 4.5rem max(1.25rem, 50% - 32rem) 5.5rem;
+	margin: 0;
+	counter-increment: slide;
+	scroll-snap-align: start;
+	border-top: 1px solid var(--border);
+}
+html[data-layout="slides"] .home-stack > :nth-child(even) {
+	background: var(--card);
+}
+/* the running footer, and the slide number on its right */
+html[data-layout="slides"] .home-stack > *::before,
+html[data-layout="slides"] .home-stack > *::after {
+	position: absolute;
+	right: max(1.25rem, 50% - 32rem);
+	bottom: 1.75rem;
+	font-family: var(--font-label);
+	font-size: 0.6875rem;
+	color: var(--muted-foreground);
+	text-transform: uppercase;
+	letter-spacing: 0.14em;
+}
+html[data-layout="slides"] .home-stack > *::before {
+	left: max(1.25rem, 50% - 32rem);
+	padding-top: 0.75rem;
+	content: "ekaksh janweja — stormej.me";
+	border-top: 1px solid var(--border);
+}
+html[data-layout="slides"] .home-stack > *::after {
+	content: counter(slide, decimal-leading-zero);
+}
+html[data-layout="slides"] .home-stack > :not(.home-hero) > :first-child {
+	margin-bottom: 2.5rem;
+}
+html[data-layout="slides"] .home-stack .section-label {
+	font-family: var(--font-display);
+	font-size: clamp(2.5rem, 6vw, 4.5rem);
+	font-weight: var(--display-weight);
+	line-height: 0.95;
+	text-transform: lowercase;
+	letter-spacing: var(--display-tracking);
+}
+html[data-layout="slides"] .home-stack .section-label .meta-tag {
+	font-size: 0.75rem;
+}
+html[data-layout="slides"][data-design] .home-hero h1.hero-lede {
+	max-width: 20ch;
+	font-family: var(--font-display);
+	font-size: clamp(2.75rem, 7vw, 6.25rem);
+	font-weight: var(--display-weight);
+	line-height: 0.98;
+	letter-spacing: var(--display-tracking);
+}
+html[data-layout="slides"][data-design] .home-hero p.hero-lede {
+	max-width: 40ch;
+	font-size: clamp(1.125rem, 2vw, 1.625rem);
+}
+@media (min-width: 1024px) {
+	/* title on the left, the content on the right */
+	html[data-layout="slides"] .home-stack > :not(.home-hero) {
+		display: grid;
+		grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+		column-gap: 4rem;
+		align-content: center;
+		align-items: start;
+	}
+	html[data-layout="slides"] .home-stack > :not(.home-hero) > * {
+		grid-column: 2;
+		min-width: 0;
+	}
+	html[data-layout="slides"] .home-stack > :not(.home-hero) > :first-child {
+		display: flex;
+		flex-direction: column;
+		grid-row: 1 / span 4;
+		grid-column: 1;
+		gap: 1.25rem;
+		align-items: flex-start;
+		margin: 0;
+	}
+	html[data-layout="slides"] .home-stack .section-label {
+		font-size: clamp(3rem, 5.5vw, 5rem);
+	}
+}
+
+/* desktop: an old desktop. the page is a dithered wallpaper, the bar is a
+   menu bar, and every section is a window with a pinstriped title bar and a
+   close box; the window you point at is the active one */
+html[data-layout="desktop"] {
+	--desktop-stripes: color-mix(in oklab, var(--foreground) 16%, transparent);
+	--desktop-chrome: 1px solid var(--foreground);
+	--desktop-drop: 3px 3px 0
+		color-mix(in oklab, var(--foreground) 28%, transparent);
+}
+html[data-layout="desktop"] .design-page:not(:has(.design-studio)) {
+	background-color: color-mix(
+		in oklab,
+		var(--text-highlight) 26%,
+		var(--muted)
+	);
+	background-image: conic-gradient(
+		color-mix(in oklab, var(--foreground) 8%, transparent) 25%,
+		transparent 0 50%,
+		color-mix(in oklab, var(--foreground) 8%, transparent) 0 75%,
+		transparent 0
+	);
+	background-size: 4px 4px;
+}
+html[data-layout="desktop"][data-texture]:not([data-texture="none"])
+	.design-page:not(:has(.design-studio)) {
+	background-color: color-mix(
+		in oklab,
+		color-mix(in oklab, var(--text-highlight) 26%, var(--muted)) 82%,
+		transparent
+	);
+}
+html[data-layout="desktop"] .design-shell:not(:has(.design-studio)) {
+	max-width: none;
+}
+/* the menu bar, for the navbars that sit in a plain bar */
+html[data-layout="desktop"]:is(
+	[data-nav="classic"],
+	[data-nav="minimal"],
+	[data-nav="links"],
+	[data-nav="centered"],
+	[data-nav="framed"],
+	[data-nav="keys"]
+)
+.site-nav {
+	gap: 0.25rem;
+	justify-content: flex-start;
+	padding-block: 0.2rem;
+	margin-bottom: 2.25rem;
+	background: var(--background);
+	border-bottom: var(--desktop-chrome);
+	box-shadow: 0 1px 0 var(--desktop-stripes);
+	backdrop-filter: none;
+}
+html[data-layout="desktop"]:is(
+		[data-nav="classic"],
+		[data-nav="minimal"],
+		[data-nav="links"],
+		[data-nav="centered"],
+		[data-nav="framed"],
+		[data-nav="keys"]
+	)
+	.nav-brand {
+	display: inline-flex;
+	gap: 0.5rem;
+	align-items: center;
+	padding: 0.2rem 0.6rem;
+	font-size: 14px;
+	font-weight: 700;
+}
+html[data-layout="desktop"]:is(
+		[data-nav="classic"],
+		[data-nav="minimal"],
+		[data-nav="links"],
+		[data-nav="centered"],
+		[data-nav="framed"],
+		[data-nav="keys"]
+	)
+	.nav-brand::before {
+	color: var(--text-highlight);
+	content: "✺";
+}
+html[data-layout="desktop"]:is(
+		[data-nav="classic"],
+		[data-nav="minimal"],
+		[data-nav="links"],
+		[data-nav="centered"],
+		[data-nav="framed"],
+		[data-nav="keys"]
+	)
+	.nav-links {
+	position: static;
+	gap: 0;
+	margin-left: 0.5rem;
+	transform: none;
+}
+html[data-layout="desktop"]:is(
+		[data-nav="classic"],
+		[data-nav="minimal"],
+		[data-nav="links"],
+		[data-nav="centered"],
+		[data-nav="framed"],
+		[data-nav="keys"]
+	)
+	.nav-link {
+	padding: 0.2rem 0.65rem;
+	font-size: 14px;
+	color: var(--foreground);
+	border-radius: 0;
+	opacity: 1;
+}
+html[data-layout="desktop"]:is(
+		[data-nav="classic"],
+		[data-nav="minimal"],
+		[data-nav="links"],
+		[data-nav="centered"],
+		[data-nav="framed"],
+		[data-nav="keys"]
+	)
+	.nav-link:is(:hover, [aria-current="page"]) {
+	color: var(--background);
+	background: var(--foreground);
+}
+html[data-layout="desktop"]:is(
+		[data-nav="classic"],
+		[data-nav="minimal"],
+		[data-nav="links"],
+		[data-nav="centered"],
+		[data-nav="framed"],
+		[data-nav="keys"]
+	)
+	.nav-actions {
+	margin-left: auto;
+}
+/* windows */
+html[data-layout="desktop"] .home-stack > * {
+	position: relative;
+	min-width: 0;
+	padding: 0 1.25rem 1.25rem;
+	margin: 0;
+	background: var(--background);
+	border: var(--desktop-chrome);
+	border-radius: min(var(--radius), 0.4rem);
+	box-shadow: var(--desktop-drop);
+}
+html[data-layout="desktop"] .home-stack > :is(:hover, :focus-within) {
+	--desktop-stripes: color-mix(in oklab, var(--foreground) 45%, transparent);
+	z-index: 1;
+}
+/* title bar: the section's heading row, or the label itself when there is
+   no row; stripes run either side of the title */
+html[data-layout="desktop"] .home-stack > :not(.home-hero) > :first-child {
+	position: relative;
+	display: flex;
+	gap: 0.75rem;
+	align-items: center;
+	height: 1.75rem;
+	padding: 0 2.1rem;
+	margin: 0 -1.25rem 1.25rem;
+	border-bottom: var(--desktop-chrome);
+}
+html[data-layout="desktop"] .home-stack .section-label {
+	display: flex;
+	flex: 1;
+	gap: 0.6rem;
+	align-items: center;
+	justify-content: center;
+	min-width: 0;
+	font-size: 0.6875rem;
+	letter-spacing: 0.14em;
+}
+html[data-layout="desktop"] .home-stack .section-label::before,
+html[data-layout="desktop"] .home-stack .section-label::after {
+	flex: 1;
+	height: 0.7rem;
+	margin: 0;
+	content: "";
+	background: repeating-linear-gradient(
+		var(--desktop-stripes) 0 1px,
+		transparent 1px 3px
+	);
+}
+html[data-layout="desktop"] .home-stack .section-label + a {
+	flex: none;
+}
+/* the close box on the left, the zoom box on the right */
+html[data-layout="desktop"] .home-stack > *::before,
+html[data-layout="desktop"] .home-stack > :not(.home-hero)::after {
+	position: absolute;
+	top: 0.45rem;
+	z-index: 1;
+	width: 0.85rem;
+	height: 0.85rem;
+	content: "";
+	background: var(--background);
+	border: var(--desktop-chrome);
+	box-shadow: inset 1px 1px 0 var(--desktop-stripes);
+}
+html[data-layout="desktop"] .home-stack > :not(.home-hero)::before {
+	left: 0.6rem;
+}
+html[data-layout="desktop"] .home-stack > :not(.home-hero)::after {
+	right: 0.6rem;
+	background:
+		linear-gradient(var(--foreground), var(--foreground)) 0 0 / 0.45rem 0.45rem
+		no-repeat var(--background);
+}
+/* the intro has no heading row, so its title bar is drawn in */
+html[data-layout="desktop"] .home-hero::before {
+	position: static;
+	display: block;
+	width: auto;
+	height: 1.75rem;
+	margin: 0 -1.25rem 1.5rem;
+	font-family: var(--font-label);
+	font-size: 0.6875rem;
+	line-height: 1.75rem;
+	text-align: center;
+	text-transform: uppercase;
+	letter-spacing: 0.14em;
+	content: "readme.txt";
+	background:
+		linear-gradient(var(--background), var(--background)) center / 8rem 100%
+		no-repeat,
+		repeating-linear-gradient(var(--desktop-stripes) 0 1px, transparent 1px 3px)
+		0 50% / 100% 0.7rem no-repeat;
+	border: 0;
+	border-bottom: var(--desktop-chrome);
+	box-shadow: none;
+}
+html[data-layout="desktop"] .home-hero::after {
+	position: absolute;
+	top: 0.45rem;
+	left: 0.6rem;
+	width: 0.85rem;
+	height: 0.85rem;
+	content: "";
+	background: var(--background);
+	border: var(--desktop-chrome);
+}
+html[data-layout="desktop"] .home-stack > * + * {
+	margin-top: 1.25rem;
+}
+@media (min-width: 1024px) {
+	html[data-layout="desktop"] .home-stack {
+		display: grid;
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+		grid-auto-flow: dense;
+		gap: 1.75rem;
+		align-items: start;
+		max-width: 76rem;
+		margin-inline: auto;
+	}
+	html[data-layout="desktop"] .home-stack > * {
+		grid-column: span 4;
+	}
+	html[data-layout="desktop"] .home-stack > * + * {
+		margin-top: 0;
+	}
+	html[data-layout="desktop"] .home-stack > .home-hero {
+		grid-column: 1 / span 7;
+	}
+	html[data-layout="desktop"] .home-stack > [data-cursor-anchor="work"] {
+		grid-column: span 5;
+		margin-top: 3rem;
+	}
+	html[data-layout="desktop"] .home-stack > [data-cursor-anchor="projects"] {
+		margin-top: -1.5rem;
+	}
+	html[data-layout="desktop"]
+		.home-stack
+		> [data-cursor-anchor="contributions"] {
+		grid-column: span 8;
+	}
+	html[data-layout="desktop"] .home-stack > [data-cursor-anchor="watch"] {
+		grid-column: span 5;
+	}
+	html[data-layout="desktop"] .home-stack > [data-cursor-anchor="blog"] {
+		margin-top: 1.5rem;
+	}
+}
+/* every other page is one big window */
+html[data-layout="desktop"] .design-shell:not(:has(.home-stack, .design-studio))
+	> main {
+	width: min(100% - 1.5rem, 50rem);
+	padding: 0 1.5rem 2rem;
+	margin-inline: auto;
+	background: var(--background);
+	border: var(--desktop-chrome);
+	border-radius: min(var(--radius), 0.4rem);
+	box-shadow: var(--desktop-drop);
+}
+html[data-layout="desktop"]
+	.design-shell:not(:has(.home-stack, .design-studio))
+	> main::before {
+	display: block;
+	height: 1.75rem;
+	margin: 0 -1.5rem 1.75rem;
+	font-family: var(--font-label);
+	font-size: 0.6875rem;
+	line-height: 1.75rem;
+	text-align: center;
+	text-transform: uppercase;
+	letter-spacing: 0.14em;
+	content: "stormej.me";
+	background:
+		linear-gradient(var(--background), var(--background)) center / 8rem 100%
+		no-repeat,
+		repeating-linear-gradient(
+			color-mix(in oklab, var(--foreground) 45%, transparent) 0 1px,
+			transparent 1px 3px
+		)
+		0 50% / 100% 0.7rem no-repeat;
+	border-bottom: var(--desktop-chrome);
+}
+/* the footer is the control strip along the bottom */
+html[data-layout="desktop"] .design-shell:not(:has(.design-studio)) > footer {
+	padding-block: 0.6rem;
+	margin-top: 3rem;
+	background: var(--background);
+	border-top: var(--desktop-chrome);
+}
+
+/* ─── intro ──────────────────────────────────────────────────────────── */
+
+/* the layouts above draw on .home-hero's own ::before and ::after, so these
+   designs only ever use the decoration elements the hero renders */
+
+/* centred: everything on the middle line */
+html[data-hero="centered"] .home-hero {
+	text-align: center;
+}
+html[data-hero="centered"] .home-hero :is(.hero-lede, .hero-eyebrow) {
+	margin-inline: auto;
+}
+html[data-hero="centered"] .home-hero > div:last-child {
+	flex-direction: column;
+	gap: 1.5rem;
+	align-items: center;
+	justify-content: center;
+}
+html[data-hero="centered"] .home-hero > div:last-child > div {
+	justify-content: center;
+}
+
+/* name: your name set enormous and faint behind the intro, the words
+   stacked so it fills the column */
+html[data-hero="name"] .home-hero {
+	position: relative;
+	isolation: isolate;
+	padding-top: clamp(5rem, 13vw, 8.5rem);
+	overflow: clip;
+	overflow-clip-margin: 1rem;
+}
+html[data-hero="name"] .hero-name {
+	position: absolute;
+	top: 0;
+	left: -0.05em;
+	z-index: -1;
+	display: block;
+	width: min-content;
+	margin: 0;
+	font-family: var(--font-display);
+	font-size: clamp(4.5rem, 14vw, 10rem);
+	font-weight: var(--display-weight);
+	line-height: 0.8;
+	color: color-mix(in oklab, var(--text-highlight) 16%, transparent);
+	text-align: left;
+	letter-spacing: var(--display-tracking);
+	pointer-events: none;
+	user-select: none;
+}
+
+/* marquee: the headline runs across the screen in huge type, round and
+   round; the real heading stays for screen readers. still screens, and the
+   motion switched off, keep the plain headline */
+@media (prefers-reduced-motion: no-preference) {
+	html[data-hero="marquee"]:not([data-motion="off"]) .hero-marquee {
+		display: flex;
+		width: 100%;
+		margin-bottom: 2.5rem;
+		overflow: hidden;
+		font-family: var(--font-display);
+		font-size: clamp(3rem, 9vw, 7.5rem);
+		font-weight: var(--display-weight);
+		line-height: 1.05;
+		color: var(--foreground);
+		letter-spacing: var(--display-tracking);
+		white-space: nowrap;
+		-webkit-mask-image: linear-gradient(
+			90deg,
+			transparent,
+			#000 6%,
+			#000 94%,
+			transparent
+		);
+		mask-image: linear-gradient(
+			90deg,
+			transparent,
+			#000 6%,
+			#000 94%,
+			transparent
+		);
+	}
+	html[data-hero="marquee"]:not([data-motion="off"]) .hero-marquee > span {
+		flex: none;
+		animation: design-marquee 32s linear infinite;
+	}
+	html[data-hero="marquee"]:not([data-motion="off"])
+		.hero-marquee
+		> span::after {
+		margin-inline: 0.35em;
+		color: var(--text-highlight);
+		content: "✺";
+	}
+	html[data-hero="marquee"]:not([data-motion="off"]) .home-hero h1.hero-lede {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		white-space: nowrap;
+		border: 0;
+		clip-path: inset(50%);
+	}
+	/* where the intro sits in the middle of the page, run it edge to edge */
+	html[data-hero="marquee"]:is(
+		[data-layout="column"],
+		[data-layout="compact"],
+		[data-layout="magazine"],
+		[data-layout="cover"],
+		[data-layout="bands"],
+		[data-layout="newspaper"],
+		[data-layout="blueprint"],
+		[data-layout="timeline"],
+		[data-layout="terminal"]
+	)
+	body {
+		overflow-x: clip;
+	}
+	html[data-hero="marquee"]:is(
+			[data-layout="column"],
+			[data-layout="compact"],
+			[data-layout="magazine"],
+			[data-layout="cover"],
+			[data-layout="bands"],
+			[data-layout="newspaper"],
+			[data-layout="blueprint"],
+			[data-layout="timeline"],
+			[data-layout="terminal"]
+		):not([data-motion="off"])
+		.hero-marquee {
+		width: 100vw;
+		margin-left: calc(50% - 50vw);
+	}
+}
+@keyframes design-marquee {
+	to {
+		transform: translateX(-100%);
+	}
+}
+
+/* boxed: the intro framed in a hairline, with printer's crop marks
+   standing off each corner and a registration mark above */
+html[data-hero="boxed"] .home-hero {
+	position: relative;
+	padding: clamp(1.75rem, 4vw, 3rem);
+	margin-top: 1.5rem;
+	border: 1px solid var(--border);
+}
+html[data-hero="boxed"] .hero-marks {
+	--mark: color-mix(in oklab, var(--foreground) 70%, transparent);
+	position: absolute;
+	inset: -1.5rem;
+	display: block;
+	pointer-events: none;
+	background:
+		linear-gradient(var(--mark), var(--mark)) 0 1.5rem / 1rem 1px no-repeat,
+		linear-gradient(var(--mark), var(--mark)) 1.5rem 0 / 1px 1rem no-repeat,
+		linear-gradient(var(--mark), var(--mark)) 100% 1.5rem / 1rem 1px no-repeat,
+		linear-gradient(var(--mark), var(--mark)) calc(100% - 1.5rem) 0 / 1px 1rem
+		no-repeat,
+		linear-gradient(var(--mark), var(--mark)) 0 calc(100% - 1.5rem) / 1rem 1px
+		no-repeat,
+		linear-gradient(var(--mark), var(--mark)) 1.5rem 100% / 1px 1rem no-repeat,
+		linear-gradient(var(--mark), var(--mark)) 100% calc(100% - 1.5rem) / 1rem
+		1px no-repeat,
+		linear-gradient(var(--mark), var(--mark)) calc(100% - 1.5rem) 100% / 1px
+		1rem no-repeat;
+}
+html[data-hero="boxed"] .hero-marks::before {
+	position: absolute;
+	top: 0.25rem;
+	left: 50%;
+	width: 1rem;
+	height: 1rem;
+	content: "";
+	background:
+		linear-gradient(var(--mark), var(--mark)) center / 1px 100% no-repeat,
+		linear-gradient(var(--mark), var(--mark)) center / 100% 1px no-repeat;
+	border: 1px solid var(--mark);
+	border-radius: 50%;
+	transform: translateX(-50%);
+}
+
+/* columns: when the intro is wide enough, the headline takes the left and
+   the subline the right, split by a hairline; narrow intros stack */
+html[data-hero="columns"] .home-hero {
+	display: grid;
+	grid-template-columns: repeat(
+			auto-fit,
+			minmax(min(100%, max(18rem, 40%)), 1fr)
+		);
+	column-gap: 3rem;
+	align-items: end;
+}
+html[data-hero="columns"] .home-hero > :not(.hero-lede),
+html[data-hero="columns"] .home-hero::before,
+html[data-hero="columns"] .home-hero h1.hero-lede:not(:has(+ p.hero-lede)) {
+	grid-column: 1 / -1;
+}
+html[data-hero="columns"][data-design] .home-hero h1.hero-lede {
+	font-family: var(--font-display);
+	font-size: clamp(2rem, 4vw, 3.25rem);
+	font-weight: var(--display-weight);
+	line-height: 1.02;
+	letter-spacing: var(--display-tracking);
+}
+html[data-hero="columns"][data-design] .home-hero p.hero-lede {
+	margin-top: 1.25rem;
+	font-size: clamp(1.0625rem, 1.5vw, 1.25rem);
+	line-height: 1.45;
+}
+@media (min-width: 640px) {
+	html[data-hero="columns"] .home-hero p.hero-lede {
+		padding-left: 1.5rem;
+		border-left: 1px solid var(--border);
+	}
+}
+
 /* ─── intro size ─────────────────────────────────────────────────────── */
 
 html[data-scale="small"] .home-hero .hero-lede {
@@ -1089,6 +2859,97 @@ html[data-heading="block"] .section-label {
 html[data-heading="block"] .section-label .meta-tag {
 	color: inherit;
 	opacity: 0.7;
+}
+
+/* giant, outline and gradient all set the label in the display face */
+html:is(
+	[data-heading="giant"],
+	[data-heading="outline"],
+	[data-heading="gradient"]
+)
+.section-label {
+	font-family: var(--font-display);
+	font-weight: var(--display-weight);
+	letter-spacing: var(--display-tracking);
+	overflow-wrap: anywhere;
+}
+html:is(
+		[data-heading="giant"],
+		[data-heading="outline"],
+		[data-heading="gradient"]
+	)
+	.section-label
+	.meta-tag {
+	font-size: 0.75rem;
+	color: var(--muted-foreground);
+	-webkit-text-stroke: 0;
+	letter-spacing: 0.06em;
+}
+
+/* giant: huge, nearly a poster */
+html[data-heading="giant"] .section-label {
+	font-size: clamp(2.75rem, 1.5rem + 5vw, 5.5rem);
+	line-height: 0.88;
+	text-transform: lowercase;
+}
+
+/* outline: hollow capitals, stroked in the accent */
+html[data-heading="outline"] .section-label {
+	font-size: clamp(2rem, 1.25rem + 3vw, 3.25rem);
+	line-height: 1;
+	color: transparent;
+	-webkit-text-stroke: 1.25px var(--text-highlight);
+	text-transform: uppercase;
+}
+
+/* sticker: a tilted pill in the accent, slapped on the page */
+html[data-heading="sticker"] .section-label {
+	width: fit-content;
+	padding: 0.5em 1em 0.45em;
+	font-weight: 700;
+	color: var(--background);
+	background: var(--text-highlight);
+	border-radius: 999px;
+	box-shadow:
+		0 2px 0 color-mix(in oklab, var(--text-highlight) 55%, black),
+		0 8px 14px -8px rgb(0 0 0 / 0.45);
+	transform: rotate(-3deg);
+}
+html[data-heading="sticker"] section:nth-of-type(even) .section-label {
+	transform: rotate(2.5deg);
+}
+html[data-heading="sticker"] .section-label .meta-tag {
+	color: inherit;
+	opacity: 0.75;
+}
+
+/* gradient: a slow accent gradient drifts through the letters */
+html[data-heading="gradient"] .section-label {
+	width: fit-content;
+	font-size: clamp(1.75rem, 1.25rem + 2vw, 2.5rem);
+	line-height: 1.1;
+	color: transparent;
+	text-transform: lowercase;
+	background:
+		linear-gradient(
+			100deg,
+			var(--text-highlight),
+			color-mix(in oklab, var(--text-highlight) 35%, var(--foreground)),
+			var(--text-highlight)
+		)
+		0 0 / 200% 100%;
+	-webkit-background-clip: text;
+	background-clip: text;
+}
+@media (prefers-reduced-motion: no-preference) {
+	html[data-heading="gradient"]:not([data-motion="off"]) .section-label {
+		animation: design-drift 7s linear infinite;
+	}
+}
+@keyframes design-drift {
+	to {
+		background-position: 200% 0;
+	}
 }
 
 /* ─── links ──────────────────────────────────────────────────────────── */
@@ -1196,6 +3057,244 @@ html[data-link="dotted"] .prose-fuma a {
 	text-decoration-style: dotted;
 }
 
+/* article links that are really headings or pictures keep their own look */
+html:is([data-link="arrow"], [data-link="bracket"]) .prose-fuma
+	a:is(:is(h1, h2, h3, h4, h5, h6) a, :has(img))::before,
+html:is([data-link="arrow"], [data-link="bracket"])
+	.prose-fuma
+	a:is(:is(h1, h2, h3, h4, h5, h6) a, :has(img))::after {
+	display: none;
+}
+
+/* arrow: an arrow slides in after the text. it sits in padding the link
+   keeps for it, so titles cut short with an ellipsis still show it */
+html[data-link="arrow"] .squiggle-link-hover {
+	padding-right: 1.25em;
+}
+html[data-link="arrow"] .squiggle-link-hover::after {
+	top: 0;
+	right: 0;
+	bottom: auto;
+	left: auto;
+	width: 1em;
+	height: auto;
+	color: var(--text-highlight);
+	content: "→";
+	background: none;
+	opacity: 0;
+	-webkit-mask-image: none;
+	mask-image: none;
+	transform: translateX(-0.45em);
+	transition:
+		opacity 0.2s ease,
+		transform 0.25s ease;
+}
+html[data-link="arrow"]
+	:is(.group:hover, .group:focus-visible)
+	.squiggle-link-hover::after {
+	opacity: 1;
+	transform: none;
+}
+html[data-link="arrow"] .squiggle-link::after {
+	bottom: 0;
+	height: 1px;
+	opacity: 0.5;
+	-webkit-mask-image: none;
+	mask-image: none;
+}
+html[data-link="arrow"] .prose-fuma a {
+	text-decoration-color: color-mix(
+		in oklab,
+		var(--text-highlight) 40%,
+		transparent
+	);
+}
+html[data-link="arrow"] .prose-fuma a::after {
+	display: inline-block;
+	margin-left: 0.1em;
+	font-size: 0.85em;
+	content: "↗";
+	transition: transform 0.2s ease;
+}
+html[data-link="arrow"] .prose-fuma a:hover::after {
+	transform: translate(0.12em, -0.12em);
+}
+
+/* glow: no underline at all; the text lights up in the accent. the link
+   gets some room so the glow isn't cut off by a truncated title */
+html[data-link="glow"] :is(.squiggle-link, .squiggle-link-hover) {
+	transition:
+		color 0.2s ease,
+		text-shadow 0.25s ease;
+}
+html[data-link="glow"] .squiggle-link-hover {
+	padding-block: 0.3em;
+	margin-block: -0.3em;
+}
+html[data-link="glow"] :is(.squiggle-link, .squiggle-link-hover)::after {
+	display: none;
+}
+html[data-link="glow"] .squiggle-link {
+	color: var(--text-highlight);
+}
+html[data-link="glow"]
+	:is(.group:hover, .group:focus-visible)
+	.squiggle-link-hover,
+html[data-link="glow"] .squiggle-link:hover,
+html[data-link="glow"] .prose-fuma a:hover {
+	color: var(--text-highlight);
+	text-shadow:
+		0 0 0.55em color-mix(in oklab, var(--text-highlight) 55%, transparent),
+		0 0 0.12em color-mix(in oklab, var(--text-highlight) 40%, transparent);
+}
+html[data-link="glow"] .prose-fuma a {
+	text-decoration: none;
+	transition: text-shadow 0.25s ease;
+}
+html[data-link="glow"] .prose-fuma a:hover {
+	opacity: 1;
+}
+
+/* gradient: a gradient underline sweeps in from the left, its colours
+   still sliding as it draws */
+html[data-link="gradient"] :is(.squiggle-link, .squiggle-link-hover)::after {
+	height: 2px;
+	background:
+		linear-gradient(
+			90deg,
+			var(--text-highlight),
+			color-mix(in oklab, var(--text-highlight) 25%, var(--foreground)),
+			var(--text-highlight)
+		)
+		100% 0 / 200% 100%;
+	border-radius: 2px;
+	-webkit-mask-image: none;
+	mask-image: none;
+	transition: background-position 0.9s ease;
+}
+html[data-link="gradient"] .squiggle-link::after {
+	bottom: -1px;
+}
+html[data-link="gradient"] .squiggle-link-hover::after {
+	opacity: 1;
+	transform: scaleX(0);
+	transform-origin: left;
+	transition:
+		transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+		background-position 0.9s ease;
+}
+html[data-link="gradient"]
+	:is(.group:hover, .group:focus-visible)
+	.squiggle-link-hover::after,
+html[data-link="gradient"] .squiggle-link:hover::after {
+	background-position: 0 0;
+	transform: scaleX(1);
+}
+html[data-link="gradient"] .prose-fuma a {
+	color: inherit;
+	text-decoration: none;
+	background-image:
+		linear-gradient(
+			90deg,
+			var(--text-highlight),
+			color-mix(in oklab, var(--text-highlight) 25%, var(--foreground))
+		),
+		linear-gradient(
+			color-mix(in oklab, var(--text-highlight) 35%, transparent),
+			color-mix(in oklab, var(--text-highlight) 35%, transparent)
+		);
+	background-repeat: no-repeat;
+	background-position:
+		0 100%,
+		0 100%;
+	background-size:
+		0% 2px,
+		100% 1px;
+	transition: background-size 0.35s ease;
+}
+html[data-link="gradient"] .prose-fuma a:hover {
+	background-size:
+		100% 2px,
+		100% 1px;
+	opacity: 1;
+}
+
+/* bracket: [ brackets ] close in around the text. they hang in the gutter
+   either side, so the text itself doesn't move */
+html[data-link="bracket"] :is(.squiggle-link, .squiggle-link-hover) {
+	padding-inline: 0.65em;
+	margin-inline: -0.65em;
+}
+html[data-link="bracket"] :is(.squiggle-link, .squiggle-link-hover)::before,
+html[data-link="bracket"] :is(.squiggle-link, .squiggle-link-hover)::after {
+	position: absolute;
+	top: 0;
+	bottom: auto;
+	width: auto;
+	height: auto;
+	color: var(--text-highlight);
+	background: none;
+	-webkit-mask-image: none;
+	mask-image: none;
+	transition:
+		opacity 0.2s ease,
+		transform 0.25s ease;
+}
+html[data-link="bracket"] :is(.squiggle-link, .squiggle-link-hover)::before {
+	left: 0;
+	content: "[";
+}
+html[data-link="bracket"] :is(.squiggle-link, .squiggle-link-hover)::after {
+	right: 0;
+	left: auto;
+	content: "]";
+}
+html[data-link="bracket"] .squiggle-link-hover::before {
+	opacity: 0;
+	transform: translateX(-0.4em);
+}
+html[data-link="bracket"] .squiggle-link-hover::after {
+	opacity: 0;
+	transform: translateX(0.4em);
+}
+html[data-link="bracket"]
+	:is(.group:hover, .group:focus-visible)
+	.squiggle-link-hover::before,
+html[data-link="bracket"]
+	:is(.group:hover, .group:focus-visible)
+	.squiggle-link-hover::after {
+	opacity: 1;
+	transform: none;
+}
+html[data-link="bracket"] .prose-fuma a {
+	color: var(--text-highlight);
+	text-decoration: none;
+}
+html[data-link="bracket"] .prose-fuma a::before,
+html[data-link="bracket"] .prose-fuma a::after {
+	display: inline-block;
+	color: var(--muted-foreground);
+	transition:
+		color 0.2s ease,
+		transform 0.25s ease;
+}
+html[data-link="bracket"] .prose-fuma a::before {
+	content: "[";
+	transform: translateX(-0.2em);
+}
+html[data-link="bracket"] .prose-fuma a::after {
+	content: "]";
+	transform: translateX(0.2em);
+}
+html[data-link="bracket"] .prose-fuma a:hover {
+	opacity: 1;
+}
+html[data-link="bracket"] .prose-fuma a:hover::before,
+html[data-link="bracket"] .prose-fuma a:hover::after {
+	color: var(--text-highlight);
+	transform: none;
+}
+
 /* ─── texture ────────────────────────────────────────────────────────── */
 
 html[data-texture="grid"] body {
@@ -1230,6 +3329,115 @@ html[data-texture]:not([data-texture="none"]) body {
 html[data-layout="window"][data-texture]:not([data-texture="none"])
 	.design-page {
 	background-color: color-mix(in oklab, var(--muted) 70%, transparent);
+}
+html[data-layout="scrapbook"][data-texture]:not([data-texture="none"])
+	.design-page:not(:has(.design-studio)) {
+	background-color: color-mix(
+		in oklab,
+		var(--scrapbook-board) 85%,
+		transparent
+	);
+}
+
+/* mesh: soft blurred colour pooled in the corners of the screen: the accent,
+   a turn of it round the colour wheel, and the page's own surface */
+html[data-texture="mesh"] body {
+	background-image:
+		radial-gradient(
+			ellipse 55% 50% at 0% 0%,
+			color-mix(in oklab, var(--text-highlight) 24%, transparent),
+			transparent 70%
+		),
+		radial-gradient(
+			ellipse 50% 45% at 100% 100%,
+			oklch(from var(--text-highlight) l c calc(h + 70) / 0.18),
+			transparent 70%
+		),
+		radial-gradient(
+			ellipse 40% 40% at 100% 0%,
+			color-mix(in oklab, var(--muted) 90%, transparent),
+			transparent 70%
+		),
+		radial-gradient(
+			ellipse 40% 45% at 0% 100%,
+			color-mix(in oklab, var(--text-highlight) 10%, transparent),
+			transparent 70%
+		);
+	background-attachment: fixed;
+}
+
+/* lined: notebook paper, faint rules and a double margin line in the accent
+   just left of the column */
+html[data-texture="lined"] body {
+	--lined-margin: max(1.25rem, 50% - 26rem);
+	background-image:
+		linear-gradient(
+			90deg,
+			transparent var(--lined-margin),
+			color-mix(in oklab, var(--text-highlight) 40%, transparent)
+				var(--lined-margin) calc(var(--lined-margin) + 1px),
+			transparent calc(var(--lined-margin) + 1px)
+				calc(var(--lined-margin) + 4px),
+			color-mix(in oklab, var(--text-highlight) 40%, transparent)
+				calc(var(--lined-margin) + 4px) calc(var(--lined-margin) + 5px),
+			transparent calc(var(--lined-margin) + 5px)
+		),
+		repeating-linear-gradient(
+			transparent 0 calc(1.75rem - 1px),
+			color-mix(in oklab, var(--border) 70%, transparent) calc(1.75rem - 1px)
+				1.75rem
+		);
+}
+
+/* stripes: fine diagonal pinstripes */
+html[data-texture="stripes"] body {
+	background-image: repeating-linear-gradient(
+		-45deg,
+		color-mix(in oklab, var(--border) 60%, transparent) 0 1px,
+		transparent 1px 8px
+	);
+}
+
+/* halftone and topo are layers of their own behind the page: print dots
+   that thin out down the first screen or so, and a contour map drawn with
+   a mask so the lines take the palette's ink */
+html:is([data-texture="halftone"], [data-texture="topo"]) body::before {
+	position: absolute;
+	inset: 0 0 auto;
+	z-index: -1;
+	pointer-events: none;
+	content: "";
+}
+html[data-texture="halftone"] body::before {
+	height: 150vh;
+	background-image:
+		radial-gradient(
+			circle,
+			color-mix(in oklab, var(--foreground) 30%, transparent) 1px,
+			transparent 3.5px
+		),
+		radial-gradient(
+			circle,
+			color-mix(in oklab, var(--foreground) 30%, transparent) 1px,
+			transparent 3.5px
+		);
+	background-position:
+		0 0,
+		6px 6px;
+	background-size: 12px 12px;
+	-webkit-mask-image: linear-gradient(#000, transparent);
+	mask-image: linear-gradient(#000, transparent);
+}
+html[data-texture="topo"] body::before {
+	position: fixed;
+	inset: 0;
+	background-color: color-mix(in oklab, var(--foreground) 16%, transparent);
+	-webkit-mask:
+		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480' height='480'%3E%3Cpath d='M147 147q0 3-2 6q-2 2-4 4q-2 2-5 3q-3 1-6 1q-3 0-7 0q-4 0-7-2q-3-3-2-6q1-3 3-5q2-2 3-4q1-3 4-5q2-2 6-1q3 0 7 2q3 1 6 3q3 1 4 4zM167 143q0 7-3 13q-4 5-8 10q-5 4-12 7q-7 2-14 3q-8 1-17 1q-10-1-15-7q-6-6-3-13q3-7 6-12q2-5 4-11q2-6 10-9q7-4 15-2q8 1 16 3q8 1 15 6q6 4 6 11zM186 140q-1 10-4 19q-4 9-11 16q-8 7-18 11q-11 3-24 7q-13 3-28 1q-15-2-20-13q-6-11-2-21q4-10 5-18q0-9 5-18q4-10 16-13q12-4 25-3q12 0 26 2q13 2 22 11q9 8 8 19zM204 136q0 14-4 26q-5 12-15 21q-11 9-25 15q-14 6-32 13q-18 6-37 1q-20-5-24-21q-4-16-2-28q1-13-1-25q-2-13 7-25q8-12 25-15q17-4 35-5q17-2 36 1q18 3 28 16q9 12 9 26zM222 134q1 16-4 31q-6 15-20 26q-14 11-30 22q-16 10-40 19q-25 8-46-3q-22-11-26-30q-4-20-8-34q-4-15-6-32q-3-17 12-29q14-13 35-18q20-6 42-10q22-5 45 1q23 6 34 23q10 17 12 34zM702 134q1 16-4 31q-6 15-20 26q-14 11-30 22q-16 10-40 19q-25 8-46-3q-22-11-26-30q-4-20-8-34q-4-15-6-32q-3-17 12-29q14-13 35-18q20-6 42-10q22-5 45 1q23 6 34 23q10 17 12 34zM240 131q4 19-4 37q-9 18-25 32q-16 13-34 30q-18 16-49 23q-31 7-53-10q-23-18-29-38q-7-21-17-38q-11-17-10-37q0-21 20-34q20-14 43-23q22-10 50-16q28-7 54 4q26 10 38 30q12 20 16 40zM240 611q4 19-4 37q-9 18-25 32q-16 13-34 30q-18 16-49 23q-31 7-53-10q-23-18-29-38q-7-21-17-38q-11-17-10-37q0-21 20-34q20-14 43-23q22-10 50-16q28-7 54 4q26 10 38 30q12 20 16 40zM720 131q4 19-4 37q-9 18-25 32q-16 13-34 30q-18 16-49 23q-31 7-53-10q-23-18-29-38q-7-21-17-38q-11-17-10-37q0-21 20-34q20-14 43-23q22-10 50-16q28-7 54 4q26 10 38 30q12 20 16 40zM720 611q4 19-4 37q-9 18-25 32q-16 13-34 30q-18 16-49 23q-31 7-53-10q-23-18-29-38q-7-21-17-38q-11-17-10-37q0-21 20-34q20-14 43-23q22-10 50-16q28-7 54 4q26 10 38 30q12 20 16 40zM374 343q0 2-2 4q-2 2-4 3q-2 1-3 2q-2 1-5 3q-3 1-6 1q-4-1-5-3q-2-3-1-5q0-3 1-5q0-2 2-3q1-2 4-3q2-1 5-1q3 0 6 0q3 0 6 2q2 2 2 5zM394 339q-1 6-5 11q-4 4-8 8q-5 3-9 7q-5 4-13 7q-8 3-16 1q-9-3-11-10q-3-7-2-12q0-6 1-11q0-6 5-10q5-4 11-5q6-2 14-4q7-2 16-1q8 1 13 7q5 5 4 12zM413 335q-2 10-8 18q-6 7-12 13q-6 5-13 13q-8 8-21 13q-14 4-26-2q-12-7-16-17q-4-11-5-19q-2-9 0-17q1-9 10-15q8-6 18-10q9-4 21-8q12-4 26-1q14 2 21 12q7 10 5 20zM430 332q-3 13-10 23q-8 9-14 19q-6 9-16 22q-11 12-31 16q-20 3-35-7q-15-11-21-23q-6-13-10-25q-5-12 0-23q4-12 16-20q11-8 23-15q12-8 30-13q17-6 36 0q18 5 27 19q8 13 5 27zM-35-151q-4 16-11 28q-8 12-13 27q-6 14-21 30q-15 16-40 17q-26 1-43-13q-18-14-28-28q-11-15-16-30q-6-15 2-29q8-15 21-25q13-10 28-22q14-13 38-19q24-6 47 3q22 9 31 27q9 17 5 34zM-35 329q-4 16-11 28q-8 12-13 27q-6 14-21 30q-15 16-40 17q-26 1-43-13q-18-14-28-28q-11-15-16-30q-6-15 2-29q8-15 21-25q13-10 28-22q14-13 38-19q24-6 47 3q22 9 31 27q9 17 5 34zM445-151q-4 16-11 28q-8 12-13 27q-6 14-21 30q-15 16-40 17q-26 1-43-13q-18-14-28-28q-11-15-16-30q-6-15 2-29q8-15 21-25q13-10 28-22q14-13 38-19q24-6 47 3q22 9 31 27q9 17 5 34zM445 329q-4 16-11 28q-8 12-13 27q-6 14-21 30q-15 16-40 17q-26 1-43-13q-18-14-28-28q-11-15-16-30q-6-15 2-29q8-15 21-25q13-10 28-22q14-13 38-19q24-6 47 3q22 9 31 27q9 17 5 34zM-22-154q-5 19-10 34q-6 15-10 36q-4 20-25 38q-21 18-52 15q-31-4-52-19q-21-16-36-31q-16-16-20-35q-5-19 6-35q11-17 24-31q13-15 31-31q18-17 48-22q29-6 55 7q26 13 36 34q10 21 5 40zM-22 326q-5 19-10 34q-6 15-10 36q-4 20-25 38q-21 18-52 15q-31-4-52-19q-21-16-36-31q-16-16-20-35q-5-19 6-35q11-17 24-31q13-15 31-31q18-17 48-22q29-6 55 7q26 13 36 34q10 21 5 40zM458-154q-5 19-10 34q-6 15-10 36q-4 20-25 38q-21 18-52 15q-31-4-52-19q-21-16-36-31q-16-16-20-35q-5-19 6-35q11-17 24-31q13-15 31-31q18-17 48-22q29-6 55 7q26 13 36 34q10 21 5 40zM458 326q-5 19-10 34q-6 15-10 36q-4 20-25 38q-21 18-52 15q-31-4-52-19q-21-16-36-31q-16-16-20-35q-5-19 6-35q11-17 24-31q13-15 31-31q18-17 48-22q29-6 55 7q26 13 36 34q10 21 5 40zM-10-156q-6 21-6 40q-1 19-5 46q-4 26-33 43q-29 17-64 10q-35-7-60-22q-26-15-46-32q-20-18-21-41q-2-23 11-42q12-19 23-39q10-20 33-40q23-20 59-23q36-3 65 13q29 16 39 41q10 25 5 46zM-10 324q-6 21-6 40q-1 19-5 46q-4 26-33 43q-29 17-64 10q-35-7-60-22q-26-15-46-32q-20-18-21-41q-2-23 11-42q12-19 23-39q10-20 33-40q23-20 59-23q36-3 65 13q29 16 39 41q10 25 5 46zM470-156q-6 21-6 40q-1 19-5 46q-4 26-33 43q-29 17-64 10q-35-7-60-22q-26-15-46-32q-20-18-21-41q-2-23 11-42q12-19 23-39q10-20 33-40q23-20 59-23q36-3 65 13q29 16 39 41q10 25 5 46zM470 324q-6 21-6 40q-1 19-5 46q-4 26-33 43q-29 17-64 10q-35-7-60-22q-26-15-46-32q-20-18-21-41q-2-23 11-42q12-19 23-39q10-20 33-40q23-20 59-23q36-3 65 13q29 16 39 41q10 25 5 46zM435 68q1 2 0 5q-1 2-3 4q-3 2-6 3q-3 0-6 1q-3 0-6 0q-4-1-7-3q-3-2-4-5q-1-3 2-5q2-3 5-4q3-1 5-3q2-2 6-3q3-1 6 1q3 1 5 4q2 2 3 5zM455 64q2 6 0 12q-3 6-9 10q-6 3-12 6q-7 2-14 3q-7 0-15-1q-8-1-15-5q-8-5-8-12q-1-7 6-12q6-5 11-8q4-3 9-8q4-5 13-7q8-2 15 2q7 4 12 9q4 5 7 11zM-5 61q3 9-2 18q-6 9-14 15q-9 5-18 9q-10 4-21 6q-12 1-25 0q-13-2-24-9q-11-8-9-19q2-11 11-18q9-7 14-14q4-7 12-15q8-8 21-8q13-1 24 5q10 6 19 13q9 7 12 17zM-5 541q3 9-2 18q-6 9-14 15q-9 5-18 9q-10 4-21 6q-12 1-25 0q-13-2-24-9q-11-8-9-19q2-11 11-18q9-7 14-14q4-7 12-15q8-8 21-8q13-1 24 5q10 6 19 13q9 7 12 17zM475 61q3 9-2 18q-6 9-14 15q-9 5-18 9q-10 4-21 6q-12 1-25 0q-13-2-24-9q-11-8-9-19q2-11 11-18q9-7 14-14q4-7 12-15q8-8 21-8q13-1 24 5q10 6 19 13q9 7 12 17zM475 541q3 9-2 18q-6 9-14 15q-9 5-18 9q-10 4-21 6q-12 1-25 0q-13-2-24-9q-11-8-9-19q2-11 11-18q9-7 14-14q4-7 12-15q8-8 21-8q13-1 24 5q10 6 19 13q9 7 12 17z' fill='none' stroke='%23000'/%3E%3C/svg%3E")
+		0 0 / 480px 480px repeat;
+	mask:
+		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480' height='480'%3E%3Cpath d='M147 147q0 3-2 6q-2 2-4 4q-2 2-5 3q-3 1-6 1q-3 0-7 0q-4 0-7-2q-3-3-2-6q1-3 3-5q2-2 3-4q1-3 4-5q2-2 6-1q3 0 7 2q3 1 6 3q3 1 4 4zM167 143q0 7-3 13q-4 5-8 10q-5 4-12 7q-7 2-14 3q-8 1-17 1q-10-1-15-7q-6-6-3-13q3-7 6-12q2-5 4-11q2-6 10-9q7-4 15-2q8 1 16 3q8 1 15 6q6 4 6 11zM186 140q-1 10-4 19q-4 9-11 16q-8 7-18 11q-11 3-24 7q-13 3-28 1q-15-2-20-13q-6-11-2-21q4-10 5-18q0-9 5-18q4-10 16-13q12-4 25-3q12 0 26 2q13 2 22 11q9 8 8 19zM204 136q0 14-4 26q-5 12-15 21q-11 9-25 15q-14 6-32 13q-18 6-37 1q-20-5-24-21q-4-16-2-28q1-13-1-25q-2-13 7-25q8-12 25-15q17-4 35-5q17-2 36 1q18 3 28 16q9 12 9 26zM222 134q1 16-4 31q-6 15-20 26q-14 11-30 22q-16 10-40 19q-25 8-46-3q-22-11-26-30q-4-20-8-34q-4-15-6-32q-3-17 12-29q14-13 35-18q20-6 42-10q22-5 45 1q23 6 34 23q10 17 12 34zM702 134q1 16-4 31q-6 15-20 26q-14 11-30 22q-16 10-40 19q-25 8-46-3q-22-11-26-30q-4-20-8-34q-4-15-6-32q-3-17 12-29q14-13 35-18q20-6 42-10q22-5 45 1q23 6 34 23q10 17 12 34zM240 131q4 19-4 37q-9 18-25 32q-16 13-34 30q-18 16-49 23q-31 7-53-10q-23-18-29-38q-7-21-17-38q-11-17-10-37q0-21 20-34q20-14 43-23q22-10 50-16q28-7 54 4q26 10 38 30q12 20 16 40zM240 611q4 19-4 37q-9 18-25 32q-16 13-34 30q-18 16-49 23q-31 7-53-10q-23-18-29-38q-7-21-17-38q-11-17-10-37q0-21 20-34q20-14 43-23q22-10 50-16q28-7 54 4q26 10 38 30q12 20 16 40zM720 131q4 19-4 37q-9 18-25 32q-16 13-34 30q-18 16-49 23q-31 7-53-10q-23-18-29-38q-7-21-17-38q-11-17-10-37q0-21 20-34q20-14 43-23q22-10 50-16q28-7 54 4q26 10 38 30q12 20 16 40zM720 611q4 19-4 37q-9 18-25 32q-16 13-34 30q-18 16-49 23q-31 7-53-10q-23-18-29-38q-7-21-17-38q-11-17-10-37q0-21 20-34q20-14 43-23q22-10 50-16q28-7 54 4q26 10 38 30q12 20 16 40zM374 343q0 2-2 4q-2 2-4 3q-2 1-3 2q-2 1-5 3q-3 1-6 1q-4-1-5-3q-2-3-1-5q0-3 1-5q0-2 2-3q1-2 4-3q2-1 5-1q3 0 6 0q3 0 6 2q2 2 2 5zM394 339q-1 6-5 11q-4 4-8 8q-5 3-9 7q-5 4-13 7q-8 3-16 1q-9-3-11-10q-3-7-2-12q0-6 1-11q0-6 5-10q5-4 11-5q6-2 14-4q7-2 16-1q8 1 13 7q5 5 4 12zM413 335q-2 10-8 18q-6 7-12 13q-6 5-13 13q-8 8-21 13q-14 4-26-2q-12-7-16-17q-4-11-5-19q-2-9 0-17q1-9 10-15q8-6 18-10q9-4 21-8q12-4 26-1q14 2 21 12q7 10 5 20zM430 332q-3 13-10 23q-8 9-14 19q-6 9-16 22q-11 12-31 16q-20 3-35-7q-15-11-21-23q-6-13-10-25q-5-12 0-23q4-12 16-20q11-8 23-15q12-8 30-13q17-6 36 0q18 5 27 19q8 13 5 27zM-35-151q-4 16-11 28q-8 12-13 27q-6 14-21 30q-15 16-40 17q-26 1-43-13q-18-14-28-28q-11-15-16-30q-6-15 2-29q8-15 21-25q13-10 28-22q14-13 38-19q24-6 47 3q22 9 31 27q9 17 5 34zM-35 329q-4 16-11 28q-8 12-13 27q-6 14-21 30q-15 16-40 17q-26 1-43-13q-18-14-28-28q-11-15-16-30q-6-15 2-29q8-15 21-25q13-10 28-22q14-13 38-19q24-6 47 3q22 9 31 27q9 17 5 34zM445-151q-4 16-11 28q-8 12-13 27q-6 14-21 30q-15 16-40 17q-26 1-43-13q-18-14-28-28q-11-15-16-30q-6-15 2-29q8-15 21-25q13-10 28-22q14-13 38-19q24-6 47 3q22 9 31 27q9 17 5 34zM445 329q-4 16-11 28q-8 12-13 27q-6 14-21 30q-15 16-40 17q-26 1-43-13q-18-14-28-28q-11-15-16-30q-6-15 2-29q8-15 21-25q13-10 28-22q14-13 38-19q24-6 47 3q22 9 31 27q9 17 5 34zM-22-154q-5 19-10 34q-6 15-10 36q-4 20-25 38q-21 18-52 15q-31-4-52-19q-21-16-36-31q-16-16-20-35q-5-19 6-35q11-17 24-31q13-15 31-31q18-17 48-22q29-6 55 7q26 13 36 34q10 21 5 40zM-22 326q-5 19-10 34q-6 15-10 36q-4 20-25 38q-21 18-52 15q-31-4-52-19q-21-16-36-31q-16-16-20-35q-5-19 6-35q11-17 24-31q13-15 31-31q18-17 48-22q29-6 55 7q26 13 36 34q10 21 5 40zM458-154q-5 19-10 34q-6 15-10 36q-4 20-25 38q-21 18-52 15q-31-4-52-19q-21-16-36-31q-16-16-20-35q-5-19 6-35q11-17 24-31q13-15 31-31q18-17 48-22q29-6 55 7q26 13 36 34q10 21 5 40zM458 326q-5 19-10 34q-6 15-10 36q-4 20-25 38q-21 18-52 15q-31-4-52-19q-21-16-36-31q-16-16-20-35q-5-19 6-35q11-17 24-31q13-15 31-31q18-17 48-22q29-6 55 7q26 13 36 34q10 21 5 40zM-10-156q-6 21-6 40q-1 19-5 46q-4 26-33 43q-29 17-64 10q-35-7-60-22q-26-15-46-32q-20-18-21-41q-2-23 11-42q12-19 23-39q10-20 33-40q23-20 59-23q36-3 65 13q29 16 39 41q10 25 5 46zM-10 324q-6 21-6 40q-1 19-5 46q-4 26-33 43q-29 17-64 10q-35-7-60-22q-26-15-46-32q-20-18-21-41q-2-23 11-42q12-19 23-39q10-20 33-40q23-20 59-23q36-3 65 13q29 16 39 41q10 25 5 46zM470-156q-6 21-6 40q-1 19-5 46q-4 26-33 43q-29 17-64 10q-35-7-60-22q-26-15-46-32q-20-18-21-41q-2-23 11-42q12-19 23-39q10-20 33-40q23-20 59-23q36-3 65 13q29 16 39 41q10 25 5 46zM470 324q-6 21-6 40q-1 19-5 46q-4 26-33 43q-29 17-64 10q-35-7-60-22q-26-15-46-32q-20-18-21-41q-2-23 11-42q12-19 23-39q10-20 33-40q23-20 59-23q36-3 65 13q29 16 39 41q10 25 5 46zM435 68q1 2 0 5q-1 2-3 4q-3 2-6 3q-3 0-6 1q-3 0-6 0q-4-1-7-3q-3-2-4-5q-1-3 2-5q2-3 5-4q3-1 5-3q2-2 6-3q3-1 6 1q3 1 5 4q2 2 3 5zM455 64q2 6 0 12q-3 6-9 10q-6 3-12 6q-7 2-14 3q-7 0-15-1q-8-1-15-5q-8-5-8-12q-1-7 6-12q6-5 11-8q4-3 9-8q4-5 13-7q8-2 15 2q7 4 12 9q4 5 7 11zM-5 61q3 9-2 18q-6 9-14 15q-9 5-18 9q-10 4-21 6q-12 1-25 0q-13-2-24-9q-11-8-9-19q2-11 11-18q9-7 14-14q4-7 12-15q8-8 21-8q13-1 24 5q10 6 19 13q9 7 12 17zM-5 541q3 9-2 18q-6 9-14 15q-9 5-18 9q-10 4-21 6q-12 1-25 0q-13-2-24-9q-11-8-9-19q2-11 11-18q9-7 14-14q4-7 12-15q8-8 21-8q13-1 24 5q10 6 19 13q9 7 12 17zM475 61q3 9-2 18q-6 9-14 15q-9 5-18 9q-10 4-21 6q-12 1-25 0q-13-2-24-9q-11-8-9-19q2-11 11-18q9-7 14-14q4-7 12-15q8-8 21-8q13-1 24 5q10 6 19 13q9 7 12 17zM475 541q3 9-2 18q-6 9-14 15q-9 5-18 9q-10 4-21 6q-12 1-25 0q-13-2-24-9q-11-8-9-19q2-11 11-18q9-7 14-14q4-7 12-15q8-8 21-8q13-1 24 5q10 6 19 13q9 7 12 17z' fill='none' stroke='%23000'/%3E%3C/svg%3E")
+		0 0 / 480px 480px repeat;
 }
 
 html:is([data-texture="grain"], [data-texture="scanlines"]) body::after {
