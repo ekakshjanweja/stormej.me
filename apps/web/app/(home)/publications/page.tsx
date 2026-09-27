@@ -25,9 +25,7 @@ export default function Publications() {
 
 	return (
 		<main>
-			<div className="sticky top-16 z-20 -mx-2 mb-8 bg-background/85 px-2 py-3 backdrop-blur-md">
-				<h1 className="section-label">publications</h1>
-			</div>
+			<h1 className="sr-only">publications</h1>
 			<PublicationsList publications={publications} />
 		</main>
 	);

@@ -3,7 +3,7 @@
 // adapted from aceternity's stars-background and shooting-stars (ui.aceternity.com)
 import { useMemo, useRef } from "react";
 import { type CanvasScene, useCanvasScene } from "../use-canvas-scene";
-import { isDark, rgba, useThemeColours } from "../use-theme-colours";
+import { isDark, mixRgb, rgba, useThemeColours } from "../use-theme-colours";
 import type { BackgroundProps } from "./types";
 
 /** stars per square css pixel */
@@ -70,7 +70,7 @@ export function Stars({ still }: BackgroundProps) {
 				const { accent, background, foreground } = coloursRef.current;
 				const dim = isDark(background) ? 0.8 : 0.5;
 				ctx.clearRect(0, 0, width, height);
-				ctx.fillStyle = rgba(foreground);
+				ctx.fillStyle = rgba(mixRgb(foreground, accent, 0.55));
 				for (const star of stars) {
 					const shimmer = star.twinkle
 						? 0.55 + 0.45 * Math.sin((time / star.twinkle) * TAU + star.phase)

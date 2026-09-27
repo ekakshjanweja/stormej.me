@@ -1122,7 +1122,27 @@ const option = <V extends string>(value: V, label: string, hint: string) => ({
 
 export const LAYOUTS = [
 	option("column", "column", "single centred column"),
+	option(
+		"column-wide",
+		"wide column",
+		"a broad reading column with room to breathe"
+	),
+	option(
+		"column-offset",
+		"offset column",
+		"an editorial column shifted to one side"
+	),
 	option("split", "split", "sticky intro beside the feed"),
+	option(
+		"split-reverse",
+		"reverse split",
+		"feed first, sticky intro on the right"
+	),
+	option(
+		"split-balanced",
+		"balanced split",
+		"equal columns divided by a fine rule"
+	),
 	option("compact", "compact", "narrow and dense"),
 	option("bento", "bento", "homepage as a grid of cards"),
 	option("magazine", "magazine", "poster-size intro, two-column feed"),
@@ -1155,6 +1175,12 @@ export const NAVS = [
 	option("classic", "classic", "name left, links right"),
 	option("minimal", "minimal", "just your name and a way to reach you"),
 	option("framed", "framed", "rails and hairlines around the bar"),
+	option(
+		"framed-inset",
+		"inset frame",
+		"a compact bordered bar with inset links"
+	),
+	option("framed-grid", "grid frame", "each link sits in its own ruled cell"),
 	option("links", "links first", "links on the left, fades out on scroll"),
 	option("centered", "centred", "links in the middle, a button on the right"),
 	option("island", "island", "floating pill at the top"),
@@ -1308,6 +1334,9 @@ export const TEXT_EFFECTS = [
 export const BACKGROUNDS = [
 	option("none", "none", "just the page colour"),
 	option("aurora", "aurora", "slow northern lights in the accent"),
+	option("plasma", "plasma", "liquid colour slowly turning and breathing"),
+	option("ribbons", "ribbons", "soft bands of light sweeping across"),
+	option("rain", "light rain", "fine luminous lines falling diagonally"),
 	option("orbs", "orbs", "blurred blobs drifting around"),
 	option("beams", "beams", "light beams sweeping along curves"),
 	option("meteors", "meteors", "streaks falling across the page"),
@@ -1668,6 +1697,8 @@ export const matchCopyOption = (copy: HeroCopy) =>
 
 export interface DesignConfig {
 	background: ValueOf<typeof BACKGROUNDS>;
+	/** null follows the palette accent; a hex value colours background effects only */
+	backgroundColour: string | null;
 	copy: HeroCopy;
 	cursor: ValueOf<typeof CURSORS>;
 	/** only read when palette is "custom" */
@@ -1699,6 +1730,7 @@ const SLATE = PALETTES[0].modes;
 
 export const DEFAULT_DESIGN: DesignConfig = {
 	background: "none",
+	backgroundColour: null,
 	copy: DEFAULT_COPY,
 	cursor: "default",
 	custom: SLATE,
@@ -1728,6 +1760,7 @@ export const DEFAULT_DESIGN: DesignConfig = {
 /** everything the motion tab owns; presets from before it leave these alone */
 type MotionKey =
 	| "background"
+	| "backgroundColour"
 	| "cursor"
 	| "entrance"
 	| "hover"
@@ -2449,6 +2482,72 @@ const RAW_PRESETS: {
 		description: "an engineering drawing, dust in the air",
 		id: "drafting",
 	},
+	{
+		config: {
+			background: "plasma",
+			backgroundColour: "#e9509b",
+			entrance: "blur",
+			fonts: "editorial",
+			heading: "gradient",
+			hero: "name",
+			layout: "magazine",
+			link: "gradient",
+			motion: "smooth",
+			nav: "tabs",
+			palette: "midnight",
+			reveal: "fade",
+			scale: "huge",
+			shape: "glass",
+			textEffect: "aurora",
+			texture: "none",
+		},
+		description: "pink liquid light beneath an editorial page",
+		id: "plasma",
+	},
+	{
+		config: {
+			background: "ribbons",
+			backgroundColour: "#16a6a1",
+			entrance: "clip",
+			fonts: "grotesk",
+			heading: "giant",
+			hero: "boxed",
+			layout: "slides",
+			link: "arrow",
+			motion: "dramatic",
+			nav: "framed",
+			palette: "paper",
+			reveal: "rise",
+			scale: "large",
+			shape: "sharp",
+			textEffect: "mask",
+			texture: "none",
+		},
+		description: "teal light bands across a presentation canvas",
+		id: "ribbons",
+	},
+	{
+		config: {
+			background: "rain",
+			backgroundColour: "#e7a341",
+			entrance: "rise",
+			fonts: "pixel",
+			heading: "slash",
+			hero: "columns",
+			layout: "terminal",
+			link: "glow",
+			motion: "snappy",
+			nav: "keys",
+			palette: "phosphor",
+			reveal: "fade",
+			scale: "large",
+			shape: "pixel",
+			textEffect: "scramble",
+			texture: "scanlines",
+		},
+		description: "warm light rain over a terminal desk",
+		id: "rain",
+	},
 ];
 
 export function applyFontPairing(
@@ -2607,6 +2706,11 @@ export function normalizeDesign(input: unknown): DesignConfig {
 			source.background,
 			DEFAULT_DESIGN.background
 		),
+		backgroundColour:
+			typeof source.backgroundColour === "string" &&
+			HEX_COLOR.test(source.backgroundColour)
+				? source.backgroundColour.toLowerCase()
+				: null,
 		copy: normalizeCopy(source.copy),
 		cursor: pick(values(CURSORS), source.cursor, DEFAULT_DESIGN.cursor),
 		custom: {
@@ -2715,6 +2819,7 @@ export function shuffleDesign(copy: HeroCopy): DesignConfig {
 	return applyFontPairing(
 		{
 			background: maybe(BACKGROUNDS),
+			backgroundColour: null,
 			copy,
 			cursor: maybe(CURSORS),
 			custom: useRandomColours ? randomPalette() : DEFAULT_DESIGN.custom,

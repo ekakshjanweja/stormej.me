@@ -2,16 +2,11 @@
 
 // biome-ignore lint/performance/noNamespaceImport: shadcn ships these primitives namespaced; keeping it aligned with upstream
 import * as HoverCardPrimitive from "@radix-ui/react-hover-card";
-import {
-	AnimatePresence,
-	motion,
-	useMotionValue,
-	useSpring,
-} from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { encode } from "qss";
-import type { MouseEvent, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -73,16 +68,6 @@ export const LinkPreview = ({
 		setIsMounted(true);
 	}, []);
 
-	const x = useMotionValue(0);
-	const translateX = useSpring(x, { damping: 24, mass: 0.6, stiffness: 200 });
-
-	const handleMouseMove = (event: MouseEvent<HTMLAnchorElement>) => {
-		const targetRect = event.currentTarget.getBoundingClientRect();
-		const eventOffsetX = event.clientX - targetRect.left;
-		const offsetFromCenter = (eventOffsetX - targetRect.width / 2) / 4;
-		x.set(offsetFromCenter);
-	};
-
 	return (
 		<>
 			{isMounted ? (
@@ -107,7 +92,6 @@ export const LinkPreview = ({
 					asChild
 					className={cn(className)}
 					href={url}
-					onMouseMove={handleMouseMove}
 					rel="noopener noreferrer"
 					target="_blank"
 				>
@@ -123,9 +107,12 @@ export const LinkPreview = ({
 
 				<HoverCardPrimitive.Content
 					align="center"
-					className="z-50 origin-[--radix-hover-card-content-transform-origin]"
+					avoidCollisions
+					className="z-50 max-h-[calc(100dvh-24px)] max-w-[calc(100dvw-24px)] origin-[--radix-hover-card-content-transform-origin] overflow-auto"
+					collisionPadding={12}
 					side="top"
 					sideOffset={10}
+					sticky="always"
 				>
 					<AnimatePresence>
 						{isOpen && (
@@ -143,22 +130,21 @@ export const LinkPreview = ({
 									y: 4,
 								}}
 								initial={{ opacity: 0, scale: 0.97, y: 4 }}
-								style={{ x: translateX }}
 							>
 								<Link
-									className="group block overflow-hidden rounded-md border border-border bg-popover transition-colors duration-150 hover:border-foreground/30"
+									className="group block max-w-full overflow-hidden rounded-md border border-border bg-popover transition-colors duration-150 hover:border-foreground/30"
 									href={url}
 									onClick={onClick}
 									rel="noopener noreferrer"
 									target="_blank"
 								>
 									<div
-										className="relative bg-background"
+										className="relative max-w-full overflow-hidden bg-background"
 										style={{ height, width }}
 									>
 										<Image
 											alt={`Preview of ${hostname}`}
-											className="block"
+											className="block h-auto max-w-full"
 											height={height}
 											priority
 											quality={quality}

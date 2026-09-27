@@ -26,18 +26,16 @@ export default function Watch() {
 
 	return (
 		<main>
-			<div className="sticky top-16 z-20 -mx-2 mb-8 bg-background/85 px-2 py-3 backdrop-blur-md">
-				<div className="flex items-baseline justify-between gap-4">
-					<h1 className="section-label">watch</h1>
-					<Link
-						className="meta-tag hover-dim rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
-						href={YOUTUBE_PLAYLIST}
-						rel="noopener noreferrer"
-						target="_blank"
-					>
-						playlist
-					</Link>
-				</div>
+			<h1 className="sr-only">watch</h1>
+			<div className="mb-6 flex justify-end">
+				<Link
+					className="meta-tag hover-dim rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
+					href={YOUTUBE_PLAYLIST}
+					rel="noopener noreferrer"
+					target="_blank"
+				>
+					playlist
+				</Link>
 			</div>
 			<p className="mb-8 text-pretty font-light text-[13px] text-muted-foreground leading-[1.6]">
 				{description}

@@ -53,6 +53,7 @@ import type { SavedPreset } from "@/lib/design/saved-presets";
 import { MAX_SAVED_PRESETS } from "@/lib/design/saved-presets";
 import { cn } from "@/lib/utils";
 import {
+	BackgroundColourControl,
 	ChoiceGroup,
 	ColourColumn,
 	CopyEditor,
@@ -623,6 +624,10 @@ function StudioControls({
 		(speed: MotionSpeed) => onUpdate({ speed }),
 		[onUpdate]
 	);
+	const setBackgroundColour = useCallback(
+		(backgroundColour: string | null) => onUpdate({ backgroundColour }),
+		[onUpdate]
+	);
 
 	return (
 		<Tabs defaultValue="look">
@@ -795,12 +800,16 @@ function StudioControls({
 						</p>
 					)}
 					{MOTION_AXES.map((axis) => (
-						<AxisChoice
-							axis={axis}
-							key={axis.key}
-							onAxis={onAxis}
-							value={draft[axis.key]}
-						/>
+						<div key={axis.key}>
+							<AxisChoice axis={axis} onAxis={onAxis} value={draft[axis.key]} />
+							{axis.key === "background" && draft.background !== "none" ? (
+								<BackgroundColourControl
+									onChange={setBackgroundColour}
+									paletteAccent={modes.light.accent}
+									value={draft.backgroundColour}
+								/>
+							) : null}
+						</div>
 					))}
 					<p className="mt-4 text-[12px] text-muted-foreground">
 						visitors who ask their system for reduced motion always get the

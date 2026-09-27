@@ -283,19 +283,44 @@ html[data-nav="minimal"] .nav-contact {
 
 /* framed: hairlines run the full width above and below the bar, and rails
    run down both sides of the column */
-html[data-nav="framed"] body {
+html:is(
+	[data-nav="framed"],
+	[data-nav="framed-inset"],
+	[data-nav="framed-grid"]
+)
+body {
 	overflow-x: clip;
 }
-html[data-nav="framed"] .site-nav {
+html:is(
+		[data-nav="framed"],
+		[data-nav="framed-inset"],
+		[data-nav="framed-grid"]
+	)
+	.site-nav {
 	padding-block: 0.9rem;
 	background: var(--background);
 	backdrop-filter: none;
 }
-html[data-nav="framed"] :is(.site-nav, .design-shell > footer) {
+html:is(
+		[data-nav="framed"],
+		[data-nav="framed-inset"],
+		[data-nav="framed-grid"]
+	)
+	:is(.site-nav, .design-shell > footer) {
 	position: relative;
 }
-html[data-nav="framed"] :is(.site-nav, .design-shell > footer)::before,
-html[data-nav="framed"] .site-nav::after {
+html:is(
+		[data-nav="framed"],
+		[data-nav="framed-inset"],
+		[data-nav="framed-grid"]
+	)
+	:is(.site-nav, .design-shell > footer)::before,
+html:is(
+		[data-nav="framed"],
+		[data-nav="framed-inset"],
+		[data-nav="framed-grid"]
+	)
+	.site-nav::after {
 	position: absolute;
 	left: 50%;
 	width: 100vw;
@@ -305,13 +330,28 @@ html[data-nav="framed"] .site-nav::after {
 	background: var(--border);
 	transform: translateX(-50%);
 }
-html[data-nav="framed"] :is(.site-nav, .design-shell > footer)::before {
+html:is(
+		[data-nav="framed"],
+		[data-nav="framed-inset"],
+		[data-nav="framed-grid"]
+	)
+	:is(.site-nav, .design-shell > footer)::before {
 	top: 0;
 }
-html[data-nav="framed"] .site-nav::after {
+html:is(
+		[data-nav="framed"],
+		[data-nav="framed-inset"],
+		[data-nav="framed-grid"]
+	)
+	.site-nav::after {
 	bottom: 0;
 }
-html[data-nav="framed"] .nav-link {
+html:is(
+		[data-nav="framed"],
+		[data-nav="framed-inset"],
+		[data-nav="framed-grid"]
+	)
+	.nav-link {
 	font-size: 14px;
 	font-weight: 500;
 	color: var(--muted-foreground);
@@ -319,24 +359,76 @@ html[data-nav="framed"] .nav-link {
 	opacity: 1;
 	transition: color 150ms ease;
 }
-html[data-nav="framed"] .nav-link:is(:hover, [aria-current="page"]) {
+html:is(
+		[data-nav="framed"],
+		[data-nav="framed-inset"],
+		[data-nav="framed-grid"]
+	)
+	.nav-link:is(:hover, [aria-current="page"]) {
 	color: var(--foreground);
 }
 @media (min-width: 768px) {
-	html[data-nav="framed"] .design-shell:not(:has(.design-studio)) {
+	html:is(
+			[data-nav="framed"],
+			[data-nav="framed-inset"],
+			[data-nav="framed-grid"]
+		)
+		.design-shell:not(:has(.design-studio)) {
 		border-inline: 1px solid var(--border);
 	}
-	html[data-nav="framed"] .nav-links {
+	html:is(
+			[data-nav="framed"],
+			[data-nav="framed-inset"],
+			[data-nav="framed-grid"]
+		)
+		.nav-links {
 		gap: 1.25rem;
 		margin-left: auto;
 	}
-	html[data-nav="framed"] .nav-actions {
+	html:is(
+			[data-nav="framed"],
+			[data-nav="framed-inset"],
+			[data-nav="framed-grid"]
+		)
+		.nav-actions {
 		gap: 0.75rem;
 		margin-left: 1.25rem;
 	}
-	html[data-nav="framed"] .nav-sep {
+	html:is(
+			[data-nav="framed"],
+			[data-nav="framed-inset"],
+			[data-nav="framed-grid"]
+		)
+		.nav-sep {
 		display: block;
 	}
+	html[data-nav="framed-grid"] .nav-links {
+		gap: 0;
+	}
+	html[data-nav="framed-grid"] .nav-link {
+		padding: 0.35rem 0.8rem;
+		border-left: 1px solid var(--border);
+	}
+	html[data-nav="framed-grid"] .nav-link:last-child {
+		border-right: 1px solid var(--border);
+	}
+}
+html[data-nav="framed-inset"] .site-nav {
+	gap: 1rem;
+	padding: 0.75rem 1rem;
+	margin-top: 0.75rem;
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+}
+html[data-nav="framed-inset"] .site-nav::before,
+html[data-nav="framed-inset"] .site-nav::after {
+	display: none;
+}
+html[data-nav="framed-grid"] .site-nav {
+	padding-block: 0.45rem;
+}
+html[data-nav="framed-grid"] .nav-link[aria-current="page"] {
+	background: color-mix(in oklab, var(--text-highlight) 11%, transparent);
 }
 
 /* links first: no name in the bar, links on the left, the bar fades into
@@ -880,6 +972,25 @@ html[data-nav-position="static"]:not([data-nav="dock"], [data-nav="corner"])
 html[data-layout="compact"] .design-shell {
 	max-width: 40rem;
 }
+html[data-layout="column-wide"] .design-shell {
+	max-width: 68rem;
+}
+html[data-layout="column-wide"] .home-stack {
+	max-width: 52rem;
+	margin-inline: auto;
+}
+@media (min-width: 1024px) {
+	html[data-layout="column-offset"] .design-shell {
+		max-width: 74rem;
+	}
+	html[data-layout="column-offset"] .home-stack,
+	html[data-layout="column-offset"]
+		.design-shell
+		> main:not(:has(.design-studio)) {
+		width: min(100%, 43rem);
+		margin-left: auto;
+	}
+}
 html[data-layout="compact"] .design-shell > nav {
 	margin-bottom: 1.5rem;
 }
@@ -905,31 +1016,82 @@ html[data-layout="magazine"] .home-hero p.hero-lede {
 
 @media (min-width: 1024px) {
 	/* split: sticky intro on the left, feed on the right (homepage only) */
-	html[data-layout="split"] .design-shell:has(.home-stack) {
+	html:is(
+		[data-layout="split"],
+		[data-layout="split-reverse"],
+		[data-layout="split-balanced"]
+	)
+	.design-shell:has(.home-stack) {
 		max-width: 76rem;
 	}
-	html[data-layout="split"] .home-stack {
+	html:is(
+			[data-layout="split"],
+			[data-layout="split-reverse"],
+			[data-layout="split-balanced"]
+		)
+		.home-stack {
 		display: grid;
 		grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
 		column-gap: 5rem;
 		align-items: start;
 	}
-	html[data-layout="split"] .home-stack > * {
+	html:is(
+			[data-layout="split"],
+			[data-layout="split-reverse"],
+			[data-layout="split-balanced"]
+		)
+		.home-stack
+		> * {
 		grid-column: 2;
 	}
-	html[data-layout="split"] .home-stack > .home-hero {
+	html:is(
+			[data-layout="split"],
+			[data-layout="split-reverse"],
+			[data-layout="split-balanced"]
+		)
+		.home-stack
+		> .home-hero {
 		position: sticky;
 		top: 6rem;
 		grid-row: 1 / span 12;
 		grid-column: 1;
 	}
-	html[data-layout="split"] .home-hero .hero-lede {
+	html:is(
+			[data-layout="split"],
+			[data-layout="split-reverse"],
+			[data-layout="split-balanced"]
+		)
+		.home-hero
+		.hero-lede {
 		font-size: 1.75rem;
 	}
-	html[data-layout="split"] .home-hero > div:last-child {
+	html:is(
+			[data-layout="split"],
+			[data-layout="split-reverse"],
+			[data-layout="split-balanced"]
+		)
+		.home-hero
+		> div:last-child {
 		flex-direction: column;
 		gap: 1.5rem;
 		align-items: flex-start;
+	}
+	html[data-layout="split-reverse"] .home-stack {
+		grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+	}
+	html[data-layout="split-reverse"] .home-stack > * {
+		grid-column: 1;
+	}
+	html[data-layout="split-reverse"] .home-stack > .home-hero {
+		grid-column: 2;
+	}
+	html[data-layout="split-balanced"] .home-stack {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		column-gap: 3rem;
+	}
+	html[data-layout="split-balanced"] .home-stack > .home-hero {
+		padding-right: 3rem;
+		border-right: 1px solid var(--border);
 	}
 
 	/* sidebar: the nav becomes a fixed left rail on every page */

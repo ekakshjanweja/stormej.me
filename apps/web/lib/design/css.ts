@@ -155,6 +155,7 @@ export function designCss(config: DesignConfig) {
 	const rules = [
 		`html[data-design]{${fonts}}`,
 		`html[data-design]{${motionVariables(config)}}`,
+		`html[data-design]{--fx-background-colour:${config.backgroundColour ?? "var(--text-highlight)"}}`,
 	];
 
 	if (config.palette !== "slate") {

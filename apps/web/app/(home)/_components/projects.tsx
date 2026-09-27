@@ -3,6 +3,7 @@
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { useCallback } from "react";
+import { ProjectPreview } from "@/components/project-preview";
 import { track } from "@/lib/analytics";
 import { listProjects } from "@/lib/projects";
 
@@ -30,25 +31,27 @@ function ProjectRowItem({ project }: { project: ProjectRowEntry }) {
 
 	return (
 		<li>
-			<Link
-				className="group hover-dim flex items-baseline justify-between gap-4 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
-				href={href}
-				onClick={onClick}
-				rel={isExternal ? "noopener noreferrer" : undefined}
-				target={isExternal ? "_blank" : undefined}
-			>
-				<div className="flex min-w-0 flex-col gap-0.5">
-					<span className="squiggle-link-hover truncate font-medium text-[14px] text-foreground">
-						{project.title}
-					</span>
-					<span className="line-clamp-1 font-light text-[12px] text-muted-foreground leading-snug">
-						{project.subtitle}
-					</span>
-				</div>
-				{isExternal && (
-					<ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-				)}
-			</Link>
+			<ProjectPreview project={project}>
+				<Link
+					className="group flex items-baseline justify-between gap-4 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
+					href={href}
+					onClick={onClick}
+					rel={isExternal ? "noopener noreferrer" : undefined}
+					target={isExternal ? "_blank" : undefined}
+				>
+					<div className="flex min-w-0 flex-col gap-0.5">
+						<span className="squiggle-link-hover truncate font-medium text-[14px] text-foreground">
+							{project.title}
+						</span>
+						<span className="line-clamp-1 font-light text-[12px] text-muted-foreground leading-snug">
+							{project.subtitle}
+						</span>
+					</div>
+					{isExternal && (
+						<ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+					)}
+				</Link>
+			</ProjectPreview>
 		</li>
 	);
 }

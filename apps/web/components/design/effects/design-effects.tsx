@@ -36,8 +36,20 @@ const BACKGROUNDS: Record<BackgroundId, ComponentType<BackgroundProps>> = {
 		() => import("./backgrounds/particles").then((module) => module.Particles),
 		{ ssr: false }
 	),
+	plasma: dynamic(
+		() => import("./backgrounds/plasma").then((module) => module.Plasma),
+		{ ssr: false }
+	),
+	rain: dynamic(
+		() => import("./backgrounds/rain").then((module) => module.Rain),
+		{ ssr: false }
+	),
 	retro: dynamic(
 		() => import("./backgrounds/retro").then((module) => module.Retro),
+		{ ssr: false }
+	),
+	ribbons: dynamic(
+		() => import("./backgrounds/ribbons").then((module) => module.Ribbons),
 		{ ssr: false }
 	),
 	ripple: dynamic(

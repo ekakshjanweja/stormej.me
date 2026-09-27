@@ -114,9 +114,12 @@ export function YoutubePreview({
 
 			<HoverCardPrimitive.Content
 				align="start"
-				className="z-50 w-max min-w-0 origin-[--radix-hover-card-content-transform-origin] p-0 outline-none"
+				avoidCollisions
+				className="z-50 max-h-[calc(100dvh-24px)] w-max min-w-0 max-w-[calc(100dvw-24px)] origin-[--radix-hover-card-content-transform-origin] overflow-y-auto p-0 outline-none"
+				collisionPadding={12}
 				side="top"
 				sideOffset={12}
+				sticky="always"
 			>
 				<AnimatePresence>
 					{isOpen && (

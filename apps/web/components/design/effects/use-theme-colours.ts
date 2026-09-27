@@ -14,7 +14,7 @@ export interface ThemeColours {
 }
 
 const VARIABLES: Record<keyof ThemeColours, string> = {
-	accent: "--text-highlight",
+	accent: "--fx-background-colour",
 	background: "--background",
 	border: "--border",
 	foreground: "--foreground",

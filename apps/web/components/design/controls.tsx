@@ -207,7 +207,9 @@ export function Swatches({ modes }: { modes: PaletteModes }) {
 function HexInput({
 	value,
 	onCommit,
+	label = "hex colour",
 }: {
+	label?: string;
 	onCommit: (value: string) => void;
 	value: string;
 }) {
@@ -231,12 +233,63 @@ function HexInput({
 
 	return (
 		<input
-			aria-label="hex colour"
+			aria-label={label}
 			className="w-[4.75rem] rounded border border-border bg-background px-1.5 py-0.5 font-mono text-[11px] outline-none focus:border-foreground/40"
 			onChange={onChange}
 			spellCheck={false}
 			value={text}
 		/>
+	);
+}
+
+export function BackgroundColourControl({
+	paletteAccent,
+	value,
+	onChange,
+}: {
+	onChange: (value: string | null) => void;
+	paletteAccent: string;
+	value: string | null;
+}) {
+	const colour = value ?? paletteAccent;
+	const pick = useCallback(
+		(event: ChangeEvent<HTMLInputElement>) => onChange(event.target.value),
+		[onChange]
+	);
+	const commit = useCallback((next: string) => onChange(next), [onChange]);
+	const reset = useCallback(() => onChange(null), [onChange]);
+
+	return (
+		<div className="mb-4 rounded-md border border-border p-3">
+			<div className="mb-2 flex items-center justify-between gap-2">
+				<span className="text-[12px]">background colour</span>
+				<button
+					className="text-[11px] text-muted-foreground underline-offset-2 hover:text-foreground hover:underline disabled:cursor-default disabled:opacity-50"
+					disabled={value === null}
+					onClick={reset}
+					type="button"
+				>
+					use palette
+				</button>
+			</div>
+			<div className="flex items-center gap-2">
+				<input
+					aria-label="pick background animation colour"
+					className="size-7 cursor-pointer rounded border border-border bg-transparent p-0"
+					onChange={pick}
+					type="color"
+					value={colour}
+				/>
+				<HexInput
+					label="background animation hex colour"
+					onCommit={commit}
+					value={colour}
+				/>
+				<span className="text-[11px] text-muted-foreground">
+					{value === null ? "follows the palette" : "same colour in both modes"}
+				</span>
+			</div>
+		</div>
 	);
 }
 

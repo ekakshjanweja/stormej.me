@@ -37,9 +37,7 @@ export default function Projects() {
 
 	return (
 		<main>
-			<div className="sticky top-16 z-20 -mx-2 mb-8 bg-background/85 px-2 py-3 backdrop-blur-md">
-				<h1 className="section-label">projects</h1>
-			</div>
+			<h1 className="sr-only">projects</h1>
 			<ul className="flex flex-col gap-5">
 				{active.map((project) => (
 					<ProjectRow key={project.slug} project={project} />
