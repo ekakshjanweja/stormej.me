@@ -29,10 +29,13 @@ const projectFrontmatterSchema = frontmatterSchema.extend({
 	github: z.string().optional(),
 	hidden: z.boolean().optional(),
 	images: z.array(z.string()).optional(),
+	imagesOrientation: z.enum(["portrait", "landscape"]).optional(),
 	inlineGallery: z.boolean().optional(),
 	published: z.boolean().optional(),
 	subtitle: z.string().optional(),
 	tech: z.array(z.string()).default([]),
+	video: z.string().optional(),
+	videoPoster: z.string().optional(),
 	website: z.string().optional(),
 	youtube: z.string().optional(),
 });

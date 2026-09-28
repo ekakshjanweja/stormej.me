@@ -15,6 +15,12 @@ const FOLLOW = { damping: 40, mass: 0.4, stiffness: 520 };
 const LAG = { damping: 26, mass: 0.6, stiffness: 180 };
 const DRIFT = { damping: 30, mass: 1, stiffness: 90 };
 
+/* the press shrink lives in the same transform as the position. a css
+   `scale` would apply before that translate and pull the shape toward the
+   top-left corner of the page instead of shrinking it in place */
+const PRESSED_SCALE = 0.82;
+const PRESS_TRANSITION = { duration: 0.25, ease: [0.22, 1, 0.36, 1] } as const;
+
 const SPRINGS: Record<CursorVariant, typeof FOLLOW> = {
 	blob: FOLLOW,
 	ring: FOLLOW,
@@ -77,9 +83,9 @@ export function DesignCursor({ variant }: { variant: CursorVariant }) {
 
 	const state = {
 		"data-hover": hovering || undefined,
-		"data-pressed": pressed || undefined,
 		"data-visible": visible || undefined,
 	};
+	const press = { scale: pressed ? PRESSED_SCALE : 1 };
 
 	if (variant === "trail") {
 		return (
@@ -90,10 +96,17 @@ export function DesignCursor({ variant }: { variant: CursorVariant }) {
 				{...state}
 			>
 				<motion.span
+					animate={press}
 					className="fx-cursor-ring"
 					style={{ x: followX, y: followY }}
+					transition={PRESS_TRANSITION}
 				/>
-				<motion.span className="fx-cursor-dot" style={{ x, y }} />
+				<motion.span
+					animate={press}
+					className="fx-cursor-dot"
+					style={{ x, y }}
+					transition={PRESS_TRANSITION}
+				/>
 			</div>
 		);
 	}
@@ -106,8 +119,10 @@ export function DesignCursor({ variant }: { variant: CursorVariant }) {
 			{...state}
 		>
 			<motion.span
+				animate={press}
 				className="fx-cursor-shape"
 				style={{ x: followX, y: followY }}
+				transition={PRESS_TRANSITION}
 			/>
 		</div>
 	);

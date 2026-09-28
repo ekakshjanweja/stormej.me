@@ -16,11 +16,15 @@ export interface ProjectFrontmatter {
 	github?: string;
 	hidden?: boolean;
 	images?: string[];
+	imagesOrientation?: "portrait" | "landscape";
 	inlineGallery?: boolean;
 	published?: boolean;
 	subtitle?: string;
 	tech: string[];
 	title: string;
+	/** self-hosted mp4, played inline when there is no youtube link */
+	video?: string;
+	videoPoster?: string;
 	website?: string;
 	youtube?: string;
 }

@@ -25,12 +25,35 @@ type LinkPreviewProps = {
 
 const WWW_PREFIX = /^www\./;
 
-function getHostname(url: string) {
+export function getHostname(url: string) {
 	try {
 		return new URL(url).hostname.replace(WWW_PREFIX, "");
 	} catch {
 		return url;
 	}
+}
+
+/** A microlink screenshot of a live page, rendered at 3x the given size. */
+export function siteScreenshotUrl(
+	url: string,
+	{
+		width,
+		height,
+		isMobile = true,
+	}: { width: number; height: number; isMobile?: boolean }
+) {
+	return `https://api.microlink.io/?${encode({
+		colorScheme: "dark",
+		embed: "screenshot.url",
+		meta: false,
+		screenshot: true,
+		url,
+		"viewport.deviceScaleFactor": 1,
+		"viewport.height": height * 3,
+		"viewport.isMobile": isMobile,
+		"viewport.width": width * 3,
+		waitUntil: "networkidle0",
+	})}`;
 }
 
 export const LinkPreview = ({
@@ -44,20 +67,7 @@ export const LinkPreview = ({
 	isStatic = false,
 	imageSrc = "",
 }: LinkPreviewProps) => {
-	const src = isStatic
-		? imageSrc
-		: `https://api.microlink.io/?${encode({
-				colorScheme: "dark",
-				embed: "screenshot.url",
-				meta: false,
-				screenshot: true,
-				url,
-				"viewport.deviceScaleFactor": 1,
-				"viewport.height": height * 3,
-				"viewport.isMobile": true,
-				"viewport.width": width * 3,
-				waitUntil: "networkidle0",
-			})}`;
+	const src = isStatic ? imageSrc : siteScreenshotUrl(url, { height, width });
 
 	const hostname = getHostname(url);
 

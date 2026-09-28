@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ContentViewTracker } from "@/components/analytics/content-view-tracker";
+import { CaseStudyScreens } from "@/components/case-study-screens";
 import { getMDXComponents } from "@/components/mdx";
 import { LinkPreview } from "@/components/ui/link-preview";
 import { YouTubeVideo } from "@/components/video-component";
@@ -13,7 +14,6 @@ import {
 	jsonLd,
 } from "@/lib/schema";
 import { projectsSource } from "@/lib/source";
-import { ProjectImages } from "./project-images";
 
 interface PageProps {
 	params: Promise<{ slug: string }>;
@@ -72,7 +72,9 @@ export default async function Page({ params }: PageProps) {
 		buildCreativeWorkSchema({
 			about: fm.tech,
 			description: fm.description ?? fm.subtitle,
-			external: [fm.github, fm.youtube].filter((s): s is string => Boolean(s)),
+			external: [fm.github, fm.youtube, fm.video].filter((s): s is string =>
+				Boolean(s)
+			),
 			kind: "projects",
 			slug,
 			title: fm.title,
@@ -133,7 +135,7 @@ export default async function Page({ params }: PageProps) {
 					<p className="meta-tag">{fm.tech.join(" · ")}</p>
 				)}
 
-				{(fm.website || fm.github || fm.youtube) && (
+				{(fm.website || fm.github || fm.youtube || fm.video) && (
 					<div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px]">
 						{fm.website && (
 							<a
@@ -165,6 +167,16 @@ export default async function Page({ params }: PageProps) {
 								youtube <ArrowUpRight className="h-3 w-3" />
 							</a>
 						)}
+						{fm.video && !fm.youtube && (
+							<a
+								className="hover-dim inline-flex items-center gap-1 text-foreground"
+								href={fm.video}
+								rel="noopener noreferrer"
+								target="_blank"
+							>
+								video <ArrowUpRight className="h-3 w-3" />
+							</a>
+						)}
 					</div>
 				)}
 			</header>
@@ -178,13 +190,35 @@ export default async function Page({ params }: PageProps) {
 				</div>
 			)}
 
-			{!fm.inlineGallery && (
-				<ProjectImages images={fm.images} title={fm.title} />
+			{fm.video && !fm.youtube && (
+				<div className="mb-10 overflow-hidden rounded-lg">
+					<video
+						aria-label={`${fm.title} video`}
+						className="aspect-video w-full bg-muted"
+						controls
+						playsInline
+						poster={fm.videoPoster}
+						preload="metadata"
+						src={fm.video}
+					>
+						<track kind="captions" />
+					</video>
+				</div>
 			)}
 
 			<article className="prose-fuma mt-10">
 				<MDX components={getMDXComponents()} />
 			</article>
+
+			{!fm.inlineGallery && fm.images && fm.images.length > 0 && (
+				<CaseStudyScreens
+					appendix
+					images={fm.images.map((image) => `/${image}`)}
+					orientation={fm.imagesOrientation}
+					sectionId="gallery"
+					title={fm.title}
+				/>
+			)}
 		</main>
 	);
 }

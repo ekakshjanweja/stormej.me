@@ -86,6 +86,25 @@ function IphoneMockupScreens({
 	return <Iphone17Pro aria-hidden className={commonCn} src={asset} />;
 }
 
+/** portrait for phone screens, landscape for desktop app screenshots. */
+export type ScreensOrientation = "portrait" | "landscape";
+
+const FRAME_ASPECT: Record<ScreensOrientation, string> = {
+	// the burrow window captures are 1280×860, shown whole
+	landscape: "aspect-[64/43]",
+	portrait: "aspect-[9/19]",
+};
+
+const FILE_EXTENSION = /\.[a-z0-9]+$/i;
+const NAME_SEPARATORS = /[-_]+/g;
+
+/** "images/burrow/cleanup.webp" → "cleanup", so desktop shots read as pages. */
+function assetName(asset: WorkImageAsset) {
+	const path = typeof asset === "string" ? asset : asset.light;
+	const file = path.split("/").pop() ?? "";
+	return file.replace(FILE_EXTENSION, "").replace(NAME_SEPARATORS, " ");
+}
+
 function galleryLayoutClass(count: number) {
 	if (count <= 1) {
 		return "mx-auto grid max-w-[260px] grid-cols-1 justify-items-stretch";
@@ -110,10 +129,12 @@ export function CaseStudyScreens({
 	screenshotMockup,
 	sectionId = "screenshots",
 	appendix,
+	orientation = "portrait",
 }: {
 	images: WorkImageAsset[];
 	title: string;
 	screenshotMockup?: ScreenshotMockupKind;
+	orientation?: ScreensOrientation;
 	/** Anchor id for in-page links (sticky nav, etc.). */
 	sectionId?: string;
 	/** After main copy: top rule, spacing, tighter vertical rhythm for an “appendix” gallery. */
@@ -179,30 +200,46 @@ export function CaseStudyScreens({
 						</span>
 					)}
 				</div>
-				<div
-					className={cn(
-						"rounded-2xl border border-border/60 bg-muted/[0.12] backdrop-blur-[2px]",
-						appendix ? "p-5 md:p-6" : "p-5 shadow-sm md:p-7"
-					)}
-				>
-					<ul className={galleryLayoutClass(count)}>
+				{orientation === "landscape" ? (
+					<ul className="grid grid-cols-1 gap-x-5 gap-y-7 sm:grid-cols-2">
 						{images.map((asset, i) => (
-							<li
-								className="min-w-0 shrink-0 basis-[72%] snap-start sm:basis-[52%] md:shrink md:basis-auto md:snap-align-none"
-								key={workImageStableKey(asset, i)}
-							>
-								<ScreenCard
+							<li key={workImageStableKey(asset, i)}>
+								<DesktopShot
 									asset={asset}
 									index={i}
 									onOpen={setOpenIndex}
 									priority={i === 0}
-									screenshotMockup={screenshotMockup}
 									title={title}
 								/>
 							</li>
 						))}
 					</ul>
-				</div>
+				) : (
+					<div
+						className={cn(
+							"rounded-2xl border border-border/60 bg-muted/[0.12] backdrop-blur-[2px]",
+							appendix ? "p-5 md:p-6" : "p-5 shadow-sm md:p-7"
+						)}
+					>
+						<ul className={galleryLayoutClass(count)}>
+							{images.map((asset, i) => (
+								<li
+									className="min-w-0 shrink-0 basis-[72%] snap-start sm:basis-[52%] md:shrink md:basis-auto md:snap-align-none"
+									key={workImageStableKey(asset, i)}
+								>
+									<ScreenCard
+										asset={asset}
+										index={i}
+										onOpen={setOpenIndex}
+										priority={i === 0}
+										screenshotMockup={screenshotMockup}
+										title={title}
+									/>
+								</li>
+							))}
+						</ul>
+					</div>
+				)}
 			</section>
 
 			{openIndex !== null && openAsset !== undefined && (
@@ -212,6 +249,7 @@ export function CaseStudyScreens({
 					onClose={closeLightbox}
 					onNext={showNext}
 					onPrev={showPrev}
+					orientation={orientation}
 					screenshotMockup={screenshotMockup}
 					title={title}
 					total={images.length}
@@ -324,13 +362,64 @@ function ScreenCard({
 	);
 }
 
+/** A desktop window screenshot: shown whole, no card around it, named below. */
+function DesktopShot({
+	asset,
+	title,
+	index,
+	priority,
+	onOpen,
+}: {
+	asset: WorkImageAsset;
+	title: string;
+	index: number;
+	priority?: boolean;
+	onOpen: (index: number) => void;
+}) {
+	const open = useCallback(() => onOpen(index), [onOpen, index]);
+	const name = assetName(asset);
+
+	return (
+		<button
+			aria-label={`Open ${title}, ${name} larger`}
+			className="group block w-full rounded-lg text-left outline-none focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:ring-offset-4 focus-visible:ring-offset-background"
+			onClick={open}
+			type="button"
+		>
+			<span
+				className={cn(
+					"relative block overflow-hidden rounded-lg border border-border/50 bg-black shadow-sm transition-[border-color,box-shadow] duration-300 group-hover:border-foreground/25 group-hover:shadow-lg",
+					FRAME_ASPECT.landscape
+				)}
+			>
+				<ThemedScreenshot
+					alt={`${title}, ${name}`}
+					asset={asset}
+					className="transition-transform duration-500 ease-out group-hover:scale-[1.015]"
+					fit="cover"
+					priority={priority}
+					sizes="(min-width: 640px) 360px, 100vw"
+				/>
+			</span>
+			<span className="mt-2.5 block font-light text-[13px] text-muted-foreground transition-colors duration-200 group-hover:text-foreground">
+				{name}
+			</span>
+		</button>
+	);
+}
+
+const LIGHTBOX_FRAME_CLASS =
+	"relative w-full overflow-hidden rounded-2xl border border-border/60 bg-background shadow-2xl ring-1 ring-black/10 dark:ring-white/10";
+
 function LightboxStill({
 	alt,
 	asset,
+	orientation,
 	useIphone17,
 }: {
 	alt: string;
 	asset: WorkImageAsset;
+	orientation: ScreensOrientation;
 	useIphone17: boolean;
 }) {
 	if (useIphone17) {
@@ -343,13 +432,17 @@ function LightboxStill({
 	}
 
 	return (
-		<div className="relative aspect-[9/19] w-full overflow-hidden rounded-2xl border border-border/60 bg-background shadow-2xl ring-1 ring-black/10 dark:ring-white/10">
+		<div className={cn(LIGHTBOX_FRAME_CLASS, FRAME_ASPECT[orientation])}>
 			<ThemedScreenshot
 				alt={alt}
 				asset={asset}
 				fit="contain"
 				priority
-				sizes="(min-width: 640px) 420px, 100vw"
+				sizes={
+					orientation === "portrait"
+						? "(min-width: 640px) 420px, 100vw"
+						: "(min-width: 1180px) 1100px, 100vw"
+				}
 			/>
 		</div>
 	);
@@ -361,6 +454,7 @@ function Lightbox({
 	index,
 	total,
 	screenshotMockup,
+	orientation,
 	onClose,
 	onPrev,
 	onNext,
@@ -370,12 +464,19 @@ function Lightbox({
 	index: number;
 	total: number;
 	screenshotMockup?: ScreenshotMockupKind;
+	orientation: ScreensOrientation;
 	onClose: () => void;
 	onPrev: () => void;
 	onNext: () => void;
 }) {
 	const video = isVideoAsset(asset) && typeof asset === "string";
 	const useIphone17 = !video && screenshotMockup === "iphone-17-pro";
+	let maxWidthClass = "max-w-[min(100%,420px)]";
+	if (useIphone17) {
+		maxWidthClass = "max-w-[min(100%,340px)]";
+	} else if (orientation === "landscape") {
+		maxWidthClass = "max-w-[min(100%,1100px,calc(82vh*64/43))]";
+	}
 
 	return (
 		<div
@@ -426,11 +527,11 @@ function Lightbox({
 			<div
 				className={cn(
 					"relative z-[1] flex max-h-[min(88vh,860px)] w-full flex-col items-center",
-					useIphone17 ? "max-w-[min(100%,340px)]" : "max-w-[min(100%,420px)]"
+					maxWidthClass
 				)}
 			>
 				{video ? (
-					<div className="relative aspect-[9/19] w-full overflow-hidden rounded-2xl border border-border/60 bg-background shadow-2xl ring-1 ring-black/10 dark:ring-white/10">
+					<div className={cn(LIGHTBOX_FRAME_CLASS, FRAME_ASPECT[orientation])}>
 						{/* biome-ignore lint/a11y/useMediaCaption: silent ui screen recording, there is no speech to caption */}
 						<video
 							className="absolute inset-0 h-full w-full object-contain"
@@ -443,6 +544,7 @@ function Lightbox({
 					<LightboxStill
 						alt={`${title}, full size ${index + 1}`}
 						asset={asset}
+						orientation={orientation}
 						useIphone17={useIphone17}
 					/>
 				)}

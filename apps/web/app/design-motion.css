@@ -1218,10 +1218,7 @@ html:not([data-background="none"]) .design-page {
 	translate: -50% -50%;
 	transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 	transition-duration: 0.25s;
-	transition-property: width, height, background-color, border-color, scale;
-}
-.fx-cursor[data-pressed] > span {
-	scale: 0.82;
+	transition-property: width, height, background-color, border-color;
 }
 
 /* ring: follows closely and opens up over anything clickable */
