@@ -43,9 +43,9 @@ export const iWontForgetPlayStore =
 export const zuAppPlayStore =
 	"https://play.google.com/store/apps/details?id=in.zupay.app&hl=en";
 
-//Arthiq
+//Aarthiq
 
-export const arthiq = "https://arthiq.ekaksh.in";
+export const arthiq = "https://aarthiqai.com";
 export const arthiqDemo = "https://youtu.be/_wxe7cxajCI?si=UcuPqEVCCyFko2iV";
 
 //Project links
