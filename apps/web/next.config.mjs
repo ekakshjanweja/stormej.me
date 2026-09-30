@@ -29,6 +29,17 @@ const nextConfig = {
 	poweredByHeader: false,
 	reactStrictMode: true,
 
+	async redirects() {
+		return [
+			{
+				// the project was renamed with its domain, aarthiqai.com
+				destination: "/projects/aarthiqai",
+				permanent: true,
+				source: "/projects/arthiq",
+			},
+		];
+	},
+
 	async rewrites() {
 		return [
 			{
