@@ -14,11 +14,9 @@ export const TROVE_ENABLED: boolean = true;
 
 /** Slugs to hide, e.g. ["app-toast"]. Matches the mdx filename. */
 export const DISABLED_TROVE_SLUGS: readonly string[] = [
-	"app-popup",
 	"app-progress-bar",
 	"app-selectable-chip",
 	"app-spinner",
-	"app-text-field",
 ];
 
 export function isTroveSlugEnabled(slug: string): boolean {
