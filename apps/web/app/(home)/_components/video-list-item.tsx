@@ -29,7 +29,7 @@ export function VideoListItem({ video }: { video: Video }) {
 				rel="noopener noreferrer"
 				target="_blank"
 			>
-				<span className="squiggle-link-hover font-medium text-[14px] text-foreground sm:truncate">
+				<span className="link-underline-hover font-medium text-[14px] text-foreground sm:truncate">
 					{video.title}
 				</span>
 				<span className="flex shrink-0 items-center gap-2">

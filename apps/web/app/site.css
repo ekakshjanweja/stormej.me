@@ -1,0 +1,117 @@
+/* The site's look on top of globals.css: font roles, plain underlined
+   links and one quiet fade in on load. Colours and timing come from the
+   tokens in app/globals.css. */
+
+/* ─── font roles ─────────────────────────────────────────────────────── */
+
+.headline,
+.prose-fuma :is(h1, h2, h3) {
+	font-weight: var(--display-weight);
+	letter-spacing: var(--display-tracking);
+}
+.hero-lede {
+	font-weight: var(--lede-weight);
+	letter-spacing: var(--lede-tracking);
+}
+
+/* ─── links ──────────────────────────────────────────────────────────── */
+
+/* always underlined, in the accent */
+.link-underline {
+	color: inherit;
+	text-decoration-line: underline;
+	text-decoration-thickness: 1px;
+	text-decoration-color: color-mix(
+		in oklab,
+		var(--text-highlight) 55%,
+		transparent
+	);
+	text-underline-offset: 4px;
+	transition: text-decoration-color var(--motion-duration) var(--motion-ease);
+}
+.link-underline:hover {
+	text-decoration-color: var(--text-highlight);
+}
+
+/* titles in rows: the underline only shows while the row is hovered */
+.link-underline-hover {
+	text-decoration-line: underline;
+	text-decoration-thickness: 1px;
+	text-decoration-color: transparent;
+	text-underline-offset: 4px;
+	transition: text-decoration-color var(--motion-duration) var(--motion-ease);
+}
+:is(.group:hover, .group:focus-visible) .link-underline-hover {
+	text-decoration-color: var(--text-highlight);
+}
+
+/* ─── load ───────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: no-preference) {
+	main {
+		animation: fade-in 360ms var(--motion-ease) both;
+	}
+}
+@keyframes fade-in {
+	from {
+		opacity: 0;
+	}
+}
+
+/* ─── about (app/about/page.tsx) ─────────────────────────────────────── */
+
+/* a short letter in the site's own type: the display serif for the name
+   and the opening line, the body sans for the rest, links in the accent */
+.letter {
+	font-family: var(--font-sans);
+	font-size: 0.9375rem;
+	line-height: 1.6;
+	color: var(--foreground);
+}
+.letter-link {
+	color: var(--text-highlight);
+	text-decoration-line: underline;
+	text-decoration-thickness: 1px;
+	text-decoration-color: transparent;
+	text-underline-offset: 3px;
+	transition: text-decoration-color var(--motion-duration) var(--motion-ease);
+}
+.letter-link:hover {
+	text-decoration-color: currentColor;
+}
+
+/* "1:15 AM · new delhi [flag] · [cloud] 21°C" (components/local-context.tsx) */
+.local-context {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	font-size: 0.875rem;
+	font-variant-numeric: tabular-nums;
+	line-height: 1.2;
+	color: var(--muted-foreground);
+	white-space: nowrap;
+}
+.local-context-sep {
+	margin-inline: 0.42rem;
+	font-weight: 700;
+	color: var(--foreground);
+}
+.local-context-place,
+.local-context-weather {
+	display: inline-flex;
+	gap: 0.3rem;
+	align-items: center;
+}
+.local-context-flag {
+	display: block;
+	width: 1.08rem;
+	height: 0.72rem;
+	outline: 1px solid
+		color-mix(in oklab, var(--muted-foreground) 24%, transparent);
+	outline-offset: -1px;
+}
+.local-context-icon {
+	width: 0.95rem;
+	height: 0.95rem;
+	stroke-width: 1.5;
+}

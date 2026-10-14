@@ -31,11 +31,7 @@ export default function Work() {
 				<h2 className="section-label inline-flex min-w-0 flex-wrap items-baseline gap-x-1.5">
 					<span>work</span>
 					{totalExp ? (
-						<span
-							aria-label={totalExpAria}
-							className="meta-tag normal-case tracking-[0.06em]"
-							role="note"
-						>
+						<span aria-label={totalExpAria} className="meta-tag" role="note">
 							({totalExp})
 						</span>
 					) : null}
@@ -100,7 +96,7 @@ function HomeWorkItem({
 					)}
 					<div className="flex min-w-0 flex-1 items-center justify-between gap-3 sm:gap-4">
 						<div className="flex min-w-0 flex-1 flex-col gap-0.5">
-							<span className="squiggle-link-hover truncate font-medium text-[14px] text-foreground">
+							<span className="link-underline-hover truncate font-medium text-[14px] text-foreground">
 								{item.title}
 							</span>
 							<span className="font-light text-[12px] text-muted-foreground leading-tight">

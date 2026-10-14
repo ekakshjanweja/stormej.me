@@ -38,8 +38,8 @@ const PLACEHOLDER_GRADIENTS = [
 
 /** Exact width: 3×PhoneFrame + 2×gap-2 + 2×px-3 on the strip (gap-2 = 0.5rem, px-3 = 0.75rem @ 16px root). */
 const PREVIEW_CARD_WIDTH_PX = {
-	default: 280, // 240 + 16 + 24
-	"iphone-17-pro": 292, // 252 + 16 + 24
+	default: 208, // 168 + 16 + 24
+	"iphone-17-pro": 220, // 180 + 16 + 24
 } as const;
 
 function previewCardWidthPx(mockup?: ScreenshotMockupKind) {
@@ -120,7 +120,7 @@ export function WorkPreview({
 							>
 								<Link
 									className={cn(
-										"box-border flex min-w-0 shrink-0 flex-col overflow-hidden rounded-md border border-border bg-popover transition-colors duration-150 hover:border-foreground/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
+										"box-border flex min-w-0 shrink-0 flex-col overflow-hidden rounded-md border border-border bg-popover shadow-[0_8px_24px_-12px_rgb(0_0_0/0.22)] transition-colors duration-150 hover:border-foreground/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
 									)}
 									href={href}
 									style={cardShellStyle}
@@ -144,7 +144,7 @@ export function WorkPreview({
 									</div>
 									<div className="min-w-0 overflow-hidden border-border/70 border-t px-3 py-1.5">
 										<span
-											className="meta-tag block min-w-0 truncate normal-case tracking-[0.08em]"
+											className="meta-tag block min-w-0 truncate"
 											title={title}
 										>
 											{title}
@@ -189,21 +189,21 @@ function PhoneFrameMedia({
 				<>
 					<Iphone17Pro
 						className="dark:hidden"
-						height={148}
+						height={104}
 						src={src.light}
-						width={74}
+						width={52}
 					/>
 					<Iphone17Pro
 						className="hidden dark:block"
-						height={148}
+						height={104}
 						src={src.dark}
-						width={74}
+						width={52}
 					/>
 				</>
 			);
 		}
 		if (typeof src === "string") {
-			return <Iphone17Pro height={148} src={src} width={74} />;
+			return <Iphone17Pro height={104} src={src} width={52} />;
 		}
 		return null;
 	}
@@ -215,14 +215,14 @@ function PhoneFrameMedia({
 					alt={`${title} screenshot (light)`}
 					className="object-cover dark:hidden"
 					fill
-					sizes="80px"
+					sizes="56px"
 					src={src.light}
 				/>
 				<Image
 					alt={`${title} screenshot (dark)`}
 					className="hidden object-cover dark:block"
 					fill
-					sizes="80px"
+					sizes="56px"
 					src={src.dark}
 				/>
 			</>
@@ -234,7 +234,7 @@ function PhoneFrameMedia({
 			alt={`${title} screenshot`}
 			className="object-cover"
 			fill
-			sizes="80px"
+			sizes="56px"
 			src={src}
 		/>
 	);
@@ -300,8 +300,8 @@ function PhoneFrame({
 			className={cn(
 				"relative flex shrink-0 items-center justify-center",
 				useIphone17
-					? "h-[158px] w-[84px] overflow-visible px-px"
-					: "h-[160px] w-[80px] overflow-hidden rounded-[10px] border border-border/80 bg-background shadow-sm"
+					? "h-[110px] w-[60px] overflow-visible px-px"
+					: "h-[112px] w-[56px] overflow-hidden rounded-[8px] border border-border/80 bg-background shadow-sm"
 			)}
 			initial={{ opacity: 0, y: 6 }}
 		>
@@ -309,7 +309,7 @@ function PhoneFrame({
 				<PhoneFrameMedia src={src} title={title} useIphone17={useIphone17} />
 			) : (
 				<div className={cn("absolute inset-0 bg-gradient-to-br", gradient)}>
-					<div className="absolute top-2 left-1/2 h-1 w-6 -translate-x-1/2 rounded-full bg-foreground/20" />
+					<div className="absolute top-1.5 left-1/2 h-1 w-5 -translate-x-1/2 rounded-full bg-foreground/20" />
 					{logo && (
 						<span className="absolute top-1/2 left-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 opacity-50">
 							<PhoneFrameLogo logo={logo} />

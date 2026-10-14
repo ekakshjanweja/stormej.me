@@ -43,7 +43,7 @@ export default function Blog() {
 							href={blog.url}
 						>
 							<div className="flex min-w-0 flex-col gap-0.5">
-								<span className="squiggle-link-hover font-medium text-[14px] text-foreground sm:truncate">
+								<span className="link-underline-hover font-medium text-[14px] text-foreground sm:truncate">
 									{blog.title}
 								</span>
 								{blog.description && (

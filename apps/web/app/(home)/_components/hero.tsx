@@ -2,14 +2,25 @@
 
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
-import { HeroHeadline } from "@/components/design/effects/hero-headline";
-import { useHeroCopy } from "@/components/design/preview-bridge";
 import { track } from "@/lib/analytics";
 import { cal, resume } from "@/lib/constants/links";
 import SocialLinks from "./social-links";
 
-const actionLinkClass =
-	"meta-tag hover-dim inline-flex items-center gap-1.5 rounded py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 sm:py-0";
+/* small pill buttons: a solid one to book a call, a quiet outlined one for
+   the resume. the arrow nudges toward its corner on hover, a press dips the
+   button a touch */
+const actionBase =
+	"group inline-flex h-9 items-center gap-1.5 rounded-full px-4 font-medium text-[13px] transition-[background-color,border-color,color,scale] duration-150 ease-out active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none motion-reduce:active:scale-100";
+const primaryAction = `${actionBase} bg-foreground text-background hover:bg-foreground/85`;
+const secondaryAction = `${actionBase} border border-border text-foreground hover:border-foreground/30 hover:bg-muted`;
+const actionArrow =
+	"size-3.5 shrink-0 transition-[translate,color] duration-150 ease-out group-hover:translate-x-px group-hover:-translate-y-px motion-reduce:transition-none";
+
+const EYEBROW = "product · mobile · ai";
+const HEADLINE =
+	"early-stage engineer building products from idea to production.";
+const SUBLINE =
+	"i work across product, and engineering to turn messy ideas into fast, polished software that people actually use.";
 
 const trackCal = () =>
 	track("cta_clicked", { location: "hero", target: "cal" });
@@ -17,62 +28,49 @@ const trackResume = () =>
 	track("cta_clicked", { location: "hero", target: "resume" });
 
 export default function Hero() {
-	// written in the vault's design studio, see lib/design/options.ts
-	const { cta, eyebrow, headline, subline } = useHeroCopy();
-
 	return (
 		<section
 			aria-labelledby="hero-heading"
 			className="home-hero"
 			data-cursor-anchor="hero"
 		>
-			{/* decoration for the intro designs in app/design.css; hidden unless
-			    a [data-hero] asks for it, and never read out */}
-			<span aria-hidden className="hero-marks" />
-			<p aria-hidden className="hero-name">
-				ekaksh janweja
-			</p>
-			<div aria-hidden className="hero-marquee">
-				<span>{headline}</span>
-				<span>{headline}</span>
-			</div>
-
-			{eyebrow ? <p className="hero-eyebrow meta-tag mb-5">{eyebrow}</p> : null}
+			<p className="hero-eyebrow meta-tag mb-5">{EYEBROW}</p>
 
 			<h1
 				className="hero-lede max-w-[58ch] text-2xl leading-[1.35]"
 				id="hero-heading"
 			>
-				<HeroHeadline text={headline} />
+				{HEADLINE}
 			</h1>
 
-			{subline ? (
-				<p className="hero-lede mt-5 max-w-[58ch] text-2xl text-muted-foreground leading-[1.35]">
-					{subline}
-				</p>
-			) : null}
+			<p className="hero-lede mt-5 max-w-[58ch] text-2xl text-muted-foreground leading-[1.35]">
+				{SUBLINE}
+			</p>
 
 			<div className="mt-10 flex flex-col gap-6 sm:mt-12 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
-				<div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+				<div className="flex flex-wrap items-center gap-3">
 					<Link
-						className={actionLinkClass}
+						className={primaryAction}
 						href={cal}
 						onClick={trackCal}
 						rel="noopener noreferrer"
 						target="_blank"
 					>
-						{cta}
-						<ArrowUpRight aria-hidden className="size-3 shrink-0" />
+						get in touch
+						<ArrowUpRight aria-hidden className={actionArrow} />
 					</Link>
 					<Link
-						className={actionLinkClass}
+						className={secondaryAction}
 						href={resume}
 						onClick={trackResume}
 						rel="noopener noreferrer"
 						target="_blank"
 					>
 						resume
-						<ArrowUpRight aria-hidden className="size-3 shrink-0" />
+						<ArrowUpRight
+							aria-hidden
+							className={`${actionArrow} text-muted-foreground group-hover:text-foreground`}
+						/>
 					</Link>
 				</div>
 				<SocialLinks />

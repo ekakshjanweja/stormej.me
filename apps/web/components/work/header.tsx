@@ -26,7 +26,7 @@ function StickyTitleRow({ fm }: { fm: WorkFrontmatter }) {
 								className="inline-flex min-w-0 items-center gap-2 font-serif italic"
 								url={fm.website}
 							>
-								<span className="squiggle-link min-w-0 [overflow-wrap:anywhere]">
+								<span className="link-underline min-w-0 [overflow-wrap:anywhere]">
 									{fm.title}
 								</span>
 								<ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground" />

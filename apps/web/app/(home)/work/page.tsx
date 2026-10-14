@@ -68,7 +68,7 @@ export default function Work() {
 											/>
 										)}
 										<div className="flex min-w-0 flex-1 flex-col gap-0.5">
-											<span className="squiggle-link-hover truncate font-medium text-[14px] text-foreground">
+											<span className="link-underline-hover truncate font-medium text-[14px] text-foreground">
 												{item.title}
 											</span>
 											<span className="font-light text-[12px] text-muted-foreground leading-tight">

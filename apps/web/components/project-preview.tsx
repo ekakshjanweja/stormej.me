@@ -14,8 +14,8 @@ interface ProjectPreviewProps {
 	project: ProjectListItem;
 }
 
-const PREVIEW_WIDTH = 320;
-const PREVIEW_HEIGHT = 180;
+const PREVIEW_WIDTH = 224;
+const PREVIEW_HEIGHT = 126;
 const WINDOW_DOTS = ["close", "minimise", "zoom"] as const;
 
 /** A tiny browser window: the real address up top, the live site below. */
@@ -52,7 +52,7 @@ function PreviewWindow({ project }: { project: ProjectListItem }) {
 						/>
 					))}
 				</span>
-				<span className="min-w-0 flex-1 truncate text-center font-mono text-[10px] text-muted-foreground tracking-wide">
+				<span className="min-w-0 flex-1 truncate text-center font-mono text-[10px] text-muted-foreground">
 					{address}
 				</span>
 				{website ? (
@@ -94,7 +94,7 @@ export function ProjectPreview({ children, project }: ProjectPreviewProps) {
 				<HoverCard.Content
 					align="start"
 					avoidCollisions
-					className="data-[state=open]:fade-in data-[state=open]:zoom-in-95 z-[100] max-h-[calc(100dvh-24px)] w-[min(320px,calc(100dvw-24px))] overflow-hidden rounded-md border border-border bg-popover shadow-lg outline-none data-[state=open]:animate-in"
+					className="data-[state=open]:fade-in data-[state=open]:zoom-in-95 z-[100] max-h-[calc(100dvh-24px)] w-[min(224px,calc(100dvw-24px))] overflow-hidden rounded-md border border-border bg-popover shadow-[0_8px_24px_-12px_rgb(0_0_0/0.22)] outline-none data-[state=open]:animate-in"
 					collisionPadding={12}
 					side="top"
 					sideOffset={10}

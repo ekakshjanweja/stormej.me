@@ -61,8 +61,8 @@ export const LinkPreview = ({
 	url,
 	className,
 	onClick,
-	width = 240,
-	height = 150,
+	width = 176,
+	height = 110,
 	quality = 60,
 	isStatic = false,
 	imageSrc = "",
@@ -143,7 +143,7 @@ export const LinkPreview = ({
 									initial={{ opacity: 0, scale: 0.97, y: 4 }}
 								>
 									<Link
-										className="group block max-w-full overflow-hidden rounded-md border border-border bg-popover transition-colors duration-150 hover:border-foreground/30"
+										className="group block max-w-full overflow-hidden rounded-md border border-border bg-popover shadow-[0_8px_24px_-12px_rgb(0_0_0/0.22)] transition-colors duration-150 hover:border-foreground/30"
 										href={url}
 										onClick={onClick}
 										rel="noopener noreferrer"
@@ -164,9 +164,7 @@ export const LinkPreview = ({
 											/>
 										</div>
 										<div className="border-border/70 border-t px-2.5 py-1.5">
-											<span className="meta-tag truncate normal-case tracking-[0.08em]">
-												{hostname}
-											</span>
+											<span className="meta-tag truncate">{hostname}</span>
 										</div>
 									</Link>
 								</motion.div>

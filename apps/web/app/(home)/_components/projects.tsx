@@ -40,7 +40,7 @@ function ProjectRowItem({ project }: { project: ProjectRowEntry }) {
 					target={isExternal ? "_blank" : undefined}
 				>
 					<div className="flex min-w-0 flex-col gap-0.5">
-						<span className="squiggle-link-hover truncate font-medium text-[14px] text-foreground">
+						<span className="link-underline-hover truncate font-medium text-[14px] text-foreground">
 							{project.title}
 						</span>
 						<span className="line-clamp-1 font-light text-[12px] text-muted-foreground leading-snug">

@@ -2,44 +2,22 @@
 "use client";
 
 import { X as CloseIcon, Menu } from "lucide-react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useState } from "react";
-import { useDesign, useHeroCopy } from "@/components/design/preview-bridge";
 import { ModeToggle } from "@/components/mode-toggle";
 import { track } from "@/lib/analytics";
-import { cal, mailTo, resume } from "@/lib/constants/links";
-import { designAttributes } from "@/lib/design/css";
+import { resume } from "@/lib/constants/links";
 import { TROVE_ENABLED } from "@/lib/trove-config";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-	{ href: "/work", label: "work", shortcut: "w" },
-	{ href: "/projects", label: "projects", shortcut: "p" },
-	{ href: "/blog", label: "blog", shortcut: "b" },
-	...(TROVE_ENABLED ? [{ href: "/trove", label: "trove", shortcut: "v" }] : []),
+	{ href: "/work", label: "work" },
+	{ href: "/projects", label: "projects" },
+	{ href: "/blog", label: "blog" },
+	...(TROVE_ENABLED ? [{ href: "/trove", label: "trove" }] : []),
 ];
-
-/** only some navbar designs show it (see app/design.css) */
-const homeItem = { href: "/", label: "home", shortcut: "h" };
-
-/** the scripted navbars always lead with home */
-const allItems = [homeItem, ...navItems];
-
-// navbars with their own markup and motion (SCRIPTED_NAVS in
-// lib/design/options.ts); each is a separate chunk only its design loads
-const TabsLinks = dynamic(() =>
-	import("@/components/design/effects/navs/tabs-links").then(
-		(module) => module.TabsLinks
-	)
-);
-const MagnifyNav = dynamic(() =>
-	import("@/components/design/effects/navs/magnify-nav").then(
-		(module) => module.MagnifyNav
-	)
-);
 
 const focusRing =
 	"rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2";
@@ -69,11 +47,9 @@ const SHORTCUT_PATHS: Record<string, string> = {
 type NavItem = (typeof navItems)[number];
 
 function DesktopNavLink({
-	className,
 	item,
 	isActive,
 }: {
-	className?: string;
 	item: NavItem;
 	isActive: boolean;
 }) {
@@ -91,17 +67,15 @@ function DesktopNavLink({
 		<Link
 			aria-current={isActive ? "page" : undefined}
 			className={cn(
-				"nav-link font-normal text-[15px] text-foreground transition-opacity duration-150",
-				isActive ? "opacity-100" : "opacity-60 hover:opacity-100",
-				focusRing,
-				className
+				"nav-link text-[14px] transition-colors duration-150",
+				isActive
+					? "text-foreground"
+					: "text-muted-foreground hover:text-foreground",
+				focusRing
 			)}
 			href={item.href}
 			onClick={onClick}
 		>
-			<kbd aria-hidden className="nav-key">
-				{item.shortcut}
-			</kbd>
 			{item.label}
 		</Link>
 	);
@@ -129,8 +103,10 @@ function MobileNavLink({
 		<Link
 			aria-current={isActive ? "page" : undefined}
 			className={cn(
-				"nav-overlay-link font-normal text-base text-foreground transition-opacity duration-150",
-				isActive ? "opacity-100" : "opacity-60 hover:opacity-100"
+				"nav-overlay-link text-base transition-colors duration-150",
+				isActive
+					? "text-foreground"
+					: "text-muted-foreground hover:text-foreground"
 			)}
 			href={item.href}
 			onClick={onClick}
@@ -142,11 +118,10 @@ function MobileNavLink({
 
 export function Navbar() {
 	const pathname = usePathname();
+	// the light/dark switch is for visitors; the vault keeps whatever mode is set
+	const inVault = pathname?.startsWith("/vault") ?? false;
 	const router = useRouter();
 	const { setTheme } = useTheme();
-	const { cta } = useHeroCopy();
-	// the attribute, not the raw config: the sidebar layout forces "classic"
-	const nav = designAttributes(useDesign().design)["data-nav"];
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
 	const toggleMobileMenu = useCallback(() => {
@@ -217,7 +192,7 @@ export function Navbar() {
 				closeMobileMenu();
 				return;
 			}
-			if (pathname?.startsWith("/vault")) {
+			if (inVault) {
 				return;
 			}
 			if (
@@ -239,16 +214,8 @@ export function Navbar() {
 		};
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [isMobileMenuOpen, pathname, closeMobileMenu, runShortcut]);
+	}, [isMobileMenuOpen, inVault, closeMobileMenu, runShortcut]);
 
-	if (nav === "magnify") {
-		// the dock holds every link, so there is no menu to open
-		return <MagnifyNav items={allItems} pathname={pathname ?? "/"} />;
-	}
-
-	// every other navbar design shares this markup; app/design.css shows,
-	// hides and rearranges the pieces per [data-nav], so previews can restyle
-	// it live
 	return (
 		<>
 			<nav
@@ -267,54 +234,21 @@ export function Navbar() {
 					)}
 					href="/"
 				>
-					<span className="nav-brand-full">ekaksh janweja</span>
-					<span className="nav-brand-short">ej</span>
+					ekaksh janweja
 				</Link>
 
-				{nav === "tabs" ? (
-					<TabsLinks
-						focusRing={focusRing}
-						items={allItems}
-						pathname={pathname ?? "/"}
-					/>
-				) : (
-					<div className="nav-links hidden items-center gap-8 md:ml-auto md:flex">
+				<div className="nav-links hidden items-center gap-6 md:ml-auto md:flex">
+					{navItems.map((item) => (
 						<DesktopNavLink
-							className="nav-home"
-							isActive={pathname === homeItem.href}
-							item={homeItem}
+							isActive={pathname === item.href}
+							item={item}
+							key={item.href}
 						/>
-						{navItems.map((item) => (
-							<DesktopNavLink
-								isActive={pathname === item.href}
-								item={item}
-								key={item.href}
-							/>
-						))}
-					</div>
-				)}
+					))}
+				</div>
 
-				<div className="nav-actions flex items-center gap-3 md:ml-8 md:gap-4">
-					<Link
-						className={cn(
-							"nav-contact text-[15px] text-foreground",
-							"hover-dim",
-							focusRing
-						)}
-						href={mailTo}
-					>
-						contact
-					</Link>
-					<Link
-						className={cn("nav-cta text-[13px]", focusRing)}
-						href={cal}
-						rel="noopener noreferrer"
-						target="_blank"
-					>
-						{cta}
-					</Link>
-					<span aria-hidden className="nav-sep" />
-					<ModeToggle />
+				<div className="nav-actions flex items-center gap-3 md:ml-6">
+					{inVault ? null : <ModeToggle />}
 					<button
 						aria-expanded={isMobileMenuOpen}
 						aria-label="Toggle menu"

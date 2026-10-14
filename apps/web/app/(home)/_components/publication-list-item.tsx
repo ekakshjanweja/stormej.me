@@ -42,7 +42,7 @@ export function PublicationListItemRow({
 				onClick={location ? handleClick : undefined}
 				url={pub.paperUrl}
 			>
-				<span className="squiggle-link-hover line-clamp-3 font-medium text-[14px] text-foreground leading-snug">
+				<span className="link-underline-hover line-clamp-3 font-medium text-[14px] text-foreground leading-snug">
 					{pub.title}
 				</span>
 			</LinkPreview>

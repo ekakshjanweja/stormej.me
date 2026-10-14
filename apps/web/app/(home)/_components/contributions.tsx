@@ -14,7 +14,7 @@ export const Contributions = async () => {
 				<h2 className="section-label">activity</h2>
 				<span
 					aria-label={`Current streak ${streaks.current}, longest streak ${streaks.longest}`}
-					className="meta-tag ml-auto shrink-0 text-muted-foreground/70 normal-case tracking-[0.06em] sm:ml-0"
+					className="meta-tag ml-auto shrink-0 text-muted-foreground/70 sm:ml-0"
 					role="note"
 				>
 					🔥 {streaks.current.toLocaleString()} · 🏆{" "}

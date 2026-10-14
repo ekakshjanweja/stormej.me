@@ -24,7 +24,7 @@ const BlogRowItem = ({ blog }: { blog: BlogRowEntry }) => {
 			href={blog.url}
 			onClick={onClick}
 		>
-			<span className="squiggle-link-hover font-medium text-[14px] text-foreground sm:truncate">
+			<span className="link-underline-hover font-medium text-[14px] text-foreground sm:truncate">
 				{blog.title}
 			</span>
 			<span className="meta-tag shrink-0 whitespace-nowrap">

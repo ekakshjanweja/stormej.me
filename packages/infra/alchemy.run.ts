@@ -60,7 +60,8 @@ export const server = await Worker("server", {
 	compatibilityDate: "2025-12-07",
 	cwd: "../../apps/server",
 	dev: {
-		port: 8787,
+		// override when 8787 is taken locally; point NEXT_PUBLIC_WORKER_URL at it too
+		port: Number(process.env.WORKER_DEV_PORT ?? 8787),
 	},
 	entrypoint: "src/index.ts",
 	name: "stormej",

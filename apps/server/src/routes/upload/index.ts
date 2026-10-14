@@ -1,9 +1,10 @@
 import { Hono } from "hono";
 import { requireSession } from "../../middleware/require-session";
 import type { Env } from "../../types";
-import { DESIGN_KEY } from "../design";
 
 const RESUME_KEY = "resume.pdf";
+/** site config (the old published design) lives here; never a vault file */
+const CONFIG_PREFIX = "_config/";
 const FILE_EXTENSION = /\.[a-z0-9]+$/i;
 const FILES_PREFIX = /^\/files\//;
 const DEFAULT_CONTENT_TYPE = "application/octet-stream";
@@ -67,9 +68,8 @@ uploadRoutes.use("/admin/*", requireSession);
 uploadRoutes.get("/admin/files", async (c) => {
 	const list = await c.env.STORAGE_BUCKET.list();
 	return c.json({
-		// the published site design lives in the bucket too; it is not a vault file
 		files: list.objects
-			.filter((object) => object.key !== DESIGN_KEY)
+			.filter((object) => !object.key.startsWith(CONFIG_PREFIX))
 			.map((object) => ({
 				key: object.key,
 				publicUrl: getFileUrl(new URL(c.req.url).origin, object.key),

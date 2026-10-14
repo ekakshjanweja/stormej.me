@@ -13,30 +13,31 @@
 }
 
 :root {
-	--background: oklch(0.995 0.005 250);
-	--foreground: oklch(0.25 0.015 250);
-	--card: oklch(0.99 0.008 250);
-	--card-foreground: oklch(0.25 0.015 250);
-	--popover: oklch(0.99 0.008 250);
-	--popover-foreground: oklch(0.25 0.015 250);
-	--primary: oklch(0.45 0.02 250);
-	--primary-foreground: oklch(0.99 0.005 250);
-	--secondary: oklch(0.95 0.01 250);
-	--secondary-foreground: oklch(0.35 0.015 250);
-	--muted: oklch(0.95 0.01 250);
-	--muted-foreground: oklch(0.55 0.012 250);
-	--accent: oklch(0.92 0.012 250);
-	--accent-foreground: oklch(0.35 0.015 250);
+	/* sage; the vault can override these six per mode (lib/site-colors.ts) */
+	--background: #f5f6f2;
+	--foreground: #1a1d1a;
+	--card: #ebede7;
+	--card-foreground: #1a1d1a;
+	--popover: #f5f6f2;
+	--popover-foreground: #1a1d1a;
+	--primary: #1a1d1a;
+	--primary-foreground: #f5f6f2;
+	--secondary: #ebede7;
+	--secondary-foreground: #1a1d1a;
+	--muted: #ebede7;
+	--muted-foreground: #646c63;
+	--accent: #ebede7;
+	--accent-foreground: #1a1d1a;
 	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.9 0.012 250);
-	--input: oklch(0.9 0.012 250);
-	--ring: oklch(0.6 0.02 250);
+	--border: #e0e3dc;
+	--input: #e0e3dc;
+	--ring: #3d6a4c;
 	--chart-1: oklch(0.646 0.222 41.116);
 	--chart-2: oklch(0.6 0.118 184.704);
 	--chart-3: oklch(0.398 0.07 227.392);
 	--chart-4: oklch(0.828 0.189 84.429);
 	--chart-5: oklch(0.769 0.188 70.08);
-	--radius: 0.625rem;
+	--radius: 0.5rem;
 	--sidebar: oklch(0.96 0.01 250);
 	--sidebar-foreground: oklch(0.3 0.015 250);
 	--sidebar-primary: oklch(0.45 0.02 250);
@@ -45,19 +46,27 @@
 	--sidebar-accent-foreground: oklch(0.35 0.015 250);
 	--sidebar-border: oklch(0.88 0.015 250);
 	--sidebar-ring: oklch(0.6 0.02 250);
-	--highlight: oklch(0.65 0.025 250);
-	--text-highlight: oklch(53.046% 0.29324 293.942);
+	--highlight: #3d6a4c;
+	--text-highlight: #3d6a4c;
 
-	/* font roles — the design lab's type axis swaps these */
+	/* font roles */
 	--font-display: var(--font-instrument-serif), ui-serif, Georgia, serif;
-	--font-label: var(--font-space-mono), ui-monospace, monospace;
-	--font-lede: var(--font-sans);
+	--font-label: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+	--font-lede: var(--font-display);
+	--display-weight: 400;
+	--display-tracking: -0.01em;
+	--lede-weight: 400;
+	--lede-tracking: -0.005em;
 
-	--contribution-0: #ebedf0;
-	--contribution-1: #9be9a8;
-	--contribution-2: #40c463;
-	--contribution-3: #30a14e;
-	--contribution-4: #216e39;
+	/* quiet and quick: short fades, eased out */
+	--motion-duration: 160ms;
+	--motion-ease: cubic-bezier(0.23, 1, 0.32, 1);
+
+	--contribution-0: #ebede7;
+	--contribution-1: color-mix(in oklab, #3d6a4c 30%, #f5f6f2);
+	--contribution-2: color-mix(in oklab, #3d6a4c 55%, #f5f6f2);
+	--contribution-3: color-mix(in oklab, #3d6a4c 80%, #f5f6f2);
+	--contribution-4: #3d6a4c;
 
 	/* Map Fumadocs UI tokens onto our existing palette so its components
      inherit the editorial colors. */
@@ -80,24 +89,24 @@
 }
 
 .dark {
-	--background: oklch(0.18 0.01 250);
-	--foreground: oklch(0.9 0.008 250);
-	--card: oklch(0.2 0.012 250);
-	--card-foreground: oklch(0.9 0.008 250);
-	--popover: oklch(0.2 0.012 250);
-	--popover-foreground: oklch(0.9 0.008 250);
-	--primary: oklch(0.7 0.02 250);
-	--primary-foreground: oklch(0.18 0.01 250);
-	--secondary: oklch(0.25 0.012 250);
-	--secondary-foreground: oklch(0.9 0.008 250);
-	--muted: oklch(0.25 0.012 250);
-	--muted-foreground: oklch(0.65 0.01 250);
-	--accent: oklch(0.3 0.015 250);
-	--accent-foreground: oklch(0.9 0.008 250);
+	--background: #111311;
+	--foreground: #e7ebe6;
+	--card: #1b1e1b;
+	--card-foreground: #e7ebe6;
+	--popover: #111311;
+	--popover-foreground: #e7ebe6;
+	--primary: #e7ebe6;
+	--primary-foreground: #111311;
+	--secondary: #1b1e1b;
+	--secondary-foreground: #e7ebe6;
+	--muted: #1b1e1b;
+	--muted-foreground: #949b93;
+	--accent: #1b1e1b;
+	--accent-foreground: #e7ebe6;
 	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(0.35 0.015 250);
-	--input: oklch(0.3 0.015 250);
-	--ring: oklch(0.5 0.02 250);
+	--border: #262a26;
+	--input: #262a26;
+	--ring: #8fc09d;
 	--chart-1: oklch(0.488 0.243 264.376);
 	--chart-2: oklch(0.696 0.17 162.48);
 	--chart-3: oklch(0.769 0.188 70.08);
@@ -111,14 +120,14 @@
 	--sidebar-accent-foreground: oklch(0.9 0.008 250);
 	--sidebar-border: oklch(0.35 0.015 250);
 	--sidebar-ring: oklch(0.5 0.02 250);
-	--highlight: oklch(0.75 0.025 250);
-	--text-highlight: oklch(93.053% 0.15006 122.149);
+	--highlight: #8fc09d;
+	--text-highlight: #8fc09d;
 
-	--contribution-0: #161b22;
-	--contribution-1: #0e4429;
-	--contribution-2: #006d32;
-	--contribution-3: #26a641;
-	--contribution-4: #39d353;
+	--contribution-0: #1b1e1b;
+	--contribution-1: color-mix(in oklab, #8fc09d 30%, #111311);
+	--contribution-2: color-mix(in oklab, #8fc09d 55%, #111311);
+	--contribution-3: color-mix(in oklab, #8fc09d 80%, #111311);
+	--contribution-4: #8fc09d;
 
 	/* Fumadocs token mapping (dark) — inherit dark variants. */
 	--color-fd-background: var(--background);
@@ -193,25 +202,22 @@ html {
 	background-color: var(--text-highlight);
 }
 
-/* Editorial label — uppercase, tracked-out mono.
-   Used for section headings (work, projects, blog). */
+/* Section heading — a quiet line of text above each list. */
 .section-label {
-	font-family: var(--font-label);
-	font-size: 0.75rem;
-	font-weight: 400;
+	font-family: var(--font-sans);
+	font-size: 0.875rem;
+	font-weight: 500;
 	color: var(--foreground);
-	text-transform: uppercase;
-	letter-spacing: 0.25em;
+	letter-spacing: -0.005em;
 }
 
-/* Small mono caption — used for dates, tags, "MOBILE APP • 2024" style. */
+/* Small caption — dates, tags, "view all" and other quiet details. */
 .meta-tag {
-	font-family: var(--font-label);
-	font-size: 0.6875rem;
+	font-family: var(--font-sans);
+	font-size: 0.75rem;
 	font-weight: 400;
+	font-variant-numeric: tabular-nums;
 	color: var(--muted-foreground);
-	text-transform: uppercase;
-	letter-spacing: 0.08em;
 }
 
 /* Editorial headline — serif display.
@@ -441,66 +447,6 @@ html {
 }
 .hover-dim:hover {
 	opacity: 0.45;
-}
-
-/* SVG squiggle underline — mask + solid fill so color follows --text-highlight
-   in light/dark (currentColor in background SVG data URLs is unreliable). */
-.squiggle-link {
-	position: relative;
-	width: fit-content;
-	max-width: 100%;
-	color: inherit;
-	text-decoration: none;
-}
-.squiggle-link::after {
-	position: absolute;
-	bottom: -3px;
-	left: 0;
-	width: 100%;
-	height: 6px;
-	content: "";
-	background-color: var(--text-highlight);
-	opacity: 1;
-	-webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 6'%3E%3Cpath d='M0 4 Q5 1 10 4 T20 4' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E");
-	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 6'%3E%3Cpath d='M0 4 Q5 1 10 4 T20 4' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E");
-	-webkit-mask-repeat: repeat-x;
-	mask-repeat: repeat-x;
-	-webkit-mask-position: 0 0;
-	mask-position: 0 0;
-	-webkit-mask-size: 12px 6px;
-	mask-size: 12px 6px;
-}
-
-.squiggle-link-hover {
-	position: relative;
-	width: fit-content;
-	max-width: 100%;
-	padding-bottom: 3px;
-	color: inherit;
-	text-decoration: none;
-}
-.squiggle-link-hover::after {
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	width: 100%;
-	height: 6px;
-	content: "";
-	background-color: var(--text-highlight);
-	opacity: 0;
-	-webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 6'%3E%3Cpath d='M0 4 Q5 1 10 4 T20 4' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E");
-	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 6'%3E%3Cpath d='M0 4 Q5 1 10 4 T20 4' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E");
-	-webkit-mask-repeat: repeat-x;
-	mask-repeat: repeat-x;
-	-webkit-mask-position: 0 0;
-	mask-position: 0 0;
-	-webkit-mask-size: 12px 6px;
-	mask-size: 12px 6px;
-	transition: opacity 0.2s ease;
-}
-.group:hover .squiggle-link-hover::after,
-.group:focus-visible .squiggle-link-hover::after {
-	opacity: 1;
 }
 
 /* Screen reader only utility */

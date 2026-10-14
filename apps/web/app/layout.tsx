@@ -1,18 +1,16 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import "./design.css";
-import "./design-motion.css";
+import "./site.css";
 import { RootProvider } from "fumadocs-ui/provider/next";
-import { DesignEffects } from "@/components/design/effects/design-effects";
-import { DesignProvider } from "@/components/design/preview-bridge";
 import Footer from "@/components/footer";
 import { Navbar } from "@/components/navbar";
-import { designAttributes, designCss } from "@/lib/design/css";
-import { getPublishedDesign } from "@/lib/design/server";
+import { SiteChrome } from "@/components/site-chrome";
 import { PostHogProvider } from "@/lib/providers/posthog-provider";
 import { RealtimeProvider } from "@/lib/providers/realtime-provider";
 import { ThemeProvider } from "@/lib/providers/theme-provider";
 import { buildWebSiteSchema, jsonLd, SITE_TAGLINE } from "@/lib/schema";
+import { colorsCss, DEFAULT_COLORS, sameColors } from "@/lib/site-colors";
+import { getSiteColors } from "@/lib/site-colors.server";
 import { fontVariables } from "./fonts";
 
 export const metadata: Metadata = {
@@ -87,15 +85,10 @@ export default async function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const design = await getPublishedDesign();
+	const colors = await getSiteColors();
 
 	return (
-		<html
-			className={fontVariables}
-			lang="en"
-			suppressHydrationWarning
-			{...designAttributes(design)}
-		>
+		<html className={fontVariables} lang="en" suppressHydrationWarning>
 			<body
 				className="antialiased"
 				style={{
@@ -104,9 +97,11 @@ export default async function RootLayout({
 				suppressHydrationWarning
 			>
 				<style
-					// biome-ignore lint/security/noDangerouslySetInnerHtml: generated from validated ids and #rrggbb colours only (lib/design/css.ts)
-					dangerouslySetInnerHTML={{ __html: designCss(design) }}
-					id="site-design"
+					// biome-ignore lint/security/noDangerouslySetInnerHtml: generated from validated #rrggbb colours only (lib/site-colors.ts)
+					dangerouslySetInnerHTML={{
+						__html: sameColors(colors, DEFAULT_COLORS) ? "" : colorsCss(colors),
+					}}
+					id="site-colors"
 				/>
 				<script
 					// biome-ignore lint/security/noDangerouslySetInnerHtml: json-ld is serialised by jsonLd(); next has no other way to emit structured data
@@ -130,24 +125,11 @@ export default async function RootLayout({
 						</a>
 						<RootProvider theme={{ enabled: false }}>
 							<RealtimeProvider>
-								<DesignProvider design={design}>
-									<div className="design-page min-h-screen bg-background">
-										<DesignEffects />
-										<div className="flex w-full justify-center">
-											<div className="design-shell flex min-h-screen w-full flex-col md:max-w-3xl">
-												<Navbar />
-												<main
-													className="flex-1 px-4 pb-8"
-													id="main-content"
-													tabIndex={-1}
-												>
-													{children}
-												</main>
-												<Footer />
-											</div>
-										</div>
-									</div>
-								</DesignProvider>
+								<div className="min-h-screen bg-background">
+									<SiteChrome footer={<Footer />} nav={<Navbar />}>
+										{children}
+									</SiteChrome>
+								</div>
 							</RealtimeProvider>
 						</RootProvider>
 					</ThemeProvider>

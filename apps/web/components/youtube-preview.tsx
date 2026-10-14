@@ -15,7 +15,7 @@ interface YoutubePreviewProps {
 	videoId: string;
 }
 
-const CARD_WIDTH_PX = 280;
+const CARD_WIDTH_PX = 200;
 const STAGE_HEIGHT_PX = Math.round((CARD_WIDTH_PX * 9) / 16);
 const OPEN_DELAY_MS = 120;
 const CLOSE_DELAY_MS = 100;
@@ -144,7 +144,7 @@ export function YoutubePreview({
 									width: `min(${CARD_WIDTH_PX}px, calc(100vw - 1.5rem))`,
 								}}
 							>
-								<div className="flex min-w-0 flex-col overflow-hidden rounded-md border border-border bg-popover">
+								<div className="flex min-w-0 flex-col overflow-hidden rounded-md border border-border bg-popover shadow-[0_8px_24px_-12px_rgb(0_0_0/0.22)]">
 									<div
 										className="relative overflow-hidden bg-background"
 										style={{ height: STAGE_HEIGHT_PX }}
@@ -158,16 +158,14 @@ export function YoutubePreview({
 											width={CARD_WIDTH_PX}
 										/>
 									</div>
-									<div className="flex h-9 min-w-0 items-center justify-between gap-2 border-border/70 border-t px-3">
+									<div className="flex h-8 min-w-0 items-center justify-between gap-2 border-border/70 border-t px-3">
 										<span
-											className="meta-tag block min-w-0 truncate normal-case tracking-[0.08em]"
+											className="meta-tag block min-w-0 truncate"
 											title={title}
 										>
 											{title}
 										</span>
-										<span className="meta-tag ml-auto shrink-0 normal-case tracking-[0.08em]">
-											preview
-										</span>
+										<span className="meta-tag ml-auto shrink-0">preview</span>
 									</div>
 								</div>
 							</motion.div>

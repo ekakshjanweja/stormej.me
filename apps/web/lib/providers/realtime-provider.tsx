@@ -17,7 +17,6 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { PREVIEW_PARAM } from "@/components/design/preview-bridge";
 import { LiveCursors } from "@/components/ui/live-cursor/live-cursors";
 import {
 	generateRandomColor,
@@ -92,17 +91,6 @@ function getOrCreateIdentity(): UserIdentity {
 	return identity;
 }
 
-/**
- * Studio previews are the real site inside an iframe, so the route is not
- * `/vault`. The same signal the design bridge uses keeps cursors off there.
- */
-function isDesignPreviewFrame(): boolean {
-	return (
-		window.self !== window.top &&
-		new URLSearchParams(window.location.search).has(PREVIEW_PARAM)
-	);
-}
-
 // Pending cursor update type
 interface PendingCursorUpdate {
 	anchor?: CursorAnchor;
@@ -116,9 +104,7 @@ interface PendingCursorUpdate {
 export function RealtimeProvider({ children }: { children: ReactNode }) {
 	const pathname = usePathname();
 	const inVault = pathname.startsWith("/vault");
-	// null until the preview check runs, so a studio iframe never opens a socket first
-	const [previewFrame, setPreviewFrame] = useState<boolean | null>(null);
-	const cursorsEnabled = !inVault && previewFrame === false;
+	const cursorsEnabled = !inVault;
 	const cursorsEnabledRef = useRef(cursorsEnabled);
 	cursorsEnabledRef.current = cursorsEnabled;
 	const [user, setUser] = useState<UserIdentity | null>(null);
@@ -153,10 +139,6 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 
 	// Track if browser is online
 	const isOnlineRef = useRef(true);
-
-	useEffect(() => {
-		setPreviewFrame(isDesignPreviewFrame());
-	}, []);
 
 	// Initialize user identity
 	useEffect(() => {
@@ -454,7 +436,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 		};
 	}, [user, getWsUrl]);
 
-	// Public pages only. The vault, design lab, and studio previews stay quiet.
+	// Public pages only. The vault stays quiet.
 	useEffect(() => {
 		if (!cursorsEnabled) {
 			disconnect(true);
