@@ -17,6 +17,7 @@ const navItems = [
 	{ href: "/projects", label: "projects" },
 	{ href: "/blog", label: "blog" },
 	...(TROVE_ENABLED ? [{ href: "/trove", label: "trove" }] : []),
+	{ href: "/about", label: "about" },
 ];
 
 const focusRing =
@@ -24,6 +25,7 @@ const focusRing =
 
 /** Single-key shortcuts. A key missing here is simply not a shortcut. */
 const SHORTCUT_ACTIONS: Record<string, string> = {
+	a: "navigate_about",
 	b: "navigate_blog",
 	g: "navigate_gear",
 	h: "navigate_home",
@@ -36,6 +38,7 @@ const SHORTCUT_ACTIONS: Record<string, string> = {
 };
 
 const SHORTCUT_PATHS: Record<string, string> = {
+	a: "/about",
 	b: "/blog",
 	g: "/gear",
 	h: "/",
