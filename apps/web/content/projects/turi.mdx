@@ -1,7 +1,8 @@
 ---
 title: turi
 subtitle: ai powered email client
-description: built a email client which is voice first and uses ai to send and read emails.
+description: "a voice-first email client. ai reads and sends your mail."
+overview: "a flutter app on the phone, bun and hono on cloudflare workers behind it. the model gets gmail tools to read, search and send, and every reply streams back as text and audio."
 tech:
   - bun
   - hono
@@ -11,6 +12,46 @@ tech:
 website: https://turi.ekaksh.in/
 github: https://github.com/ekakshjanweja/turi
 images:
-  - agent-workflow-turi.png
-  - vad-turi.png
+  - images/turi/agent-workflow.webp
+  - images/turi/vad.webp
+kind: email client
+year: 2025
+platform: flutter · cloudflare workers
+# the diagrams are drawn in the body; no screens gallery
+inlineGallery: true
 ---
+
+## agent workflow
+
+every turn checks if you're done. if not, the model runs with gmail tools, then the reply streams back as text and audio in parallel.
+
+```mermaid
+flowchart TB
+    input(["handle user input"]) --> intent{"intent to<br/>end chat?"}
+    intent -- yes --> bye["send goodbye message"] --> close["close stream"] --> stop(["end"])
+    intent -- no --> append["append user message<br/>to messages list"]
+    append --> gen["generate response via ai sdk"]
+    gen --> tools["tool execution<br/>gmail api: read · search · send"]
+    tools --> human["humanize response"]
+    human --> text["stream humanized<br/>response to frontend"]
+    human --> audio["generate audio via<br/>gemini 2.5 flash audio"] --> voice["stream audio to frontend"]
+    text --> turn(["end of turn"])
+    voice --> turn
+```
+
+## voice activity detection
+
+speech gets cut on the phone before upload. it starts above -30 db, stops below -40 db, checked every 100 ms.
+
+```mermaid
+flowchart TB
+    rec(["start recording audio"]) --> mon1["monitor audio amplitude"]
+    mon1 --> above{"above -30 db?"}
+    above -- no --> wait1["wait 100 ms"] --> mon1
+    above -- yes --> start["record speech start time"] --> mon2["monitor audio amplitude"]
+    mon2 --> below{"below -40 db?"}
+    below -- no --> wait2["wait 100 ms"] --> mon2
+    below -- yes --> stopRec["record speech end time, stop"]
+    stopRec --> trim["trim audio to start and end"] --> upload["upload trimmed audio to server"]
+    upload --> stt["transcribe with gemini 2.5 flash"] --> out(["stream transcription to frontend"])
+```

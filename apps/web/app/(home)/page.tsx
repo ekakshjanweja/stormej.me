@@ -41,11 +41,17 @@ export default async function Home() {
 				<Work />
 				<Projects />
 				<PublicationsRow />
-				<BlogRow />
-				<TroveRow />
+				{/* the short lists sit in pairs on wide screens, so the page ends
+				    in a couple of compact rows instead of one long column */}
+				<div className="grid gap-16 md:grid-cols-2 md:gap-x-12">
+					<BlogRow />
+					<TroveRow />
+				</div>
 				<Contributions />
-				<Stack />
-				<WatchRow />
+				<div className="grid gap-16 md:grid-cols-2 md:gap-x-12">
+					<WatchRow />
+					<Stack />
+				</div>
 			</div>
 		</>
 	);

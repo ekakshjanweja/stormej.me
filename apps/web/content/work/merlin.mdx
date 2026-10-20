@@ -1,7 +1,8 @@
 ---
 title: merlin - all in one ai
 subtitle: flutter, ai, and pushing the limits
-description: worked on merlin's flutter app building new features, tightening the ux, and improving dev workflows.
+description: "flutter at merlin. new features, tighter ux, better dev workflows."
+accent: "#7e22ce"
 role: mobile intern
 startDate: 2024-05-01
 endDate: 2024-10-01
@@ -23,76 +24,67 @@ images:
   - light: /images/merlin/merlin_six.webp
     dark: /images/merlin/merlin_six_dark.webp
 screenshotMockup: iphone-17-pro
-challenge: ship native-feeling android features and a new ai image-gen app on top of merlin's existing flutter codebase, without slowing the team down.
+challenge: "ship native android features and a new ai image-gen app on merlin's flutter codebase, without slowing the team down."
 chapters:
   - id: context
     label: context
+    media:
+      - light: /images/merlin/merlin_two.webp
+        dark: /images/merlin/merlin_two_dark.webp
+      - light: /images/merlin/merlin_three.webp
+        dark: /images/merlin/merlin_three_dark.webp
   - id: android-native
     label: android
   - id: platform
     label: platform
+    media:
+      - light: /images/merlin/merlin_six.webp
+        dark: /images/merlin/merlin_six_dark.webp
+      - light: /images/merlin/merlin_five.webp
+        dark: /images/merlin/merlin_five_dark.webp
   - id: wallflower
     label: wallflower
+    media:
+      - /images/merlin/wallflower_three.webp
+      - /images/merlin/wallflower_four.webp
+  - id: more-screens
+    label: more screens
+    media:
+      - light: /images/merlin/merlin_four.webp
+        dark: /images/merlin/merlin_four_dark.webp
+      - light: /images/merlin/merlin_seven.webp
+        dark: /images/merlin/merlin_seven_dark.webp
 ---
-
 
 <Chapter id="context" label="context" title="joining a fast-moving consumer ai app">
 
-merlin was already shipping fast when i joined: a flutter app talking to multiple ai backends, growing across ios and android. my job was to **push the surface area outward**: native android touchpoints, sharper ux, and a second app under the same brand.
+merlin was already shipping fast: a flutter app on multiple ai backends, on ios and android. my job was to push it outward with native android touchpoints, sharper ux, and a second app under the same brand.
 
 </Chapter>
 
-<Chapter id="android-native" label="android" title="widgets, shortcuts, and intents" pullQuote="the cheapest engagement is the one users don't have to open the app for.">
+<Chapter id="android-native" label="android" title="widgets, shortcuts, and intents">
 
-android users expected the app to feel native, not just look like a flutter shell. i added **home-screen widgets via jetpack glance**, **app shortcuts**, and **share-sheet intents** so merlin could be invoked from anywhere on the system.
-
-push notifications got rebuilt around action affordances so a tap opens the right thread instead of dumping you on the home screen.
+i added home-screen widgets with **jetpack glance**, app shortcuts and share-sheet intents, so merlin could be opened from anywhere on the system. push notifications now open the right thread instead of the home screen.
 
 </Chapter>
 
 <Chapter id="platform" label="platform" title="a dart client for the backend">
 
-the team was rewriting api calls in every feature. i built a **dart client library** that wrapped auth, retries, and typed responses, so feature work stopped being plumbing work.
-
-alongside it: **http streaming** for chat responses and **config caching** to cut cold-start latency on flaky networks.
+every feature was rewriting api calls, so i built a **dart client library** with auth, retries and typed responses. plus http streaming for chat and config caching to cut cold starts on bad networks.
 
 </Chapter>
 
-<Screens
-  images={[
-    { light: "/images/merlin/merlin_one.webp", dark: "/images/merlin/merlin_one_dark.webp" },
-    { light: "/images/merlin/merlin_two.webp", dark: "/images/merlin/merlin_two_dark.webp" },
-    { light: "/images/merlin/merlin_three.webp", dark: "/images/merlin/merlin_three_dark.webp" },
-    { light: "/images/merlin/merlin_four.webp", dark: "/images/merlin/merlin_four_dark.webp" },
-    { light: "/images/merlin/merlin_five.webp", dark: "/images/merlin/merlin_five_dark.webp" },
-    { light: "/images/merlin/merlin_six.webp", dark: "/images/merlin/merlin_six_dark.webp" },
-    { light: "/images/merlin/merlin_seven.webp", dark: "/images/merlin/merlin_seven_dark.webp" },
-  ]}
-/>
-
 <Chapter id="wallflower" label="wallflower" title="a second app, same dna">
 
-i led **wallflower** end to end as a standalone ai image-gen app powered by **flux 1.1 pro** and **ideogram 2.0**. generation flows, prompt ux, gallery, and sharing, soup to nuts.
-
-it shipped on both stores and reused merlin's component vocabulary so the brand felt continuous across products.
-
+i led **wallflower** end to end: a standalone ai image-gen app on **flux 1.1 pro** and **ideogram 2.0**. generation, prompt ux, gallery and sharing. it shipped on both stores and reuses merlin's components, so the brand feels continuous.
 
 <StoreLinks
   playStore={{ href: "https://play.google.com/store/apps/details?id=com.foyer.wallflower", label: "wallflower" }}
 />
 
-
 </Chapter>
 
-
-<Screens
-  images={[
-  "/images/merlin/wallflower_one.webp",
-  "/images/merlin/wallflower_two.webp",
-  "/images/merlin/wallflower_three.webp",
-  "/images/merlin/wallflower_four.webp",
-  ]}
-/>
+<Chapter id="more-screens" label="more screens" title="a few more screens" />
 
 <Outcomes
   items={[

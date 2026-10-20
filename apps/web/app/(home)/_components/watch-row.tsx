@@ -17,7 +17,7 @@ export const WatchRow = () => {
 
 	return (
 		<section data-cursor-anchor="watch">
-			<div className="mb-6 flex items-baseline justify-between">
+			<div className="mb-3 flex items-baseline justify-between">
 				<h2 className="section-label">watch</h2>
 				{videos.length > HOME_VIDEOS_LIMIT && (
 					<Link
@@ -29,7 +29,7 @@ export const WatchRow = () => {
 					</Link>
 				)}
 			</div>
-			<ul className="flex flex-col gap-4">
+			<ul className="divide-y divide-border/60 border-border/60 border-y">
 				{videos.slice(0, HOME_VIDEOS_LIMIT).map((video) => (
 					<li key={video.id}>
 						<VideoListItem video={video} />

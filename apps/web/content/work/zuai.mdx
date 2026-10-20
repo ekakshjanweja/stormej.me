@@ -1,7 +1,7 @@
 ---
 title: professor curious (fka zuai)
 subtitle: my first step into the dev world
-description: my first internship. barely knew what github was. learned a lot, shipped things that scaled.
+description: "my first internship. barely knew github. learned a lot and shipped things that scaled."
 role: flutter intern
 startDate: 2021-10-01
 endDate: 2022-01-01
@@ -16,45 +16,36 @@ images:
   - /images/zuai/zuai_one.webp
   - /images/zuai/zuai_two.webp
   - /images/zuai/zuai_three.webp
-challenge: first internship, first real codebase. learn fast, ship features, and not break a flutter app already serving hundreds of thousands of users.
+challenge: "first internship, first real codebase. ship features without breaking a flutter app with 500k+ users."
 chapters:
   - id: first-job
     label: first job
+    media:
+      - /images/zuai/zuai_two.webp
   - id: shipping-features
     label: shipping
+    media:
+      - /images/zuai/zuai_three.webp
+      - /images/zuai/zuai_one.webp
   - id: polish
     label: polish
 ---
 
 <Chapter id="first-job" label="first job" title="showing up barely knowing github">
 
-this was my **first internship**. i had written flutter on my own, but i hadn't worked inside a real team or a real codebase. day one meant figuring out **branches, prs, and code review**, the practical side of shipping with other people.
-
-the bar was higher than my college side projects. the app was already live and being used.
+my first internship. i'd written flutter on my own but never in a team codebase, so day one was branches, prs and code review. and the app was already live.
 
 </Chapter>
 
-<Chapter id="shipping-features" label="shipping" title="onboarding and dashboard at scale" pullQuote="the happy path is easy. the loading, empty, and error states are the product.">
+<Chapter id="shipping-features" label="shipping" title="onboarding and dashboard at scale">
 
-i built parts of the **onboarding** and **dashboard** screens in flutter. tiny surfaces but every new user hit them. that meant honoring loading, empty, and error, not only the sunny path.
-
-the app needed to handle **500k+ users** across patchy networks, so i used **riverpod** for state and **dio** with retries and timeouts for the api layer.
+i built parts of **onboarding** and the **dashboard**: small screens every new user hits, so loading, empty and error states mattered as much as the happy path. for **500k+ users** on patchy networks, riverpod for state and dio with retries and timeouts.
 
 </Chapter>
-
-<Screens
-  images={[
-    "/images/zuai/zuai_one.webp",
-    "/images/zuai/zuai_two.webp",
-    "/images/zuai/zuai_three.webp",
-  ]}
-/>
 
 <Chapter id="polish" label="polish" title="dark mode and the small stuff">
 
-i added **dark mode** across the screens i owned and nudged general ui polish along the way (spacing, type scale, hit targets). boring on paper but it keeps the product from feeling janky.
-
-this was where i first learned that **detail work compounds**. shipping a ticket isn't always the same thing as finishing it.
+i added **dark mode** to the screens i owned, plus spacing, type and hit-target fixes. that's where i learned shipping a ticket isn't the same as finishing it.
 
 </Chapter>
 
@@ -62,6 +53,5 @@ this was where i first learned that **detail work compounds**. shipping a ticket
   items={[
     { metric: "500k+ users", label: "scale at the time" },
     { metric: "first prod ship", label: "my first real release" },
-    { metric: "flutter · firebase", label: "stack" },
   ]}
 />

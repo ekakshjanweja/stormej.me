@@ -20,11 +20,11 @@ const BlogRowItem = ({ blog }: { blog: BlogRowEntry }) => {
 
 	return (
 		<Link
-			className="group flex flex-col gap-0.5 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4"
+			className="group flex items-baseline justify-between gap-4 rounded py-3.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
 			href={blog.url}
 			onClick={onClick}
 		>
-			<span className="link-underline-hover font-medium text-[14px] text-foreground sm:truncate">
+			<span className="link-underline-hover font-medium text-[14px] text-foreground leading-snug">
 				{blog.title}
 			</span>
 			<span className="meta-tag shrink-0 whitespace-nowrap">
@@ -39,7 +39,7 @@ export const BlogRow = () => {
 
 	return (
 		<section data-cursor-anchor="blog">
-			<div className="mb-6 flex items-baseline justify-between">
+			<div className="mb-3 flex items-baseline justify-between">
 				<h2 className="section-label">writing</h2>
 				{blogs.length > 2 && (
 					<Link
@@ -50,7 +50,7 @@ export const BlogRow = () => {
 					</Link>
 				)}
 			</div>
-			<ul className="flex flex-col gap-4">
+			<ul className="divide-y divide-border/60 border-border/60 border-y">
 				{blogs.slice(0, 2).map((blog) => (
 					<li key={blog.slug}>
 						<BlogRowItem blog={blog} />

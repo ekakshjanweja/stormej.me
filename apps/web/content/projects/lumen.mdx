@@ -1,0 +1,59 @@
+---
+title: lumen
+subtitle: a better remote for bluetooth led lights
+description: "a better remote for the bluetooth led lights that ship with the ledlyd app. white, color, brightness and 24 effects from one screen."
+overview: "the light never shows up in a bluetooth scan. it only listens for broadcast adverts on its channel, so lumen doesn't connect to it. it just broadcasts. i reverse engineered the ledlyd app's protocol to get there."
+tech:
+  - flutter
+  - dart
+  - riverpod
+  - kotlin
+  - swift
+  - ble
+github: https://github.com/ekakshjanweja/lumen
+video: /videos/lumen/demo.mp4
+videoPoster: /videos/lumen/poster.jpg
+videoOrientation: portrait
+# the card loop is a short vertical cut of the demo
+cover: /videos/lumen/preview.mp4
+coverPoster: /videos/lumen/preview-poster.jpg
+images:
+  - images/lumen/search.webp
+  - images/lumen/white.webp
+  - images/lumen/color.webp
+  - images/lumen/effects.webp
+  - images/lumen/presets.webp
+kind: mobile app
+year: 2026
+platform: android · ios
+icon: /images/lumen/icon.png
+accent: "#0b0b0d"
+---
+
+i have one of these handheld rgb lights. great hardware, but the app it ships with couldn't even find it. so i reverse engineered the app's bluetooth protocol and built my own remote.
+
+## pairing without connecting
+
+the light doesn't advertise at all. it listens for broadcast adverts on its channel (100 by default) and does whatever they say. so lumen never really connects to it. it broadcasts.
+
+finding it works the same way. lumen makes the light blink and asks if you saw it. if the light was moved off its default channel, lumen walks every channel and group until you tap "it turned red".
+
+## the protocol
+
+each setting goes out as a 23-byte ibeacon-shaped advert: the channel in the uuid, group, effect and saturation packed into major, hue or color temperature in minor, brightness in power.
+
+- **android** sends it as manufacturer data, from kotlin
+- **ios** doesn't let apps send custom manufacturer data, so it goes out as a real ibeacon, from swift. the light follows both.
+
+one bug worth mentioning: the stock app addresses "all groups" as 255 in one place. send that and white and most effects break, because it bleeds into the effect bits. the value that actually works is 7.
+
+lights that do show up in a scan get a gatt path instead. that one is built from the protocol and not tested on a real light yet.
+
+## what it does
+
+- white from 2500 k to 9900 k, plus tungsten, neutral, daylight and cloudy
+- a color pad, 12 built-in colors and your own saved ones
+- all 24 effects the light has
+- a brightness pill like the ios flashlight, with a haptic tick every 10%
+- remembers your light and its last setting
+- no accounts, no analytics, no network requests

@@ -32,23 +32,18 @@ const TroveRowItem = ({ item }: { item: TroveRowEntry }) => {
 		<li>
 			<TrovePreview demo={item.demo} surface="home_trove" title={item.title}>
 				<Link
-					className="group flex flex-col gap-1 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4"
+					className="group flex flex-col gap-1 rounded py-3.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
 					href={item.url}
 					onClick={onClick}
 				>
-					<div className="flex min-w-0 flex-col gap-0.5">
-						<span className="link-underline-hover font-medium text-[14px] text-foreground sm:truncate">
-							{item.title}
-						</span>
-						{(item.description ?? item.subtitle) && (
-							<span className="font-light text-[12px] text-muted-foreground leading-snug sm:line-clamp-1">
-								{item.description ?? item.subtitle}
-							</span>
-						)}
-					</div>
-					<span className="meta-tag shrink-0 whitespace-nowrap tabular-nums">
-						{item.sourceFile ?? item.tech.join(" · ")}
+					<span className="link-underline-hover font-medium text-[14px] text-foreground leading-snug">
+						{item.title}
 					</span>
+					{(item.description ?? item.subtitle) && (
+						<span className="line-clamp-1 font-light text-[12px] text-muted-foreground leading-snug">
+							{item.description ?? item.subtitle}
+						</span>
+					)}
 				</Link>
 			</TrovePreview>
 		</li>
@@ -63,7 +58,7 @@ export const TroveRow = () => {
 
 	return (
 		<section data-cursor-anchor="trove">
-			<div className="mb-6 flex items-baseline justify-between">
+			<div className="mb-3 flex items-baseline justify-between">
 				<h2 className="section-label">trove</h2>
 				{items.length > HOME_LIMIT && (
 					<Link
@@ -75,7 +70,7 @@ export const TroveRow = () => {
 					</Link>
 				)}
 			</div>
-			<ul className="flex flex-col gap-4">
+			<ul className="divide-y divide-border/60 border-border/60 border-y">
 				{items.slice(0, HOME_LIMIT).map((item) => (
 					<TroveRowItem item={item} key={item.slug} />
 				))}

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { listProjects } from "@/lib/projects";
+import { ProjectGrid } from "../_components/projects";
 import { ArchivedProjects } from "./archived-projects";
-import { ProjectRow } from "./project-row";
 
 const description = "side projects, experiments, and things i've shipped";
 
@@ -38,11 +38,7 @@ export default function Projects() {
 	return (
 		<main>
 			<h1 className="sr-only">projects</h1>
-			<ul className="flex flex-col gap-5">
-				{active.map((project) => (
-					<ProjectRow key={project.slug} project={project} />
-				))}
-			</ul>
+			<ProjectGrid projects={active} />
 			<ArchivedProjects projects={archived} />
 		</main>
 	);

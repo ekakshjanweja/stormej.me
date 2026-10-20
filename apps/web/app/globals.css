@@ -13,6 +13,8 @@
 }
 
 :root {
+	/* width of the overview panel on detail pages (StoryLayout) */
+	--story-panel: clamp(26rem, 40vw, 38rem);
 	/* sage; the vault can override these six per mode (lib/site-colors.ts) */
 	--background: #f5f6f2;
 	--foreground: #1a1d1a;
@@ -263,10 +265,16 @@ html {
    Code blocks defer to Fumadocs <CodeBlock> styling. */
 .prose-fuma {
 	font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-	font-size: 0.9375rem;
-	line-height: 1.7;
+	font-size: 1rem;
+	line-height: 1.75;
 	color: var(--foreground);
 }
+/* Wide pages, readable lines: running text stops near 70 characters while
+   images, code, diagrams and callouts keep the full column. */
+.prose-fuma > :is(p, ul, ol, blockquote, h1, h2, h3, h4, h5, h6) {
+	max-width: 70ch;
+}
+
 .prose-fuma > * + * {
 	margin-top: 1.1em;
 }
@@ -318,8 +326,8 @@ html {
 	font-weight: 600;
 }
 .prose-fuma p {
-	font-size: 0.9375rem;
-	line-height: 1.7;
+	font-size: 1rem;
+	line-height: 1.75;
 }
 .prose-fuma strong {
 	font-weight: 600;
@@ -523,6 +531,13 @@ html {
 	display: none;
 }
 
+.contribution-grid rect[data-level] {
+	cursor: pointer;
+	transition: opacity 150ms;
+}
+.contribution-grid rect[data-level]:hover {
+	opacity: 0.9;
+}
 .contribution-grid rect[data-level="0"] {
 	fill: var(--contribution-0) !important;
 }
@@ -581,4 +596,304 @@ html {
 /* Smooth cursor movement */
 .cursor-smooth {
 	transition: transform 50ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Showcase cards: picture-first project and work cards on home. */
+.showcase-fill {
+	transition: transform 520ms var(--motion-ease);
+}
+
+@media (hover: hover) {
+	.showcase-card:hover .showcase-fill {
+		transform: scale(1.02);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.showcase-fill {
+		transition: none;
+	}
+}
+
+/* Card tint: a little of the brand colour over the muted surface, so it
+   reads in both themes. */
+.showcase-card__media[style*="--card-accent"] {
+	background-color: color-mix(in oklab, var(--card-accent) 14%, var(--muted));
+}
+
+/* Logo reveal: the logo rests in the middle; hover, keyboard focus, or (on
+   touch) scrolling the card to the centre lifts it away and the screens
+   rise in from below, staggered. Offsets are in phone widths/heights. */
+.logo-reveal {
+	position: absolute;
+	inset: 0;
+	/* screens size off the card's height (cqh), so they nearly fill it */
+	container-type: size;
+}
+
+.logo-reveal__logo {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 44%;
+	height: 30%;
+	transform: translate(-50%, -50%);
+	transition:
+		transform 520ms var(--motion-ease),
+		opacity 260ms ease-out;
+}
+
+.logo-reveal__screen {
+	--rx: 0%;
+	--ry: 12%;
+	--delay: 0ms;
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	/* tall enough to reach just under the top edge and run off the bottom */
+	width: min(38%, calc(100cqh * 0.5));
+	aspect-ratio: 1170 / 2532;
+	overflow: hidden;
+	background: var(--background);
+	border-radius: 9% / 4.2%;
+	box-shadow:
+		0 0 0 1px color-mix(in oklab, var(--foreground) 10%, transparent),
+		0 18px 36px -18px rgb(0 0 0 / 0.35);
+	opacity: 0;
+	transform: translate(calc(-50% + var(--rx)), 8%);
+	transition:
+		transform 620ms var(--motion-ease) var(--delay),
+		opacity 240ms ease-out var(--delay);
+}
+
+.logo-reveal__screen[data-slot="center"] {
+	z-index: 2;
+}
+.logo-reveal__screen[data-slot="left"] {
+	--rx: -104%;
+	--ry: 20%;
+	--delay: 70ms;
+}
+.logo-reveal__screen[data-slot="right"] {
+	--rx: 104%;
+	--ry: 20%;
+	--delay: 140ms;
+}
+
+.logo-reveal[data-reveal][data-active] .logo-reveal__logo,
+.showcase-card:focus-visible .logo-reveal[data-reveal] .logo-reveal__logo {
+	opacity: 0;
+	transform: translate(-50%, -110%) scale(0.85);
+}
+.logo-reveal[data-active] .logo-reveal__screen,
+.showcase-card:focus-visible .logo-reveal__screen {
+	opacity: 1;
+	transform: translate(calc(-50% + var(--rx)), calc(-100% + var(--ry)));
+}
+
+@media (hover: hover) {
+	.showcase-card:hover .logo-reveal[data-reveal] .logo-reveal__logo {
+		opacity: 0;
+		transform: translate(-50%, -110%) scale(0.85);
+	}
+	.showcase-card:hover .logo-reveal__screen {
+		opacity: 1;
+		transform: translate(calc(-50% + var(--rx)), calc(-100% + var(--ry)));
+	}
+	/* a card with no screens yet still answers the pointer */
+	.showcase-card:hover .logo-reveal:not([data-reveal]) .logo-reveal__logo {
+		transform: translate(-50%, -50%) scale(1.06);
+	}
+}
+
+/* reduced motion: the same swap, as a crossfade in place */
+@media (prefers-reduced-motion: reduce) {
+	.logo-reveal__logo,
+	.logo-reveal__screen {
+		transition: opacity 200ms ease-out;
+	}
+	.logo-reveal__screen {
+		transform: translate(calc(-50% + var(--rx)), calc(-100% + var(--ry)));
+	}
+	.logo-reveal[data-reveal][data-active] .logo-reveal__logo,
+	.showcase-card:focus-visible .logo-reveal[data-reveal] .logo-reveal__logo,
+	.showcase-card:hover .logo-reveal[data-reveal] .logo-reveal__logo,
+	.showcase-card:hover .logo-reveal:not([data-reveal]) .logo-reveal__logo {
+		transform: translate(-50%, -50%);
+	}
+	.logo-reveal[data-active] .logo-reveal__screen,
+	.showcase-card:focus-visible .logo-reveal__screen,
+	.showcase-card:hover .logo-reveal__screen {
+		transform: translate(calc(-50% + var(--rx)), calc(-100% + var(--ry)));
+	}
+}
+
+/* Story flow: the story column reads top to bottom; text keeps a
+   comfortable line length, screens use the column's full width. */
+.story-flow > :not(.spread) {
+	max-width: 40rem;
+}
+
+.story-shot--portrait {
+	width: min(44%, 270px);
+	aspect-ratio: 1170 / 2532;
+	border-radius: 9% / 4.2%;
+}
+
+.story-shot--landscape {
+	width: 100%;
+	aspect-ratio: 1280 / 860;
+}
+
+/* a pair of phones steps down left to right */
+.story-media--pair > :first-child {
+	translate: 0 -5%;
+}
+.story-media--pair > :last-child {
+	translate: 0 5%;
+}
+
+/* a youtube player rendered full size and scaled down to cover its card
+   (the scale is set inline from the card's size) */
+.youtube-clip {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 1280px;
+	max-width: none;
+	height: 720px;
+	pointer-events: none;
+	border: 0;
+	transform-origin: center;
+}
+
+/* a quiet dot grid behind a monogram, fading out from the middle */
+.dot-field {
+	position: absolute;
+	inset: 0;
+	background-image: radial-gradient(
+		color-mix(in oklab, var(--foreground) 16%, transparent) 1px,
+		transparent 1.4px
+	);
+	background-position: center;
+	background-size: 12px 12px;
+	mask-image: radial-gradient(closest-side, black 35%, transparent 100%);
+}
+
+/* a project card without a demo: its logo leans in a little on hover */
+.project-logo {
+	transition: transform 420ms var(--motion-ease);
+}
+
+@media (hover: hover) {
+	.showcase-card:hover .project-logo {
+		transform: scale(1.06);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.project-logo {
+		transition: none;
+	}
+}
+
+/* Video player scrubber: a thin track that fills white as the film plays,
+   thickening a little under the pointer. --progress is set inline. */
+.video-scrubber {
+	height: 1rem;
+	appearance: none;
+	cursor: pointer;
+	background: transparent;
+}
+
+.video-scrubber::-webkit-slider-runnable-track {
+	height: 3px;
+	background: linear-gradient(
+		to right,
+		rgb(255 255 255 / 0.95) var(--progress, 0%),
+		rgb(255 255 255 / 0.25) var(--progress, 0%)
+	);
+	border-radius: 999px;
+	transition: height 150ms ease-out;
+}
+
+.video-scrubber::-moz-range-track {
+	height: 3px;
+	background: rgb(255 255 255 / 0.25);
+	border-radius: 999px;
+}
+
+.video-scrubber::-moz-range-progress {
+	height: 3px;
+	background: rgb(255 255 255 / 0.95);
+	border-radius: 999px;
+}
+
+.video-scrubber::-webkit-slider-thumb {
+	width: 12px;
+	height: 12px;
+	margin-top: -4.5px;
+	appearance: none;
+	background: white;
+	border-radius: 999px;
+	box-shadow: 0 1px 4px rgb(0 0 0 / 0.4);
+}
+
+.video-scrubber::-moz-range-thumb {
+	width: 12px;
+	height: 12px;
+	background: white;
+	border: 0;
+	border-radius: 999px;
+}
+
+.video-scrubber:hover::-webkit-slider-runnable-track {
+	height: 5px;
+}
+
+.video-scrubber:hover::-webkit-slider-thumb {
+	margin-top: -3.5px;
+}
+
+.video-scrubber:focus-visible {
+	outline: none;
+}
+
+.video-scrubber:focus-visible::-webkit-slider-thumb {
+	box-shadow:
+		0 0 0 3px rgb(255 255 255 / 0.5),
+		0 1px 4px rgb(0 0 0 / 0.4);
+}
+
+/* Lenis (components/smooth-scroll.tsx): the bits of its stylesheet the site
+   needs. Its iframe rule is left out on purpose, it would make embeds
+   unclickable whenever smoothing is on. */
+html.lenis,
+html.lenis body {
+	height: auto;
+}
+
+/* Lenis moves the page itself each frame; the browser's own smoothing on
+   top would make it lag behind and jitter */
+html.lenis {
+	scroll-behavior: auto;
+}
+
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+	overflow: clip;
+}
+
+.lenis [data-lenis-prevent] {
+	overscroll-behavior: contain;
+}
+
+/* mermaid sizes each label box before the page's prose styles reach it, so
+   inside a diagram the labels keep mermaid's own type or they get clipped */
+.mermaid-diagram foreignObject :is(p, span, div) {
+	margin: 0;
+	font-size: inherit;
+	line-height: 1.5;
 }

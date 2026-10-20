@@ -2,22 +2,33 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ContentViewTracker } from "@/components/analytics/content-view-tracker";
+import { CaseStudyHero, type HeroLink } from "@/components/case-study/hero";
 import { getMDXComponents } from "@/components/mdx";
 import { Chapter } from "@/components/mdx/chapter";
 import { Figure } from "@/components/mdx/figure";
 import { Gallery } from "@/components/mdx/gallery";
 import { Screens } from "@/components/mdx/screens";
-import {
-	WorkCaseStudyHeader,
-	WorkDefaultHeader,
-} from "@/components/work/header";
+import { SmoothScroll } from "@/components/smooth-scroll";
+import { StoryLayout } from "@/components/story/story-layout";
+import { WorkDefaultHeader } from "@/components/work/header";
 import {
 	buildBreadcrumbSchema,
 	buildCreativeWorkSchema,
 	jsonLd,
 } from "@/lib/schema";
 import { workSource } from "@/lib/source";
+import type { WorkImageAsset } from "@/lib/types/types";
 import { getWork, type WorkFrontmatter } from "@/lib/work";
+
+/** "2024 → 2026", "2026 → now", or just "2024" */
+function formatYears(start: Date, end?: Date | null) {
+	const from = start.getFullYear();
+	if (!end) {
+		return `${from} → now`;
+	}
+	const to = end.getFullYear();
+	return from === to ? `${from}` : `${from} → ${to}`;
+}
 
 function formatRange(start: Date, end?: Date | null) {
 	const fmt = (d: Date) =>
@@ -25,6 +36,11 @@ function formatRange(start: Date, end?: Date | null) {
 			.toLocaleString("default", { month: "short", year: "numeric" })
 			.toLowerCase();
 	return `${fmt(start)} to ${end ? fmt(end) : "present"}`;
+}
+
+/** one key per screenshot, whether it ships as one file or a light/dark pair */
+function assetPath(asset: WorkImageAsset) {
+	return typeof asset === "string" ? asset : asset.light;
 }
 
 interface PageProps {
@@ -98,12 +114,28 @@ export default async function Page({ params }: PageProps) {
 		children: React.ReactNode;
 	}) => {
 		const idx = chapterIndexById.get(props.id) ?? 0;
-		return <Chapter {...props} index={idx} />;
+		const nav = chapters[idx];
+		return (
+			<Chapter
+				{...props}
+				index={idx}
+				landscape={nav?.landscape}
+				media={nav?.media}
+			/>
+		);
 	};
 
+	// the gallery closes the page with the screens the chapters never showed;
+	// anything a chapter already put on screen is not repeated
+	const shownInChapters = new Set(
+		chapters.flatMap((c) => c.media ?? []).map((asset) => assetPath(asset))
+	);
 	const ScreensWithTitle = (props: React.ComponentProps<typeof Screens>) => (
 		<Screens
 			{...props}
+			images={props.images?.filter(
+				(asset) => !shownInChapters.has(assetPath(asset))
+			)}
 			mockup={props.mockup ?? fm.screenshotMockup}
 			title={props.title ?? fm.title}
 		/>
@@ -145,42 +177,69 @@ export default async function Page({ params }: PageProps) {
 				type="application/ld+json"
 			/>
 			<ContentViewTracker kind="work" slug={slug} title={fm.title} />
-			<Link
-				className="meta-tag hover-dim mb-12 inline-flex items-center gap-1.5 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
-				href="/work"
-			>
-				← back
-			</Link>
+			<SmoothScroll />
+			{hasCaseStudy && firstChapterId && (
+				<a
+					className="sr-only focus:not-sr-only focus:fixed focus:top-24 focus:left-4 focus:z-[200] focus:rounded-md focus:border focus:border-border focus:bg-background focus:px-3 focus:py-2 focus:text-[13px] focus:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/25"
+					href={`#${firstChapterId}`}
+				>
+					skip to case study
+				</a>
+			)}
 
 			<article className="relative">
-				{hasCaseStudy && firstChapterId && (
-					<a
-						className="sr-only focus:not-sr-only focus:fixed focus:top-24 focus:left-4 focus:z-[200] focus:rounded-md focus:border focus:border-border focus:bg-background focus:px-3 focus:py-2 focus:text-[13px] focus:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/25"
-						href={`#${firstChapterId}`}
-					>
-						skip to case study
-					</a>
-				)}
-
-				{hasCaseStudy ? (
-					<WorkCaseStudyHeader
-						endDate={endDate}
-						fm={fm}
-						formatRange={formatRange}
-						startDate={startDate}
-					/>
-				) : (
-					<WorkDefaultHeader
-						endDate={endDate}
-						fm={fm}
-						formatRange={formatRange}
-						startDate={startDate}
-					/>
-				)}
-
-				<div className={hasCaseStudy ? "space-y-16" : undefined}>
-					<MDX components={components} />
-				</div>
+				<StoryLayout
+					header={
+						hasCaseStudy ? undefined : (
+							<>
+								<Link
+									className="meta-tag hover-dim mb-12 inline-flex items-center gap-1.5 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
+									href="/work"
+								>
+									← back
+								</Link>
+								<WorkDefaultHeader
+									endDate={endDate}
+									fm={fm}
+									formatRange={formatRange}
+									startDate={startDate}
+								/>
+							</>
+						)
+					}
+					intro={
+						hasCaseStudy ? (
+							<CaseStudyHero
+								backHref="/work"
+								facts={[
+									{ label: "role", value: fm.role },
+									{
+										label: "timeline",
+										value: formatYears(startDate, endDate),
+									},
+									{ label: "stack", value: fm.tech.join(" · ") },
+								]}
+								headline={fm.challenge ?? fm.description}
+								href={fm.website}
+								links={[
+									fm.appStore
+										? { href: fm.appStore, label: "app store" }
+										: null,
+									fm.playStore
+										? { href: fm.playStore, label: "play store" }
+										: null,
+								].filter((link): link is HeroLink => link !== null)}
+								logo={fm.logo}
+								name={fm.title.split(" - ")[0] ?? fm.title}
+								overview={fm.overview ?? fm.description}
+							/>
+						) : undefined
+					}
+				>
+					<div className="story-flow space-y-16">
+						<MDX components={components} />
+					</div>
+				</StoryLayout>
 			</article>
 		</main>
 	);

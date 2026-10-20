@@ -24,19 +24,45 @@ export const docs = defineDocs({
 	},
 });
 
+const workImageAssetSchema = z.union([
+	z.string(),
+	z.object({ dark: z.string(), light: z.string() }),
+]);
+
 const projectFrontmatterSchema = frontmatterSchema.extend({
+	/** tint behind the home card's media, any css colour */
+	accent: z.string().optional(),
 	archived: z.boolean().optional(),
+	/** home card media: an image or an mp4/webm, overrides the video/youtube/site fallbacks */
+	cover: z.string().optional(),
+	/** the cover clip's first frame, when it isn't the demo's poster */
+	coverPoster: z.string().optional(),
 	github: z.string().optional(),
 	hidden: z.boolean().optional(),
+	/** three or four short lines under the project page's header */
+	highlights: z.array(z.string()).optional(),
+	/** square app icon, shown on the home card and the project page */
+	icon: z.string().optional(),
 	images: z.array(z.string()).optional(),
 	imagesOrientation: z.enum(["portrait", "landscape"]).optional(),
 	inlineGallery: z.boolean().optional(),
+	/** what it is, in two words: "mac app", "flutter package" */
+	kind: z.string().optional(),
+	/** a short paragraph for the pinned overview on the project page */
+	overview: z.string().optional(),
+	/** where it runs: "macos · menu bar" */
+	platform: z.string().optional(),
 	published: z.boolean().optional(),
+	/** "live", "beta", "open source"... shown with a dot */
+	status: z.string().optional(),
 	subtitle: z.string().optional(),
 	tech: z.array(z.string()).default([]),
 	video: z.string().optional(),
+	/** a phone recording plays in a tall frame */
+	videoOrientation: z.enum(["portrait", "landscape"]).optional(),
 	videoPoster: z.string().optional(),
 	website: z.string().optional(),
+	year: z.number().optional(),
 	youtube: z.string().optional(),
 });
 
@@ -51,23 +77,26 @@ export const projects = defineDocs({
 	},
 });
 
-const workImageAssetSchema = z.union([
-	z.string(),
-	z.object({ dark: z.string(), light: z.string() }),
-]);
-
 const workChapterNavSchema = z.object({
 	id: z.string(),
 	label: z.string(),
+	/** desktop/laptop shots instead of phone screens */
+	landscape: z.boolean().optional(),
+	/** the screens that sit beside this chapter while it is being read */
+	media: z.array(workImageAssetSchema).optional(),
 });
 
 const workFrontmatterSchema = frontmatterSchema.extend({
+	/** tint behind the home card's media, any css colour */
+	accent: z.string().optional(),
 	appStore: z.string().optional(),
 	challenge: z.string().optional(),
 	chapters: z.array(workChapterNavSchema).optional(),
 	endDate: z.coerce.date().optional(),
 	images: z.array(workImageAssetSchema).optional(),
 	logo: workImageAssetSchema.optional(),
+	/** a short paragraph for the pinned overview; falls back to the description */
+	overview: z.string().optional(),
 	playStore: z.string().optional(),
 	published: z.boolean().optional(),
 	role: z.string(),

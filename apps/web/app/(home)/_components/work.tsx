@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useCallback } from "react";
-import { LogoTile } from "@/components/logo-tile";
-import { WorkPreview } from "@/components/work-preview";
+import { LogoReveal } from "@/components/showcase/logo-reveal";
+import { ShowcaseCard } from "@/components/showcase/showcase-card";
 import { track } from "@/lib/analytics";
 import {
 	formatTotalExperienceAriaLabel,
@@ -12,12 +12,53 @@ import {
 	listWorkForHome,
 } from "@/lib/work";
 
-function formatRange(start: Date, end?: Date | null) {
-	const fmt = (d: Date) =>
-		d
-			.toLocaleString("default", { month: "short", year: "numeric" })
-			.toLowerCase();
-	return `${fmt(start)} to ${end ? fmt(end) : "present"}`;
+type WorkItem = ReturnType<typeof listWork>[number];
+
+/** "fpv labs - infrastructure for physical intelligence" → "fpv labs" */
+function shortName(title: string) {
+	return title.split(" - ")[0] ?? title;
+}
+
+function formatYears(start: Date, end?: Date | null) {
+	const from = start.getFullYear();
+	if (!end) {
+		return `${from} to now`;
+	}
+	const to = end.getFullYear();
+	return from === to ? `${from}` : `${from} to ${to}`;
+}
+
+export function WorkCard({ item }: { item: WorkItem }) {
+	const onClick = useCallback(
+		() =>
+			track("content_card_clicked", {
+				kind: "work",
+				slug: item.slug,
+				title: item.title,
+			}),
+		[item.slug, item.title]
+	);
+
+	return (
+		<li>
+			<ShowcaseCard
+				accent={item.accent}
+				aspectClassName="aspect-[4/3]"
+				detail={formatYears(item.startDate, item.endDate)}
+				href={`/work/${item.slug}`}
+				media={
+					<LogoReveal
+						images={item.images}
+						logo={item.logo}
+						title={shortName(item.title)}
+					/>
+				}
+				meta={item.role}
+				onClick={onClick}
+				title={shortName(item.title)}
+			/>
+		</li>
+	);
 }
 
 export default function Work() {
@@ -43,75 +84,11 @@ export default function Work() {
 					view all
 				</Link>
 			</div>
-			<ul className="flex flex-col">
+			<ul className="grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-3">
 				{homeWork.map((item) => (
-					<HomeWorkItem item={item} key={item.slug} />
+					<WorkCard item={item} key={item.slug} />
 				))}
 			</ul>
 		</section>
-	);
-}
-
-function HomeWorkItem({
-	item,
-}: {
-	item: ReturnType<typeof listWorkForHome>[number];
-}) {
-	const onClick = useCallback(
-		() =>
-			track("content_card_clicked", {
-				kind: "work",
-				slug: item.slug,
-				title: item.title,
-			}),
-		[item.slug, item.title]
-	);
-
-	return (
-		<li className="group/work relative py-4 first:pt-0 last:pb-0">
-			<WorkPreview
-				href={`/work/${item.slug}`}
-				images={item.images}
-				logo={item.logo}
-				screenshotMockup={item.screenshotMockup}
-				title={item.title}
-			>
-				<Link
-					className="group flex items-center gap-4 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
-					href={`/work/${item.slug}`}
-					onClick={onClick}
-				>
-					{item.logo ? (
-						<LogoTile boxClassName="h-9 w-9" src={item.logo} />
-					) : (
-						<span
-							aria-hidden
-							className="w-9 shrink-0 select-none text-center font-serif text-[34px] text-foreground/85 italic leading-none"
-							style={{
-								fontFamily: "var(--font-instrument-serif), serif",
-							}}
-						>
-							{item.title.charAt(0).toLowerCase()}
-						</span>
-					)}
-					<div className="flex min-w-0 flex-1 items-center justify-between gap-3 sm:gap-4">
-						<div className="flex min-w-0 flex-1 flex-col gap-0.5">
-							<span className="link-underline-hover truncate font-medium text-[14px] text-foreground">
-								{item.title}
-							</span>
-							<span className="font-light text-[12px] text-muted-foreground leading-tight">
-								{item.role}
-							</span>
-							<span className="meta-tag mt-0.5 whitespace-nowrap sm:hidden">
-								{formatRange(item.startDate, item.endDate)}
-							</span>
-						</div>
-						<span className="meta-tag hidden shrink-0 whitespace-nowrap sm:inline">
-							{formatRange(item.startDate, item.endDate)}
-						</span>
-					</div>
-				</Link>
-			</WorkPreview>
-		</li>
 	);
 }

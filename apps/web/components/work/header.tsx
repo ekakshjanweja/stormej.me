@@ -52,52 +52,6 @@ function StickyTitleRow({ fm }: { fm: WorkFrontmatter }) {
 	);
 }
 
-/** one inline meta line: the values are self-evident, so the labels are
- *  screen-reader only and the whole thing stays a single row. */
-function MetaLine({ items }: { items: { label: string; value: string }[] }) {
-	return (
-		<dl className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
-			{items.map((item, i) => (
-				<div className="flex items-center gap-2.5" key={item.label}>
-					{i > 0 && (
-						<span aria-hidden className="h-2.5 w-px shrink-0 bg-border" />
-					)}
-					<dt className="sr-only">{item.label}</dt>
-					<dd className="meta-tag m-0">{item.value}</dd>
-				</div>
-			))}
-		</dl>
-	);
-}
-
-export function WorkCaseStudyHeader({
-	fm,
-	startDate,
-	endDate,
-	formatRange,
-}: HeaderProps) {
-	return (
-		<>
-			<StickyTitleRow fm={fm} />
-			<header className="mb-10 space-y-4">
-				<MetaLine
-					items={[
-						{ label: "role", value: fm.role },
-						{ label: "timeline", value: formatRange(startDate, endDate) },
-						{ label: "stack", value: fm.tech.join(" · ") },
-					]}
-				/>
-
-				{fm.challenge && (
-					<p className="max-w-[60ch] font-light text-[15px] text-foreground leading-[1.6]">
-						{fm.challenge}
-					</p>
-				)}
-			</header>
-		</>
-	);
-}
-
 export function WorkDefaultHeader({
 	fm,
 	startDate,

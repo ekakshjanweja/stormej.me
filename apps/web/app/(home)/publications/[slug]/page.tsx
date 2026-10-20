@@ -1,10 +1,17 @@
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ContentViewTracker } from "@/components/analytics/content-view-tracker";
+import {
+	CaseStudyHero,
+	type HeroFact,
+	type HeroLink,
+} from "@/components/case-study/hero";
+import { StoryIndex, tocItems } from "@/components/case-study/story-index";
 import { HuggingFaceChip } from "@/components/hugging-face-chip";
 import { getMDXComponents } from "@/components/mdx";
+import { SmoothScroll } from "@/components/smooth-scroll";
+import { StoryLayout } from "@/components/story/story-layout";
 import {
 	fetchHuggingFaceStats,
 	type HuggingFaceRepoRef,
@@ -99,77 +106,56 @@ export default async function Page({ params }: PageProps) {
 	return (
 		<main>
 			<ContentViewTracker kind="publication" slug={slug} title={data.title} />
-			<Link
-				className="meta-tag hover-dim mb-12 inline-flex items-center gap-1.5 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
-				href="/publications"
+			<SmoothScroll />
+			<StoryLayout
+				aside={<StoryIndex items={tocItems(page.data.toc)} />}
+				intro={
+					<CaseStudyHero
+						backHref="/publications"
+						description={authors.length > 0 ? authors.join(", ") : undefined}
+						facts={[
+							data.venue ? { label: "venue", value: data.venue } : null,
+							dateText ? { label: "published", value: dateText } : null,
+						].filter((fact): fact is HeroFact => fact !== null)}
+						headline={data.title}
+						links={[
+							arxivUrl
+								? {
+										href: arxivUrl,
+										label: data.arxivId ? `arxiv:${data.arxivId}` : "arxiv",
+									}
+								: null,
+							data.pdfUrl ? { href: data.pdfUrl, label: "pdf" } : null,
+							data.doi
+								? { href: `https://doi.org/${data.doi}`, label: "doi" }
+								: null,
+						].filter((link): link is HeroLink => link !== null)}
+						name="publication"
+					>
+						{hfRepos.length > 0 && (
+							<div className="flex flex-wrap gap-2">
+								{hfRepos.map((repo) => (
+									<HuggingFaceChip
+										downloads={repo.downloads}
+										key={repo.url}
+										label={repo.label ?? repo.id}
+										type={repo.type}
+										url={repo.url}
+									/>
+								))}
+							</div>
+						)}
+					</CaseStudyHero>
+				}
 			>
-				← back
-			</Link>
-
-			<header className="mb-10 space-y-4">
-				<h1 className="headline text-[clamp(24px,2.8vw,36px)]">{data.title}</h1>
-				{authors.length > 0 && (
-					<p className="font-light text-[13px] text-muted-foreground leading-snug">
-						{authors.join(", ")}
-					</p>
-				)}
-				<div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-					{data.venue && <span className="meta-tag">{data.venue}</span>}
-					{dateText && <span className="meta-tag">{dateText}</span>}
-					{arxivUrl && (
-						<a
-							className="meta-tag hover-dim underline-offset-4 hover:underline"
-							href={arxivUrl}
-							rel="noreferrer"
-							target="_blank"
-						>
-							arxiv{data.arxivId ? `:${data.arxivId}` : ""}
-						</a>
-					)}
-					{data.pdfUrl && (
-						<a
-							className="meta-tag hover-dim underline-offset-4 hover:underline"
-							href={data.pdfUrl}
-							rel="noreferrer"
-							target="_blank"
-						>
-							pdf
-						</a>
-					)}
-					{data.doi && (
-						<a
-							className="meta-tag hover-dim underline-offset-4 hover:underline"
-							href={`https://doi.org/${data.doi}`}
-							rel="noreferrer"
-							target="_blank"
-						>
-							doi
-						</a>
-					)}
-					{hfRepos.map((repo) => (
-						<HuggingFaceChip
-							downloads={repo.downloads}
-							key={repo.url}
-							label={repo.label ?? repo.id}
-							type={repo.type}
-							url={repo.url}
-						/>
-					))}
-				</div>
-				{data.description && (
-					<p className="font-light text-[14px] text-muted-foreground leading-[1.6]">
-						{data.description}
-					</p>
-				)}
-			</header>
-
-			<article className="prose-fuma">
-				<MDX
-					components={getMDXComponents({
-						a: createRelativeLink(publicationsSource, page),
-					})}
-				/>
-			</article>
+				<article className="prose-fuma story-flow">
+					<MDX
+						components={getMDXComponents({
+							a: createRelativeLink(publicationsSource, page),
+						})}
+					/>
+				</article>
+			</StoryLayout>
 		</main>
 	);
 }

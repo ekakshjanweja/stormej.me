@@ -12,7 +12,10 @@ tech:
 website: https://burrow.ekaksh.in
 video: https://burrow.ekaksh.in/launch.mp4
 videoPoster: /images/burrow/launch.jpg
+cover: /videos/burrow/preview.mp4
 imagesOrientation: landscape
+# the screens live in the spreads; no gallery at the end
+inlineGallery: true
 images:
   - images/burrow/overview.webp
   - images/burrow/cleanup.webp
@@ -20,39 +23,84 @@ images:
   - images/burrow/system.webp
   - images/burrow/history.webp
   - images/burrow/aerospace.webp
+kind: mac app
+year: 2026
+status: live
+icon: /images/burrow/icon.png
+platform: macos · menu bar
+overview: burrow is a tiny native control center for my mac and the arch linux homelab next to it. swift and swiftui, no webview, no server, no bundled runtime. the whole app is 3 mb.
+accent: "#1c1c1f"
 ---
 
-burrow is a tiny native control center for my mac and the arch linux homelab next to it. swift and swiftui, no webview, no server, no bundled runtime. the whole app is 3 mb.
-
-my mac is where everything lives. xcode data, simulators, flutter and bun projects, containers, recordings, downloads. i wanted one place to see what's eating the disk, clear it safely, and push the important stuff to the homelab. so i built it.
+my mac holds everything: xcode data, simulators, flutter and bun projects, containers, recordings. i wanted one place to see what's eating the disk, clear it safely, and push the important stuff to the homelab.
 
 ## what it does
 
-- **overview**: one headline like "storage is getting full, you can probably clear 32 gb", then numbered suggestions with one action each.
-- **storage + cleanup**: a cached map of downloads, projects, xcode, simulators, caches and containers. cleanup runs through [mole](https://github.com/tw93/mole), always preview first. a run is refused unless a fresh preview exists.
-- **backups**: ssh hosts come from `~/.ssh/config`. files get routed to folders that already exist on the host, and projects stay together. every transfer is staged, sha-256 verified on the host, then moved in without overwriting anything.
-- **bring back**: browse the host, pick files, pull them back with the same hash and stage flow.
-- **system, battery, power**: cpu, gpu, memory, thermals, processes grouped by app. bluetooth accessory charge. keep awake, sleep, lock, all native.
-- **projects, services, containers**: dev runtimes and open ports grouped by repo, homebrew services and launch agents, docker and podman with a "what you can clear" section.
-- **aerospace**: one-click tidy for the tiling window manager, plus an in-app config editor that validates and restores itself if the config breaks.
-- **history**: optional 30 days of activity recorded once a minute, charted over 24 h, 7 d and 30 d.
+<Spread label="overview" landscape media={["/images/burrow/overview.webp"]}>
+
+### overview
+
+one headline like "storage is getting full, you can probably clear 32 gb", then numbered suggestions with one action each.
+
+</Spread>
+
+<Spread label="storage + cleanup" landscape media={["/images/burrow/cleanup.webp"]}>
+
+### storage + cleanup
+
+a cached map of downloads, projects, xcode, simulators, caches and containers. cleanup runs through [mole](https://github.com/tw93/mole) and won't run without a fresh preview.
+
+</Spread>
+
+<Spread label="backups" landscape media={["/images/burrow/backups.webp"]}>
+
+### backups
+
+hosts come from `~/.ssh/config`. files go to folders that already exist on the host, and projects stay together. every transfer is staged, sha-256 verified, then moved in without overwriting anything.
+
+</Spread>
+
+### bring back
+
+browse the host, pick files, pull them back with the same hash and stage flow.
+
+<Spread label="system, battery, power" landscape media={["/images/burrow/system.webp"]}>
+
+### system, battery, power
+
+cpu, gpu, memory, thermals, processes grouped by app. bluetooth accessory charge. keep awake, sleep, lock, all native.
+
+</Spread>
+
+### projects, services, containers
+
+dev runtimes and open ports grouped by repo, homebrew services and launch agents, docker and podman with a "what you can clear" section.
+
+<Spread label="aerospace" landscape media={["/images/burrow/aerospace.webp"]}>
+
+### aerospace
+
+one-click tidy for the tiling window manager, plus a config editor that validates and restores itself if the config breaks.
+
+</Spread>
+
+<Spread label="history" landscape media={["/images/burrow/history.webp"]}>
+
+### history
+
+optional 30 days of activity, recorded once a minute, charted over 24 h, 7 d and 30 d.
+
+</Spread>
 
 ## barely there
 
-two processes. a menu bar agent written in appkit with no swiftui is the only thing that runs all the time. the window app quits when its window closes.
+two processes. an appkit menu bar agent is the only thing always running, and the window app quits when you close it.
 
-nothing samples unless a view is watching. commands wait on exit events instead of polling. the storage map walks with fts(3) and one lstat per entry, in a child process, once a day at most. charts are hand-drawn canvas paths.
+nothing samples unless a view is watching, commands wait on exit events instead of polling, and the storage map walks with fts(3) in a child process at most once a day.
 
 ## advisors
 
-folder routing uses local rules by default. apple intelligence can route on device. openrouter, claude code, codex and muse are optional, and they run headless in an empty scratch folder with read-only tools. anything that leaves the mac needs an explicit opt in. only file names go out. never contents, full paths or host addresses.
-
-<Links
-  items={[
-    { label: "burrow.ekaksh.in", href: "https://burrow.ekaksh.in" },
-    { label: "launch film", href: "https://burrow.ekaksh.in/launch.mp4" },
-  ]}
-/>
+folder routing uses local rules by default, or apple intelligence on device. openrouter, claude code, codex and muse are opt-in and run headless in an empty scratch folder with read-only tools. only file names ever leave the mac, never contents, full paths or host addresses.
 
 <Outcomes
   items={[

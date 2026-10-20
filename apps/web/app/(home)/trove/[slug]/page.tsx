@@ -1,9 +1,12 @@
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ContentViewTracker } from "@/components/analytics/content-view-tracker";
+import { CaseStudyHero } from "@/components/case-study/hero";
+import { StoryIndex, tocItems } from "@/components/case-study/story-index";
 import { getMDXComponents } from "@/components/mdx";
+import { SmoothScroll } from "@/components/smooth-scroll";
+import { StoryLayout } from "@/components/story/story-layout";
 import { AgentSetup } from "@/components/trove/agent-setup";
 import {
 	buildBreadcrumbSchema,
@@ -106,33 +109,30 @@ export default async function Page({ params }: PageProps) {
 				type="application/ld+json"
 			/>
 			<ContentViewTracker kind="trove" slug={slug} title={data.title} />
-			<Link
-				className="meta-tag hover-dim mb-12 inline-flex items-center gap-1.5 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
-				href="/trove"
+			<SmoothScroll />
+			<StoryLayout
+				aside={<StoryIndex items={tocItems(page.data.toc)} />}
+				intro={
+					<CaseStudyHero
+						backHref="/trove"
+						description={data.description}
+						facts={meta ? [{ label: "source", value: meta }] : []}
+						headline={data.title}
+						links={data.github ? [{ href: data.github, label: "github" }] : []}
+						name="trove"
+					>
+						<AgentSetup slug={slug} title={data.title} />
+					</CaseStudyHero>
+				}
 			>
-				← back
-			</Link>
-
-			<header className="mb-10 space-y-4">
-				<h1 className="headline text-balance text-[clamp(24px,2.8vw,36px)]">
-					{data.title}
-				</h1>
-				{meta && <p className="meta-tag">{meta}</p>}
-				{data.description && (
-					<p className="text-pretty font-light text-[14px] text-muted-foreground leading-[1.6]">
-						{data.description}
-					</p>
-				)}
-				<AgentSetup slug={slug} title={data.title} />
-			</header>
-
-			<article className="prose-fuma">
-				<MDX
-					components={getMDXComponents({
-						a: createRelativeLink(troveSource, page),
-					})}
-				/>
-			</article>
+				<article className="prose-fuma story-flow">
+					<MDX
+						components={getMDXComponents({
+							a: createRelativeLink(troveSource, page),
+						})}
+					/>
+				</article>
+			</StoryLayout>
 		</main>
 	);
 }

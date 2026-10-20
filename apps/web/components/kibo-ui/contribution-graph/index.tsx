@@ -330,14 +330,9 @@ export const ContributionGraphBlock = ({
 
 	return (
 		<rect
-			className={cn(
-				'data-[level="0"]:fill-muted',
-				'data-[level="1"]:fill-muted-foreground/20',
-				'data-[level="2"]:fill-muted-foreground/40',
-				'data-[level="3"]:fill-muted-foreground/60',
-				'data-[level="4"]:fill-muted-foreground/80',
-				className
-			)}
+			// the level fills live in globals.css (.contribution-grid), not on
+			// each of the ~365 blocks
+			className={className}
 			data-count={activity.count}
 			data-date={activity.date}
 			data-level={activity.level}

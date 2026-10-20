@@ -22,7 +22,7 @@ export const PublicationsRowList = ({
 	showViewAll,
 }: PublicationsRowListProps) => (
 	<section data-cursor-anchor="publications">
-		<div className="mb-6 flex items-baseline justify-between">
+		<div className="mb-3 flex items-baseline justify-between">
 			<h2 className="section-label">publications</h2>
 			{showViewAll && (
 				<Link
@@ -34,9 +34,9 @@ export const PublicationsRowList = ({
 				</Link>
 			)}
 		</div>
-		<ul className="flex flex-col gap-4">
+		<ul className="divide-y divide-border/60 border-border/60 border-y">
 			{publications.map((pub) => (
-				<li key={pub.slug}>
+				<li className="py-4" key={pub.slug}>
 					<PublicationListItemRow location="home" pub={pub} />
 				</li>
 			))}

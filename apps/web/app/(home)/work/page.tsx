@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { LogoTile } from "@/components/logo-tile";
-import { WorkPreview } from "@/components/work-preview";
 import { listWork } from "@/lib/work";
+import { WorkCard } from "../_components/work";
 
 const description = "roles, case studies, and the apps i've built at startups";
 
@@ -31,66 +29,14 @@ export const metadata: Metadata = {
 	},
 };
 
-function formatRange(start: Date, end?: Date | null) {
-	const fmt = (d: Date) =>
-		d
-			.toLocaleString("default", { month: "short", year: "numeric" })
-			.toLowerCase();
-	return `${fmt(start)} to ${end ? fmt(end) : "present"}`;
-}
-
 export default function Work() {
 	const work = listWork();
 	return (
 		<main>
 			<h1 className="sr-only">work</h1>
-			<ul className="flex flex-col gap-6">
+			<ul className="grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
 				{work.map((item) => (
-					<li key={item.slug}>
-						<WorkPreview
-							href={`/work/${item.slug}`}
-							images={item.images}
-							logo={item.logo}
-							screenshotMockup={item.screenshotMockup}
-							title={item.title}
-						>
-							<Link
-								className="group flex flex-col gap-2 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
-								href={`/work/${item.slug}`}
-							>
-								<div className="flex items-center justify-between gap-3 sm:gap-4">
-									<div className="flex min-w-0 flex-1 items-center gap-3">
-										{item.logo && (
-											<LogoTile
-												boxClassName="h-7 w-7"
-												imagePadClassName="p-1"
-												src={item.logo}
-											/>
-										)}
-										<div className="flex min-w-0 flex-1 flex-col gap-0.5">
-											<span className="link-underline-hover truncate font-medium text-[14px] text-foreground">
-												{item.title}
-											</span>
-											<span className="font-light text-[12px] text-muted-foreground leading-tight">
-												{item.role}
-											</span>
-											<span className="meta-tag mt-0.5 whitespace-nowrap sm:hidden">
-												{formatRange(item.startDate, item.endDate)}
-											</span>
-										</div>
-									</div>
-									<span className="meta-tag hidden shrink-0 whitespace-nowrap sm:inline">
-										{formatRange(item.startDate, item.endDate)}
-									</span>
-								</div>
-								{item.description && (
-									<p className="pl-10 font-light text-[13px] text-muted-foreground leading-[1.55]">
-										{item.description}
-									</p>
-								)}
-							</Link>
-						</WorkPreview>
-					</li>
+					<WorkCard item={item} key={item.slug} />
 				))}
 			</ul>
 		</main>

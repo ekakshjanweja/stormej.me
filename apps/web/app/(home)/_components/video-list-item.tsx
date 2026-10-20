@@ -23,13 +23,13 @@ export function VideoListItem({ video }: { video: Video }) {
 	return (
 		<YoutubePreview title={video.title} videoId={video.id}>
 			<Link
-				className="group flex flex-col gap-1 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4"
+				className="group flex items-baseline justify-between gap-4 rounded py-3.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
 				href={videoHref(video.id)}
 				onClick={onClick}
 				rel="noopener noreferrer"
 				target="_blank"
 			>
-				<span className="link-underline-hover font-medium text-[14px] text-foreground sm:truncate">
+				<span className="link-underline-hover font-medium text-[14px] text-foreground leading-snug">
 					{video.title}
 				</span>
 				<span className="flex shrink-0 items-center gap-2">

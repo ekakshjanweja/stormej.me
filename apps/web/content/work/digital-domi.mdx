@@ -1,7 +1,8 @@
 ---
 title: digital domi
 subtitle: digital mailboxes
-description: leading mobile at digital domi. started from scratch with flutter. figuring out features, fixing bugs, and everything in between.
+description: "first mobile hire at digital domi. built the flutter app from zero: features, bugs and everything in between."
+accent: "#1d4ed8"
 role: founding mobile engineer
 startDate: 2024-10-22
 endDate: 2026-06-30
@@ -14,65 +15,69 @@ tech:
 logo: /images/logos/digital-domi.svg
 screenshotMockup: iphone-17-pro
 images:
-  - light: /images/domi/domi_one.webp
-    dark: /images/domi/domi_one_dark.webp
   - light: /images/domi/domi_two.webp
     dark: /images/domi/domi_two_dark.webp
   - light: /images/domi/domi_three.webp
     dark: /images/domi/domi_three_dark.webp
-challenge: shape a mobile experience for digital mailboxes from scratch, on a small team, aiming for consumer-grade polish.
+  - light: /images/domi/domi_four.webp
+    dark: /images/domi/domi_four_dark.webp
+challenge: "build a mobile mailbox from scratch on a small team, with consumer-grade polish."
 chapters:
   - id: starting-point
     label: starting point
+    media:
+      - light: /images/domi/domi_one.webp
+        dark: /images/domi/domi_one_dark.webp
+      - light: /images/domi/domi_three.webp
+        dark: /images/domi/domi_three_dark.webp
   - id: architecture
     label: architecture
   - id: shipping
     label: shipping
+    media:
+      - light: /images/domi/domi_two.webp
+        dark: /images/domi/domi_two_dark.webp
+      - light: /images/domi/domi_four.webp
+        dark: /images/domi/domi_four_dark.webp
   - id: system
     label: system
+    media:
+      - light: /images/domi/domi_five.webp
+        dark: /images/domi/domi_five_dark.webp
+      - light: /images/domi/domi_six.webp
+        dark: /images/domi/domi_six_dark.webp
+  - id: more-screens
+    label: more screens
+    media:
+      - light: /images/domi/domi_seven.webp
+        dark: /images/domi/domi_seven_dark.webp
 ---
 
 <Chapter id="starting-point" label="starting point" title="founding mobile at digital domi">
 
-i joined digital domi in late 2024 as the **first mobile hire**. there was no app yet: a small team, a web product, and a blunt question about what a mobile mailbox should feel like.
+joined in late 2024 as the **first mobile hire**. no app yet: a small team, a web product, and the question of what a mobile mailbox should feel like.
 
-we picked **flutter**. one codebase across ios, android, and web meant we could move fast without splitting attention three ways.
+we picked **flutter**, one codebase for ios, android and web.
 
 </Chapter>
 
-<Chapter id="architecture" label="architecture" title="keeping state where it belongs" pullQuote="ephemeral by default. global state was a deliberate exception, never the starting point.">
+<Chapter id="architecture" label="architecture" title="keeping state where it belongs">
 
-i went with an mvc-style layout backed by **providers and value notifiers**. most state stays ephemeral: the screen owns it, the screen disposes it. nothing global unless it has to be.
-
-this kept the surface area small. **fewer rebuilds, fewer cross-screen bugs**, and a much easier time onboarding the next engineer.
+mvc-style, with providers and value notifiers. most state is ephemeral: the screen owns it and disposes it, nothing global unless it has to be. fewer rebuilds, fewer cross-screen bugs, easier onboarding.
 
 </Chapter>
 
 <Chapter id="shipping" label="shipping" title="a mailbox you actually want to open">
 
-the core experience is the mailbox: **physical mail rendered digitally**, media you can share, ad campaigns you can pull out and act on. i built the upload flow, the viewer, the share sheet, and the edge cases nobody asks about until something breaks.
+the core is the mailbox: physical mail rendered digitally, media you can share, ad campaigns you can act on. i built the upload flow, the viewer, the share sheet and the edge cases.
 
-in parallel i shipped the **flutter web build**. same codebase, deployed to s3 via github actions on every merge to main.
+the **flutter web** build ships from the same codebase, deployed to s3 by github actions on every merge to main.
 
 </Chapter>
 
-<Screens
-  images={[
-    { light: "/images/domi/domi_one.webp", dark: "/images/domi/domi_one_dark.webp" },
-    { light: "/images/domi/domi_two.webp", dark: "/images/domi/domi_two_dark.webp" },
-    { light: "/images/domi/domi_three.webp", dark: "/images/domi/domi_three_dark.webp" },
-    { light: "/images/domi/domi_four.webp", dark: "/images/domi/domi_four_dark.webp" },
-    { light: "/images/domi/domi_five.webp", dark: "/images/domi/domi_five_dark.webp" },
-    { light: "/images/domi/domi_six.webp", dark: "/images/domi/domi_six_dark.webp" },
-    { light: "/images/domi/domi_seven.webp", dark: "/images/domi/domi_seven_dark.webp" },
-  ]}
-/>
-
 <Chapter id="system" label="system" title="one design language across surfaces">
 
-as the surface grew, the components got pulled into a **unified design system** shared between mobile and web. button, sheet, list row, empty state: same primitives, same tokens, both targets.
-
-the result: a release on one platform doesn't drift visually from the other, and a single change propagates everywhere it should.
+as it grew, the components moved into one **design system** shared by mobile and web. same primitives, same tokens, so the platforms don't drift apart.
 
 </Chapter>
 
@@ -82,21 +87,11 @@ the result: a release on one platform doesn't drift visually from the other, and
   ]}
 />
 
-{/* 
-<Highlights
-  items={[
-    "built a flutter mobile app end to end: core flows, edge cases, and ui polish",
-    "used an mvc architecture with providers and value notifiers, keeping most state ephemeral",
-    "developed a mail management system to share media and ad campaigns",
-    "shipped a flutter web version with ci cd to s3 via github actions",
-    "created a unified design system for both mobile and web",
-  ]}
-/> */}
+<Chapter id="more-screens" label="more screens" title="one more screen" />
 
 <Outcomes
   items={[
     { metric: "ios + android + web", label: "live on" },
     { metric: "github actions → s3", label: "ci/cd" },
-    { metric: "flutter · dart", label: "stack" },
   ]}
 />

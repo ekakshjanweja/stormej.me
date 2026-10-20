@@ -7,9 +7,8 @@ interface NotableLink {
 }
 
 /**
- * lead block for the thing worth knowing before the case study. a left accent
- * rule rather than a card, so it reads as a margin note next to the prose
- * instead of a boxed-off widget.
+ * lead block for the thing worth knowing before the case study. no card and
+ * no rule: a coloured label is enough to set it apart from the prose.
  */
 export function Notable({
 	id = "notable",
@@ -25,10 +24,7 @@ export function Notable({
 	links?: NotableLink[];
 }) {
 	return (
-		<section
-			className="scroll-mt-32 border-[var(--text-highlight)]/35 border-l-2 pl-5 sm:pl-6"
-			id={id}
-		>
+		<section className="scroll-mt-32" id={id}>
 			<span className="meta-tag text-[var(--text-highlight)] tracking-[0.18em]">
 				{label}
 			</span>

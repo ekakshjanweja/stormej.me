@@ -34,9 +34,12 @@ function sortKeyForWorkSlug(slug: string) {
 export interface WorkChapterNav {
 	id: string;
 	label: string;
+	landscape?: boolean;
+	media?: WorkImageAsset[];
 }
 
 export interface WorkFrontmatter {
+	accent?: string;
 	appStore?: string;
 	challenge?: string;
 	chapters?: WorkChapterNav[];
@@ -44,6 +47,7 @@ export interface WorkFrontmatter {
 	endDate?: Date;
 	images?: WorkImageAsset[];
 	logo?: WorkLogoAsset;
+	overview?: string;
 	playStore?: string;
 	published?: boolean;
 	role: string;
@@ -56,6 +60,7 @@ export interface WorkFrontmatter {
 }
 
 export interface WorkListItem {
+	accent?: string;
 	description?: string;
 	endDate?: Date;
 	images?: WorkImageAsset[];
@@ -79,6 +84,7 @@ export function listWork(): WorkListItem[] {
 			const fm = page.data as WorkFrontmatter;
 			const slug = page.slugs[0] ?? "";
 			return {
+				accent: fm.accent,
 				description: fm.description,
 				endDate: fm.endDate ? new Date(fm.endDate) : undefined,
 				images: fm.images,

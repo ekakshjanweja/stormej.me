@@ -139,7 +139,6 @@ const DayTooltip = ({
 				<g>
 					<ContributionGraphBlock
 						activity={activity}
-						className="cursor-pointer transition-opacity hover:opacity-90"
 						dayIndex={dayIndex}
 						weekIndex={weekIndex}
 					/>
@@ -250,9 +249,13 @@ export const ContributionsGraphClient = ({
 
 	return (
 		<TooltipProvider delayDuration={100}>
+			{/* the graph stretches to the full column (its svg scales), so the
+			    labels are set small here and land at a quiet size once scaled */}
 			<ContributionGraph
-				className={cn("contribution-grid text-[11px] text-muted-foreground")}
+				blockMargin={3}
+				className="contribution-grid w-full text-[11px] text-muted-foreground"
 				data={yearData}
+				fontSize={9}
 				totalCount={totalForYear}
 			>
 				<div
