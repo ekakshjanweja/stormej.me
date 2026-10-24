@@ -15,6 +15,8 @@ import { listProjects, type ProjectListItem } from "@/lib/projects";
 const DESKTOP_COLUMNS = 3;
 /** phones and tablets: two columns, a demo takes the full width */
 const MOBILE_COLUMNS = 2;
+/** how many projects the home page shows */
+const HOME_COUNT = 4;
 
 const MOBILE_SPAN: Record<number, string> = {
 	1: "col-span-1",
@@ -215,7 +217,8 @@ export function ProjectGrid({
 
 export function Projects() {
 	const all = listProjects().filter((p) => !p.hidden);
-	const projects = all.filter((p) => !p.archived);
+	// home shows the latest few; the rest are a "view all" away
+	const projects = all.filter((p) => !p.archived).slice(0, HOME_COUNT);
 	const shown = packFullRows(projects, DESKTOP_COLUMNS, cardWidth).flat();
 	const hasMore = all.length > shown.length;
 

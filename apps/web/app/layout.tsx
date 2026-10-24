@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./site.css";
 import { RootProvider } from "fumadocs-ui/provider/next";
+import { SiteCurtain } from "@/components/curtain/site-curtain";
+import { PRE_COVER_SCRIPT } from "@/components/curtain/state";
 import Footer from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import { SiteChrome } from "@/components/site-chrome";
@@ -96,6 +98,11 @@ export default async function RootLayout({
 				}}
 				suppressHydrationWarning
 			>
+				{/* runs before the first paint, so a first visit opens covered */}
+				<script
+					// biome-ignore lint/security/noDangerouslySetInnerHtml: a fixed inline script from components/curtain/state.ts, no user input
+					dangerouslySetInnerHTML={{ __html: PRE_COVER_SCRIPT }}
+				/>
 				<style
 					// biome-ignore lint/security/noDangerouslySetInnerHtml: generated from validated #rrggbb colours only (lib/site-colors.ts)
 					dangerouslySetInnerHTML={{
@@ -130,6 +137,7 @@ export default async function RootLayout({
 										{children}
 									</SiteChrome>
 								</div>
+								<SiteCurtain />
 							</RealtimeProvider>
 						</RootProvider>
 					</ThemeProvider>

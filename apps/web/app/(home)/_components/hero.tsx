@@ -37,13 +37,13 @@ export default function Hero() {
 			<p className="hero-eyebrow meta-tag mb-5">{EYEBROW}</p>
 
 			<h1
-				className="hero-lede max-w-[58ch] text-2xl leading-[1.35]"
+				className="hero-lede max-w-[26ch] text-[clamp(2.25rem,4.4vw,3.5rem)] leading-[1.08]! tracking-[-0.015em]!"
 				id="hero-heading"
 			>
 				{HEADLINE}
 			</h1>
 
-			<p className="hero-lede mt-5 max-w-[58ch] text-2xl text-muted-foreground leading-[1.35]">
+			<p className="hero-lede mt-5 max-w-[46ch] text-[clamp(1.375rem,2.2vw,1.75rem)] text-muted-foreground leading-[1.25]!">
 				{SUBLINE}
 			</p>
 

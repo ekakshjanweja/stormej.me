@@ -45,6 +45,25 @@
 	text-decoration-color: var(--text-highlight);
 }
 
+/* ─── curtain (components/curtain) ───────────────────────────────────── */
+
+/* a first visit to the home page: a plain cover painted before hydration,
+   until the intro's columns are up. if the script never takes over, the
+   page shows through anyway */
+html[data-curtain="intro"] body::after {
+	position: fixed;
+	inset: 0;
+	z-index: 190;
+	content: "";
+	background: var(--background);
+	animation: curtain-failsafe 0s 8s forwards;
+}
+@keyframes curtain-failsafe {
+	to {
+		visibility: hidden;
+	}
+}
+
 /* ─── load ───────────────────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: no-preference) {

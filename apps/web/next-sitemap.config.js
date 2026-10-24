@@ -16,7 +16,7 @@ const troveEnabled = /TROVE_ENABLED:\s*boolean\s*=\s*true/.test(
 /** @type {import('next-sitemap').IConfig} */
 export default {
 	changefreq: "weekly",
-	exclude: ["/api/*", "/og", "/og/*", "/llms.txt"],
+	exclude: ["/api/*", "/og", "/og/*", "/llms.txt", "/experiments"],
 	generateRobotsTxt: false,
 	priority: 0.7,
 	siteUrl: process.env.SITE_URL || "https://www.stormej.me",

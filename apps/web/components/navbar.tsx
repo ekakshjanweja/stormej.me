@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useState } from "react";
+import { curtainGo } from "@/components/curtain/state";
 import { ModeToggle } from "@/components/mode-toggle";
 import { track } from "@/lib/analytics";
 import { resume } from "@/lib/constants/links";
@@ -172,7 +173,10 @@ export function Navbar() {
 		(key: string) => {
 			const path = SHORTCUT_PATHS[key];
 			if (path) {
-				router.push(path);
+				// behind the curtain when it's on; a plain push when it passes
+				if (!curtainGo(path)) {
+					router.push(path);
+				}
 				return;
 			}
 			if (key === "t") {
