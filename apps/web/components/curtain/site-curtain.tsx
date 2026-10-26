@@ -13,8 +13,10 @@ import {
 	SEEN_KEY,
 } from "./state";
 
-/** routes that aren't pages (images, feeds, files) navigate as usual */
-const NOT_A_PAGE = /^\/(api|og)(\/|$)|\.[a-z0-9]+$/i;
+/** routes that aren't pages (images, feeds, files) navigate as usual, and so
+    does /experiments/*: that's the lab, a separate app behind the vercel
+    rewrite, which needs a full page load (bare /experiments stays ours) */
+const NOT_A_PAGE = /^\/(?:(?:api|og)(?:\/|$)|experiments\/.)|\.[a-z0-9]+$/i;
 /** if a page never arrives, the curtain lifts anyway after this long */
 const GIVE_UP_MS = 6000;
 

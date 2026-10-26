@@ -1,0 +1,848 @@
+/* the middle of the home strip: at a glance, builds, reels, latest notes.
+   stacked first; the sideways sizes sit under the SIDEWAYS query below */
+
+.s-builds {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+	padding: 4rem var(--pad);
+}
+
+.s-glance-title,
+.s-builds-title {
+	max-width: 22ch;
+	font-family: var(--font-serif);
+	font-size: clamp(2.25rem, 4.2vw, 3.75rem);
+	font-weight: 400;
+	line-height: 1;
+	letter-spacing: -0.02em;
+}
+
+.s-glance-title em,
+.s-builds-title em {
+	color: var(--sage);
+}
+
+.s-more-link {
+	align-self: flex-start;
+	font-size: 0.9375rem;
+	color: var(--ink-soft);
+}
+
+.s-more-link:hover {
+	color: var(--ink);
+}
+
+/* numbers */
+.s-stats {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.5rem 3rem;
+	padding-top: 1.25rem;
+	border-top: 1px solid var(--line);
+}
+
+.s-stats dt {
+	font-family: var(--font-mono);
+	font-size: 0.75rem;
+	color: var(--ink-soft);
+}
+
+.s-stats dd {
+	font-family: var(--font-serif);
+	font-size: clamp(2.5rem, 5vw, 4.5rem);
+	line-height: 1;
+}
+
+/* the teams, as small quiet tiles */
+.s-logos {
+	display: flex;
+	flex-wrap: wrap;
+	/* room under each row for a team's name */
+	gap: 1.75rem 0.75rem;
+	list-style: none;
+}
+
+.s-logo {
+	position: relative;
+	display: block;
+	width: 4.5rem;
+	height: 4.5rem;
+	background: var(--paper-deep);
+	border-radius: 14px;
+	transition: opacity 300ms var(--ease-out);
+}
+
+.s-logo img {
+	padding: 0.85rem;
+	object-fit: contain;
+	transition: scale 300ms var(--ease-out);
+}
+
+.s-logo-name {
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	margin-top: 0.4rem;
+	font-family: var(--font-mono);
+	font-size: 0.625rem;
+	color: var(--ink-soft);
+	white-space: nowrap;
+	opacity: 0;
+	transform: translate(-50%, -0.15rem);
+	transition:
+		opacity 300ms var(--ease-out),
+		transform 300ms var(--ease-out);
+}
+
+/* reach for a tile: it dims a touch, the logo eases forward a hair and
+   its name comes up underneath. the tile itself can't scale: dragging it
+   writes its transforms inline */
+@media (hover: hover) and (pointer: fine) {
+	.s-logo:hover {
+		opacity: 0.72;
+	}
+
+	.s-logo:hover img {
+		scale: 1.01;
+	}
+}
+
+.s-logo:hover .s-logo-name,
+.s-logo:focus-visible .s-logo-name {
+	opacity: 1;
+	transform: translate(-50%, 0);
+}
+
+/* builds: one clip worth watching and a short list, kept small */
+.s-builds-head {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.hm-feature {
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+	max-width: 34rem;
+}
+
+.hm-feature-frame {
+	position: relative;
+	display: block;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	padding: 0;
+	margin-bottom: 0.6rem;
+	overflow: hidden;
+	background: var(--paper-deep);
+	border-radius: 16px;
+	transition:
+		transform 500ms var(--ease-out),
+		box-shadow 500ms var(--ease-out);
+}
+
+/* a small dark badge on the clip: it opens out, and it'll be loud */
+.hm-feature-play {
+	position: absolute;
+	bottom: 0.75rem;
+	left: 0.75rem;
+	display: inline-flex;
+	gap: 0.45rem;
+	align-items: center;
+	padding: 0.4rem 0.75rem 0.4rem 0.5rem;
+	font-family: var(--font-mono);
+	font-size: 0.6875rem;
+	color: var(--paper);
+	background: color-mix(in oklab, var(--night) 82%, transparent);
+	border-radius: 999px;
+	backdrop-filter: blur(8px);
+	transition:
+		transform 450ms var(--ease-out),
+		background-color 250ms var(--ease-out);
+}
+
+.hm-feature-play-icon {
+	width: 0;
+	height: 0;
+	margin-left: 0.2rem;
+	border-top: 0.3rem solid transparent;
+	border-bottom: 0.3rem solid transparent;
+	border-left: 0.5rem solid var(--mint);
+}
+
+.hm-feature-more {
+	margin-top: 0.75rem;
+}
+
+.hm-feature-frame img,
+.hm-build-video {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.hm-build-video {
+	background: var(--paper-deep);
+	opacity: 0;
+	transition: opacity 300ms var(--ease-out);
+}
+
+.hm-build-name {
+	font-family: var(--font-serif);
+	font-size: 1.5rem;
+	line-height: 1.1;
+}
+
+.hm-build-meta {
+	max-width: 34ch;
+	font-size: 0.8125rem;
+	line-height: 1.4;
+	color: var(--ink-soft);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+	button.hm-feature-frame:hover {
+		box-shadow: 0 22px 44px -24px
+			color-mix(in oklab, var(--night) 50%, transparent);
+		transform: scale(1.03);
+	}
+
+	button.hm-feature-frame:hover .hm-feature-play {
+		background: var(--night);
+		transform: scale(1.08);
+	}
+}
+
+/* the film, opened out of its card. the frame grows from where the card
+   sat (see feature-film.tsx); the backdrop fades as it folds back */
+.film {
+	width: 100%;
+	max-width: none;
+	height: 100%;
+	max-height: none;
+	padding: 0;
+	margin: 0;
+	overflow: hidden;
+	color: var(--paper);
+	background: transparent;
+	border: 0;
+}
+
+.film::backdrop {
+	background: color-mix(in oklab, var(--night) 92%, transparent);
+	backdrop-filter: blur(6px);
+	transition: opacity 450ms var(--ease-out);
+}
+
+.film[data-closing]::backdrop {
+	opacity: 0;
+}
+
+.film-body {
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	padding: 2rem var(--pad);
+}
+
+.film-frame,
+.film-side {
+	width: min(100%, calc((100dvh - 11rem) * 16 / 9));
+}
+
+.film-frame {
+	position: relative;
+	aspect-ratio: 16 / 9;
+	overflow: hidden;
+	background: var(--night-deep);
+	border-radius: 18px;
+}
+
+.film-frame video {
+	display: block;
+	width: 100%;
+	height: 100%;
+	cursor: pointer;
+	object-fit: cover;
+}
+
+.film-progress {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 2px;
+	background: var(--mint);
+	transform: scaleX(var(--progress, 0));
+	transform-origin: left;
+	transition: transform 250ms linear;
+}
+
+.film-side {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem 2rem;
+	align-items: flex-end;
+	justify-content: space-between;
+}
+
+.film-title {
+	font-family: var(--font-serif);
+	font-size: 2rem;
+	line-height: 1;
+}
+
+.film-meta {
+	margin-top: 0.4rem;
+	font-size: 0.875rem;
+	color: color-mix(in oklab, var(--paper) 65%, transparent);
+}
+
+.film-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.25rem;
+	align-items: center;
+}
+
+.film-more {
+	padding: 0.5rem 1rem;
+	font-size: 0.875rem;
+	color: var(--night);
+	background: var(--paper);
+	border-radius: 999px;
+	transition:
+		color 200ms var(--ease-out),
+		background-color 200ms var(--ease-out),
+		transform 160ms var(--ease-out);
+}
+
+.film-more span {
+	display: inline-block;
+	transition: transform 300ms var(--ease-out);
+}
+
+.film-close {
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+	font-family: var(--font-mono);
+	font-size: 0.75rem;
+	color: color-mix(in oklab, var(--paper) 75%, transparent);
+}
+
+.film-close kbd {
+	padding: 0.1rem 0.4rem;
+	font-family: inherit;
+	border: 1px solid color-mix(in oklab, var(--paper) 30%, transparent);
+	border-radius: 4px;
+}
+
+@media (hover: hover) {
+	.film-more:hover {
+		background: var(--mint);
+	}
+
+	.film-more:hover span {
+		transform: translateX(0.25rem);
+	}
+
+	.film-close:hover {
+		color: var(--paper);
+	}
+}
+
+.film :focus-visible {
+	outline-color: var(--mint);
+}
+
+.hm-list,
+.hm-tabs {
+	display: flex;
+	flex-direction: column;
+	gap: 0.9rem;
+}
+
+.hm-list-link {
+	display: flex;
+	flex-direction: column;
+	padding-left: 0.9rem;
+	text-align: left;
+	border-left: 1px solid var(--line);
+}
+
+/* the dim goes on the words: the link's own opacity is held by its reveal */
+.hm-list-link > * {
+	transition: opacity 300ms var(--ease-out);
+}
+
+/* a newly picked project eases in, as a newly picked job does */
+.hm-stage {
+	animation: work-in 520ms var(--ease-out);
+}
+
+.hm-build-stack {
+	margin-top: 0.15rem;
+	font-family: var(--font-mono);
+	font-size: 0.6875rem;
+	color: var(--ink-soft);
+}
+
+/* where it has no clip: its name, set large on the night */
+.hm-feature-frame[data-kind="card"] {
+	color: var(--paper);
+	background: var(--night);
+}
+
+.hm-card {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	justify-content: flex-end;
+	padding: 1.5rem;
+}
+
+.hm-card-title {
+	font-family: var(--font-serif);
+	font-size: clamp(2rem, 4vw, 3.5rem);
+	line-height: 1;
+	color: var(--mint);
+}
+
+.hm-card-stack {
+	font-family: var(--font-mono);
+	font-size: 0.75rem;
+	color: color-mix(in oklab, var(--paper) 65%, transparent);
+}
+
+/* a card with stills lets them hang over its edge */
+.hm-feature-frame[data-loose] {
+	overflow: visible;
+}
+
+/* a still, dropped on the card: tilted, its own shape, a little shadow */
+.hm-loose {
+	position: absolute;
+	z-index: 1;
+	padding: 0;
+	overflow: hidden;
+	background: var(--night-deep);
+	border-radius: 10px;
+	box-shadow: 0 18px 30px -16px rgb(0 0 0 / 55%);
+	transform: rotate(var(--tilt, 0deg));
+	transition:
+		transform 500ms var(--ease-out),
+		box-shadow 500ms var(--ease-out);
+}
+
+.hm-loose img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.hm-loose:hover,
+.hm-loose:focus-visible,
+.hm-loose[data-open] {
+	z-index: 3;
+	box-shadow: 0 30px 50px -20px rgb(0 0 0 / 60%);
+	transform: rotate(0deg) scale(1.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.hm-loose {
+		transition: none;
+	}
+}
+
+.hm-list-name {
+	font-family: var(--font-serif);
+	font-size: 1.25rem;
+	line-height: 1.1;
+}
+
+.hm-list-meta {
+	font-size: 0.8125rem;
+	line-height: 1.4;
+	color: var(--ink-soft);
+}
+
+/* quiet, as the team tiles are: the picked project isn't marked (its stage
+   shows which it is), and reaching for one only dims it a touch */
+@media (hover: hover) and (pointer: fine) {
+	.hm-list-link:hover > * {
+		opacity: 0.72;
+	}
+}
+
+@media (min-width: 1200px) and (min-height: 600px) and (hover: hover) and (
+		pointer: fine
+	) and (prefers-reduced-motion: no-preference) {
+	/* room to breathe: each section sits well apart from the next */
+	.s-builds {
+		justify-content: center;
+		padding: 7rem 9vw 5.5rem;
+	}
+
+	.s-builds {
+		flex-direction: row;
+		gap: 2.5rem;
+		align-items: flex-end;
+		width: max-content;
+	}
+
+	.s-builds-head {
+		align-self: stretch;
+		justify-content: flex-end;
+		width: 15rem;
+	}
+
+	.hm-feature-frame {
+		width: auto;
+		height: 38vh;
+	}
+
+	/* every project's stage is the same width, so switching never changes
+	   how long the strip is */
+	.hm-feature {
+		width: calc(38vh * 16 / 9);
+		max-width: none;
+	}
+
+	.hm-list {
+		width: 15rem;
+	}
+}
+
+.hm-build-video[data-playing] {
+	opacity: 1;
+}
+
+/* one phone, its screens taking turns */
+.cycle {
+	position: relative;
+	display: block;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	background: var(--paper-deep);
+	border-radius: 9% / 4.2%;
+	box-shadow:
+		0 0 0 1px color-mix(in oklab, var(--ink) 8%, transparent),
+		0 24px 50px -28px color-mix(in oklab, var(--night) 45%, transparent);
+}
+
+.cycle-screen {
+	position: absolute;
+	inset: 0;
+	opacity: 0;
+	transform: translateY(6%) scale(0.97);
+	transition:
+		opacity 600ms var(--ease-out),
+		transform 900ms var(--ease-out);
+}
+
+.cycle-screen[data-shown] {
+	opacity: 1;
+	transform: none;
+}
+
+.cycle-screen img {
+	object-fit: cover;
+	object-position: top;
+}
+
+.cycle-dots {
+	position: absolute;
+	bottom: 0.75rem;
+	left: 50%;
+	display: flex;
+	gap: 0.3rem;
+	padding: 0.3rem 0.45rem;
+	background: color-mix(in oklab, var(--night) 45%, transparent);
+	border-radius: 999px;
+	transform: translateX(-50%);
+}
+
+.cycle-dots span {
+	width: 0.35rem;
+	height: 0.35rem;
+	background: color-mix(in oklab, var(--paper) 50%, transparent);
+	border-radius: 999px;
+	transition:
+		width 300ms var(--ease-out),
+		background-color 300ms var(--ease-out);
+}
+
+.cycle-dots span[data-on] {
+	width: 1rem;
+	background: var(--paper);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.cycle-screen {
+		transform: none;
+		transition: opacity 200ms ease-out;
+	}
+}
+
+/* the reels in the space of two: two squares play and slide along; reach
+   for the row and it opens out to all five, standing up tall as reels are
+   shot (9:16), growing upward from the row */
+.rc {
+	--tile: min(11rem, 40vw);
+	/* five across, sized off the row's own width so they never spill into
+	   the column beside it */
+	--tile-open: min(8.5rem, calc((100cqw - 2rem) / 5));
+	--tile-tall: min(calc(var(--tile-open) * 16 / 9), 52vh);
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
+	margin-top: auto;
+	container-type: inline-size;
+}
+
+.rc-row {
+	display: flex;
+	align-items: flex-end;
+	list-style: none;
+}
+
+.rc-item {
+	flex: none;
+	width: 0;
+	height: var(--tile);
+	margin-right: 0;
+	overflow: hidden;
+	opacity: 0;
+	transition:
+		width 600ms var(--ease-out),
+		height 600ms var(--ease-out),
+		margin 600ms var(--ease-out),
+		opacity 400ms var(--ease-out);
+}
+
+.rc-item[data-shown] {
+	width: var(--tile);
+	margin-right: 0.75rem;
+	opacity: 1;
+}
+
+.rc[data-open] .rc-item {
+	width: var(--tile-open);
+	height: var(--tile-tall);
+	margin-right: 0.5rem;
+	opacity: 1;
+}
+
+.rc-face {
+	position: relative;
+	display: block;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	text-align: left;
+	background: var(--paper-deep);
+	border-radius: 16px;
+	transition:
+		transform 300ms var(--ease-out),
+		border-radius 600ms var(--ease-out);
+}
+
+.rc[data-open] .rc-face {
+	border-radius: 12px;
+}
+
+.rc-face img,
+.rc-video {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.rc-video {
+	opacity: 0;
+	transition: opacity 300ms var(--ease-out);
+}
+
+.rc-video[data-playing] {
+	opacity: 1;
+}
+
+.rc-title {
+	position: absolute;
+	inset: auto 0 0;
+	padding: 1.5rem 0.6rem 0.5rem;
+	font-size: 0.6875rem;
+	line-height: 1.25;
+	color: var(--paper);
+	background: linear-gradient(
+		to top,
+		color-mix(in oklab, var(--night) 75%, transparent),
+		transparent
+	);
+	opacity: 0;
+	transition: opacity 250ms var(--ease-out);
+}
+
+.rc[data-open] .rc-title,
+.rc-face:hover .rc-title,
+.rc-face:focus-visible .rc-title {
+	opacity: 1;
+}
+
+@media (hover: hover) {
+	.rc[data-open] .rc-face:hover {
+		transform: translateY(-4px) scale(1.04);
+	}
+}
+
+.rc-hint {
+	font-family: var(--font-mono);
+	font-size: 0.6875rem;
+	color: var(--ink-soft);
+}
+
+/* phones have no hover and no room for five tall reels: the row stays at
+   two, and the player steps through the rest */
+@media (max-width: 767px) {
+	.rc[data-open] .rc-item {
+		width: 0;
+		height: var(--tile);
+		margin-right: 0;
+		opacity: 0;
+	}
+
+	.rc[data-open] .rc-item[data-shown] {
+		width: var(--tile);
+		margin-right: 0.75rem;
+		opacity: 1;
+	}
+}
+
+/* at a glance, beside the work: the teams are tabs, the phone and notes
+   beside them follow whichever is picked */
+.s-work {
+	grid-template-columns: minmax(0, 22rem) auto;
+	gap: 5rem;
+}
+
+.s-glance-col {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+	align-self: center;
+}
+
+.s-glance-col .s-glance-title {
+	font-size: clamp(2rem, 3.2vw, 2.75rem);
+}
+
+.s-tabs-hint {
+	margin-bottom: -0.75rem;
+	font-family: var(--font-mono);
+	font-size: 0.6875rem;
+	color: var(--ink-soft);
+}
+
+.s-logo {
+	cursor: pointer;
+}
+
+/* a newly picked job eases in */
+.s-work-panel {
+	animation: work-in 520ms var(--ease-out);
+}
+
+@keyframes work-in {
+	from {
+		opacity: 0;
+		transform: translateY(14px);
+	}
+
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+.s-detail {
+	align-self: flex-start;
+	padding: 0.55rem 1rem;
+	font-size: 0.875rem;
+	border: 1px solid var(--ink);
+	border-radius: 999px;
+	transition:
+		color 200ms var(--ease-out),
+		background-color 200ms var(--ease-out),
+		transform 160ms var(--ease-out);
+}
+
+.s-detail:hover {
+	color: var(--paper);
+	background: var(--ink);
+}
+
+.s-detail span {
+	display: inline-block;
+	transition: transform 300ms var(--ease-out);
+}
+
+@media (hover: hover) {
+	.s-detail:hover span {
+		transform: translateX(0.25rem);
+	}
+}
+
+/* a job with no screens yet: its logo, in the phone's place */
+.cycle-empty {
+	display: grid;
+	gap: 1rem;
+	place-items: center;
+	align-content: center;
+}
+
+.cycle-logo {
+	position: relative;
+	width: 45%;
+	aspect-ratio: 1;
+}
+
+.cycle-logo img {
+	object-fit: contain;
+}
+
+.cycle-note {
+	font-family: var(--font-mono);
+	font-size: 0.6875rem;
+	color: var(--ink-soft);
+}
+
+@media (max-width: 1199px) {
+	.s-work {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.s-work-panel {
+		animation: none;
+	}
+}
+
+/* the projects' hint sits with its tabs, not tucked under them */
+.hm-list .s-tabs-hint {
+	margin-bottom: 0;
+}

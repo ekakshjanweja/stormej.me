@@ -24,6 +24,7 @@
   "scripts": {
     "dev": "turbo run dev",
     "dev:web": "turbo run dev -F web",
+    "dev:lab": "turbo run dev -F lab",
     "dev:server": "turbo run dev -F @stormej/infra",
     "build": "turbo run build",
     "check-types": "turbo run check-types",

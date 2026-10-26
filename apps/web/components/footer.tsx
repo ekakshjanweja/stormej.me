@@ -17,6 +17,17 @@ export default function Footer() {
 				<span aria-hidden className="opacity-40">
 					·
 				</span>
+				{/* the lab is a separate app behind the /experiments/* rewrite, so
+				    a plain link and a full page load, not next/link */}
+				<a
+					className="text-muted-foreground transition-colors hover:text-foreground"
+					href="/experiments/lab"
+				>
+					experiments
+				</a>
+				<span aria-hidden className="opacity-40">
+					·
+				</span>
 				<Link
 					aria-label="Open vault"
 					className="inline-flex items-center text-muted-foreground transition-colors hover:text-foreground"

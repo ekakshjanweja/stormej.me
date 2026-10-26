@@ -5,9 +5,20 @@
       "root": "apps/web",
       "framework": "nextjs",
       "installCommand": "cd ../.. && bun install"
+    },
+    "lab": {
+      "root": "apps/lab",
+      "framework": "nextjs",
+      "installCommand": "cd ../.. && bun install"
     }
   },
   "rewrites": [
+    {
+      "source": "/experiments/(.+)",
+      "destination": {
+        "service": "lab"
+      }
+    },
     {
       "source": "/(.*)",
       "destination": {

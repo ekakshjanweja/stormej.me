@@ -29,7 +29,8 @@
       "!**/public/trove",
       "!**/public",
       "!**/.source",
-      "!apps/mobile"
+      "!apps/mobile",
+      "!apps/lab/archive"
     ]
   },
   "formatter": {

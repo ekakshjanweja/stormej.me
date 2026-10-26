@@ -1,0 +1,296 @@
+/* the lab index: stormej.me's sage paper, one column, quiet motion */
+
+:root {
+	--paper: #f5f6f2;
+	--paper-deep: #ebede7;
+	--ink: #1a1d1a;
+	--ink-soft: #646c63;
+	--line: #e0e3dc;
+	--sage: #3d6a4c;
+
+	--font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+	--font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+	--font-serif: var(--font-instrument-serif), ui-serif, Georgia, serif;
+
+	--ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+
+	color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--paper: #111311;
+		--paper-deep: #1b1e1b;
+		--ink: #e7ebe6;
+		--ink-soft: #949b93;
+		--line: #262a26;
+		--sage: #8fc09d;
+	}
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+	padding: 0;
+	margin: 0;
+}
+
+body {
+	min-height: 100dvh;
+	font-family: var(--font-sans);
+	-webkit-font-smoothing: antialiased;
+	color: var(--ink);
+	background: var(--paper);
+}
+
+a {
+	color: inherit;
+	text-decoration: none;
+}
+
+:focus-visible {
+	outline: 2px solid var(--sage);
+	outline-offset: 3px;
+	border-radius: 4px;
+}
+
+.lab {
+	display: flex;
+	flex-direction: column;
+	gap: 64px;
+	width: min(100% - 48px, 680px);
+	min-height: 100dvh;
+	padding: 40px 0 32px;
+	margin-inline: auto;
+}
+
+.lab-head {
+	display: flex;
+	gap: 8px;
+	font-family: var(--font-mono);
+	font-size: 12px;
+	color: var(--ink-soft);
+}
+
+.lab-mark {
+	color: var(--ink);
+}
+
+.lab-intro h1 {
+	margin-bottom: 16px;
+	font-family: var(--font-serif);
+	font-size: clamp(56px, 12vw, 96px);
+	font-weight: 400;
+	line-height: 0.9;
+	letter-spacing: -0.02em;
+}
+
+.lab-intro em {
+	color: var(--sage);
+}
+
+.lab-intro p {
+	max-width: 52ch;
+	font-size: 15px;
+	line-height: 1.6;
+	color: var(--ink-soft);
+	text-wrap: pretty;
+}
+
+.lab-list {
+	list-style: none;
+	border-top: 1px solid var(--line);
+}
+
+.lab-row {
+	position: relative;
+	padding: 20px 0;
+	border-bottom: 1px solid var(--line);
+}
+
+.lab-link {
+	display: grid;
+	grid-template-columns: 32px 1fr auto;
+	row-gap: 6px;
+	column-gap: 16px;
+	align-items: baseline;
+}
+
+.lab-index {
+	font-family: var(--font-mono);
+	font-size: 12px;
+	color: var(--ink-soft);
+}
+
+.lab-title {
+	font-family: var(--font-serif);
+	font-size: 36px;
+	line-height: 1;
+	transition: color 160ms var(--ease-out);
+}
+
+.lab-arrow {
+	font-family: var(--font-mono);
+	font-size: 14px;
+	color: var(--ink-soft);
+	transition:
+		transform 160ms var(--ease-out),
+		color 160ms var(--ease-out);
+}
+
+.lab-summary {
+	grid-column: 2 / 4;
+	max-width: 46ch;
+	font-size: 14px;
+	line-height: 1.55;
+	color: var(--ink-soft);
+}
+
+/* the pages of each experiment, and what it's after */
+.lab-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 24px;
+	align-items: baseline;
+	justify-content: space-between;
+	padding-left: 48px;
+	margin-top: 12px;
+}
+
+.lab-pages ul {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 14px;
+	list-style: none;
+}
+
+.lab-pages a {
+	position: relative;
+	z-index: 1;
+	font-family: var(--font-mono);
+	font-size: 12px;
+	color: var(--ink);
+	text-decoration: underline;
+	text-decoration-color: var(--line);
+	text-underline-offset: 4px;
+	transition:
+		color 160ms var(--ease-out),
+		text-decoration-color 160ms var(--ease-out);
+}
+
+.lab-pages a:hover {
+	color: var(--sage);
+	text-decoration-color: currentColor;
+}
+
+.lab-after {
+	font-family: var(--font-mono);
+	font-size: 11px;
+	color: var(--ink-soft);
+}
+
+.lab-after a {
+	text-decoration: underline;
+	text-decoration-color: var(--line);
+	text-underline-offset: 3px;
+}
+
+.lab-after a:hover {
+	color: var(--ink);
+}
+
+/* a small cover that peeks out to the right on wide screens */
+.lab-cover {
+	position: absolute;
+	top: 50%;
+	right: -220px;
+	width: 150px;
+	aspect-ratio: 3 / 4;
+	overflow: hidden;
+	pointer-events: none;
+	border-radius: 10px;
+	opacity: 0;
+	transform: translateY(-50%) rotate(4deg) scale(0.94);
+	transition:
+		opacity 200ms var(--ease-out),
+		transform 320ms var(--ease-out);
+}
+
+.lab-cover img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+@media (hover: hover) {
+	.lab-link:hover .lab-title {
+		color: var(--sage);
+	}
+
+	.lab-link:hover .lab-arrow {
+		color: var(--ink);
+		transform: translateX(4px);
+	}
+}
+
+@media (hover: hover) and (min-width: 1100px) {
+	.lab-link:hover .lab-cover {
+		opacity: 1;
+		transform: translateY(-50%) rotate(4deg) scale(1);
+	}
+}
+
+/* experiments that were tried and set aside: same rows, no links, quieter */
+.lab-archive-title {
+	margin-bottom: 12px;
+	font-family: var(--font-mono);
+	font-size: 12px;
+	font-weight: 400;
+	color: var(--ink-soft);
+}
+
+.lab-row-archived .lab-title {
+	font-weight: 400;
+	color: var(--ink-soft);
+}
+
+.lab-status {
+	font-family: var(--font-mono);
+	font-size: 11px;
+	color: var(--ink-soft);
+}
+
+.lab-row-archived .lab-meta {
+	justify-content: flex-start;
+}
+
+.lab-foot {
+	display: flex;
+	justify-content: space-between;
+	margin-top: auto;
+	font-family: var(--font-mono);
+	font-size: 12px;
+	color: var(--ink-soft);
+}
+
+.lab-foot a:hover {
+	color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		transition-duration: 0ms !important;
+	}
+}
+
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	white-space: nowrap;
+	clip-path: inset(50%);
+}

@@ -1,0 +1,1317 @@
+/* strip: a portfolio that runs sideways. stormej.me's sage paper and serif,
+   on the bones of a horizontal-scroll studio site */
+
+:root {
+	/* the colours live in themes.css; dusk is the default */
+	--night-line: color-mix(in oklab, var(--paper) 15%, transparent);
+
+	--font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+	--font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+	/* the display face (--font-serif) and the shout come from type.css */
+
+	--ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+	--pad: 3rem;
+}
+
+@media (max-width: 767px) {
+	:root {
+		--pad: 1.25rem;
+	}
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+	padding: 0;
+	margin: 0;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	overflow-x: clip;
+	font-family: var(--font-sans);
+	-webkit-font-smoothing: antialiased;
+	color: var(--ink);
+	background: var(--paper);
+}
+
+html.lenis,
+html.lenis body {
+	height: auto;
+}
+
+.lenis.lenis-smooth {
+	scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+	overflow: clip;
+}
+
+a {
+	color: inherit;
+	text-decoration: none;
+}
+
+button {
+	font: inherit;
+	color: inherit;
+	cursor: pointer;
+	background: none;
+	border: 0;
+}
+
+img {
+	display: block;
+}
+
+em {
+	font-style: italic;
+}
+
+::selection {
+	color: var(--paper);
+	background: var(--sage);
+}
+
+:focus-visible {
+	outline: 2px solid var(--sage);
+	outline-offset: 3px;
+	border-radius: 4px;
+}
+
+#strip-main:focus {
+	outline: none;
+}
+
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	white-space: nowrap;
+	border: 0;
+	clip: rect(0, 0, 0, 0);
+}
+
+.skip {
+	position: fixed;
+	top: 0.75rem;
+	left: 0.75rem;
+	z-index: 100;
+	padding: 0.5rem 0.875rem;
+	font-family: var(--font-mono);
+	font-size: 12px;
+	color: var(--paper);
+	background: var(--ink);
+	border-radius: 999px;
+	transform: translateY(-200%);
+	transition: transform 200ms var(--ease-out);
+}
+
+.skip:focus-visible {
+	transform: none;
+}
+
+/* ─── chrome ─────────────────────────────────────────────── */
+
+.nav {
+	position: fixed;
+	inset: 0 0 auto;
+	z-index: 40;
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
+	align-items: center;
+	height: 5rem;
+	padding: 0 var(--pad);
+	color: #fff;
+	pointer-events: none;
+	mix-blend-mode: difference;
+}
+
+.nav > * {
+	pointer-events: auto;
+}
+
+.nav-logo {
+	display: inline-flex;
+	gap: 0.3em;
+	justify-self: start;
+	font-family: var(--font-serif);
+	font-size: 1.75rem;
+	line-height: 1;
+}
+
+.nav-surname {
+	display: inline-flex;
+	overflow: hidden;
+}
+
+.nav-surname > span {
+	display: inline-block;
+	transform: translateY(120%);
+}
+
+.nav-pages {
+	font-size: 1.125rem;
+	letter-spacing: -0.01em;
+}
+
+.nav-pages a {
+	display: inline-block;
+	opacity: 0.62;
+}
+
+.nav-pages a:hover,
+.nav-pages a[aria-current="page"] {
+	opacity: 1;
+}
+
+/* nav links: a hairline draws in under the word from the left, and
+   leaves to the right. it's the text's own colour, since the nav is
+   blended over the page and an accent would come out inverted */
+.nav-pages a,
+.nav-social a,
+.email-trigger {
+	background:
+		linear-gradient(var(--sage), var(--sage)) right bottom / 0 1px no-repeat;
+	transition:
+		opacity 200ms var(--ease-out),
+		background-size 380ms var(--ease-out),
+		transform 160ms var(--ease-out);
+}
+
+@media (hover: hover) {
+	.nav-pages a:hover,
+	.nav-social a:hover,
+	.email-trigger:hover {
+		background-position: left bottom;
+		background-size: 100% 1px;
+	}
+}
+
+.nav-pages a[aria-current="page"] {
+	font-family: var(--font-serif);
+	font-size: 1.375rem;
+	font-style: italic;
+}
+
+.nav-tools {
+	display: flex;
+	gap: 1rem;
+	align-items: center;
+	justify-self: end;
+}
+
+.nav-social {
+	display: flex;
+	gap: 1rem;
+	justify-self: end;
+	font-size: 0.9375rem;
+}
+
+.nav-social a,
+.email-trigger {
+	text-decoration-thickness: 1px;
+}
+
+.menu-toggle {
+	display: none;
+	justify-self: end;
+	font-family: var(--font-mono);
+	font-size: 13px;
+}
+
+@media (max-width: 1199px) {
+	.nav {
+		grid-template-columns: 1fr auto;
+		height: 4rem;
+	}
+
+	.nav-pages,
+	.nav-social {
+		display: none;
+	}
+
+	.menu-toggle {
+		display: block;
+	}
+}
+
+.menu-layer {
+	position: fixed;
+	inset: 0;
+	z-index: 39;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	padding: 6rem var(--pad) 2.5rem;
+	color: var(--paper);
+	background: var(--night);
+}
+
+.menu-layer[hidden] {
+	display: none;
+}
+
+.menu-layer ul {
+	list-style: none;
+}
+
+.menu-mask {
+	overflow: hidden;
+}
+
+.menu-layer li a {
+	display: block;
+	font-family: var(--font-serif);
+	font-size: clamp(4rem, 14vw, 10rem);
+	line-height: 0.95;
+	color: var(--mint);
+	letter-spacing: -0.03em;
+}
+
+.menu-layer li a[aria-current="page"] {
+	font-style: italic;
+	color: var(--paper);
+}
+
+.menu-foot {
+	display: flex;
+	gap: 1.25rem;
+	margin-top: 2rem;
+	font-family: var(--font-mono);
+	font-size: 13px;
+	color: color-mix(in oklab, var(--paper) 70%, transparent);
+}
+
+/* the nav sits above the dark layer; keep it legible there */
+body:has(.menu-layer[data-open="true"]) .nav {
+	z-index: 41;
+}
+
+.email {
+	position: relative;
+}
+
+.email-panel {
+	position: fixed;
+	top: 4.5rem;
+	right: var(--pad);
+	z-index: 45;
+	display: grid;
+	width: 18rem;
+	height: 9rem;
+}
+
+.email-cells {
+	display: grid;
+	grid-area: 1 / 1;
+	grid-template-rows: repeat(3, 1fr);
+	grid-template-columns: repeat(5, 1fr);
+}
+
+.email-cells span {
+	background: var(--sage);
+	border-radius: 6px;
+}
+
+.email-body {
+	display: flex;
+	flex-direction: column;
+	grid-area: 1 / 1;
+	gap: 0.75rem;
+	justify-content: center;
+	padding: 1.25rem 1.5rem;
+	color: var(--paper);
+}
+
+.email-address {
+	font-family: var(--font-serif);
+	font-size: 1.5rem;
+	line-height: 1;
+}
+
+.email-actions {
+	display: flex;
+	gap: 1rem;
+	font-family: var(--font-mono);
+	font-size: 12px;
+}
+
+.email-actions button,
+.email-actions a {
+	text-decoration: underline;
+	text-decoration-color: color-mix(in oklab, var(--paper) 40%, transparent);
+	text-underline-offset: 3px;
+}
+
+.email-actions :focus-visible {
+	outline-color: var(--paper);
+}
+
+.foot {
+	position: fixed;
+	inset: auto 0 0;
+	z-index: 40;
+	display: flex;
+	justify-content: space-between;
+	padding: 2rem var(--pad);
+	font-size: 0.875rem;
+	color: #fff;
+	pointer-events: none;
+	mix-blend-mode: difference;
+}
+
+.foot > * {
+	pointer-events: auto;
+}
+
+@media (max-width: 767px) {
+	.foot {
+		display: none;
+	}
+}
+
+.progress {
+	position: fixed;
+	z-index: 40;
+	pointer-events: none;
+	mix-blend-mode: difference;
+}
+
+.progress[data-axis="x"] {
+	bottom: 2.25rem;
+	left: 50%;
+	width: 160px;
+	height: 1px;
+	background: rgb(255 255 255 / 0.25);
+	transform: translateX(-50%);
+}
+
+.progress[data-axis="y"] {
+	top: 50%;
+	right: 1rem;
+	width: 1px;
+	height: 30vh;
+	background: rgb(255 255 255 / 0.25);
+	transform: translateY(-50%);
+}
+
+.progress-bar {
+	display: block;
+	width: 100%;
+	height: 100%;
+	background: #fff;
+}
+
+.progress[data-axis="x"] .progress-bar {
+	transform: scaleX(0);
+	transform-origin: left;
+}
+
+.progress[data-axis="y"] .progress-bar {
+	transform: scaleY(0);
+	transform-origin: top;
+}
+
+@media (max-width: 1199px) {
+	.progress[data-axis="x"] {
+		display: none;
+	}
+}
+
+/* the cursor's wake paints the paper only: it sits behind the content, so
+   photos and clips never get tinted as the pointer crosses them */
+.fluid {
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	mix-blend-mode: multiply;
+}
+
+.lock {
+	position: fixed;
+	inset: 0;
+	z-index: 60;
+}
+
+/* ─── cursor ─────────────────────────────────────────────── */
+
+.cursor {
+	position: fixed;
+	inset: 0;
+	z-index: 70;
+	pointer-events: none;
+}
+
+.cursor-ring,
+.cursor-dot,
+.cursor-label {
+	position: fixed;
+	top: 0;
+	left: 0;
+	will-change: transform;
+}
+
+.cursor-ring {
+	width: 28px;
+	height: 28px;
+	border: 1px solid var(--sage);
+	border-radius: 50%;
+	opacity: 0;
+	transition:
+		border-radius 300ms var(--ease-out),
+		background-color 300ms var(--ease-out),
+		border-color 300ms var(--ease-out),
+		opacity 200ms;
+}
+
+.cursor-ring[data-mode="title"] {
+	background: color-mix(in oklab, var(--glow-1) 30%, transparent);
+}
+
+.cursor-dot {
+	width: 4px;
+	height: 4px;
+	background: var(--sage);
+	border-radius: 50%;
+	opacity: 0;
+}
+
+/* the word pill: crisp, small, a dot of the palette's accent */
+.cursor-pill {
+	display: inline-flex;
+	gap: 0.4rem;
+	align-items: center;
+	padding: 0.4rem 0.7rem 0.4rem 0.55rem;
+	font-family: var(--font-mono);
+	font-size: 11px;
+	font-weight: 500;
+	line-height: 1;
+	color: var(--paper);
+	letter-spacing: 0.02em;
+	white-space: nowrap;
+	background: color-mix(in oklab, var(--ink) 90%, transparent);
+	border-radius: 999px;
+	box-shadow: 0 8px 20px -10px color-mix(in oklab, var(--ink) 60%, transparent);
+	opacity: 0;
+	backdrop-filter: blur(6px);
+	transform: scale(0.6);
+	transform-origin: top left;
+	transition:
+		opacity 180ms var(--ease-out),
+		transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cursor-pill::before {
+	width: 6px;
+	height: 6px;
+	content: "";
+	background: var(--sage);
+	border-radius: 50%;
+}
+
+.cursor-label[data-on] .cursor-pill {
+	opacity: 1;
+	transform: none;
+}
+
+/* ─── preloader ──────────────────────────────────────────── */
+
+.preloader {
+	position: fixed;
+	inset: 0;
+	z-index: 80;
+	display: grid;
+	place-items: center;
+	color: var(--paper);
+	background: var(--night);
+}
+
+html[data-preloader-seen] .preloader {
+	display: none;
+}
+
+.preloader-stage,
+.preloader-card {
+	grid-area: 1 / 1;
+}
+
+.preloader-stage {
+	display: grid;
+}
+
+.preloader-mask {
+	grid-area: 1 / 1;
+	overflow: hidden;
+	text-align: center;
+}
+
+.preloader-word {
+	display: block;
+	font-family: var(--font-serif);
+	font-size: clamp(5rem, 18vw, 16rem);
+	line-height: 1;
+	letter-spacing: -0.03em;
+	transform: translateY(105%);
+}
+
+.preloader-mask:last-child .preloader-word {
+	font-style: italic;
+	color: var(--mint);
+}
+
+.preloader-card {
+	display: flex;
+	visibility: hidden;
+	flex-direction: column;
+	gap: 1.25rem;
+	align-items: center;
+}
+
+.preloader-name {
+	display: flex;
+	font-family: var(--font-serif);
+	font-size: clamp(3rem, 9vw, 8rem);
+	line-height: 1;
+	letter-spacing: 0.12em;
+}
+
+.preloader-letter-mask {
+	display: inline-block;
+	overflow: hidden;
+}
+
+.preloader-letter-mask > span {
+	display: inline-block;
+}
+
+.preloader-rule {
+	width: min(60vw, 28rem);
+	height: 1px;
+	background: color-mix(in oklab, var(--paper) 40%, transparent);
+	transform-origin: left;
+}
+
+.preloader-sub-mask {
+	overflow: hidden;
+}
+
+.preloader-sub {
+	display: block;
+	font-family: var(--font-mono);
+	font-size: 12px;
+	color: color-mix(in oklab, var(--paper) 70%, transparent);
+	letter-spacing: 0.2em;
+}
+
+.preloader-skip {
+	position: absolute;
+	right: var(--pad);
+	bottom: 2rem;
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+	font-family: var(--font-mono);
+	font-size: 12px;
+	color: color-mix(in oklab, var(--paper) 70%, transparent);
+}
+
+.preloader-skip kbd {
+	padding: 0.1rem 0.4rem;
+	font-family: inherit;
+	border: 1px solid color-mix(in oklab, var(--paper) 30%, transparent);
+	border-radius: 4px;
+}
+
+.preloader-skip:focus-visible {
+	outline-color: var(--paper);
+}
+
+/* ─── curtain ────────────────────────────────────────────── */
+
+.curtain {
+	position: fixed;
+	inset: 0;
+	z-index: 65;
+	display: grid;
+	visibility: hidden;
+	place-items: center;
+	pointer-events: none;
+}
+
+.curtain svg {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	/* a palette can give the page change a colour of its own */
+	fill: var(--curtain, var(--ink));
+}
+
+.curtain-label {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	align-items: flex-start;
+	color: var(--paper);
+}
+
+.curtain-mask {
+	overflow: hidden;
+}
+
+.curtain-word {
+	display: block;
+	font-family: var(--font-serif);
+	font-size: clamp(2.5rem, 9vw, 8rem);
+	font-style: italic;
+	line-height: 1;
+}
+
+.curtain-rule {
+	width: 100%;
+	height: 1px;
+	background: color-mix(in oklab, var(--paper) 35%, transparent);
+	transform-origin: left;
+}
+
+/* ─── home ───────────────────────────────────────────────── */
+
+.s-index {
+	font-family: var(--font-mono);
+	font-size: 0.875rem;
+	color: var(--ink-soft);
+}
+
+/* ─── sideways: the shared pin and track every page sits in ─── */
+
+/* the query is SIDEWAYS in _lib/gsap.ts, word for word. anywhere it
+   doesn't match (narrow, short, touch, reduced motion) the panels stack */
+.sw-track {
+	position: relative;
+}
+
+.sw-track > * {
+	position: relative;
+	flex: none;
+}
+
+@media (min-width: 1200px) and (min-height: 600px) and (hover: hover) and (
+		pointer: fine
+	) and (prefers-reduced-motion: no-preference) {
+	.sw-pin {
+		height: 100dvh;
+		overflow: hidden;
+	}
+
+	.sw-track {
+		display: flex;
+		height: 100%;
+		will-change: transform;
+	}
+
+	.sw-track > * {
+		height: 100dvh;
+	}
+}
+
+/* 01: intro */
+.s-intro {
+	display: grid;
+	grid-template-columns: 40% 60%;
+	width: 100vw;
+	padding: 7rem var(--pad) 5.5rem;
+}
+
+.s-intro-left {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.s-note {
+	font-size: 0.9375rem;
+	line-height: 1.35;
+}
+
+.s-name {
+	margin-top: auto;
+	font-family: var(--font-serif);
+	font-size: clamp(4.5rem, 9vw, 10rem);
+	font-weight: 400;
+	line-height: 0.85;
+	letter-spacing: -0.03em;
+}
+
+.s-intro-right {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+}
+
+.s-role {
+	font-family: var(--font-serif);
+	font-size: clamp(3rem, 6.5vw, 7.5rem);
+	line-height: 0.85;
+	text-align: right;
+	letter-spacing: -0.03em;
+}
+
+.s-role em {
+	color: var(--sage);
+}
+
+/* the based-in note and the reel share the bottom of the column */
+.s-intro-row {
+	display: flex;
+	gap: 3rem;
+	align-items: flex-end;
+	justify-content: flex-end;
+	margin-top: auto;
+}
+
+.drag {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+/* a little vertical: 4:5, sized off the screen height */
+.drag-area {
+	position: relative;
+	height: clamp(240px, 46vh, 460px);
+	aspect-ratio: 4 / 5;
+}
+
+.drag-caption {
+	display: flex;
+	gap: 1rem;
+	align-items: center;
+	justify-content: space-between;
+	font-size: 0.8125rem;
+}
+
+.drag-caption a {
+	color: var(--ink-soft);
+}
+
+.drag-caption a:hover {
+	color: var(--ink);
+}
+
+.drag-label {
+	position: absolute;
+	top: -1.25rem;
+	left: 0;
+	font-family: var(--font-mono);
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.15em;
+}
+
+.drag-label em {
+	font-style: normal;
+	color: var(--sage);
+}
+
+.drag-trail,
+.drag-frame {
+	position: absolute;
+	inset: 0;
+}
+
+.drag-trail > * {
+	position: absolute;
+	inset: 0;
+	overflow: hidden;
+	pointer-events: none;
+	border-radius: 14px;
+}
+
+.drag-frame {
+	overflow: hidden;
+	touch-action: none;
+	cursor: grab;
+	border-radius: 14px;
+}
+
+.drag-frame:active {
+	cursor: grabbing;
+}
+
+.drag-inner {
+	position: absolute;
+	inset: 0;
+}
+
+.drag-inner img,
+.drag-inner video {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	user-select: none;
+	object-fit: cover;
+	object-position: 50% 40%;
+}
+
+.drag-trail canvas {
+	width: 100%;
+	height: 100%;
+}
+
+/* sound on / off, with bars that dance while it's audible */
+.sound {
+	display: inline-flex;
+	gap: 0.5rem;
+	align-items: center;
+	padding: 0.4rem 0.75rem 0.4rem 0.6rem;
+	font-family: var(--font-mono);
+	font-size: 0.75rem;
+	border: 1px solid var(--line);
+	border-radius: 999px;
+	transition:
+		background-color 200ms var(--ease-out),
+		border-color 200ms var(--ease-out),
+		color 200ms var(--ease-out);
+}
+
+.sound[aria-pressed="true"] {
+	color: var(--paper);
+	background: var(--sage);
+	border-color: var(--sage);
+}
+
+.sound[data-tone="paper"] {
+	color: var(--paper);
+	border-color: color-mix(in oklab, var(--paper) 30%, transparent);
+}
+
+.sound[data-tone="paper"][aria-pressed="true"] {
+	color: var(--night);
+	background: var(--mint);
+	border-color: var(--mint);
+}
+
+.sound-bars {
+	display: inline-flex;
+	gap: 2px;
+	align-items: flex-end;
+	height: 10px;
+}
+
+.sound-bars span {
+	width: 2px;
+	height: 3px;
+	background: currentColor;
+	border-radius: 1px;
+}
+
+.sound-bars[data-on="true"] span {
+	animation: sound-bar 900ms ease-in-out infinite alternate;
+}
+
+.sound-bars[data-on="true"] span:nth-child(2) {
+	animation-delay: -300ms;
+}
+
+.sound-bars[data-on="true"] span:nth-child(3) {
+	animation-delay: -600ms;
+}
+
+.sound-bars[data-on="true"] span:nth-child(4) {
+	animation-delay: -150ms;
+}
+
+@keyframes sound-bar {
+	from {
+		height: 3px;
+	}
+
+	to {
+		height: 10px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.sound-bars[data-on="true"] span {
+		height: 8px;
+		animation: none;
+	}
+}
+
+.s-based {
+	display: flex;
+	gap: 2rem;
+	align-items: flex-start;
+}
+
+.s-arrow {
+	font-size: 3rem;
+	line-height: 1;
+}
+
+.s-based p {
+	font-size: 0.9375rem;
+	line-height: 1.35;
+}
+
+/* 02: expert */
+.s-expert {
+	display: grid;
+	grid-template-columns: 52% 48%;
+	gap: 3rem;
+	width: 105vw;
+	padding: 6rem 7rem 5.5rem;
+}
+
+.s-expert-left {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+}
+
+.s-small-title {
+	font-size: 1rem;
+	font-weight: 500;
+	line-height: 1.35;
+}
+
+.s-expert-right {
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+	align-items: flex-start;
+	justify-content: center;
+}
+
+.s-words {
+	list-style: none;
+}
+
+.s-word-mask {
+	overflow: hidden;
+}
+
+.s-word-mask > * {
+	display: block;
+	font-family: var(--font-serif);
+	font-size: clamp(4rem, 9vw, 10rem);
+	line-height: 0.9;
+	letter-spacing: -0.03em;
+}
+
+.s-word-mask em {
+	color: var(--sage);
+}
+
+.liquid {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	padding: 0.9rem 1.6rem;
+	overflow: hidden;
+	font-size: 0.9375rem;
+	border: 1px solid var(--ink);
+	border-radius: 1rem 0 0 1rem;
+	isolation: isolate;
+}
+
+.liquid-ink {
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+	fill: var(--ink);
+}
+
+.liquid-text {
+	transition: color 800ms var(--ease-out);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+	.liquid:hover .liquid-text {
+		color: var(--paper);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.liquid:hover {
+		color: var(--paper);
+		background: var(--ink);
+	}
+}
+
+/* 03: process */
+/* compact: the glyph, one phone of screens taking turns, a few lines */
+.s-process {
+	display: grid;
+	grid-template-columns: auto auto;
+	gap: 5rem;
+	align-items: center;
+	width: max-content;
+	padding: 7rem 10vw 5.5rem 8vw;
+}
+
+.s-process-body {
+	display: flex;
+	gap: 4rem;
+	align-items: center;
+}
+
+.s-shots {
+	height: clamp(320px, 54svh, 500px);
+	aspect-ratio: 1170 / 2532;
+}
+
+.s-process-meta {
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
+	max-width: 19rem;
+}
+
+.s-caption {
+	display: flex;
+	gap: 1.5rem;
+	font-size: 0.9375rem;
+}
+
+.s-caption span:first-child {
+	font-family: var(--font-mono);
+	color: var(--ink-soft);
+}
+
+.s-process-title {
+	font-family: var(--font-serif);
+	font-size: 2.8rem;
+	font-weight: 400;
+	line-height: 0.95;
+}
+
+.s-process-title > span {
+	display: block;
+}
+
+.s-process-title em {
+	color: var(--sage);
+}
+
+.s-process-text {
+	font-size: 0.9375rem;
+	line-height: 1.5;
+	color: var(--ink-soft);
+}
+
+.s-process-text a {
+	color: var(--ink);
+	text-decoration: underline;
+	text-decoration-color: var(--line);
+	text-underline-offset: 3px;
+}
+
+/* 04: contact */
+.s-contact {
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
+	/* as wide as its words (the giant name sets it), not the whole screen,
+	   so the music follows close behind */
+	width: max-content;
+	min-width: min(100vw, 52rem);
+	padding: 7rem var(--pad) 5.5rem;
+}
+
+.s-role-line {
+	display: flex;
+	flex-direction: column;
+	font-size: 0.9375rem;
+	line-height: 1.3;
+}
+
+.s-role-line > span,
+.s-giant > span {
+	display: inline-block;
+}
+
+.s-slogan {
+	margin-top: auto;
+	font-family: var(--font-serif);
+	font-size: clamp(2.2rem, 4vw, 4.5rem);
+	font-weight: 400;
+	line-height: 1;
+}
+
+.s-giant {
+	display: flex;
+	overflow: hidden;
+	font-family: var(--font-serif);
+	font-size: clamp(120px, 24vw, 380px);
+	line-height: 0.85;
+	letter-spacing: -0.04em;
+}
+
+/* 05: outro */
+.s-outro {
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+	justify-content: center;
+	width: 100vw;
+	padding: 7rem var(--pad) 6rem;
+	color: var(--paper);
+	background: var(--night);
+}
+
+.s-chat {
+	font-family: var(--font-serif);
+	font-size: clamp(5rem, 13vw, 14rem);
+	font-weight: 400;
+	line-height: 0.85;
+	letter-spacing: -0.03em;
+}
+
+.s-chat em {
+	color: var(--mint);
+}
+
+.s-rule {
+	width: 100%;
+	height: 2px;
+	background: var(--night-line);
+}
+
+.s-pills {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+}
+
+.magnetic {
+	display: inline-block;
+}
+
+.pill {
+	position: relative;
+	display: inline-flex;
+	padding: 1.5rem 2.25rem;
+	overflow: hidden;
+	font-size: 1rem;
+	color: var(--paper);
+	background: var(--night-deep);
+	border-radius: 999px;
+	isolation: isolate;
+}
+
+.pill-fill {
+	position: absolute;
+	inset: -50% -10%;
+	z-index: -1;
+	background: var(--mint);
+	border-radius: 50%;
+	transform: translateY(75%);
+}
+
+.pill-text {
+	position: relative;
+	display: inline-block;
+	transition: color 300ms var(--ease-out);
+}
+
+@media (hover: hover) {
+	.pill:hover .pill-text {
+		color: var(--night);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.pill:hover .pill-fill {
+		transform: none;
+	}
+}
+
+.pill:focus-visible {
+	outline-color: var(--mint);
+}
+
+/* the strip stacks: under 1200px, on touch, short screens, reduced motion */
+@media not all and (min-width: 1200px) and (min-height: 600px) and (
+		hover: hover
+	) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+	.home .sw-track > * {
+		width: auto;
+	}
+
+	.s-intro,
+	.s-expert,
+	.s-process {
+		grid-template-columns: 1fr;
+		gap: 2.5rem;
+		padding: 6rem var(--pad) 4rem;
+	}
+
+	.s-intro {
+		min-height: 100svh;
+	}
+
+	.s-name {
+		margin-top: 2rem;
+	}
+
+	.s-intro-right {
+		align-items: stretch;
+	}
+
+	.s-role {
+		text-align: left;
+	}
+
+	.s-intro-row {
+		flex-direction: column-reverse;
+		gap: 2.5rem;
+		align-items: stretch;
+		margin-top: 2.5rem;
+	}
+
+	.drag-area {
+		width: min(100%, 340px);
+		height: auto;
+	}
+
+	.s-process-body {
+		flex-direction: column;
+		gap: 2rem;
+		align-items: flex-start;
+	}
+
+	.s-shots {
+		height: clamp(320px, 70vh, 460px);
+	}
+
+	.s-contact {
+		padding: 4rem var(--pad);
+	}
+
+	.s-slogan {
+		margin-top: 3rem;
+	}
+
+	.s-outro {
+		min-height: 100svh;
+		padding: 5rem var(--pad);
+	}
+}

@@ -1,0 +1,252 @@
+/* faces: small round photos dropped about the page, each opening a card
+   of what the about page used to say */
+
+.faces {
+	position: absolute;
+	inset: 0;
+	z-index: 2;
+	pointer-events: none;
+	list-style: none;
+}
+
+/* the spot is what a drag moves; the face inside it tilts and opens */
+.face-spot {
+	position: absolute;
+	width: var(--size);
+	height: var(--size);
+	pointer-events: auto;
+}
+
+.face {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: var(--size);
+	height: var(--size);
+	overflow: hidden;
+	border: 3px solid var(--paper);
+	border-radius: calc(var(--size) / 2);
+	box-shadow: 0 12px 26px -14px color-mix(in oklab, var(--ink) 55%, transparent);
+	transform: rotate(var(--tilt));
+	transition:
+		transform 450ms var(--ease-out),
+		box-shadow 450ms var(--ease-out);
+	animation: face-in 700ms var(--ease-out) both;
+}
+
+.face-spot:nth-child(2) .face {
+	animation-delay: 120ms;
+}
+
+.face-spot:nth-child(3) .face {
+	animation-delay: 240ms;
+}
+
+.face-button {
+	position: absolute;
+	inset: 0;
+	display: block;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	cursor: grab;
+}
+
+.face img {
+	object-fit: cover;
+}
+
+/* carried: it stays a circle, lifted off the page */
+.face-spot[data-moving] .face {
+	box-shadow: 0 26px 40px -18px color-mix(in oklab, var(--ink) 60%, transparent);
+	transform: rotate(var(--tilt)) scale(1.12);
+}
+
+.face-spot[data-moving] .face-button {
+	cursor: grabbing;
+}
+
+/* reached for: the face straightens and lifts a little, and stays small */
+.face-spot:hover,
+.face-spot:focus-within,
+.face-spot[data-open] {
+	z-index: 20;
+}
+
+.face-spot:not([data-moving]):hover .face,
+.face-spot:focus-within .face,
+.face-spot[data-open] .face {
+	box-shadow: 0 18px 32px -16px color-mix(in oklab, var(--ink) 60%, transparent);
+	transform: rotate(0deg) scale(1.08);
+}
+
+/* the card it opens: beside the face, on whichever side has room (set as
+   it's reached for), dropping down, or rising up when the face sits low */
+.face-card {
+	position: absolute;
+	top: -0.25rem;
+	left: calc(100% + 0.9rem);
+	display: flex;
+	visibility: hidden;
+	flex-direction: column;
+	gap: 0.7rem;
+	width: 18rem;
+	padding: 1rem 1.1rem 1.1rem;
+	text-align: left;
+	pointer-events: none;
+	background: var(--paper);
+	border: 1px solid var(--line);
+	border-radius: 16px;
+	box-shadow: 0 26px 50px -26px color-mix(in oklab, var(--ink) 45%, transparent);
+	opacity: 0;
+	transform: translateY(6px) scale(0.96);
+	transform-origin: left top;
+	transition:
+		opacity 200ms var(--ease-out),
+		transform 320ms var(--ease-out),
+		visibility 0s linear 320ms;
+}
+
+/* a strip of hover across the gap, so the pointer can reach the card */
+.face-card::before {
+	position: absolute;
+	inset: 0 -1rem;
+	z-index: -1;
+	content: "";
+}
+
+.face-spot[data-side="left"] .face-card {
+	right: calc(100% + 0.9rem);
+	left: auto;
+	transform-origin: right top;
+}
+
+.face-spot[data-lift="up"] .face-card {
+	top: auto;
+	bottom: -0.25rem;
+	transform-origin: left bottom;
+}
+
+.face-spot[data-side="left"][data-lift="up"] .face-card {
+	transform-origin: right bottom;
+}
+
+.face-spot:not([data-moving]):hover .face-card,
+.face-spot:focus-within .face-card,
+.face-spot[data-open] .face-card {
+	visibility: visible;
+	pointer-events: auto;
+	opacity: 1;
+	transform: none;
+	transition-delay: 0s;
+}
+
+.face-card-label {
+	font-family: var(--font-mono);
+	font-size: 0.6875rem;
+	color: var(--ink-soft);
+}
+
+.face-card-text {
+	font-size: 0.9375rem;
+	line-height: 1.45;
+}
+
+.face-card-now {
+	font-family: var(--font-serif);
+	font-size: 1.25rem;
+	line-height: 1.1;
+}
+
+.face-card-now em {
+	color: var(--sage);
+}
+
+.face-card-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+	font-family: var(--font-serif);
+	font-size: 1.25rem;
+	line-height: 1.15;
+	list-style: none;
+}
+
+.face-card-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+	list-style: none;
+}
+
+.face-card-chips li {
+	padding: 0.2rem 0.55rem;
+	font-family: var(--font-mono);
+	font-size: 0.6875rem;
+	border: 1px solid var(--line);
+	border-radius: 999px;
+}
+
+.face-card-meta {
+	font-family: var(--font-mono);
+	font-size: 0.6875rem;
+	line-height: 1.5;
+	color: var(--ink-soft);
+}
+
+.face-card-link {
+	margin-top: 0.15rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.face-card {
+		transform: none;
+	}
+}
+
+@keyframes face-in {
+	from {
+		opacity: 0;
+		transform: rotate(var(--tilt)) scale(0.6);
+	}
+}
+
+/* no room to scatter them: a small loose row at the top of the section
+   instead. a card opens under the row, as wide as there's room for, since
+   beside a face it would run off a narrow screen */
+@media (max-width: 1279px) {
+	.faces {
+		position: relative;
+		display: flex;
+		gap: 0.9rem;
+		width: fit-content;
+		max-width: 100%;
+		margin-bottom: 1.5rem;
+	}
+
+	.face-spot {
+		position: static;
+		inset: auto !important;
+	}
+
+	.face {
+		position: relative;
+	}
+
+	.face-card,
+	.face-spot[data-side="left"] .face-card,
+	.face-spot[data-lift="up"] .face-card {
+		top: calc(100% + 0.75rem);
+		right: auto;
+		bottom: auto;
+		left: 0;
+		width: min(20rem, calc(100vw - 2 * var(--pad)));
+		transform-origin: left top;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.face {
+		animation: none;
+	}
+}

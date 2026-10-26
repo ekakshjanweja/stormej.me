@@ -1,0 +1,113 @@
+/* micro-interactions, everywhere on the strip: presses give a little,
+   arrows lean toward where they go, clicks leave a mark */
+
+/* a press sinks a touch, then springs back on release */
+a,
+button,
+summary {
+	transition-timing-function: var(--ease-out);
+	transition-duration: 160ms;
+	transition-property:
+		transform, color, background-color, border-color, opacity;
+}
+
+a:active,
+button:not(:disabled):active,
+summary:active {
+	transform: scale(0.97);
+}
+
+/* tiles press as a whole; their frame dips a little further */
+.hm-feature-frame:active,
+.rc-face:active {
+	transform: scale(0.96);
+	transition-duration: 120ms;
+}
+
+/* arrows lean toward where they go */
+.s-more-link,
+.page-next-link {
+	display: inline-block;
+}
+
+@media (hover: hover) {
+	.s-more-link:hover,
+	.page-next-link:hover {
+		transform: translateX(0.3rem);
+	}
+
+	/* the play badge on a reel square pops as the square grows */
+}
+
+/* the mark a click leaves */
+.burst {
+	position: fixed;
+	z-index: 75;
+	width: 2.25rem;
+	height: 2.25rem;
+	margin: -1.125rem 0 0 -1.125rem;
+	color: var(--glow-1);
+	pointer-events: none;
+	border: 1px solid color-mix(in oklab, var(--sage) 55%, transparent);
+	border-radius: 50%;
+	animation: burst 520ms var(--ease-out) forwards;
+}
+
+.burst::after {
+	position: absolute;
+	inset: 50% auto auto 50%;
+	width: 0.35rem;
+	height: 0.35rem;
+	margin: -0.175rem 0 0 -0.175rem;
+	content: "";
+	background: currentColor;
+	border-radius: 50%;
+	animation: burst-spark 420ms var(--ease-out) forwards;
+}
+
+.burst[data-strong] {
+	width: 3.5rem;
+	height: 3.5rem;
+	margin: -1.75rem 0 0 -1.75rem;
+	color: var(--glow-1);
+	border: 1.5px solid var(--sage);
+	box-shadow: 0 0 18px -4px var(--glow-2);
+}
+
+@keyframes burst {
+	from {
+		opacity: 1;
+		transform: scale(0.2);
+	}
+
+	to {
+		opacity: 0;
+		transform: scale(1);
+	}
+}
+
+@keyframes burst-spark {
+	from {
+		opacity: 0.9;
+		transform: scale(1);
+	}
+
+	to {
+		opacity: 0;
+		transform: scale(2.4);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	a:active,
+	button:not(:disabled):active,
+	summary:active,
+	.hm-feature-frame:active,
+	.rc-face:active {
+		transform: none;
+	}
+
+	.burst {
+		display: none;
+	}
+}

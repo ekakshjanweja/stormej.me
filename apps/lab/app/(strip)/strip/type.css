@@ -1,0 +1,137 @@
+/* type styles to choose from: the original serif, or a grotesk after the
+   reference. each sets the display face (--font-serif,
+   kept under its old name so every rule that used the serif follows), how
+   heavy and tight the big words, headlines and small display lines sit,
+   whether emphasis leans (italic) or stands (colour alone), and the face
+   for the one big shout, "let's have a chat".
+
+   serif is the original and changes nothing: the rules below only apply
+   to grotesk. serif is :root, the fallback before anything is chosen */
+
+:root[data-type="grotesk"] {
+	/* a neo-grotesk, after the reference's neue montreal */
+	--font-serif:
+		var(--font-inter-tight), var(--font-geist), ui-sans-serif, system-ui,
+		sans-serif;
+	--font-shout: var(--font-anton), Impact, "Arial Narrow", sans-serif;
+	--big-weight: 700;
+	--big-tracking: -0.045em;
+	--mid-weight: 600;
+	--mid-tracking: -0.03em;
+	--small-weight: 500;
+	--small-tracking: -0.015em;
+	--em-style: normal;
+	--shout-weight: 400;
+	--shout-tracking: -0.01em;
+	--leading: 1;
+}
+
+:root,
+:root[data-type="serif"] {
+	--font-serif: var(--font-instrument-serif), ui-serif, Georgia, serif;
+}
+
+/* the big words */
+:root[data-type="grotesk"]
+	:is(
+		.preloader-word,
+		.s-name,
+		.s-role,
+		.s-word-mask > *,
+		.s-giant,
+		.lost-title,
+		.curtain-word,
+		.menu-layer li a
+	) {
+	font-weight: var(--big-weight);
+	letter-spacing: var(--big-tracking);
+}
+
+/* headlines */
+:root[data-type="grotesk"]
+	:is(
+		.s-slogan,
+		.s-process-title,
+		.s-glance-title,
+		.s-builds-title,
+		.s-stats dd,
+		.preloader-name
+	) {
+	font-weight: var(--mid-weight);
+	letter-spacing: var(--mid-tracking);
+}
+
+/* small display: names, titles in lists */
+:root[data-type="grotesk"]
+	:is(
+		.nav-logo,
+		.email-address,
+		.rec-heading,
+		.rec-title,
+		.player-title,
+		.hm-build-name,
+		.hm-list-name,
+		.lost-stage,
+		.lost-note,
+		.lost-elsewhere a
+	) {
+	font-weight: var(--small-weight);
+	letter-spacing: var(--small-tracking);
+}
+
+:root[data-type="grotesk"] .nav-pages a[aria-current="page"] {
+	font-weight: var(--mid-weight);
+}
+
+/* emphasis: italic or upright, as the style says */
+:root[data-type="grotesk"]
+	:is(
+		.s-role,
+		.s-word-mask,
+		.lost-title,
+		.s-slogan,
+		.s-process-title,
+		.s-glance-title,
+		.s-builds-title,
+		.preloader-mask,
+		.nav-pages a[aria-current="page"],
+		.menu-layer li a[aria-current="page"],
+		.curtain-word,
+		.s-chat
+	)
+	:is(em, *),
+:root[data-type="grotesk"]
+	:is(
+		.curtain-word,
+		.nav-pages a[aria-current="page"],
+		.menu-layer li a[aria-current="page"],
+		.preloader-mask:last-child .preloader-word
+	) {
+	font-style: var(--em-style);
+}
+
+/* the one big shout */
+:root[data-type="grotesk"] .s-chat {
+	font-family: var(--font-shout);
+	font-weight: var(--shout-weight);
+	line-height: 0.92;
+	letter-spacing: var(--shout-tracking);
+}
+
+/* the serif sets lowercase on tight leading; the other faces have taller
+   descenders, and the reveal masks clip each line at its box, so lines that
+   rise through a mask get a full line of height and keep their tails */
+:root[data-type="grotesk"]
+	:is(
+		.preloader-word,
+		.s-name,
+		.s-role,
+		.s-word-mask > *,
+		.lost-title,
+		.s-slogan,
+		.s-process-title,
+		.s-glance-title,
+		.s-builds-title
+	) {
+	line-height: var(--leading);
+}

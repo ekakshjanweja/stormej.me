@@ -1,6 +1,12 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, ChevronUp, RotateCcw } from "lucide-react";
+import {
+	ArrowLeft,
+	ArrowRight,
+	ArrowUpRight,
+	ChevronUp,
+	RotateCcw,
+} from "lucide-react";
 import {
 	type MouseEvent,
 	type ReactNode,
@@ -15,6 +21,22 @@ import { GROUP_LABELS, LOADERS, type LoaderGroup } from "./loaders";
 
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
 const GROUPS: LoaderGroup[] = ["home", "wild"];
+
+/* the portfolio experiments live in apps/lab, served under /experiments/* by
+   the vercel rewrite, so these are plain links and a full page load (in dev
+   the lab runs on its own port, so they only resolve in production) */
+const PORTFOLIO_EXPERIMENTS = [
+	{
+		blurb: "a portfolio that runs sideways",
+		href: "/experiments/strip",
+		name: "strip",
+	},
+	{
+		blurb: "every portfolio experiment, live and archived",
+		href: "/experiments/lab",
+		name: "the lab",
+	},
+] as const;
 
 const pill =
 	"inline-flex h-8 items-center justify-center gap-1.5 rounded-full transition-[background-color,color,scale] duration-150 ease-out active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 motion-reduce:transition-none";
@@ -228,6 +250,34 @@ export function LoaderLab() {
 									</ul>
 								</div>
 							))}
+							<div className="mt-1 border-border border-t py-1 pt-2">
+								<p className="meta-tag px-2.5 pt-1 pb-1.5">
+									portfolio experiments
+								</p>
+								<ul>
+									{PORTFOLIO_EXPERIMENTS.map((experiment) => (
+										<li key={experiment.href}>
+											<a
+												className="flex w-full items-baseline gap-3 rounded-xl px-2.5 py-2 text-left transition-colors hover:bg-muted"
+												href={experiment.href}
+											>
+												<ArrowUpRight
+													aria-hidden
+													className="size-3 w-5 shrink-0 self-center text-muted-foreground"
+												/>
+												<span className="min-w-0">
+													<span className="block text-[13px] text-foreground">
+														{experiment.name}
+													</span>
+													<span className="block text-[12px] text-muted-foreground">
+														{experiment.blurb}
+													</span>
+												</span>
+											</a>
+										</li>
+									))}
+								</ul>
+							</div>
 						</div>
 					) : null}
 
