@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { withBase } from "./base";
+import { withPreviews } from "./previews";
 import type { SpotifyStatus } from "./spotify";
 
 export type { SpotifyStatus, SpotifyTrack } from "./spotify";
@@ -41,6 +42,21 @@ const demo = (): SpotifyStatus => {
 	};
 };
 
+/** the worker's answer: null when spotify isn't set up or nothing has
+ *  played, undefined when it couldn't be asked (keep what's showing) */
+const fetchStatus = async (): Promise<SpotifyStatus | null | undefined> => {
+	try {
+		const response = await fetch(ENDPOINT);
+		if (!response.ok) {
+			return;
+		}
+		const next = (await response.json()) as SpotifyStatus;
+		return next.configured && next.track ? next : null;
+	} catch {
+		// offline or blocked: keep what's showing
+	}
+};
+
 /** what's playing, refreshed every 30s while the tab is visible. null until
  *  the first answer, and stays null if spotify isn't set up */
 export const useSpotify = () => {
@@ -56,17 +72,18 @@ export const useSpotify = () => {
 				setStatus(demo());
 				return;
 			}
-			try {
-				const response = await fetch(ENDPOINT);
-				if (!response.ok) {
-					return;
-				}
-				const next = (await response.json()) as SpotifyStatus;
+			const next = await fetchStatus();
+			if (!alive || next === undefined) {
+				return;
+			}
+			setStatus(next);
+			if (next) {
+				/* then again once the clips are found, so a slow store never
+				   holds up the player */
+				const playable = await withPreviews(next);
 				if (alive) {
-					setStatus(next.configured && next.track ? next : null);
+					setStatus(playable);
 				}
-			} catch {
-				/* offline or blocked; keep whatever we had */
 			}
 		};
 		load();

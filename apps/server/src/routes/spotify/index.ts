@@ -11,8 +11,9 @@ export interface SpotifyTrack {
 	/** the largest cover spotify has, or null for local files */
 	albumArt: string | null;
 	artists: string;
-	/** a 30 second clip from the itunes store, where it has the song */
-	preview: string | null;
+	/** always null here: the lab's browser finds a clip in the itunes store
+	    (asked from the worker, apple only answers cloudflare with 429s) */
+	preview: null;
 	title: string;
 	url: string;
 }
@@ -148,76 +149,7 @@ const get = async <T>(token: string, path: string): Promise<T | null> => {
 	return (await response.json()) as T;
 };
 
-/* spotify stopped handing out preview clips to new apps, so the clips come
-   from the itunes store's search instead: free, no key, 30 seconds of most
-   songs. a song's clip doesn't change, so each is looked up once per isolate
-   (misses too). its storefronts differ, so india first, then the us */
-const ITUNES = "https://itunes.apple.com/search";
-const STOREFRONTS = ["IN", "US"] as const;
-const PREVIEW_TIMEOUT_MS = 2500;
-const ITUNES_LIMIT = 10;
-const BRACKETS = /\s*[([].*?[)\]]/g;
-const NOT_WORDS = /[^\p{L}\p{N}]+/gu;
-const previews = new Map<string, Promise<string | null>>();
-
-interface ItunesSong {
-	artistName: string;
-	previewUrl?: string;
-	trackName: string;
-}
-
-/* "Deewana (feat. x)" and "deewana" are the same song */
-const plain = (text: string) =>
-	text.toLowerCase().replace(BRACKETS, "").replace(NOT_WORDS, " ").trim();
-
-const findPreview = async (track: ApiTrack): Promise<string | null> => {
-	const title = plain(track.name);
-	const artists = track.artists.map((artist) => plain(artist.name));
-	for (const country of STOREFRONTS) {
-		try {
-			const query = new URLSearchParams({
-				country,
-				entity: "song",
-				limit: String(ITUNES_LIMIT),
-				term: `${track.name} ${track.artists.at(0)?.name ?? ""}`,
-			});
-			// biome-ignore lint/performance/noAwaitInLoops: storefronts are tried in turn, the next only when one misses
-			const response = await fetch(`${ITUNES}?${query}`, {
-				signal: AbortSignal.timeout(PREVIEW_TIMEOUT_MS),
-			});
-			if (!response.ok) {
-				continue;
-			}
-			const { results } = (await response.json()) as {
-				results: ItunesSong[];
-			};
-			const match = results.find(
-				(song) =>
-					song.previewUrl &&
-					plain(song.trackName) === title &&
-					artists.some((artist) => plain(song.artistName).includes(artist))
-			);
-			if (match?.previewUrl) {
-				return match.previewUrl;
-			}
-		} catch {
-			/* a slow or failed storefront: try the next */
-		}
-	}
-	return null;
-};
-
-const previewFor = (track: ApiTrack) => {
-	const key = `${track.name}|${track.artists.at(0)?.name ?? ""}`;
-	let found = previews.get(key);
-	if (!found) {
-		found = findPreview(track);
-		previews.set(key, found);
-	}
-	return found;
-};
-
-const toTrack = async (track: ApiTrack): Promise<SpotifyTrack> => {
+const toTrack = (track: ApiTrack): SpotifyTrack => {
 	const [largest] = [...track.album.images].sort(
 		(a, b) => (b.width ?? 0) - (a.width ?? 0)
 	);
@@ -225,7 +157,7 @@ const toTrack = async (track: ApiTrack): Promise<SpotifyTrack> => {
 		album: track.album.name,
 		albumArt: largest?.url ?? null,
 		artists: track.artists.map((artist) => artist.name).join(", "),
-		preview: await previewFor(track),
+		preview: null,
 		title: track.name,
 		url: track.external_urls.spotify ?? "https://open.spotify.com",
 	};
@@ -239,7 +171,7 @@ const topTracks = async (token: string) => {
 			token,
 			`/me/top/tracks?time_range=short_term&limit=${TOP_COUNT}`
 		);
-		return await Promise.all(top?.items.map(toTrack) ?? []);
+		return top?.items.map(toTrack) ?? [];
 	} catch {
 		return [];
 	}
@@ -267,7 +199,7 @@ const spotifyStatus = async (env: Env): Promise<SpotifyStatus> => {
 				playedAt: null,
 				progressMs: now.progress_ms,
 				top,
-				track: await toTrack(playingTrack),
+				track: toTrack(playingTrack),
 			};
 		}
 		const recent = await get<RecentlyPlayed>(
@@ -281,7 +213,7 @@ const spotifyStatus = async (env: Env): Promise<SpotifyStatus> => {
 			fetchedAt: Date.now(),
 			playedAt: last?.played_at ?? null,
 			top,
-			track: last ? await toTrack(last.track) : null,
+			track: last ? toTrack(last.track) : null,
 		};
 	} catch {
 		cachedToken = null;
