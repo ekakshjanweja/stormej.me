@@ -42,6 +42,15 @@ const realtime = DurableObjectNamespace("realtime", {
 
 const allowSignup = process.env.ALLOW_SIGNUP;
 
+/* the lab's spotify player: both or neither, so a half-set pair never ships */
+const spotify =
+	process.env.SPOTIFY_CLIENT_SECRET && process.env.SPOTIFY_REFRESH_TOKEN
+		? {
+				SPOTIFY_CLIENT_SECRET: alchemy.secret.env("SPOTIFY_CLIENT_SECRET"),
+				SPOTIFY_REFRESH_TOKEN: alchemy.secret.env("SPOTIFY_REFRESH_TOKEN"),
+			}
+		: {};
+
 export const server = await Worker("server", {
 	adopt: true,
 	bindings: {
@@ -53,6 +62,7 @@ export const server = await Worker("server", {
 		GOOGLE_CLIENT_ID: alchemy.env("GOOGLE_CLIENT_ID"),
 		GOOGLE_CLIENT_SECRET: alchemy.secret.env("GOOGLE_CLIENT_SECRET"),
 		REALTIME_ROOM: realtime,
+		...spotify,
 		STORAGE_BUCKET: storage,
 		VAULT_ACCESS_KEY: alchemy.secret.env("VAULT_ACCESS_KEY"),
 	},

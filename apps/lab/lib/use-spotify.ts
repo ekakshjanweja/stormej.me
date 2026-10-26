@@ -8,13 +8,38 @@ export type { SpotifyStatus, SpotifyTrack } from "./spotify";
 
 const POLL_MS = 30_000;
 
+const ENDPOINT = withBase("/api/spotify");
+
 /* add ?spotify=demo to any page in dev to see the player with fake data */
-const endpoint = () =>
-	withBase(
-		window.location.search.includes("spotify=demo")
-			? "/api/spotify?demo=1"
-			: "/api/spotify"
-	);
+const wantsDemo = () =>
+	process.env.NODE_ENV === "development" &&
+	window.location.search.includes("spotify=demo");
+
+const demo = (): SpotifyStatus => {
+	const track = (title: string, cover: string) => ({
+		album: "demo album",
+		albumArt: withBase(`/media/ig/${cover}.webp`),
+		artists: "demo artist",
+		preview: null,
+		title,
+		url: "https://open.spotify.com",
+	});
+	return {
+		configured: true,
+		durationMs: 214_000,
+		fetchedAt: Date.now(),
+		isPlaying: true,
+		playedAt: null,
+		progressMs: 81_000,
+		top: [
+			track("first demo track", "De695u9iGL5"),
+			track("second demo track", "DewVeY2ixQP"),
+			track("third demo track", "DerCwzLCNFR"),
+			track("fourth demo track", "DejyibXiKjs"),
+		],
+		track: track("a demo track with a longer title", "DeXN1v_zjYM"),
+	};
+};
 
 /** what's playing, refreshed every 30s while the tab is visible. null until
  *  the first answer, and stays null if spotify isn't set up */
@@ -27,8 +52,12 @@ export const useSpotify = () => {
 			if (document.visibilityState !== "visible") {
 				return;
 			}
+			if (wantsDemo()) {
+				setStatus(demo());
+				return;
+			}
 			try {
-				const response = await fetch(endpoint());
+				const response = await fetch(ENDPOINT);
 				if (!response.ok) {
 					return;
 				}

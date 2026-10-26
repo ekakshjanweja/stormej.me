@@ -76,21 +76,27 @@ action succeeds alongside its visual confirmation.
 
 ## spotify
 
-Strip shows what's playing (or what played last) and the month's
-top tracks, through `app/api/spotify/route.ts` and `lib/use-spotify.ts`. With
-no credentials the route answers `configured: false` and the players stay out
-of the page. To switch it on:
+Strip shows what's playing (or what played last) and the month's top
+tracks. The backend does the work: the stormej Cloudflare worker
+(`apps/server`, `src/routes/spotify`) holds the secrets, asks Spotify and
+edge-caches the answer for 30 seconds. The lab reaches it at
+`/experiments/api/spotify` through a rewrite in `next.config.ts` (to
+`NEXT_PUBLIC_WORKER_URL`, else the workers.dev url), and `lib/use-spotify.ts`
+polls that. With no credentials the worker answers `configured: false` and
+the player stays out of the page. To switch it on:
 
-1. Put `SPOTIFY_CLIENT_SECRET=…` in `apps/lab/.env.local` (dashboard → app
+1. Put `SPOTIFY_CLIENT_SECRET=…` in `apps/server/.env` (dashboard → app
    "portfolio" → settings).
 2. `bun run spotify:token` from `apps/lab` (port 3000 must be free), then
-   approve in the browser. The refresh token is appended to `.env.local`.
-3. Add `SPOTIFY_CLIENT_SECRET` and `SPOTIFY_REFRESH_TOKEN` to the Vercel
-   project's environment variables and redeploy.
+   approve in the browser. The refresh token is appended to
+   `apps/server/.env`.
+3. `bun run deploy` from the repo root. Alchemy ships both to the worker as
+   secrets; nothing goes to Vercel.
 
-The refresh token lasts 180 days (the app's setting); run step 2 again when
-it runs out. In dev, add `?spotify=demo` to any page to see the players with
-fake data.
+The refresh token lasts 180 days (the app's setting); remove the old line
+and run step 2 again when it runs out. In dev the rewrite points at the
+local worker (`bun run dev:server`), and `?spotify=demo` on any page shows
+the player with fake data without a backend.
 
 ## deploy
 

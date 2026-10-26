@@ -1,16 +1,17 @@
-/* one-time: sign in to spotify and save a refresh token for the lab.
+/* one-time: sign in to spotify and save a refresh token for the worker.
 
-   1. put SPOTIFY_CLIENT_SECRET=... in apps/lab/.env.local (from the spotify
+   1. put SPOTIFY_CLIENT_SECRET=... in apps/server/.env (from the spotify
       dashboard, app "portfolio" → settings)
    2. bun run spotify:token   (from apps/lab; port 3000 must be free)
-   3. approve in the browser. the refresh token is appended to .env.local
-   4. copy SPOTIFY_CLIENT_SECRET and SPOTIFY_REFRESH_TOKEN into the vercel
-      project's environment variables and redeploy
+   3. approve in the browser. the refresh token is appended to
+      apps/server/.env
+   4. bun run deploy from the repo root: alchemy ships both as secrets on
+      the stormej cloudflare worker, which serves /spotify
 
    the redirect uri has to match one listed in the dashboard exactly. it
    defaults to http://127.0.0.1:3000/callback (spotify rejects localhost as
    insecure); set SPOTIFY_REDIRECT_URI to use another. the refresh token
-   lasts 180 days, after which run this again */
+   lasts 180 days, after which remove the old line and run this again */
 
 import { appendFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -27,11 +28,11 @@ const SCOPES = [
 	"user-read-recently-played",
 	"user-top-read",
 ];
-const ENV_FILE = join(import.meta.dir, "..", ".env.local");
+const ENV_FILE = join(import.meta.dir, "..", "..", "server", ".env");
 
 if (!SECRET) {
 	console.error(
-		"add SPOTIFY_CLIENT_SECRET to apps/lab/.env.local first (spotify dashboard → portfolio → settings)"
+		"add SPOTIFY_CLIENT_SECRET to apps/server/.env first (spotify dashboard → portfolio → settings)"
 	);
 	process.exit(1);
 }

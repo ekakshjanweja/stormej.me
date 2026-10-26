@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start --port 3001",
     "check-types": "tsc --noEmit",
-    "spotify:token": "bun scripts/spotify-token.ts"
+    "spotify:token": "bun --env-file=../server/.env scripts/spotify-token.ts"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

@@ -1,11 +1,14 @@
 # server
 
-the hono worker. it serves three things:
+the hono worker. it serves:
 
 - **`/files/*`** — public reads out of the `stormej-storage` r2 bucket
 - **`/admin/*`** — vault writes, behind a better-auth session
   ([`src/middleware/require-session.ts`](src/middleware/require-session.ts))
 - **`/ws`** — the live-cursor durable object ([`src/durable-objects.ts`](src/durable-objects.ts))
+- **`/spotify`** — what's playing, for the lab's player
+  ([`src/routes/spotify`](src/routes/spotify/index.ts)). public, edge-cached for 30s; needs
+  `SPOTIFY_CLIENT_SECRET` and `SPOTIFY_REFRESH_TOKEN`, otherwise it answers `configured: false`
 
 the vault unlocks with `VAULT_ACCESS_KEY` (see `.env.example`). `POST /admin/unlock` checks the
 key and sets an HttpOnly `stormej_vault` cookie; other `/admin/*` routes require that cookie

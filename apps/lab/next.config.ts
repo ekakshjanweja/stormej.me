@@ -6,6 +6,16 @@ const BASE_PATH = "/experiments";
 
 import { LINKS, PROJECTS, SITE, WORK } from "./lib/profile";
 
+/* the backend: the stormej cloudflare worker (apps/server), which holds the
+   spotify secrets. the lab reaches it through a same-origin rewrite, as
+   apps/web does, so the browser never needs cors */
+const WORKER_URL = (
+	process.env.NEXT_PUBLIC_WORKER_URL ??
+	(process.env.NODE_ENV === "development"
+		? "http://localhost:8787"
+		: "https://stormej.jekaksh.workers.dev")
+).replace(/\/$/, "");
+
 /* strip is the one live experiment; orbit and studio live in archive/ */
 const ARCHIVED = ["orbit", "studio"] as const;
 
@@ -62,6 +72,12 @@ const nextConfig: NextConfig = {
 				...alias,
 				permanent: false,
 			})),
+		]);
+	},
+	rewrites() {
+		return Promise.resolve([
+			/* what's playing, from the worker's /spotify */
+			{ destination: `${WORKER_URL}/spotify`, source: "/api/spotify" },
 		]);
 	},
 };

@@ -9,6 +9,7 @@ import {
 	vaultCookieOptions,
 } from "./lib/vault-gate";
 import { colorRoutes } from "./routes/colors";
+import { spotifyRoutes } from "./routes/spotify";
 import { uploadRoutes } from "./routes/upload";
 import type { Env } from "./types";
 
@@ -65,6 +66,7 @@ app.post("/admin/lock", (c) => {
 
 app.route("/", colorRoutes);
 app.route("/", uploadRoutes);
+app.route("/", spotifyRoutes);
 
 app.all("/ws", (c) => {
 	const id = c.env.REALTIME_ROOM.idFromName("global");
