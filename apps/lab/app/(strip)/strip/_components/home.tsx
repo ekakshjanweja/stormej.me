@@ -166,9 +166,10 @@ const reveals = (along: Along) => {
 	cameraFlash(along);
 };
 
-/* the orb, nearly full, goes off like a camera flash: it charges, the frame
-   blows out white with a streak across it, and a warm afterimage burns off
-   back into the dusk. only ever forwards, and never under reduced motion
+/* the orb, nearly full, goes off like a camera flash: it charges, a soft
+   white bloom opens around it with a faint streak across, and a warm
+   afterimage burns off back into the dusk. the page stays readable through
+   it. only ever forwards, and never under reduced motion
    (reveals don't run then) */
 const ORB_FILTER = "blur(40px) saturate(0.85) brightness(1)";
 const FLASH_COOLDOWN_MS = 4000;
@@ -210,49 +211,45 @@ const cameraFlash = (along: Along) => {
 				{
 					duration: pop,
 					ease: "power2.in",
-					filter: "blur(40px) saturate(0.85) brightness(1.8)",
+					filter: "blur(40px) saturate(0.85) brightness(1.35)",
 				},
 				0
 			)
 			.fromTo(
 				burn,
 				{ opacity: 0 },
-				{ duration: pop, ease: "power2.in", opacity: 0.3 },
+				{ duration: pop, ease: "power2.in", opacity: 0.12 },
 				0
 			)
 			/* the pop */
 			.call(() => playSfx("shutter"), [], pop)
 			.fromTo(
 				white,
-				{ "--flash-r": "150%", opacity: 0 },
-				{ duration: 0.03, opacity: 1 },
+				{ "--flash-r": "70%", opacity: 0 },
+				{ duration: 0.06, ease: "power2.out", opacity: 0.5 },
 				pop
 			)
-			.to(burn, { duration: 0.05, opacity: 1 }, pop)
+			.to(burn, { duration: 0.08, opacity: 0.45 }, pop)
 			.to(
 				orb,
-				{ duration: 0.05, filter: "blur(40px) saturate(0.85) brightness(4)" },
+				{ duration: 0.08, filter: "blur(40px) saturate(0.85) brightness(2)" },
 				pop
 			)
-			.fromTo(
-				streak,
-				{ opacity: 1, scaleX: 0.15 },
-				{ duration: 0.4, ease: "expo.out", scaleX: 1.8 },
-				pop
-			)
-			/* held white for a beat, then the burn lingers and fades */
+			.set(streak, { opacity: 0.35, scaleX: 0.2 }, pop)
+			.to(streak, { duration: 0.4, ease: "expo.out", scaleX: 1.1 }, pop)
+			/* the bloom draws straight back in, then the burn lingers and fades */
 			.to(
 				white,
-				{ "--flash-r": "14%", duration: 1.3, ease: "power3.inOut" },
-				pop + 0.12
+				{ "--flash-r": "14%", duration: 0.7, ease: "power3.out" },
+				pop + 0.06
 			)
-			.to(white, { duration: 1.3, ease: "power2.in", opacity: 0 }, pop + 0.12)
-			.to(streak, { duration: 0.7, ease: "power2.out", opacity: 0 }, pop + 0.12)
-			.to(burn, { duration: 2.4, ease: "power2.out", opacity: 0 }, pop + 0.2)
+			.to(white, { duration: 0.7, ease: "power2.out", opacity: 0 }, pop + 0.06)
+			.to(streak, { duration: 0.5, ease: "power2.out", opacity: 0 }, pop + 0.06)
+			.to(burn, { duration: 1.5, ease: "power2.out", opacity: 0 }, pop + 0.1)
 			.to(
 				orb,
-				{ duration: 2.2, ease: "power2.out", filter: ORB_FILTER },
-				pop + 0.15
+				{ duration: 1.4, ease: "power2.out", filter: ORB_FILTER },
+				pop + 0.1
 			)
 			.set(flash, { visibility: "hidden" });
 	};

@@ -167,8 +167,8 @@
 	opacity: 0;
 }
 
-/* the blowout: white hot at the orb and past the edges of the frame. as it
-   fades the white shrinks back into the orb (--flash-r), so the frame
+/* the bloom: white hot at the orb and soft towards the edges of the frame.
+   as it fades the white shrinks back into the orb (--flash-r), so the frame
    recovers from the outside in instead of greying over */
 .s-flash-white {
 	--flash-r: 150%;
@@ -198,11 +198,11 @@
 	mix-blend-mode: screen;
 }
 
-/* an anamorphic streak through the burst */
-.s-flash-streak {
-	top: calc(var(--fy) - 3vh);
+/* an anamorphic streak through the burst (beating the inset above) */
+.s-flash > .s-flash-streak {
+	top: calc(var(--fy) - 2vh);
 	bottom: auto;
-	height: 6vh;
+	height: 4vh;
 	background: radial-gradient(
 		ellipse 50% 50% at var(--fx) 50%,
 		#fff 0%,
