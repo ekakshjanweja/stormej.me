@@ -13,6 +13,7 @@ import "./strip/themes.css";
 import "./strip/texture.css";
 import "./strip/type.css";
 import "./strip/images.css";
+import "./strip/activity.css";
 
 export const metadata: Metadata = {
 	description:

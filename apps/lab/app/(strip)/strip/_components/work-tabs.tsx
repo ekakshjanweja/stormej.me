@@ -11,6 +11,7 @@ import { withBase } from "@/lib/base";
 import { STATS, WORK, yearsShipping } from "@/lib/profile";
 import { playSfx } from "@/lib/sfx";
 import { useMovable } from "../_lib/movable";
+import { GithubActivity } from "./github-activity";
 import { PageLink } from "./page-link";
 import { ProgressiveImage } from "./progressive-image";
 import { ShotCycle } from "./shot-cycle";
@@ -193,11 +194,8 @@ export function WorkTabs() {
 						<dt>teams</dt>
 						<dd>{STATS.startups}</dd>
 					</div>
-					<div>
-						<dt>contributions in 2025</dt>
-						<dd>{STATS.contributions2025.toLocaleString("en-US")}</dd>
-					</div>
 				</dl>
+				<GithubActivity />
 				<p className="s-tabs-hint">pick a team</p>
 				<div
 					aria-label="teams"

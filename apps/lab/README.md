@@ -82,6 +82,19 @@ Use `data-sfx="silent"` to opt a control out, `data-sfx="open"` or
 `data-sfx="close"` for a panel trigger, and `playSfx("success")` only after an
 action succeeds alongside its visual confirmation.
 
+## github activity
+
+The contributions count in Strip's "at a glance" section is an activity
+calendar. Drag or swipe the calendar through every available year, or use
+the arrows and year buttons. Focus a day and use the arrow keys to inspect
+its neighbors; Home and End jump to the year's first and latest available
+day. Reduced motion removes the count and movement animations.
+
+`/experiments/api/github-activity` uses the same public GitHub Contributions
+API as the main site, caches the history for an hour, and sends compact
+daily counts and intensity levels. The browser requests it only as the
+section approaches the viewport. An unavailable API shows a retry control.
+
 ## spotify
 
 Strip shows what's playing (or what played last) and the month's top
