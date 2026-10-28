@@ -12,6 +12,7 @@ import "./strip/micro.css";
 import "./strip/themes.css";
 import "./strip/texture.css";
 import "./strip/type.css";
+import "./strip/images.css";
 
 export const metadata: Metadata = {
 	description:
@@ -34,6 +35,13 @@ export default function StripLayout({
 	return (
 		<html className={stripFontVariables} lang="en" suppressHydrationWarning>
 			<head>
+				<noscript>
+					<style>
+						{
+							".progressive-full{opacity:1!important}.progressive-preview{display:none}"
+						}
+					</style>
+				</noscript>
 				<script
 					// biome-ignore lint/security/noDangerouslySetInnerHtml: a fixed, inline gate that has to run before paint
 					dangerouslySetInnerHTML={{ __html: `${THEME_GATE}${PRELOADER_GATE}` }}

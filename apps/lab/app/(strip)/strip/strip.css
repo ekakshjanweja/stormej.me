@@ -867,6 +867,15 @@ html[data-preloader-seen] .preloader {
 	object-position: 50% 40%;
 }
 
+.drag-inner video {
+	opacity: 0;
+	transition: opacity 300ms var(--ease-out);
+}
+
+.drag-inner video[data-playing] {
+	opacity: 1;
+}
+
 .drag-trail canvas {
 	width: 100%;
 	height: 100%;

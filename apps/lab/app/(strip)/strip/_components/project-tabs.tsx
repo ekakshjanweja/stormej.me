@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import {
 	type CSSProperties,
 	type KeyboardEvent,
@@ -13,6 +12,7 @@ import { PROJECTS, type Project, SITE } from "@/lib/profile";
 import { playSfx } from "@/lib/sfx";
 import { FeatureCaption, FeatureFilm } from "./feature-film";
 import { PageLink } from "./page-link";
+import { ProgressiveImage } from "./progressive-image";
 
 /* the projects, the way the work is: their names are tabs, and the frame
    beside them takes on whichever is picked. a project with a clip plays it
@@ -80,7 +80,7 @@ function ProjectCard({ project }: { project: Project }) {
 						}}
 						type="button"
 					>
-						<Image
+						<ProgressiveImage
 							alt=""
 							height={shot.height}
 							sizes="320px"

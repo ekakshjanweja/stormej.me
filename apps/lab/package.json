@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start --port 3001",
     "check-types": "tsc --noEmit",
+    "images:strip": "bun scripts/strip-images.ts",
     "spotify:token": "bun --env-file=../server/.env scripts/spotify-token.ts"
   },
   "dependencies": {
@@ -22,6 +23,7 @@
     "@types/node": "^22.15.29",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.5",
+    "sharp": "^0.35.4",
     "typescript": "catalog:"
   }
 }

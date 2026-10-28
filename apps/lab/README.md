@@ -54,6 +54,14 @@ type-check; Biome skips them. `archive/README.md` says how to bring one back.
 Every experiment honours `prefers-reduced-motion`, works by keyboard, and
 keeps real text in the page for anything drawn on a canvas.
 
+Strip's local images show an inline 24px preview, then fade in a responsive
+image after decoding. The 320px thumbnails in `public/media/strip` have
+content hashes and immutable caching; larger displays use the original.
+Run `bun run images:strip` from `apps/lab` after replacing or adding media
+to regenerate the thumbnails and `lib/strip-images.json`. Commit both.
+The static files avoid the image optimizer endpoint, which isn't routed by
+the Vercel services setup.
+
 ## sound effects
 
 Strip plays interface sounds: clicks, hovers, things growing, the curtain

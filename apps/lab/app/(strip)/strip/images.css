@@ -1,0 +1,43 @@
+.progressive-image {
+	position: relative;
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.progressive-image[data-fill] {
+	position: absolute;
+	inset: 0;
+}
+
+.progressive-image picture {
+	position: relative;
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.progressive-image .progressive-preview,
+.progressive-image .progressive-full {
+	pointer-events: none;
+	transition: opacity 250ms ease-out;
+}
+
+.progressive-image .progressive-full {
+	opacity: 0;
+}
+
+.progressive-image[data-loaded] .progressive-full {
+	opacity: 1;
+}
+
+.progressive-image[data-loaded] .progressive-preview {
+	opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.progressive-image .progressive-preview,
+	.progressive-image .progressive-full {
+		transition: none;
+	}
+}

@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import {
 	type CSSProperties,
 	useCallback,
@@ -14,6 +13,7 @@ import { getLenis, gsap, reducedMotion } from "../_lib/gsap";
 import { playingFlags } from "../_lib/playing";
 import { giveSound, takeSound } from "../_lib/sound";
 import { PageLink } from "./page-link";
+import { ProgressiveImage } from "./progressive-image";
 import { SoundButton } from "./sound-button";
 
 const OPEN_SECONDS = 0.85;
@@ -214,7 +214,7 @@ export function FeatureFilm({ project }: { project: Project }) {
 				type="button"
 			>
 				{project.image ? (
-					<Image alt="" fill sizes="40vw" src={project.image} />
+					<ProgressiveImage alt="" fill sizes="40vw" src={project.image} />
 				) : null}
 				{project.video ? (
 					<video
@@ -224,7 +224,7 @@ export function FeatureFilm({ project }: { project: Project }) {
 						loop
 						muted
 						playsInline
-						preload="metadata"
+						preload="none"
 						ref={previewRef}
 						src={project.video}
 						tabIndex={-1}

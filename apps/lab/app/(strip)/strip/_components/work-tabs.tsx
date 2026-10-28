@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import {
 	type KeyboardEvent,
 	useCallback,
@@ -13,6 +12,7 @@ import { STATS, WORK, yearsShipping } from "@/lib/profile";
 import { playSfx } from "@/lib/sfx";
 import { useMovable } from "../_lib/movable";
 import { PageLink } from "./page-link";
+import { ProgressiveImage } from "./progressive-image";
 import { ShotCycle } from "./shot-cycle";
 
 /* at a glance, and the work itself, side by side. the teams are tabs: pick
@@ -124,7 +124,13 @@ function LogoTab({
 			type="button"
 		>
 			{src ? (
-				<Image alt="" draggable={false} fill sizes="72px" src={withBase(src)} />
+				<ProgressiveImage
+					alt=""
+					draggable={false}
+					fill
+					sizes="72px"
+					src={withBase(src)}
+				/>
 			) : null}
 			<span aria-hidden="true" className="s-logo-name">
 				{company}
@@ -227,7 +233,12 @@ export function WorkTabs() {
 						<span className="cycle cycle-empty">
 							{logo ? (
 								<span className="cycle-logo">
-									<Image alt="" fill sizes="160px" src={withBase(logo)} />
+									<ProgressiveImage
+										alt=""
+										fill
+										sizes="160px"
+										src={withBase(logo)}
+									/>
 								</span>
 							) : null}
 							<span className="cycle-note">screens coming soon</span>

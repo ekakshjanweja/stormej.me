@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { reducedMotion } from "../_lib/gsap";
+import { ProgressiveImage } from "./progressive-image";
 
 const EVERY_MS = 2600;
 
@@ -62,7 +62,16 @@ export function ShotCycle({
 					data-shown={index === shown ? "" : undefined}
 					key={src}
 				>
-					<Image alt="" fill sizes="(min-width: 1200px) 24vh, 50vw" src={src} />
+					<ProgressiveImage
+						alt=""
+						fill
+						loadFull={
+							index === shown ||
+							(visible && index === (shown + 1) % screens.length)
+						}
+						sizes="(min-width: 1200px) 24vh, 50vw"
+						src={src}
+					/>
 				</span>
 			))}
 			<span aria-hidden="true" className="cycle-dots">

@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import {
 	type CSSProperties,
 	type Dispatch,
@@ -14,6 +13,7 @@ import {
 } from "react";
 import type { Portrait } from "@/lib/profile";
 import { useMovable } from "../_lib/movable";
+import { ProgressiveImage } from "./progressive-image";
 
 /** what a face says about me when it's reached for */
 export interface FaceCard {
@@ -187,7 +187,13 @@ function Face({
 					onPointerEnter={place}
 					type="button"
 				>
-					<Image alt="" draggable={false} fill sizes="120px" src={photo.src} />
+					<ProgressiveImage
+						alt=""
+						draggable={false}
+						fill
+						sizes="120px"
+						src={photo.src}
+					/>
 				</button>
 			</div>
 			{card ? (

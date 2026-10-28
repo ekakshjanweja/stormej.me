@@ -1,11 +1,12 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef } from "react";
 import type { Reel } from "@/lib/profile";
 import { playSfx } from "@/lib/sfx";
 import { Draggable, gsap, reducedMotion } from "../_lib/gsap";
+import { playingFlags } from "../_lib/playing";
 import { useReel } from "../_lib/sound";
+import { ProgressiveImage } from "./progressive-image";
 import { SoundButton } from "./sound-button";
 
 const TRAIL_STEP = 30;
@@ -123,21 +124,22 @@ export function DragReel({
 					ref={frameRef}
 				>
 					<div className="drag-inner" data-inner="">
-						<Image
+						<ProgressiveImage
 							alt=""
 							draggable={false}
+							fetchPriority="high"
 							fill
-							priority
+							loading="eager"
 							sizes="(min-width: 1200px) 22vw, 60vw"
 							src={reel.cover}
 						/>
 						<video
 							aria-label={alt}
+							{...playingFlags}
 							loop
 							muted
 							playsInline
-							poster={reel.cover}
-							preload="metadata"
+							preload="none"
 							ref={videoRef}
 							src={reel.video}
 						>

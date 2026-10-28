@@ -55,6 +55,19 @@ const nextConfig: NextConfig = {
 	/* every experiment has its own root layout, so there's no single layout
 	   to build a 404 from */
 	experimental: { globalNotFound: true },
+	headers() {
+		return Promise.resolve([
+			{
+				headers: [
+					{
+						key: "Cache-Control",
+						value: "public, max-age=31536000, immutable",
+					},
+				],
+				source: "/media/strip/:path*",
+			},
+		]);
+	},
 	/* vercel's services routing doesn't reach /_next/image (apps/web hits the
 	   same thing), and the media is already resized, so serve it as is */
 	images: {

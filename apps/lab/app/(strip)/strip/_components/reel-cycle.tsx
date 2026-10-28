@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PLAYABLE_REELS } from "@/lib/profile";
 import { reducedMotion } from "../_lib/gsap";
 import { playingFlags } from "../_lib/playing";
+import { ProgressiveImage } from "./progressive-image";
 import { ReelPlayer, type ReelPlayerHandle } from "./reel-player";
 
 /* the reels in the space of two: two squares play, silently, and every few
@@ -52,7 +52,7 @@ function Tile({
 			onClick={open}
 			type="button"
 		>
-			<Image alt="" fill sizes="220px" src={reel.cover} />
+			<ProgressiveImage alt="" fill sizes="220px" src={reel.cover} />
 			<video
 				aria-hidden="true"
 				className="rc-video"
