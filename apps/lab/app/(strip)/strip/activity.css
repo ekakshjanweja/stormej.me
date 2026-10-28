@@ -1,13 +1,15 @@
 .github-activity {
-	--ga-zero: color-mix(in oklab, var(--sage) 12%, var(--paper));
-	--ga-one: color-mix(in oklab, var(--sage) 35%, var(--paper));
-	--ga-two: color-mix(in oklab, var(--sage) 65%, var(--paper));
-	--ga-three: var(--sage);
-	--ga-four: color-mix(in oklab, var(--sage) 70%, var(--ink));
+	/* the main site's ramp: a neutral empty day, then the accent at 30, 55,
+	   80 and 100% */
+	--ga-zero: var(--paper-deep);
+	--ga-one: color-mix(in oklab, var(--sage) 30%, var(--paper));
+	--ga-two: color-mix(in oklab, var(--sage) 55%, var(--paper));
+	--ga-three: color-mix(in oklab, var(--sage) 80%, var(--paper));
+	--ga-four: var(--sage);
 	width: 100%;
 	min-width: 0;
 	max-width: 22rem;
-	padding-top: 1rem;
+	padding-top: 0.875rem;
 	border-top: 1px solid var(--line);
 }
 
@@ -15,24 +17,17 @@
 	min-width: 0;
 }
 
-.ga-heading,
-.ga-tally,
-.ga-details,
-.ga-navigation {
-	display: flex;
-	align-items: center;
-}
-
 .ga-heading {
+	display: flex;
+	gap: 0.75rem;
+	align-items: center;
 	justify-content: space-between;
 	margin-bottom: 0.75rem;
 }
 
 .ga-label,
-.ga-caption,
-.ga-details,
-.ga-navigation,
-.ga-hint,
+.ga-years,
+.ga-status,
 .ga-placeholder {
 	font-family: var(--font-mono);
 	font-size: 0.625rem;
@@ -40,212 +35,241 @@
 }
 
 .ga-label {
-	margin-bottom: 0.2rem;
 	font-weight: 400;
 }
 
-.ga-tally {
-	gap: 0.6rem;
-	align-items: baseline;
-}
-
-.ga-total {
-	font-family: var(--font-serif);
-	font-size: 2.5rem;
-	font-variant-numeric: tabular-nums;
-	line-height: 1;
-	color: var(--ink);
-}
-
-.ga-profile,
-.ga-arrow {
-	display: grid;
-	flex: none;
-	place-items: center;
-	width: 2rem;
-	height: 2rem;
-	border: 1px solid var(--line);
-	border-radius: 50%;
-	transition:
-		background-color 160ms var(--ease-out),
-		color 160ms var(--ease-out);
-}
-
 .ga-profile {
-	font-size: 1.125rem;
+	transition: color 160ms var(--ease-out);
 }
 
-.ga-track {
+.ga-profile span {
+	display: inline-block;
+	margin-left: 0.25em;
+	transition: translate 200ms var(--ease-out);
+}
+
+.ga-years {
 	display: flex;
-	width: 100%;
-	overflow-x: auto;
-	overscroll-behavior-x: contain;
-	cursor: grab;
-	scroll-snap-type: x mandatory;
-	scrollbar-width: none;
-	border-radius: 3px;
+	align-items: center;
 }
 
-.ga-track[data-dragging] {
-	cursor: grabbing;
-	user-select: none;
-	scroll-snap-type: none;
+.ga-year {
+	min-width: 2.5rem;
+	font-variant-numeric: tabular-nums;
+	color: var(--ink);
+	text-align: center;
 }
 
-.ga-page {
-	flex: 0 0 100%;
-	min-width: 0;
-	min-height: 4.75rem;
-	scroll-snap-align: start;
+.ga-year[data-direction="forward"] {
+	animation: ga-year-forward 360ms var(--ease-out);
 }
 
-.ga-calendar {
-	padding: 3px;
+.ga-year[data-direction="back"] {
+	animation: ga-year-back 360ms var(--ease-out);
 }
 
-.ga-grid {
-	display: flex;
-	gap: 2px;
-	min-width: 0;
-	border: 0;
+@keyframes ga-year-forward {
+	from {
+		opacity: 0;
+		translate: 0.6em 0;
+	}
 }
 
-.ga-week {
-	display: grid;
-	flex: 1;
-	grid-template-rows: repeat(7, 1fr);
-	gap: 2px;
-	min-width: 0;
-	opacity: 0.4;
-	transform: translateY(4px);
-	transition:
-		opacity 200ms var(--ease-out),
-		transform 200ms var(--ease-out);
+@keyframes ga-year-back {
+	from {
+		opacity: 0;
+		translate: -0.6em 0;
+	}
 }
 
-.ga-page[data-active] .ga-week {
-	opacity: 1;
-	transform: none;
-}
-
-.ga-day {
-	display: block;
-	width: 100%;
-	aspect-ratio: 1;
-	background: var(--ga-zero);
-	border-radius: 1.5px;
-}
-
-.ga-day[data-level="1"] {
-	background: var(--ga-one);
-}
-
-.ga-day[data-level="2"] {
-	background: var(--ga-two);
-}
-
-.ga-day[data-level="3"] {
-	background: var(--ga-three);
-}
-
-.ga-day[data-level="4"] {
-	background: var(--ga-four);
-}
-
-.ga-day:focus-visible {
-	position: relative;
-	z-index: 1;
-	outline-offset: 1px;
-}
-
-.ga-empty,
-.ga-day[data-future] {
-	visibility: hidden;
-}
-
-.ga-months,
-.ga-details {
-	display: flex;
-	justify-content: space-between;
-	font-family: var(--font-mono);
-	font-size: 0.5625rem;
+.ga-arrow {
+	padding: 0.25rem 0.35rem;
 	color: var(--ink-soft);
-}
-
-.ga-months {
-	margin-top: 0.4rem;
-}
-
-.ga-details {
-	gap: 0.5rem;
-	min-height: 1.5rem;
-}
-
-.ga-details p {
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.ga-legend {
-	display: flex;
-	flex: none;
-	gap: 2px;
-}
-
-.ga-legend .ga-day {
-	width: 6px;
-}
-
-.ga-navigation {
-	gap: 0.5rem;
-	margin-top: 0.25rem;
+	transition:
+		color 160ms var(--ease-out),
+		opacity 160ms var(--ease-out);
 }
 
 .ga-arrow:disabled {
 	cursor: default;
-	opacity: 0.3;
+	opacity: 0.25;
 }
 
-.ga-year-rail {
-	position: relative;
-	display: flex;
-	flex: 1;
-	min-width: 0;
-	overflow-x: auto;
-	overscroll-behavior-x: contain;
-	scrollbar-width: none;
+/* a month a row, the day of the month across */
+.ga-board {
+	display: grid;
+	grid-template-columns: 1.375rem minmax(0, 1fr);
+	touch-action: pan-y;
+	user-select: none;
 }
 
-.ga-year {
-	position: relative;
-	flex: none;
-	min-width: 3rem;
-	padding: 0.65rem 0.4rem;
-	font-size: inherit;
-	color: var(--ink-soft);
-	border-radius: 5px;
-	transition:
-		background-color 160ms var(--ease-out),
-		color 160ms var(--ease-out);
+.ga-months {
+	display: grid;
+	grid-template-rows: repeat(12, 1fr);
+	align-items: center;
+	font-family: var(--font-mono);
+	font-size: 0.5rem;
+	line-height: 1;
+	color: color-mix(in oklab, var(--ink-soft) 55%, transparent);
 }
 
-.ga-year[aria-pressed="true"] {
+.ga-months span {
+	transition: color 200ms var(--ease-out);
+}
+
+.ga-months [data-active] {
 	color: var(--ink);
-	background: var(--paper-deep);
 }
 
-.ga-hint {
-	margin-top: 0.4rem;
-	font-size: 0.5625rem;
-	opacity: 0.7;
+.ga-field {
+	position: relative;
+	aspect-ratio: 31 / 12;
+}
+
+.ga-grid {
+	position: absolute;
+	inset: 0;
+	display: grid;
+	grid-template-rows: repeat(12, 1fr);
+	grid-template-columns: repeat(31, 1fr);
+	min-width: 0;
+	padding: 0;
+	margin: 0;
+	border: 0;
+}
+
+/* the button is the whole square, so the gaps between dots still belong to
+   a day; the dot itself is drawn inside it */
+.ga-cell {
+	position: relative;
+	display: block;
+	min-width: 0;
+	min-height: 0;
+}
+
+.ga-cell[data-level="0"] {
+	--ga-dot: var(--ga-zero);
+}
+
+.ga-cell[data-level="1"] {
+	--ga-dot: var(--ga-one);
+}
+
+.ga-cell[data-level="2"] {
+	--ga-dot: var(--ga-two);
+}
+
+.ga-cell[data-level="3"] {
+	--ga-dot: var(--ga-three);
+}
+
+.ga-cell[data-level="4"] {
+	--ga-dot: var(--ga-four);
+}
+
+.ga-cell[data-future] {
+	--ga-dot: color-mix(in oklab, var(--ink) 16%, transparent);
+	cursor: default;
+}
+
+/* a new year washes in along a diagonal, from whichever side it comes
+   from: --order is a day's place on that diagonal, and 46.5 the last
+   place (30 days across, 11 rows down at 1.5 each) */
+.ga-cell[data-level]::before {
+	--ga-delay: calc(var(--order) * 9ms);
+	position: absolute;
+	/* the main site's blocks: flat, a 3px gap and a 2px corner on a 12px
+	   block, kept in proportion at this size */
+	inset: 10%;
+	content: "";
+	background-color: var(--ga-dot);
+	border-radius: 17%;
+	transition:
+		background-color 480ms var(--ease-out) var(--ga-delay),
+		transform 480ms var(--ease-out) var(--ga-delay),
+		opacity 700ms var(--ease-out) var(--ga-delay),
+		translate 700ms var(--ease-out) var(--ga-delay),
+		scale 220ms var(--ease-out),
+		filter 220ms var(--ease-out);
+}
+
+.ga-grid[data-direction="back"] .ga-cell[data-level]::before {
+	--ga-delay: calc((46.5 - var(--order)) * 9ms);
+}
+
+.ga-cell[data-level][data-future]::before {
+	transform: scale(0.28);
+}
+
+/* today, ringed */
+.ga-cell[data-today]::after {
+	position: absolute;
+	inset: -4%;
+	content: "";
+	border: 1px solid color-mix(in oklab, var(--ink) 75%, transparent);
+	border-radius: 24%;
+	transition: opacity 600ms var(--ease-out) 500ms;
+}
+
+.ga-board:not([data-shown]) .ga-cell[data-level]::before,
+.ga-board:not([data-shown]) .ga-cell[data-today]::after {
+	opacity: 0;
+	translate: 0 3px;
+}
+
+.ga-cell:hover,
+.ga-cell:focus-visible {
+	z-index: 1;
+}
+
+.ga-cell:focus-visible {
+	outline: none;
+}
+
+.ga-cell:focus-visible::before {
+	outline: 1.25px solid var(--ink);
+	outline-offset: 1.5px;
+	scale: 1.3;
+}
+
+/* the line under the board: the year's total, or the day under the
+   pointer, one fading into the other */
+.ga-status {
+	display: grid;
+	margin-top: 0.65rem;
+	font-variant-numeric: tabular-nums;
+}
+
+.ga-status > span {
+	grid-area: 1 / 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	transition:
+		opacity 200ms var(--ease-out),
+		translate 200ms var(--ease-out);
+}
+
+.ga-status-day,
+.ga-status[data-inspecting] .ga-status-total {
+	opacity: 0;
+	translate: 0 2px;
+}
+
+.ga-status[data-inspecting] .ga-status-day {
+	opacity: 1;
+	translate: none;
+}
+
+.ga-total {
+	color: var(--ink);
 }
 
 .ga-placeholder {
 	display: flex;
 	gap: 0.75rem;
 	align-items: center;
-	min-height: 8.5rem;
+	min-height: 9.5rem;
 }
 
 .ga-retry {
@@ -255,32 +279,37 @@
 
 @media (hover: hover) and (pointer: fine) {
 	.ga-profile:hover,
-	.ga-arrow:not(:disabled):hover,
-	.ga-year:hover {
-		color: var(--paper);
-		background: var(--sage);
+	.ga-arrow:not(:disabled):hover {
+		color: var(--ink);
 	}
 
-	.ga-grid .ga-day:not(:disabled):hover {
-		outline: 1px solid var(--ink);
-		outline-offset: 1px;
+	.ga-profile:hover span {
+		translate: 1px -1px;
+	}
+
+	.ga-cell:not(:disabled):hover::before {
+		filter: drop-shadow(
+			0 1px 1.5px color-mix(in oklab, var(--ink) 28%, transparent)
+		);
+		scale: 1.3;
 	}
 }
 
 @media (pointer: coarse) {
-	.ga-profile,
-	.ga-arrow,
-	.ga-year {
+	.ga-arrow {
 		min-width: 2.75rem;
 		min-height: 2.75rem;
 	}
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.ga-week {
-		transform: none;
-		transition: opacity 150ms var(--ease-out);
-		transition-delay: 0ms !important;
+	.ga-board .ga-cell[data-level]::before,
+	.ga-board .ga-cell[data-today]::after {
+		transition: none;
+	}
+
+	.ga-year {
+		animation: none !important;
 	}
 }
 

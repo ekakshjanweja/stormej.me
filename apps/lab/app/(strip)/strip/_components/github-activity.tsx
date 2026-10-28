@@ -1,6 +1,8 @@
 "use client";
 
 import {
+	type CSSProperties,
+	type FocusEvent,
 	type KeyboardEvent,
 	type PointerEvent,
 	type SyntheticEvent,
@@ -15,9 +17,13 @@ import { withBase } from "@/lib/base";
 import {
 	type ActivityDay,
 	type ActivityYear,
-	activityWeeks,
+	activityCells,
+	MONTH_DAYS,
+	MONTHS,
+	monthLength,
 } from "@/lib/github-activity";
 import { LINKS } from "@/lib/profile";
+import { playSfx } from "@/lib/sfx";
 import { gsap, reducedMotion, useGSAP } from "../_lib/gsap";
 import { ExternalLink } from "./external-link";
 
@@ -27,130 +33,252 @@ const dateLabel = new Intl.DateTimeFormat("en-US", {
 	month: "short",
 	timeZone: "UTC",
 });
-const DAY_STEPS: Record<string, number> = {
-	ArrowDown: 1,
-	ArrowLeft: -7,
-	ArrowRight: 7,
-	ArrowUp: -1,
-};
-const DAY_MS = 86_400_000;
+const MONTH_LABELS = [
+	"jan",
+	"feb",
+	"mar",
+	"apr",
+	"may",
+	"jun",
+	"jul",
+	"aug",
+	"sep",
+	"oct",
+	"nov",
+	"dec",
+] as const;
+const DAY_STEPS: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1 };
+const MONTH_STEPS: Record<string, number> = { ArrowDown: 1, ArrowUp: -1 };
+/* a new year washes across the board on a diagonal: each row starts a
+   little after the one above. activity.css counts the same steps */
+const ROW_SLANT = 1.5;
+/* how far a drag or swipe has to travel, mostly sideways, to change year */
+const SWIPE_DISTANCE = 40;
+const SWIPE_SLANT = 1.5;
+/* the year slides in from the side it's coming from */
+const YEAR_MOTION: Record<number, string> = { [-1]: "back", 1: "forward" };
+
+const plural = (count: number) =>
+	`${number.format(count)} ${count === 1 ? "contribution" : "contributions"}`;
 
 const labelDay = (day: ActivityDay) =>
-	`${number.format(day.count)} ${day.count === 1 ? "contribution" : "contributions"} on ${dateLabel.format(new Date(`${day.date}T00:00:00Z`))}`;
+	`${plural(day.count)} on ${dateLabel.format(new Date(`${day.date}T00:00:00Z`))}`;
 
-function ActivityCalendar({
-	active,
+function ActivityBoard({
 	activity,
+	direction,
+	month,
 	onInspect,
+	onSwipe,
 }: {
-	active: boolean;
 	activity: ActivityYear;
+	direction: number;
+	/** the month row to label in ink */
+	month: number | null;
 	onInspect: (day: ActivityDay | null) => void;
+	onSwipe: (step: number) => void;
 }) {
-	const weeks = useMemo(() => activityWeeks(activity), [activity]);
+	const boardRef = useRef<HTMLDivElement>(null);
+	const swipe = useRef<{ x: number; y: number } | null>(null);
+	const cells = useMemo(() => activityCells(activity), [activity]);
 	const [focused, setFocused] = useState(0);
+	const [shown, setShown] = useState(false);
 	const today = new Date().toISOString().slice(0, 10);
-	const lastDay = Math.min(
-		activity.days.length - 1,
-		Math.floor((Date.parse(today) - Date.UTC(activity.year, 0, 1)) / DAY_MS)
+	const lastDay = useMemo(
+		() =>
+			cells.reduce(
+				(latest, { day }) =>
+					day && day.date <= today ? Math.max(latest, day.index) : latest,
+				0
+			),
+		[cells, today]
 	);
+
+	/* the dots fade up the first time the board is actually on screen */
+	useEffect(() => {
+		const board = boardRef.current;
+		if (!board) {
+			return;
+		}
+		const observer = new IntersectionObserver(
+			([entry]) => {
+				if (entry?.isIntersecting) {
+					setShown(true);
+					observer.disconnect();
+				}
+			},
+			{ threshold: 0.4 }
+		);
+		observer.observe(board);
+		return () => observer.disconnect();
+	}, []);
 
 	const inspect = useCallback(
 		(event: SyntheticEvent<HTMLButtonElement>) => {
-			if (!active) {
-				return;
-			}
-			const button = event.currentTarget;
-			const index = Number(button.dataset.day);
-			const day = activity.days[index];
-			if (day) {
-				if (event.type !== "pointerenter") {
-					setFocused(index);
-				}
-				onInspect({
-					count: day[0],
-					date: button.dataset.date ?? "",
-					level: day[1],
-				});
+			const { date, day } = event.currentTarget.dataset;
+			const entry = activity.days[Number(day)];
+			if (entry) {
+				onInspect({ count: entry[0], date: date ?? "", level: entry[1] });
 			}
 		},
-		[active, activity.days, onInspect]
+		[activity.days, onInspect]
 	);
-	const clear = useCallback(() => onInspect(null), [onInspect]);
+	const onFocus = useCallback(
+		(event: FocusEvent<HTMLButtonElement>) => {
+			setFocused(Number(event.currentTarget.dataset.day));
+			inspect(event);
+		},
+		[inspect]
+	);
+	/* a mouse leaving the board puts the total back; a tap keeps its day
+	   showing until the next one */
+	const onPointerLeave = useCallback(
+		(event: PointerEvent<HTMLFieldSetElement>) => {
+			if (event.pointerType !== "touch") {
+				onInspect(null);
+			}
+		},
+		[onInspect]
+	);
+	/* focus leaving the board, not just moving along it, puts it back too */
+	const onBlur = useCallback(
+		(event: FocusEvent<HTMLButtonElement>) => {
+			const next = event.relatedTarget;
+			const grid = event.currentTarget.parentElement;
+			if (!(next instanceof Node && grid?.contains(next))) {
+				onInspect(null);
+			}
+		},
+		[onInspect]
+	);
+
+	/** arrows walk day by day left and right, and month by month up and
+	    down (landing on the month's last day when it's shorter) */
+	const targetOf = useCallback(
+		(key: string, cell: number, day: number) => {
+			const dayStep = DAY_STEPS[key];
+			if (dayStep) {
+				return `[data-day="${day + dayStep}"]`;
+			}
+			const monthStep = MONTH_STEPS[key];
+			if (monthStep) {
+				const row = Math.floor(cell / MONTH_DAYS) + monthStep;
+				if (row < 0 || row >= MONTHS) {
+					return "";
+				}
+				const date = Math.min(
+					cell % MONTH_DAYS,
+					monthLength(activity.year, row) - 1
+				);
+				return `[data-cell="${row * MONTH_DAYS + date}"]`;
+			}
+			if (key === "Home") {
+				return '[data-day="0"]';
+			}
+			return key === "End" ? `[data-day="${lastDay}"]` : null;
+		},
+		[activity.year, lastDay]
+	);
 	const onKeyDown = useCallback(
 		(event: KeyboardEvent<HTMLButtonElement>) => {
-			const { currentTarget: target } = event;
-			const step = DAY_STEPS[event.key];
-			let index = Number(target.dataset.day);
-			if (step) {
-				index += step;
-			} else if (event.key === "Home") {
-				index = 0;
-			} else if (event.key === "End") {
-				index = lastDay;
-			} else {
+			const { cell, day } = event.currentTarget.dataset;
+			const target = targetOf(event.key, Number(cell), Number(day));
+			if (target === null) {
 				return;
 			}
 			event.preventDefault();
 			event.stopPropagation();
-			const calendar = target.closest(".ga-calendar");
-			calendar
-				?.querySelector<HTMLButtonElement>(
-					`[data-day="${index}"]:not(:disabled)`
-				)
-				?.focus({ preventScroll: true });
+			if (target) {
+				boardRef.current
+					?.querySelector<HTMLButtonElement>(`${target}:not(:disabled)`)
+					?.focus({ preventScroll: true });
+			}
 		},
-		[lastDay]
+		[targetOf]
 	);
 
+	const startSwipe = useCallback((event: PointerEvent<HTMLDivElement>) => {
+		if (event.pointerType === "mouse" && event.button !== 0) {
+			return;
+		}
+		swipe.current = { x: event.clientX, y: event.clientY };
+	}, []);
+	const endSwipe = useCallback(
+		(event: PointerEvent<HTMLDivElement>) => {
+			const start = swipe.current;
+			swipe.current = null;
+			if (!start || event.type === "pointercancel") {
+				return;
+			}
+			const across = event.clientX - start.x;
+			const down = event.clientY - start.y;
+			if (
+				Math.abs(across) >= SWIPE_DISTANCE &&
+				Math.abs(across) >= Math.abs(down) * SWIPE_SLANT
+			) {
+				onSwipe(across < 0 ? 1 : -1);
+			}
+		},
+		[onSwipe]
+	);
+
+	const tabbable = Math.min(focused, lastDay);
+
 	return (
-		<div className="ga-calendar">
-			<fieldset
-				aria-label={`Daily GitHub contributions in ${activity.year}. Use arrow keys to explore days.`}
-				className="ga-grid"
-			>
-				{weeks.map((week, weekIndex) => (
-					<div
-						className="ga-week"
-						key={week[0].date}
-						style={{ transitionDelay: `${weekIndex * 1.5}ms` }}
-					>
-						{week.map((day) => {
-							if (day.outside) {
-								return <span className="ga-day ga-empty" key={day.date} />;
-							}
-							const { index } = day;
-							const future = day.date > today;
-							return (
-								<button
-									aria-label={`${labelDay(day)}, ${activity.year}`}
-									className="ga-day"
-									data-date={day.date}
-									data-day={index}
-									data-future={future ? "" : undefined}
-									data-level={day.level}
-									disabled={future}
-									key={day.date}
-									onBlur={clear}
-									onClick={inspect}
-									onFocus={inspect}
-									onKeyDown={onKeyDown}
-									onPointerEnter={inspect}
-									onPointerLeave={clear}
-									tabIndex={active && index === focused ? 0 : -1}
-									type="button"
-								/>
-							);
-						})}
-					</div>
-				))}
-			</fieldset>
+		<div
+			className="ga-board"
+			data-shown={shown ? "" : undefined}
+			onPointerCancel={endSwipe}
+			onPointerDown={startSwipe}
+			onPointerUp={endSwipe}
+			ref={boardRef}
+		>
 			<div aria-hidden="true" className="ga-months">
-				<span>jan</span>
-				<span>apr</span>
-				<span>jul</span>
-				<span>oct</span>
-				<span>dec</span>
+				{MONTH_LABELS.map((label, index) => (
+					<span data-active={index === month ? "" : undefined} key={label}>
+						{label}
+					</span>
+				))}
+			</div>
+			<div className="ga-field">
+				<fieldset
+					aria-label={`Daily GitHub contributions in ${activity.year}, one row per month. Use arrow keys to explore days.`}
+					className="ga-grid"
+					data-direction={direction < 0 ? "back" : undefined}
+					onPointerLeave={onPointerLeave}
+				>
+					{cells.map(({ cell, day }) => {
+						if (!day) {
+							return <span className="ga-cell" key={cell} />;
+						}
+						const order =
+							(cell % MONTH_DAYS) + Math.floor(cell / MONTH_DAYS) * ROW_SLANT;
+						const future = day.date > today;
+						return (
+							<button
+								aria-label={`${labelDay(day)}, ${activity.year}`}
+								className="ga-cell"
+								data-cell={cell}
+								data-date={day.date}
+								data-day={day.index}
+								data-future={future ? "" : undefined}
+								data-level={day.level}
+								data-sfx="silent"
+								data-today={day.date === today ? "" : undefined}
+								disabled={future}
+								key={cell}
+								onBlur={onBlur}
+								onClick={inspect}
+								onFocus={onFocus}
+								onKeyDown={onKeyDown}
+								onPointerEnter={inspect}
+								style={{ "--order": order } as CSSProperties}
+								tabIndex={day.index === tabbable ? 0 : -1}
+								type="button"
+							/>
+						);
+					})}
+				</fieldset>
 			</div>
 		</div>
 	);
@@ -158,23 +286,26 @@ function ActivityCalendar({
 
 export function GithubActivity() {
 	const rootRef = useRef<HTMLElement>(null);
-	const trackRef = useRef<HTMLElement>(null);
-	const railRef = useRef<HTMLElement>(null);
 	const countRef = useRef<HTMLSpanElement>(null);
 	const shownCount = useRef(0);
-	const currentIndex = useRef(0);
-	const drag = useRef<{ left: number; x: number } | null>(null);
-	const moved = useRef(false);
 	const id = useId();
 	const [years, setYears] = useState<ActivityYear[]>([]);
-	const [index, setIndex] = useState(0);
+	const [{ direction, index }, setView] = useState({ direction: 0, index: 0 });
 	const [nearby, setNearby] = useState(false);
 	const [loadState, setLoadState] = useState<"loading" | "ready" | "error">(
 		"loading"
 	);
 	const [inspected, setInspected] = useState<ActivityDay | null>(null);
+	/* the day stays written while it fades out */
+	const [readout, setReadout] = useState<ActivityDay | null>(null);
 	const activity = years[index];
 	const total = activity?.total ?? 0;
+	const thisYear = new Date().getUTCFullYear();
+	const inspectedMonth = inspected
+		? Number(inspected.date.slice(5, 7)) - 1
+		: null;
+	const currentMonth =
+		activity?.year === thisYear ? new Date().getUTCMonth() : null;
 
 	useEffect(() => {
 		const root = rootRef.current;
@@ -212,8 +343,7 @@ export function GithubActivity() {
 					throw new Error("GitHub activity is empty");
 				}
 				if (!controller.signal.aborted) {
-					currentIndex.current = data.years.length - 1;
-					setIndex(currentIndex.current);
+					setView({ direction: 0, index: data.years.length - 1 });
 					setYears(data.years);
 					setLoadState("ready");
 				}
@@ -228,36 +358,8 @@ export function GithubActivity() {
 	}, [nearby, loadState]);
 
 	useEffect(() => {
-		const track = trackRef.current;
-		if (!(track && years.length)) {
-			return;
-		}
-		const align = () => {
-			track.scrollTo({
-				behavior: "instant",
-				left: currentIndex.current * track.clientWidth,
-			});
-		};
-		align();
-		const observer = new ResizeObserver(align);
-		observer.observe(track);
-		return () => observer.disconnect();
-	}, [years]);
-
-	useEffect(() => {
-		setInspected(null);
-		if (!activity) {
-			return;
-		}
-		const rail = railRef.current;
-		const button = rail?.querySelector<HTMLButtonElement>(
-			`[data-year="${activity.year}"]`
-		);
-		if (rail && button) {
-			rail.scrollTo({
-				behavior: reducedMotion() ? "instant" : "smooth",
-				left: button.offsetLeft - rail.clientWidth / 2 + button.offsetWidth / 2,
-			});
+		if (activity) {
+			setInspected(null);
 		}
 	}, [activity]);
 
@@ -275,8 +377,8 @@ export function GithubActivity() {
 			const value = { count: shownCount.current };
 			gsap.to(value, {
 				count: total,
-				duration: 0.28,
-				ease: "power3.out",
+				duration: 0.9,
+				ease: "power2.out",
 				onUpdate: () => {
 					shownCount.current = value.count;
 					count.textContent = number.format(Math.round(value.count));
@@ -291,84 +393,34 @@ export function GithubActivity() {
 	);
 
 	const goTo = useCallback(
-		(targetIndex: number, instant = false) => {
-			const track = trackRef.current;
-			if (track) {
-				track.scrollTo({
-					behavior: instant || reducedMotion() ? "instant" : "smooth",
-					left:
-						Math.max(0, Math.min(years.length - 1, targetIndex)) *
-						track.clientWidth,
-				});
-			}
+		(target: number) => {
+			const clamped = Math.max(0, Math.min(years.length - 1, target));
+			setView((view) =>
+				clamped === view.index
+					? view
+					: { direction: Math.sign(clamped - view.index), index: clamped }
+			);
 		},
 		[years.length]
 	);
-	const previous = useCallback(() => goTo(currentIndex.current - 1), [goTo]);
-	const next = useCallback(() => goTo(currentIndex.current + 1), [goTo]);
-	const pick = useCallback(
-		(event: React.MouseEvent<HTMLButtonElement>) => {
-			goTo(Number(event.currentTarget.dataset.index), event.detail === 0);
-		},
-		[goTo]
-	);
-	const onScroll = useCallback(() => {
-		const track = trackRef.current;
-		if (!track?.clientWidth) {
-			return;
-		}
-		const nextIndex = Math.max(
-			0,
-			Math.min(
-				years.length - 1,
-				Math.round(track.scrollLeft / track.clientWidth)
-			)
-		);
-		currentIndex.current = nextIndex;
-		setIndex(nextIndex);
-	}, [years.length]);
-	const startDrag = useCallback((event: PointerEvent<HTMLElement>) => {
-		if (event.pointerType !== "mouse" || event.button !== 0) {
-			return;
-		}
-		drag.current = { left: event.currentTarget.scrollLeft, x: event.clientX };
-		moved.current = false;
-	}, []);
-	const moveDrag = useCallback((event: PointerEvent<HTMLElement>) => {
-		const start = drag.current;
-		if (!start) {
-			return;
-		}
-		const distance = event.clientX - start.x;
-		if (Math.abs(distance) > 5) {
-			moved.current = true;
-			event.currentTarget.dataset.dragging = "";
-			event.currentTarget.setPointerCapture(event.pointerId);
-		}
-		if (moved.current) {
-			event.currentTarget.scrollLeft = start.left - distance;
-		}
-	}, []);
-	const endDrag = useCallback(
-		(event: PointerEvent<HTMLElement>) => {
-			if (!drag.current) {
-				return;
-			}
-			drag.current = null;
-			delete event.currentTarget.dataset.dragging;
-			if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-				event.currentTarget.releasePointerCapture(event.pointerId);
-			}
-			if (moved.current) {
-				goTo(
-					Math.round(
-						event.currentTarget.scrollLeft / event.currentTarget.clientWidth
-					)
-				);
+	const previous = useCallback(() => goTo(index - 1), [goTo, index]);
+	const next = useCallback(() => goTo(index + 1), [goTo, index]);
+	const onSwipe = useCallback(
+		(step: number) => {
+			const target = index + step;
+			if (target >= 0 && target < years.length) {
+				playSfx("switch");
+				goTo(target);
 			}
 		},
-		[goTo]
+		[goTo, index, years.length]
 	);
+	const onInspect = useCallback((day: ActivityDay | null) => {
+		setInspected(day);
+		if (day) {
+			setReadout(day);
+		}
+	}, []);
 	const retry = useCallback(() => setLoadState("loading"), []);
 
 	return (
@@ -378,77 +430,13 @@ export function GithubActivity() {
 			ref={rootRef}
 		>
 			<div className="ga-heading">
-				<div>
-					<h3 className="ga-label" id={`${id}-title`}>
-						github activity
-					</h3>
-					<p className="ga-tally">
-						<span aria-hidden="true" className="ga-total" ref={countRef}>
-							{activity ? number.format(total) : "—"}
-						</span>
-						<span aria-hidden="true" className="ga-caption">
-							contributions{activity ? ` in ${activity.year}` : ""}
-						</span>
-					</p>
-					<span aria-atomic="true" aria-live="polite" className="sr-only">
-						{activity
-							? `${number.format(total)} contributions in ${activity.year}`
-							: "Loading GitHub activity"}
-					</span>
-				</div>
-				<ExternalLink
-					aria-label="View ekaksh's GitHub profile"
-					className="ga-profile"
-					href={LINKS.github}
-				>
-					↗
-				</ExternalLink>
-			</div>
-			{activity ? (
-				<>
-					<section
-						aria-label="GitHub activity by year. Drag or swipe to explore."
-						className="ga-track"
-						data-lenis-prevent=""
-						onPointerCancel={endDrag}
-						onPointerDown={startDrag}
-						onPointerMove={moveDrag}
-						onPointerUp={endDrag}
-						onScroll={onScroll}
-						ref={trackRef}
-					>
-						{years.map((year, position) => (
-							<div
-								aria-hidden={position !== index}
-								className="ga-page"
-								data-active={position === index ? "" : undefined}
-								key={year.year}
-							>
-								{Math.abs(position - index) <= 1 ? (
-									<ActivityCalendar
-										active={position === index}
-										activity={year}
-										onInspect={setInspected}
-									/>
-								) : null}
-							</div>
-						))}
-					</section>
-					<div className="ga-details">
-						<p>
-							{inspected ? labelDay(inspected) : "one green square at a time"}
-						</p>
-						<span
-							aria-label="Contribution intensity from less to more"
-							className="ga-legend"
-							role="img"
-						>
-							{[0, 1, 2, 3, 4].map((level) => (
-								<span className="ga-day" data-level={level} key={level} />
-							))}
-						</span>
-					</div>
-					<div className="ga-navigation">
+				<h3 className="ga-label" id={`${id}-title`}>
+					<ExternalLink className="ga-profile" href={LINKS.github}>
+						github activity<span aria-hidden="true">↗</span>
+					</ExternalLink>
+				</h3>
+				{activity ? (
+					<div className="ga-years">
 						<button
 							aria-label="Previous year"
 							className="ga-arrow"
@@ -458,27 +446,13 @@ export function GithubActivity() {
 						>
 							←
 						</button>
-						<nav
-							aria-label="Choose a year"
-							className="ga-year-rail"
-							data-lenis-prevent=""
-							ref={railRef}
+						<span
+							className="ga-year"
+							data-direction={YEAR_MOTION[direction]}
+							key={activity.year}
 						>
-							{years.map((year, position) => (
-								<button
-									aria-label={`Show GitHub activity for ${year.year}`}
-									aria-pressed={position === index}
-									className="ga-year"
-									data-index={position}
-									data-year={year.year}
-									key={year.year}
-									onClick={pick}
-									type="button"
-								>
-									{year.year}
-								</button>
-							))}
-						</nav>
+							{activity.year}
+						</span>
 						<button
 							aria-label="Next year"
 							className="ga-arrow"
@@ -489,7 +463,37 @@ export function GithubActivity() {
 							→
 						</button>
 					</div>
-					<p className="ga-hint">drag or swipe through the years</p>
+				) : null}
+			</div>
+			<span aria-atomic="true" aria-live="polite" className="sr-only">
+				{activity
+					? `${plural(total)} in ${activity.year}`
+					: "Loading GitHub activity"}
+			</span>
+			{activity ? (
+				<>
+					<ActivityBoard
+						activity={activity}
+						direction={direction}
+						month={inspectedMonth ?? currentMonth}
+						onInspect={onInspect}
+						onSwipe={onSwipe}
+					/>
+					<p
+						aria-hidden="true"
+						className="ga-status"
+						data-inspecting={inspected ? "" : undefined}
+					>
+						<span className="ga-status-total">
+							<span className="ga-total" ref={countRef}>
+								{number.format(total)}
+							</span>{" "}
+							{total === 1 ? "contribution" : "contributions"}
+						</span>
+						<span className="ga-status-day">
+							{readout ? labelDay(readout) : ""}
+						</span>
+					</p>
 				</>
 			) : (
 				<div className="ga-placeholder">
@@ -500,7 +504,7 @@ export function GithubActivity() {
 					</p>
 					{loadState === "error" ? (
 						<button className="ga-retry" onClick={retry} type="button">
-							try again ↗
+							try again
 						</button>
 					) : null}
 				</div>

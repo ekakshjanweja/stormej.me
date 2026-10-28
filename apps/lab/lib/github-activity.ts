@@ -11,9 +11,16 @@ export interface ActivityDay {
 	level: number;
 }
 
-interface CalendarDay extends ActivityDay {
+export interface CalendarDay extends ActivityDay {
+	/** days since January 1 */
 	index: number;
-	outside: boolean;
+}
+
+export interface BoardCell {
+	/** row-major position on a board of 12 months by 31 days */
+	cell: number;
+	/** null where a month runs out of days */
+	day: CalendarDay | null;
 }
 
 interface ContributionsResponse {
@@ -81,22 +88,33 @@ export const parseActivity = (value: unknown): ActivityYear[] => {
 		});
 };
 
-/** Weeks start on Sunday, like GitHub's contribution calendar. */
-export const activityWeeks = (activity: ActivityYear): CalendarDay[][] => {
+export const MONTHS = 12;
+export const MONTH_DAYS = 31;
+
+export const monthLength = (year: number, month: number) =>
+	(Date.UTC(year, month + 1, 1) - Date.UTC(year, month, 1)) / DAY_MS;
+
+/** One row per month and one column per day of the month, so the 31st
+    lines up under the 31st. Short months leave empty cells at the end. */
+export const activityCells = (activity: ActivityYear): BoardCell[] => {
 	const start = Date.UTC(activity.year, 0, 1);
-	const offset = new Date(start).getUTCDay();
-	const length = Math.ceil((offset + activity.days.length) / 7);
-	return Array.from({ length }, (_week, week) =>
-		Array.from({ length: 7 }, (_day, weekday) => {
-			const index = week * 7 + weekday - offset;
-			const day = activity.days[index];
-			return {
+	return Array.from({ length: MONTHS * MONTH_DAYS }, (_cell, cell) => {
+		const month = Math.floor(cell / MONTH_DAYS);
+		const date = cell % MONTH_DAYS;
+		if (date >= monthLength(activity.year, month)) {
+			return { cell, day: null };
+		}
+		const time = Date.UTC(activity.year, month, date + 1);
+		const index = (time - start) / DAY_MS;
+		const day = activity.days[index];
+		return {
+			cell,
+			day: {
 				count: day?.[0] ?? 0,
-				date: new Date(start + index * DAY_MS).toISOString().slice(0, 10),
+				date: new Date(time).toISOString().slice(0, 10),
 				index,
 				level: day?.[1] ?? 0,
-				outside: !day,
-			};
-		})
-	);
+			},
+		};
+	});
 };

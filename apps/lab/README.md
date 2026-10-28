@@ -84,11 +84,16 @@ action succeeds alongside its visual confirmation.
 
 ## github activity
 
-The contributions count in Strip's "at a glance" section is an activity
-calendar. Drag or swipe the calendar through every available year, or use
-the arrows and year buttons. Focus a day and use the arrow keys to inspect
-its neighbors; Home and End jump to the year's first and latest available
-day. Reduced motion removes the count and movement animations.
+Strip's "at a glance" section shows one year of GitHub contributions as a
+board of dots, one row a month and one column a day of the month. The
+header holds a link to the profile and the selected year between two
+arrows; the line under the board gives the year's total, or the day under
+the pointer. A new year washes across the board on a diagonal, from the
+side it comes from. Drag or swipe sideways to change year too.
+
+Every day is a button: left and right arrows step a day, up and down step a
+month, and Home and End jump to the year's first and latest available day.
+Reduced motion drops the wash, the fade-in and the count animation.
 
 `/experiments/api/github-activity` uses the same public GitHub Contributions
 API as the main site, caches the history for an hour, and sends compact
