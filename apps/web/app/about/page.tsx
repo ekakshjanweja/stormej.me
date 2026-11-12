@@ -5,6 +5,7 @@ import { LocalContext } from "@/components/local-context";
 import { ModeToggle } from "@/components/mode-toggle";
 import {
 	github,
+	instagram,
 	linkedin,
 	mailTo,
 	resume,
@@ -44,6 +45,7 @@ const contactLinks = [
 	{ href: mailTo, label: "jekaksh@gmail.com" },
 	{ href: xDotCom, label: "x" },
 	{ href: github, label: "github" },
+	{ href: instagram, label: "instagram" },
 	{ href: linkedin, label: "linkedin" },
 	{ href: resume, label: "resume" },
 ];

@@ -715,6 +715,20 @@
 	color: var(--ink-soft);
 }
 
+.rc-hint-touch {
+	display: none;
+}
+
+@media not all and (hover: hover) and (pointer: fine) {
+	.rc-hint-mouse {
+		display: none;
+	}
+
+	.rc-hint-touch {
+		display: inline;
+	}
+}
+
 /* phones have no hover and no room for five tall reels: the row stays at
    two, and the player steps through the rest */
 @media (max-width: 767px) {

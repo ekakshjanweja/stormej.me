@@ -1,10 +1,10 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { SfxControl } from "@/components/sfx";
 import { LINKS, PERSON } from "@/lib/profile";
-import { gsap, reducedMotion } from "../_lib/gsap";
+import { gsap, reducedMotion, SIDEWAYS } from "../_lib/gsap";
 import { currentFor, PAGES } from "../_lib/pages";
 import { letters } from "../_lib/split";
 import { EmailPopover } from "./email-popover";
@@ -60,7 +60,45 @@ const wobble = (link: HTMLElement) => {
 	);
 };
 
+/* stacked, the chrome steps aside once you're past this and heading down */
+const AWAY_AFTER_PX = 80;
+/* a scroll this small either way changes nothing, so a resting thumb
+   doesn't flicker it */
+const AWAY_SLOP_PX = 6;
+
+/** stacked, the page runs under the nav and the look picker, so they slide
+    away while you read down and come back the moment you scroll up.
+    sideways, the panels leave room for them and they stay put */
+const useChromeAway = () => {
+	useEffect(() => {
+		const root = document.documentElement;
+		const media = window.matchMedia(SIDEWAYS);
+		let last = window.scrollY;
+		const update = () => {
+			const y = window.scrollY;
+			if (media.matches || y < AWAY_AFTER_PX) {
+				delete root.dataset.chromeAway;
+			} else if (y - last > AWAY_SLOP_PX) {
+				root.dataset.chromeAway = "";
+			} else if (last - y > AWAY_SLOP_PX) {
+				delete root.dataset.chromeAway;
+			} else {
+				return;
+			}
+			last = y;
+		};
+		window.addEventListener("scroll", update, { passive: true });
+		media.addEventListener("change", update);
+		return () => {
+			window.removeEventListener("scroll", update);
+			media.removeEventListener("change", update);
+			delete root.dataset.chromeAway;
+		};
+	}, []);
+};
+
 export function Nav() {
+	useChromeAway();
 	const pathname = usePathname();
 	const surnameRef = useRef<HTMLSpanElement>(null);
 

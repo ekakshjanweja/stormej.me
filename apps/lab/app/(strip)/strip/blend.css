@@ -173,7 +173,7 @@
 .s-flash-white {
 	--flash-r: 150%;
 	background: radial-gradient(
-		circle at var(--fx) var(--fy),
+		var(--bloom-shape, circle) at var(--fx) var(--fy),
 		#fff 0%,
 		#fff calc(var(--flash-r) * 0.45),
 		rgb(255 252 244 / 0.7) calc(var(--flash-r) * 0.8),
@@ -185,7 +185,7 @@
 .s-flash-burn {
 	background:
 		radial-gradient(
-			ellipse 34% 46% at var(--fx) var(--fy),
+			ellipse var(--burn-size, 34% 46%) at var(--fx) var(--fy),
 			color-mix(in oklab, var(--glow-2) 55%, #fff) 0%,
 			color-mix(in oklab, var(--glow-3) 50%, transparent) 42%,
 			color-mix(in oklab, var(--glow-3) 0%, transparent) 78%
@@ -214,8 +214,11 @@
 	transform-origin: var(--fx) 50%;
 }
 
-/* under 1200px the strip stacks, so dusk falls downwards */
-@media (max-width: 1199px) {
+/* stacked (narrow, touch, short, or less motion), dusk falls downwards.
+   the query is SIDEWAYS in lib/desktop.ts, negated, word for word */
+@media not all and (min-width: 1200px) and (min-height: 600px) and (
+		hover: hover
+	) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
 	.s-gradient {
 		width: auto;
 		height: 46vh;
@@ -240,21 +243,46 @@
 		);
 	}
 
-	/* clear of the top edge, so the blur is never cut off there */
+	/* the orb turned a quarter: lilac at the top, through the pink-peach and
+	   burnt orange, to maroon and night where the outro begins. the night
+	   runs the full width, so it falls as a level band instead of a dome in
+	   the middle. clear of the top edge, so the blur is never cut off there */
 	.s-orb {
 		inset: 14% -8% 0;
+		background:
+			radial-gradient(
+				ellipse 95% 54% at 50% 78%,
+				var(--night) 0%,
+				var(--glow-4) 20%,
+				color-mix(in oklab, var(--glow-3) 85%, var(--glow-4)) 40%,
+				color-mix(in oklab, var(--glow-3) 45%, transparent) 58%,
+				color-mix(in oklab, var(--glow-3) 0%, transparent) 76%
+			),
+			radial-gradient(
+				ellipse 56% 48% at 48% 52%,
+				var(--glow-2) 0%,
+				color-mix(in oklab, var(--glow-2) 80%, var(--glow-1)) 38%,
+				color-mix(in oklab, var(--glow-2) 40%, transparent) 60%,
+				color-mix(in oklab, var(--glow-2) 0%, transparent) 82%
+			),
+			radial-gradient(
+				ellipse 62% 44% at 50% 30%,
+				var(--glow-1) 0%,
+				color-mix(in oklab, var(--glow-1) 70%, transparent) 46%,
+				color-mix(in oklab, var(--glow-1) 0%, transparent) 78%
+			);
+		/* the sideways mask, turned: in sooner at the top, so the lilac covers
+		   the ground instead of the ground greying through it */
 		mask-image: linear-gradient(
 			180deg,
 			transparent 0%,
-			rgb(0 0 0 / 0.06) 5%,
-			rgb(0 0 0 / 0.25) 11%,
-			rgb(0 0 0 / 0.6) 17%,
-			rgb(0 0 0 / 0.9) 23%,
-			#000 28%,
-			#000 48%,
-			rgb(0 0 0 / 0.8) 58%,
-			rgb(0 0 0 / 0.45) 68%,
-			rgb(0 0 0 / 0.15) 78%,
+			rgb(0 0 0 / 0.3) 4%,
+			rgb(0 0 0 / 0.8) 8%,
+			#000 12%,
+			#000 50%,
+			rgb(0 0 0 / 0.8) 60%,
+			rgb(0 0 0 / 0.45) 70%,
+			rgb(0 0 0 / 0.15) 79%,
 			transparent 88%
 		);
 	}
@@ -265,6 +293,16 @@
 
 	.s-outro {
 		box-shadow: 0 -2px 0 var(--night);
+	}
+
+	/* the bloom and its afterimage lie along the band instead of standing
+	   up the screen, where they'd grey the night below it */
+	.s-flash-white {
+		--bloom-shape: ellipse 110% 22%;
+	}
+
+	.s-flash-burn {
+		--burn-size: 62% 20%;
 	}
 
 	.s-outro::before {

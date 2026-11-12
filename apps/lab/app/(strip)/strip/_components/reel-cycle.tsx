@@ -154,7 +154,13 @@ export function ReelCycle() {
 					))}
 				</ul>
 				<p aria-hidden="true" className="rc-hint">
-					{open ? "click one for sound" : `${COUNT} reels · hover for all`}
+					{/* touch has no hover to open the row: css shows its own words */}
+					<span className="rc-hint-mouse">
+						{open ? "click one for sound" : `${COUNT} reels · hover for all`}
+					</span>
+					<span className="rc-hint-touch">
+						{COUNT} reels · tap one for sound
+					</span>
 				</p>
 			</div>
 			<ReelPlayer reels={PLAYABLE_REELS} ref={playerRef} />

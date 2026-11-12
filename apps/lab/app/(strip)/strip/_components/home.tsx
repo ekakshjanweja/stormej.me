@@ -169,12 +169,20 @@ const reveals = (along: Along) => {
 /* the orb, nearly full, goes off like a camera flash: it charges, a soft
    white bloom opens around it with a faint streak across, and a warm
    afterimage burns off back into the dusk. the page stays readable through
-   it. only ever forwards, and never under reduced motion
-   (reveals don't run then) */
+   it. it fires arriving from either direction, and never under reduced
+   motion (reveals don't run then) */
 const ORB_FILTER = "blur(40px) saturate(0.85) brightness(1)";
 const FLASH_COOLDOWN_MS = 4000;
 /* the flash cue whines for this long before it pops */
 const FLASH_CHARGE = 0.27;
+/* sideways it fires as the orb's panel nears the left edge. stacked it
+   fires once the panel's top is this far down, which puts the orb's hot
+   band in the middle of the screen instead of halfway off the top */
+const FLASH_AT = { sideways: "8%", stacked: "25%" } as const;
+/* how far down the orb its hot centre sits. sideways it's the middle;
+   stacked, the dusk runs downwards and the light is the upper band, with
+   the night below it */
+const HOT_Y = { sideways: 0.5, stacked: 0.42 } as const;
 
 const cameraFlash = (along: Along) => {
 	const flash = document.querySelector<HTMLElement>("[data-flash]");
@@ -194,15 +202,24 @@ const cameraFlash = (along: Along) => {
 			return;
 		}
 		last = now;
-		/* the burst starts from the orb's hot centre */
-		const box = orb.getBoundingClientRect();
-		flash.style.setProperty("--fx", `${box.left + box.width * 0.5}px`);
-		flash.style.setProperty("--fy", `${box.top + box.height * 0.5}px`);
+		/* the burst sits on the orb's hot centre, and follows it: stacked, the
+		   page keeps scrolling under the flash, and a bloom left where the
+		   orb was would end up over the outro's text */
+		const follow = () => {
+			const box = orb.getBoundingClientRect();
+			flash.style.setProperty("--fx", `${box.left + box.width * 0.5}px`);
+			const hot = along ? HOT_Y.sideways : HOT_Y.stacked;
+			flash.style.setProperty("--fy", `${box.top + box.height * hot}px`);
+		};
+		follow();
 		playSfx("flash");
 
 		const pop = FLASH_CHARGE;
 		gsap
-			.timeline({ onComplete: () => gsap.set(orb, { clearProps: "filter" }) })
+			.timeline({
+				onComplete: () => gsap.set(orb, { clearProps: "filter" }),
+				onUpdate: follow,
+			})
 			.set(flash, { visibility: "visible" })
 			/* the charge: the orb heats up */
 			.fromTo(
@@ -254,7 +271,12 @@ const cameraFlash = (along: Along) => {
 			.set(flash, { visibility: "hidden" });
 	};
 
-	ScrollTrigger.create({ onEnter: fire, trigger: panel, ...at(along, "8%") });
+	ScrollTrigger.create({
+		onEnter: fire,
+		onEnterBack: fire,
+		trigger: panel,
+		...at(along, along ? FLASH_AT.sideways : FLASH_AT.stacked),
+	});
 };
 
 export function Home() {

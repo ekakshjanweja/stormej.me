@@ -135,3 +135,10 @@
 	) {
 	line-height: var(--leading);
 }
+
+/* except the expert words: none of them has a descender to keep, and the
+   full line of leading made their column tall enough to push the panel's
+   other column past the bottom of a short sideways screen */
+:root[data-type="grotesk"] .s-word-mask > * {
+	line-height: 0.9;
+}

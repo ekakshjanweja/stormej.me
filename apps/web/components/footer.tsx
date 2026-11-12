@@ -14,13 +14,18 @@ export default function Footer() {
 					·
 				</span>
 				<FooterClock />
-				<span aria-hidden className="opacity-40">
+				{/* the experiments only open on a desktop (a wide screen and a
+				    mouse), so anywhere else there's no link to them */}
+				<span
+					aria-hidden
+					className="hidden opacity-40 min-[1200px]:pointer-fine:inline"
+				>
 					·
 				</span>
 				{/* the lab is a separate app behind the /experiments/* rewrite, so
 				    a plain link and a full page load, not next/link */}
 				<a
-					className="text-muted-foreground transition-colors hover:text-foreground"
+					className="hidden text-muted-foreground transition-colors hover:text-foreground min-[1200px]:pointer-fine:inline"
 					href="/experiments/lab"
 				>
 					experiments

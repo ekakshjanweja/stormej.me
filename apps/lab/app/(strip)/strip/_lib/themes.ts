@@ -28,9 +28,9 @@ export const isTheme = (value: unknown): value is ThemeId =>
 export const isType = (value: unknown): value is TypeId =>
 	TYPES.some((type) => type.id === value);
 
-/* until someone chooses, every visit opens as cobalt with the serif */
+/* until someone chooses, every visit opens as cobalt with the grotesk */
 export const DEFAULT_THEME: ThemeId = "cobalt";
-export const DEFAULT_TYPE: TypeId = "serif";
+export const DEFAULT_TYPE: TypeId = "grotesk";
 
 const THEME_IDS = JSON.stringify(THEMES.map((theme) => theme.id));
 const TYPE_IDS = JSON.stringify(TYPES.map((type) => type.id));

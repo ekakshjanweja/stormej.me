@@ -53,8 +53,7 @@ export const reducedMotion = () =>
 /** every strip page runs sideways when there's room to stand the panels up,
     a mouse to drive it and motion is welcome. anywhere else it stacks and
     scrolls down like any page. strip.css repeats this query word for word */
-export const SIDEWAYS =
-	"(min-width: 1200px) and (min-height: 600px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)";
+export { SIDEWAYS } from "@/lib/desktop";
 
 /* layout effects so a hidden-at-start tween is set before the first paint */
 const useIsomorphicLayoutEffect =

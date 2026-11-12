@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import type { Reel } from "@/lib/profile";
 import { playSfx } from "@/lib/sfx";
 import { Draggable, gsap, reducedMotion } from "../_lib/gsap";
+import { FINE_POINTER } from "../_lib/movable";
 import { playingFlags } from "../_lib/playing";
 import { useReel } from "../_lib/sound";
 import { ProgressiveImage } from "./progressive-image";
@@ -34,7 +35,12 @@ export function DragReel({
 		const area = areaRef.current;
 		const video = videoRef.current;
 		const inner = frame?.querySelector<HTMLElement>("[data-inner]");
-		if (!(frame && trail && area && video && inner) || reducedMotion()) {
+		/* on touch a drag is how the page scrolls, so the reel just plays */
+		if (
+			!(frame && trail && area && video && inner) ||
+			reducedMotion() ||
+			!window.matchMedia(FINE_POINTER).matches
+		) {
 			return;
 		}
 		let lastX = 0;

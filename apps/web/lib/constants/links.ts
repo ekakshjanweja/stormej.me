@@ -83,6 +83,7 @@ export const youtubePlaylist =
 //Profile
 
 export const github = "https://github.com/ekakshjanweja";
+export const instagram = "https://www.instagram.com/stormej.studio/";
 export const xDotCom = "https://x.com/ekaksh_janweja";
 export const linkedin = "https://www.linkedin.com/in/ekakshjanweja/";
 export const mailTo = "mailto:jekaksh@gmail.com";

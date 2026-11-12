@@ -30,7 +30,9 @@
       "!**/public",
       "!**/.source",
       "!apps/mobile",
-      "!apps/lab/archive"
+      "!apps/lab/archive",
+      "!**/test-results",
+      "!**/playwright-report"
     ]
   },
   "formatter": {

@@ -1,0 +1,125 @@
+/* the lab index's desktop gate. the query is DESKTOP in lib/desktop.ts,
+   word for word: these decide before the page hydrates (and
+   without javascript), DesktopOnly decides after */
+
+.desktop-only-gate {
+	display: none;
+	align-items: center;
+	justify-content: center;
+	min-height: 100svh;
+	padding: 3rem 1.5rem;
+	font-family: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+	color: #111311;
+	cursor: auto;
+	background: #f5f6f2;
+}
+
+/* not a desktop: the note, not the experiment */
+@media not all and (min-width: 1200px) and (min-height: 600px) and (
+		hover: hover
+	) and (pointer: fine) {
+	.desktop-only-gate {
+		display: flex;
+	}
+
+	.desktop-only-content {
+		display: none;
+	}
+}
+
+.desktop-only-note {
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
+	align-items: flex-start;
+	width: 100%;
+	max-width: 30rem;
+}
+
+.desktop-only-note > * {
+	margin: 0;
+}
+
+.desktop-only-mark {
+	font-family: var(--font-geist-mono), ui-monospace, monospace;
+	font-size: 0.75rem;
+	color: #5c625c;
+}
+
+.desktop-only-title {
+	font-family: var(--font-instrument-serif), Georgia, serif;
+	font-size: clamp(3rem, 14vw, 4.5rem);
+	font-weight: 400;
+	line-height: 0.95;
+	letter-spacing: -0.02em;
+}
+
+.desktop-only-title em {
+	color: #4a6b4f;
+}
+
+/* one reason shows: a touch screen, else a window too small */
+.desktop-only-gate [data-why] {
+	display: none;
+}
+
+.desktop-only-why {
+	font-size: 1rem;
+	line-height: 1.5;
+	color: #3d423d;
+}
+
+@media not all and (hover: hover) and (pointer: fine) {
+	.desktop-only-gate [data-why="touch"] {
+		display: block;
+	}
+}
+
+@media (hover: hover) and (pointer: fine) and (max-width: 1199px),
+	(hover: hover) and (pointer: fine) and (max-height: 599px) {
+	.desktop-only-gate [data-why="window"] {
+		display: block;
+	}
+}
+
+.desktop-only-link {
+	display: inline-flex;
+	gap: 0.5rem;
+	align-items: center;
+	padding: 0.95rem 1.5rem;
+	margin-top: 0.75rem;
+	font-size: 1rem;
+	color: #f5f6f2;
+	text-decoration: none;
+	background: #111311;
+	border-radius: 999px;
+}
+
+.desktop-only-link:focus-visible {
+	outline: 2px solid #4a6b4f;
+	outline-offset: 3px;
+}
+
+@media (prefers-color-scheme: dark) {
+	.desktop-only-gate {
+		color: #eef0ea;
+		background: #111311;
+	}
+
+	.desktop-only-mark {
+		color: #9aa198;
+	}
+
+	.desktop-only-why {
+		color: #c4c9c1;
+	}
+
+	.desktop-only-title em {
+		color: #9cc3a0;
+	}
+
+	.desktop-only-link {
+		color: #111311;
+		background: #eef0ea;
+	}
+}

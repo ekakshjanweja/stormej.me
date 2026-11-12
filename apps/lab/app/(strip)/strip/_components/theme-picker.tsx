@@ -21,7 +21,7 @@ const REMEASURE_AFTER_MS = 400;
 
 /* a chip in the corner that opens two settings, chosen apart: a type style
    and a colour palette. the strip eases over to each choice. until someone
-   picks, a visit opens as cobalt + serif; the first pick remembers both */
+   picks, a visit opens as cobalt + grotesk; the first pick remembers both */
 export function ThemePicker() {
 	const [theme, setTheme] = useState<ThemeId>(DEFAULT_THEME);
 	const [type, setType] = useState<TypeId>(DEFAULT_TYPE);

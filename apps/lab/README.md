@@ -54,6 +54,36 @@ type-check; Biome skips them. `archive/README.md` says how to bring one back.
 Every experiment honours `prefers-reduced-motion`, works by keyboard, and
 keeps real text in the page for anything drawn on a canvas.
 
+## phones and desktops
+
+Strip opens anywhere. On a desktop that welcomes motion (at least 1200×600,
+a mouse or trackpad, no reduced motion: `SIDEWAYS` in `lib/desktop.ts`) it
+runs sideways. Anywhere else it stacks and scrolls down like any page: the
+nav, footer and look picker slide away while you scroll down and come back
+when you scroll up, and nothing that a mouse can pick up holds a swipe.
+
+The lab's index only opens on a desktop (`DESKTOP`). Anywhere else,
+`components/desktop-only` doesn't mount it at all. A note says why (a touch
+screen, or a window too small) and links to the portfolio. Its css makes the
+same call before the page hydrates, so nothing flashes, and a desktop window
+resized across the line swaps between the two. The main site's footer only
+links to the lab on screens that could open it.
+
+`tests/devices.spec.ts` checks this on 13 screens: desktops, desktop windows
+too narrow or too short, reduced motion, phones upright and on their side,
+iPads, and a touch-only tablet PC. Each says whether strip runs sideways
+there and which note the index gives. The tests check strip runs sideways or
+stacks as it should, never scrolls sideways, tucks its chrome away on the
+way down, and that no panel is cut off. Every stop down (or along) the strip
+is screenshotted.
+
+```sh
+bunx playwright install chromium   # once
+bun run test:devices               # from apps/lab; starts the dev server if it isn't up
+STRIP_URL=https://www.stormej.me bun run test:devices   # against a deployment
+bunx playwright show-report        # the screenshots
+```
+
 Strip's local images show an inline 24px preview, then fade in a responsive
 image after decoding. The 320px thumbnails in `public/media/strip` have
 content hashes and immutable caching; larger displays use the original.

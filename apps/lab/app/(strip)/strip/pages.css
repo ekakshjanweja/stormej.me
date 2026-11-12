@@ -1021,7 +1021,8 @@
 .rec-crate {
 	--rec: 5.5rem;
 	display: grid;
-	grid-template-columns: repeat(2, 9.5rem);
+	/* narrower on a small phone, never wider than the page */
+	grid-template-columns: repeat(2, minmax(0, 9.5rem));
 	gap: 1.75rem 2rem;
 	list-style: none;
 }

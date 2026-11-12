@@ -1,14 +1,17 @@
 "use client";
 
+import { SiInstagram } from "@icons-pack/react-simple-icons";
 import Link from "next/link";
 import { GithubDark } from "@/components/ui/svgs/github-dark";
 import { GithubLight } from "@/components/ui/svgs/github-light";
 import { Linkedin } from "@/components/ui/svgs/linkedin";
 import { X } from "@/components/ui/svgs/x";
 import { track } from "@/lib/analytics";
-import { github, linkedin, xDotCom } from "@/lib/constants/links";
+import { github, instagram, linkedin, xDotCom } from "@/lib/constants/links";
 
 const trackGithub = () => track("social_link_clicked", { platform: "github" });
+const trackInstagram = () =>
+	track("social_link_clicked", { platform: "instagram" });
 const trackX = () => track("social_link_clicked", { platform: "x" });
 const trackLinkedin = () =>
 	track("social_link_clicked", { platform: "linkedin" });
@@ -26,6 +29,16 @@ export default function SocialLinks() {
 			>
 				<GithubLight className="h-4 w-4 text-foreground dark:hidden" />
 				<GithubDark className="hidden h-4 w-4 text-foreground dark:block" />
+			</Link>
+			<Link
+				aria-label="Instagram"
+				className="hover-dim rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2"
+				href={instagram}
+				onClick={trackInstagram}
+				rel="noopener noreferrer"
+				target="_blank"
+			>
+				<SiInstagram aria-hidden className="size-4 text-foreground" />
 			</Link>
 			<Link
 				aria-label="X (Twitter)"

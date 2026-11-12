@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { DesktopOnly } from "@/components/desktop-only";
 import { fontVariables } from "@/lib/fonts";
 import "./home.css";
 
@@ -21,7 +22,10 @@ export default function HomeLayout({
 }: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<html className={fontVariables} lang="en">
-			<body>{children}</body>
+			<body>
+				{/* every experiment it lists is desktop only, so the index is too */}
+				<DesktopOnly>{children}</DesktopOnly>
+			</body>
 		</html>
 	);
 }

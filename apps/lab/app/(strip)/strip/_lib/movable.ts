@@ -5,7 +5,7 @@ import { playSfx } from "@/lib/sfx";
 import { Draggable, gsap, reducedMotion } from "./gsap";
 
 /* only where there's a mouse: on touch a drag is how the page scrolls */
-const FINE_POINTER = "(hover: hover) and (pointer: fine)";
+export const FINE_POINTER = "(hover: hover) and (pointer: fine)";
 /* a press that wanders less than this is still a click */
 const SLOP_PX = 4;
 
